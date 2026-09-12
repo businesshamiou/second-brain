@@ -183,22 +183,30 @@ finish() {
 
 # ──────────────────────────────────────────────────────────────────────────
 # STAGES: authored for Mission 168, ticket 11 (Second Brain, guided
-# acceptance list). Do not run this end to end from an agent session: it is
-# built for the Owner, in person, after this Mission's local green (T14).
+# acceptance list); reduced by Mission 170, step 4, to the scenarios a
+# script cannot judge on its own. Do not run this end to end from an agent
+# session: it is built for the Owner, in person, after this Mission's local
+# green (T14).
 #
 # Content source for every gesture / expected-observation pair below:
 # acceptance scenarios defined during the build (workshop history, not
 # distributed), read once while authoring this script, never at runtime.
-# The three S7 test questions come from that same source. Order (S1..S10,
-# S11 optional) follows it literally.
+# The three S7 test questions come from that same source.
 #
-# This script never decides pass/fail: only the Owner, looking at their own
-# screen, does. Every stage records "yes"/"no" plus an optional note; a "no"
-# is written down and the wizard moves on to the next stage -- it never
-# stops (ticket 11, criterion 2).
+# Mission 170 moved the other seven scenarios (S1-S6, S10) and the optional
+# S11 out of this interactive list: tests/run-mechanical-acceptance.ps1
+# (step 3) now replays them in test mode and writes its own report next to
+# this checkout. The opening stage below looks for that report and shows
+# it; S7, S8 and S9 are the ones left here, because judging them means
+# reading an agent's answer or a workstation a script cannot simulate.
+#
+# This script never decides pass/fail on S7-S9: only the Owner, looking at
+# their own screen, does. Every stage records "yes"/"no" plus an optional
+# note; a "no" is written down and the wizard moves on to the next stage --
+# it never stops (ticket 11, criterion 2).
 # ──────────────────────────────────────────────────────────────────────────
 
-TOTAL_STAGES=11
+TOTAL_STAGES=4
 
 # --------------------------------------------------------------------------
 # Additions to the library, authored by this ticket (still reusable,
@@ -213,6 +221,11 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 # one of: yes, no, skipped. Pipe-delimited, so a note may never itself
 # contain a literal "|" -- record_scenario sanitizes it before storing.
 SCENARIOS=()
+
+# MECHANICAL_REPORT_PATH -- set by the opening stage to the mechanical
+# acceptance report found next to this checkout (empty if none was found).
+# write_report reads it to fold the automated verdict into the final report.
+MECHANICAL_REPORT_PATH=""
 
 # _is_yes REPLY -- the reply parser: true (exit 0) for anything starting
 # with y/Y, false otherwise (including an empty reply). Isolated on purpose
@@ -253,6 +266,32 @@ record_skipped() {
   SCENARIOS+=("$1|skipped|$2")
 }
 
+# find_mechanical_report -- looks next to this checkout (REPO_ROOT/..) for
+# reports named by tests/run-mechanical-acceptance.ps1's own default output
+# convention: "second-brain-mechanical-acceptance-<yyyyMMdd-HHmmss>.md",
+# same sibling-of-the-checkout placement this wizard's own
+# resolve_report_path uses for its report. Several runs can leave several
+# files there, so ties are broken by comparing filenames as strings: the
+# timestamp is embedded in the name and sorts correctly that way, which
+# avoids relying on filesystem mtimes across two scripts (this one in Bash,
+# the runner in PowerShell) that stamp their own report names independently.
+# Prints the newest match and returns 0; prints nothing and returns 1 if
+# none exists yet. Kept dependency-free (no external `find`/`sort`) so it
+# stays unit-testable with a throwaway REPO_ROOT (see
+# tests/test-acceptance-wizard-functions.sh).
+find_mechanical_report() {
+  local workspace_root candidate newest=""
+  workspace_root="$(cd "$REPO_ROOT/.." && pwd)"
+  for candidate in "$workspace_root"/second-brain-mechanical-acceptance-*.md; do
+    [[ -e "$candidate" ]] || continue
+    if [[ -z "$newest" || "$candidate" > "$newest" ]]; then
+      newest="$candidate"
+    fi
+  done
+  [[ -n "$newest" ]] || return 1
+  printf '%s' "$newest"
+}
+
 # resolve_report_path [OUT] -- default: a sibling file next to this
 # checkout, timestamped (never inside it: ticket 11's own requirement --
 # the finished report must never enter a repository a later Owner push
@@ -281,10 +320,14 @@ resolve_report_path() {
   printf '%s' "$path"
 }
 
-# write_report PATH -- renders SCENARIOS to a Markdown file at PATH: a
-# title, a timestamp, the local repo's HEAD (proof this ran against the
-# unpushed local source, T23), the assistant name used at S7, then one
-# table row per scenario.
+# write_report PATH -- renders the full acceptance picture to a Markdown
+# file at PATH: a title, a timestamp, the local repo's HEAD (proof this ran
+# against the unpushed local source, T23), the assistant name used at S7,
+# then the mechanical verdict (Mission 170 step 3, embedded verbatim if
+# MECHANICAL_REPORT_PATH was found, a pointer to produce it otherwise), then
+# one table row per human scenario played this session. Reuniting both
+# parts here -- not just showing the mechanical one on screen -- is what
+# makes this file the single acceptance record (Mission 170, step 4).
 write_report() {
   local path="$1" sha
   sha="$(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || echo "unknown")"
@@ -299,6 +342,15 @@ write_report() {
     printf -- '- Local source: %s\n' "$REPO_ROOT"
     printf -- '- HEAD: %s\n' "$sha"
     printf -- '- Assistant name used for S7: %s\n\n' "${ASSISTANT_NAME:-N/A}"
+    printf '## Mechanical scenarios (automated, S1-S6, S10)\n\n'
+    if [[ -n "${MECHANICAL_REPORT_PATH:-}" ]]; then
+      printf -- '- Source: %s\n\n' "$MECHANICAL_REPORT_PATH"
+      cat "$MECHANICAL_REPORT_PATH"
+      printf '\n'
+    else
+      printf -- '- Not found at the time of this run. Run tests/run-mechanical-acceptance.ps1 first.\n\n'
+    fi
+    printf '## Human scenarios (this session, S7-S9)\n\n'
     printf '| Scenario | Compliant | Note |\n'
     printf '|---|---|---|\n'
     local entry id verdict note
@@ -336,65 +388,27 @@ main() {
   local report_path
   report_path="$(resolve_report_path "$out_path")" || exit 1
 
-  banner "Second Brain -- guided acceptance (S1-S10, optional S11)"
+  banner "Second Brain -- guided acceptance (3 human scenarios: S7-S9)"
   say "Source: $REPO_ROOT"
   say "HEAD:   $(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || echo unknown) (local, unpushed clone -- T23)"
   say "Report will be written to: $report_path"
 
-  stage "S1 -- Fresh install, Windows"
-  step "From a brand-new, empty workspace folder, in PowerShell, run the"
-  step "installer against THIS local checkout:"
-  step "  $REPO_ROOT\\install.ps1 -Source \"$REPO_ROOT\""
-  step "Answer the questionnaire as it appears."
-  note "Expected: no Windows prompt of any kind; the run ends on a one-line"
-  note "success verdict (catalog key verdict.success, e.g. EN \"Installation"
-  note "complete: everything is in place.\"); every check in playbook §4"
-  note "holds (workspace marker, USER.md filled in with no template field"
-  note "left, guardians installed, a skill folder per deployed skill, the"
-  note "assistant sub-agent listed, first project registered)."
-  record_scenario "S1" "Fresh install, Windows"
-
-  stage "S2 -- Re-run without changes"
-  step "Re-run the exact same installer command a second time, unchanged."
-  note "Expected: no file modified (porcelain empty in the clone -- there is"
-  note "no project yet, S4 creates the first one), the same one-line verdict"
-  note "as S1."
-  record_scenario "S2" "Re-run without changes"
-
-  stage "S3 -- Resume after a forced stop"
-  step "Start the installer, then close the terminal partway through, before"
-  step "it finishes."
-  step "Re-run the exact same installer command."
-  note "Expected: it resumes where it left off (no question or step already"
-  note "answered is replayed), nothing already written is overwritten, and"
-  note "it ends on the same success verdict as S1."
-  record_scenario "S3" "Resume after a forced stop"
-
-  stage "S4 -- First project"
-  step "Create a project named \"atelier-test\" (the installer's own"
-  step "first-project step, or a re-run in update mode)."
-  note "Expected: a line in projects/PROJECT-REGISTRY.md, a project sheet,"
-  note "an AGENTS.md/CLAUDE.md pointer inside the new project, guardians"
-  note "pinned (repo: local), and a trial commit inside that project"
-  note "accepted by its guardians."
-  record_scenario "S4" "First project"
-
-  stage "S5 -- A guardian refuses"
-  step "Inside the new project, add a file containing a fake secret (a line"
-  step "matching one of the patterns in rules/patterns/secret-patterns.txt,"
-  step "e.g. ghp_ followed by 20+ letters/digits), then commit."
-  note "Expected: a readable refusal (check-secrets.sh: \"REFUS : motif de"
-  note "secret detecte.\")."
-  step "Remove the secret, commit again."
-  note "Expected: this second commit is accepted."
-  record_scenario "S5" "A guardian refuses, then accepts"
-
-  stage "S6 -- Cold session"
-  step "Open Claude Code in second-brain (this checkout) and run the"
-  step "session-start skill."
-  note "Expected: READY is the very first line of its output (Mission 156's"
-  note "own criterion)."
-  record_scenario "S6" "Cold session (session-start)"
+  stage "Automated verdict (mechanical scenarios)"
+  if MECHANICAL_REPORT_PATH="$(find_mechanical_report)"; then
+    say "Found: $MECHANICAL_REPORT_PATH"
+    printf '\n'
+    cat "$MECHANICAL_REPORT_PATH"
+    printf '\n'
+  else
+    warn "No mechanical acceptance report found next to this checkout."
+    step "Run tests/run-mechanical-acceptance.ps1 first, from the repository"
+    step "root:"
+    step "  powershell -NoProfile -ExecutionPolicy Bypass -File tests\\run-mechanical-acceptance.ps1"
+    note "It replays the seven mechanical scenarios (S1, S2, S3, S4, S5, S6,"
+    note "S10) in test mode and writes its own report next to this checkout"
+    note "-- same convention as this wizard's own report."
+  fi
+  pause "Continue to the three scenarios that need a human judgment call?"
 
   stage "S7 -- The assistant"
   ask ASSISTANT_NAME "What name did you give your assistant? [Enter = Brian]"
@@ -426,23 +440,6 @@ main() {
   note "user profile, no elevation prompt of any kind, and the run still"
   note "ends on the success verdict."
   record_scenario "S9" "No Git, no admin rights"
-
-  stage "S10 -- Offline"
-  step "Disconnect the network, then make a commit inside the project."
-  note "Expected: the guardians still run and still decide (accept or"
-  note "refuse) with no network call."
-  record_scenario "S10" "Offline commit"
-
-  stage "S11 (optional) -- macOS or Linux"
-  if confirm "Run the optional S11 now (macOS or Linux available)?"; then
-    step "Using install.sh instead of install.ps1, replay S1, S2 and S4:"
-    step "  $REPO_ROOT/install.sh --source \"$REPO_ROOT\""
-    note "Expected: same outcomes as S1, S2 and S4 above, on this platform."
-    record_scenario "S11" "macOS/Linux replay of S1, S2, S4"
-  else
-    say "Skipped (optional)."
-    record_skipped "S11" "optional stage, not run"
-  fi
 
   write_report "$report_path"
   finish
