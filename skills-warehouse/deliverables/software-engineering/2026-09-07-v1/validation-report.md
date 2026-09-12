@@ -1,0 +1,62 @@
+# Validation report — software-engineering
+
+Version: `2026-09-07-v1`
+
+Result: **PASS**
+
+## Required controls
+
+- Allowed six-field front-matter contract: **29/29**
+- `name` equals directory: **29/29**
+- Duplicate names inside collection: **0**
+- Registry coverage: **29/29**
+- Licence inventory coverage: **29/29**
+- Upstream licence positively proven: **29/29**; `NOASSERTION`: **0**
+- Chat/collection file byte identity: **29/29**
+- Chat ZIP structure and forbidden-file checks: **29/29**
+- Collection ZIP structure and forbidden-file checks: **PASS**
+- Body or companion-file exceptions: **none**
+
+## Comparison
+
+Comparison source: `none`
+
+- Description differences: **0**
+- Body differences: **0**
+- Full-tree differences: **0**
+
+| Skill | Description | Body | Full tree | Chat ZIP SHA-256 |
+|---|---|---|---|---|
+| `ask-matt` | NEW | NEW | NEW | `bef0dca6e6d7813d49fc9e78557c07995d6682b5ea91bd7c8ba6bce661414310` |
+| `code-review` | NEW | NEW | NEW | `b12a2ab3f174e97b3b01bca923aac4ce40d23b479f93a9a50c2a701dd7a0670b` |
+| `codebase-design` | NEW | NEW | NEW | `a9657476cb26494ccf4ed4c42dbd49c599d83a2a3c950e6e9294b2a1b5d2d9a3` |
+| `diagnosing-bugs` | NEW | NEW | NEW | `febbd572e8b3bfe552f3a00f6b4acb5eca0abf00c672b48047b40eedaeea461e` |
+| `domain-modeling` | NEW | NEW | NEW | `7eae81447f39c3fe780f055b2dbad3563d21d3e0ebb1ad53074e63395678dbc1` |
+| `git-guardrails-claude-code` | NEW | NEW | NEW | `3a9b6ae951fefcf7b10c0c0690957bb89d2ae4f14ad65c3bbf420090ea5865c8` |
+| `grill-me` | NEW | NEW | NEW | `204e0bffb0160cabeab08626c512a1afb219ea7ba58e8baf70735f34a5bcdcc0` |
+| `grill-with-docs` | NEW | NEW | NEW | `82f74ce4494fe4655b43a39867c5698a8e57e73c0e3f3c5cd086390b79d6d409` |
+| `grilling` | NEW | NEW | NEW | `9dcca8f2960b81f839bd9c490a1384c1779d3842b43ac50a35aeffa9595d8352` |
+| `handoff` | NEW | NEW | NEW | `1c988dbf0df28ad6dda28d10eac94beed7a91eb057fa329f2a3777dc85c89347` |
+| `implement` | NEW | NEW | NEW | `b7d789225bcf5d3cf9d40b3d4c985ede22986ac53736f53487c557df81f8774b` |
+| `improve-codebase-architecture` | NEW | NEW | NEW | `d68bd73885136bbbab07668023dc2354bb1b87b38d61f2ff7a8700239520c99d` |
+| `migrate-to-shoehorn` | NEW | NEW | NEW | `4a0a79bee65461f867896ef3c9d515adba30916e33ee6181cc13ba294f54189f` |
+| `prototype` | NEW | NEW | NEW | `95976721c09a8e953d3dc6cfea841bd4c750cd676405ea4d36773d991f289b12` |
+| `research` | NEW | NEW | NEW | `fca3b64696ce88fcdd32f31f56901943c92b5d59ad84b3260f535df3603db08f` |
+| `resolving-merge-conflicts` | NEW | NEW | NEW | `0cb562ae70a50cecfb1102a13779ffda9c5b3b30722b277886c47bbc241d2a94` |
+| `scaffold-exercises` | NEW | NEW | NEW | `fa8a53950185792bbb94ec92514a5a9897a13656b192d13806c381a99b22ded3` |
+| `setup-matt-pocock-skills` | NEW | NEW | NEW | `b170aa1811513ce66fe89fc6ce1bc46948ff8c2b479804ffc7902bd54523eca1` |
+| `setup-pre-commit` | NEW | NEW | NEW | `c0c74d6e047748f93c5d472a22a1f6f5037dba964e01261535a4f063c4cbbc88` |
+| `tdd` | NEW | NEW | NEW | `3ff727f406d321834fe624006677d8d5feab932ef909c42e16393b06f6fda67f` |
+| `teach` | NEW | NEW | NEW | `ec68652690997f893d34bcc74b94fab7afa55cef217e59c1bf3ab6c16ef652ae` |
+| `to-questionnaire` | NEW | NEW | NEW | `2d7320bad118c4913659f6e63f6e9b0e1ed9ce86427887e38e66b50e42563209` |
+| `to-spec` | NEW | NEW | NEW | `4d0745015d125dbc754499e70e6ecb782c71e8ac8c0c1143bd7ee3b7607a9487` |
+| `to-tickets` | NEW | NEW | NEW | `f1380a3f6fe847aa7e8e5e87b8b5d2a78c4bdb946fabbb2f301a7d24fe9e5db6` |
+| `triage` | NEW | NEW | NEW | `ce3ddf61581e7b03cf9e6b7a13046f27c9e459d34f6b16db98bdd4386f0fbf53` |
+| `wait-what` | NEW | NEW | NEW | `1ec127779f15c35d21a22b43651dab503aaa00e39a9e9a951f4ebeeb5fb480a7` |
+| `wayfinder` | NEW | NEW | NEW | `70ca29ee93a489a80bc014ca42499ab79d3cb7a873a51e3210130088ed93f2ad` |
+| `wizard` | NEW | NEW | NEW | `8681a1cf9bb141cf4a2566caa49fe167b22d0509c889469f512b2c227b497a91` |
+| `writing-for-agents` | NEW | NEW | NEW | `2ecb0ed7bee40a7795f73ed611aba0e5171d7449d2e2b22a59751050f74213a1` |
+
+## Exceptions
+
+Licence exceptions are recorded in `LICENSES.md`. No body or companion-file exceptions were introduced by this release.

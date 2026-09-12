@@ -1,0 +1,52 @@
+{
+  "_comment": "Catálogo español del instalador (Mission 168, ticket 05). Mismas claves que catalog.en.json y catalog.fr.json -- verificado por tests/test-catalog-key-parity.ps1. Marcadores de formato .NET ({0}, {1}, ...), aplicados con el operador -f.",
+
+  "questionnaire.assistantName.prompt": "¿Qué nombre quieres darle a tu asistente?",
+  "questionnaire.assistantName.defaultNote": "(por defecto: {0})",
+  "questionnaire.workspace.prompt": "¿Dónde debe vivir tu espacio de trabajo Second Brain?",
+  "questionnaire.workspace.defaultNote": "(por defecto: {0})",
+  "questionnaire.firstName.prompt": "¿Cuál es tu nombre de pila?",
+  "questionnaire.activity.prompt": "¿A qué te dedicas, en una frase?",
+  "questionnaire.activity.default": "Aún no especificado.",
+  "questionnaire.aiTools.prompt": "¿Cómo trabajas con la IA? (lista separada por comas: claude-code, codex, claude-ai, chatgpt)",
+  "questionnaire.aiTools.detectedNote": "(detectados en este equipo: {0})",
+  "questionnaire.whatMatters.prompt": "¿Qué es lo más importante para ti?",
+  "questionnaire.whatMatters.default": "simplicidad, sin sobreingeniería",
+  "questionnaire.skillCollections.prompt": "¿Alguna colección de skills adicional para activar? (lista separada por comas, o nada)",
+  "questionnaire.skillCollections.defaultNote": "(por defecto: ninguna)",
+  "questionnaire.firstProject.prompt": "¿Crear un primer proyecto ahora?",
+  "questionnaire.firstProject.defaultNote": "(por defecto: sí)",
+  "questionnaire.firstProject.namePrompt": "¿Nombre del primer proyecto?",
+
+  "progress.prerequisites": "Comprobando los prerrequisitos (Git, uv, pre-commit)...",
+  "progress.workspaceCreated": "Espacio de trabajo creado.",
+  "progress.cloned": "Second Brain clonado.",
+  "progress.guardiansConfigured": "Guardianes configurados.",
+  "progress.markerWritten": "Marcador de espacio de trabajo escrito.",
+  "progress.firstProjectCreated": "Primer proyecto creado.",
+  "progress.profileWritten": "Perfil escrito.",
+
+  "verdict.success": "Instalado, todo está en su lugar.",
+  "verdict.stoppedAtStep": "Detenido en el paso {0}: {1}",
+  "verdict.remedy": "Qué hacer: {0}",
+  "verdict.signature": "— {0}",
+
+  "update.header": "Esto es lo que se había registrado anteriormente:",
+  "update.anythingChanged": "¿Ha cambiado algo? (s/N)",
+  "update.noChangeNote": "Nada ha cambiado: no se modificó ningún archivo.",
+  "update.rewriting": "Actualizando tu perfil...",
+
+  "step.name.prerequisites": "prerrequisitos",
+  "step.name.workspace": "espacio de trabajo",
+  "step.name.clone": "clon",
+  "step.name.guardians": "guardianes",
+  "step.name.marker": "marcador",
+  "step.name.assistant": "asistente",
+  "step.name.skillsDeployed": "skills",
+  "step.name.firstProject": "primer proyecto",
+  "step.name.profile": "perfil",
+
+  "cause.networkUnreachable": "Red inaccesible durante la descarga de una herramienta requerida.",
+  "remedy.networkUnreachable": "Verifica tu conexión a internet y vuelve a ejecutar la línea de instalación.",
+  "remedy.generic": "Revisa el error anterior; una vez corregida la causa, vuelve a ejecutar la línea de instalación para continuar."
+}

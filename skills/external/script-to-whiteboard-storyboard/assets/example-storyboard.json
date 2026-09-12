@@ -1,0 +1,17 @@
+{
+  "projectTitle": "Sample Whiteboard Storyboard",
+  "source": "sample-script.txt",
+  "style": {"aspectRatio": "16:9", "model": "gpt_image_2"},
+  "beats": [
+    {
+      "id": "S001",
+      "script": "A premium website moves the visitor from a problem to a clear next step.",
+      "title": "MOVE THEM FORWARD",
+      "visualMode": "journey",
+      "visualClaim": "A premium website guides a visitor toward action.",
+      "direction": "A continuous left-to-right path. A visitor begins beside a gray PROBLEM wall, follows the orange mascot through a pink WEBSITE gate, and reaches a yellow NEXT STEP flag.",
+      "labels": ["PROBLEM", "WEBSITE", "NEXT STEP"],
+      "prompt": "Create one polished 16:9 whiteboard storyboard illustration.\n\nMESSAGE\nThe viewer must immediately understand: a premium website guides a visitor toward action.\n\nCOMPOSITION\nA continuous left-to-right path. A visitor begins beside a gray wall labeled ‘PROBLEM,’ follows the orange mascot through a pink gate labeled ‘WEBSITE,’ and reaches a yellow destination flag labeled ‘NEXT STEP.’ Use one continuous curved pink arrow.\n\nTEXT\nMain handwritten title at the top: ‘MOVE THEM FORWARD’. Include only these additional short labels: ‘PROBLEM’, ‘WEBSITE’, ‘NEXT STEP’. Do not add any other words, pseudo-text, captions, or watermarks.\n\nVISUAL LANGUAGE\nClean white paper canvas; loose black felt-marker outlines with slight human wobble; pale yellow highlights and numbered circles; restrained pink arrows and emphasis marks; faint cool-gray shadows; subtle paper texture; generous editorial spacing. Preserve the supplied orange low-poly mascot's blocky silhouette and proportions. Make the idea readable at thumbnail size.\n\nAVOID\nPhotorealism, dark backgrounds, glossy UI, generic corporate vector style, dense diagrams, tiny text, decorative clutter, duplicate characters, broken arrows, random icons, and extra limbs."
+    }
+  ]
+}

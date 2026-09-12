@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+# Refuse un push qui reecrirait l historique distant.
+#
+# Mission 165 : gate humain explicite. Une variable d'environnement a usage
+# unique, VAULT_PUSH_GATE, dont la valeur est la ref distante exacte
+# (refs/heads/<b> ou refs/tags/<t>), autorise pour cette ref SEULE une
+# suppression ou un push non en avance rapide ; toute autre ref du meme push
+# reste soumise au refus normal (le gate ne fuit pas d'une ref a l'autre).
+# Avant la 165, le seul gate que ce hook admettait etait --no-verify -- un
+# premier tag v1.0.0-stable a du etre supprime ainsi (handoff 2026-09-08),
+# defaut inscrit en point ouvert. Nom de variable mesure contre les
+# conventions du Vault (BUILD_DIGEST_CAP_OVERRIDE, .obsolescence-guardrail-
+# override) : aucune ne correspond a un gate a usage unique sur une ref ;
+# VAULT_PUSH_GATE est donc introduite, faute de convention existante a
+# reprendre.
+
+set -u
+
+REMOTE_REF_PREFIX="refs/heads/"
+TAG_REF_PREFIX="refs/tags/"
+
+# Libelle par prefixe : un tag n est pas une branche (defaut signale au
+# handoff 2026-09-08 -- l ancien hook affichait "branche" pour un tag).
+ref_label() {
+  case "$1" in
+    "$REMOTE_REF_PREFIX"*) printf 'branche' ;;
+    "$TAG_REF_PREFIX"*) printf 'tag' ;;
+    *) printf 'ref' ;;
+  esac
+}
+
+ref_name() {
+  case "$1" in
+    "$REMOTE_REF_PREFIX"*) printf '%s' "${1#$REMOTE_REF_PREFIX}" ;;
+    "$TAG_REF_PREFIX"*) printf '%s' "${1#$TAG_REF_PREFIX}" ;;
+    *) printf '%s' "$1" ;;
+  esac
+}
+
+GATE_VALUE="${VAULT_PUSH_GATE:-}"
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ -z "${local_ref:-}" ] && continue
+
+  label="$(ref_label "$remote_ref")"
+  name="$(ref_name "$remote_ref")"
+  gated=0
+  if [ -n "$GATE_VALUE" ] && [ "$GATE_VALUE" = "$remote_ref" ]; then
+    gated=1
+  fi
+
+  # Suppression de ref distante.
+  if [ "$local_sha" = "0000000000000000000000000000000000000000" ]; then
+    if [ "$gated" -eq 1 ]; then
+      echo "GATE accepté : $label $name (geste Owner)" >&2
+      continue
+    fi
+    echo "REFUS : suppression de $label distante ($name)." >&2
+    echo "Cette action requiert un gate humain explicite." >&2
+    echo "Remède : VAULT_PUSH_GATE=$remote_ref git push …" >&2
+    exit 1
+  fi
+
+  # Nouvelle ref distante : autorisee.
+  if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+    continue
+  fi
+
+  # Le distant doit etre un ancetre du local : sinon, reecriture.
+  if ! git merge-base --is-ancestor "$remote_sha" "$local_sha"; then
+    if [ "$gated" -eq 1 ]; then
+      echo "GATE accepté : $label $name (geste Owner)" >&2
+      continue
+    fi
+    echo "REFUS : ce push n est pas en avance rapide." >&2
+    echo "  $label : $name" >&2
+    echo "Il reecrirait l historique distant." >&2
+    echo "Recupere le distant et rejoue ton travail par-dessus." >&2
+    echo "Remède : VAULT_PUSH_GATE=$remote_ref git push …" >&2
+    exit 1
+  fi
+done
+
+exit 0

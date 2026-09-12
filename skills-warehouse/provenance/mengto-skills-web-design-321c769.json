@@ -1,0 +1,636 @@
+{
+  "schema_version": "1",
+  "batch_id": "2026-09-02-mengto-web-design",
+  "upstream_repo": "https://github.com/MengTo/Skills",
+  "upstream_commit": "321c769739b823de5eb94eb3a52aa1974fe783a2",
+  "upstream_license": "MIT",
+  "upstream_license_evidence": "https://github.com/MengTo/Skills/blob/321c769739b823de5eb94eb3a52aa1974fe783a2/LICENSE",
+  "detected_skills": 88,
+  "integrated_skills": 88,
+  "excluded_files": "436 unreferenced demo files (71.27 MiB), not Skill units or body-referenced companions",
+  "body_exceptions": [
+    "build-threejs-scroll-worlds/SKILL.md: Codex browser reference generalized",
+    "liquid-metal-border/SKILL.md: Codex browser references generalized",
+    "webgl-landing-steering/SKILL.md: Codex-style heading generalized",
+    "editorial-portfolio-chapters/ARTICLE.md: Codex browser capture wording generalized",
+    "scroll-world-storytelling/demo/threejs/PROMPT.md: Codex-specific invocation and browser wording generalized"
+  ],
+  "skills": [
+    {
+      "name": "add-mouse-driven-orbit",
+      "source_path": "agent-skills/web-design/add-mouse-driven-orbit",
+      "original_skill_sha256": "61df5ebd4f9f03195caced760043774117cc3ca040473ef7c9c63e4157d5549e",
+      "canonical_skill_sha256": "5f372a10d71e63ee05ad870efa40918841f2d66bd0d4294515e010d6e0e8e0c8",
+      "retained_files": 8
+    },
+    {
+      "name": "add-shader-cursor-trail",
+      "source_path": "agent-skills/web-design/add-shader-cursor-trail",
+      "original_skill_sha256": "4a686273efb326b17e9169e1eb627c75f108882ef7c76e8f0707b9d31683dc15",
+      "canonical_skill_sha256": "3931a0646fe20f68a77125af8298460bea8a4a1a998084ae3b844042ebbb2d33",
+      "retained_files": 7
+    },
+    {
+      "name": "agency-grid-layout-minimal",
+      "source_path": "agent-skills/web-design/agency-grid-layout-minimal",
+      "original_skill_sha256": "096b3270d71bf50b8c6343ff9355d41d4c0708facf3ac7091cb58b5ce8d01001",
+      "canonical_skill_sha256": "93ebc0df54acc872a60b4cbfd7a4953210e4c7f4eb86606198d883eb8aa1de18",
+      "retained_files": 1
+    },
+    {
+      "name": "ambient-section-particles",
+      "source_path": "agent-skills/web-design/ambient-section-particles",
+      "original_skill_sha256": "0d759572756a49a466ef1695b3f9f16d19b9ffc4f9f49864cd3f961ffe1cbdbe",
+      "canonical_skill_sha256": "cb7a081e1267ec8e1ba2f8b98e3e235b747c514ab7f014da1377173cd7aa0f05",
+      "retained_files": 6
+    },
+    {
+      "name": "animation-on-scroll",
+      "source_path": "agent-skills/web-design/animation-on-scroll",
+      "original_skill_sha256": "c46edf82b0b2204829e65ae8a24dd8a17e685ecad663b68a496bfeb6a627f784",
+      "canonical_skill_sha256": "ad1bde16c2b5d4023eacb4a11e7d0135a3361f4c233d4651e6e44f939d5df804",
+      "retained_files": 1
+    },
+    {
+      "name": "animation-systems",
+      "source_path": "agent-skills/web-design/animation-systems",
+      "original_skill_sha256": "628bfc1d93fd17c1e3bcb16d74e1dcb48a0790980001cf2e153a6a80e6018c71",
+      "canonical_skill_sha256": "417335f95da514092762e4a79c1bf71ec3e87331b27805bc2dfa14845bbffcf3",
+      "retained_files": 1
+    },
+    {
+      "name": "atmosphere-background",
+      "source_path": "agent-skills/web-design/atmosphere-background",
+      "original_skill_sha256": "62f5457d154df9226d1dd8b79eaded920b1982c47f8b7ba99db16ceda13fbb3a",
+      "canonical_skill_sha256": "10f55d07a48db95bdd90232836987a70ad204a07a2b6ac9f9778b89c1f0b3332",
+      "retained_files": 1
+    },
+    {
+      "name": "background-grid-webgl",
+      "source_path": "agent-skills/web-design/background-grid-webgl",
+      "original_skill_sha256": "8c025d71bef0d67f172f4ae156303956372e93b4879c62602c748cf24ba237b0",
+      "canonical_skill_sha256": "87636281ee49bd76931b2191b297222fa321ed1779e5e932a934d20f820ba15d",
+      "retained_files": 1
+    },
+    {
+      "name": "beam-glow-states",
+      "source_path": "agent-skills/web-design/beam-glow-states",
+      "original_skill_sha256": "f50d2d25e444e91246c52e01aae65387fd1489a48b079ffb936dfa58ad150e8e",
+      "canonical_skill_sha256": "6f701175a73fb317620ee22553116651348b60aaacfe8543150aa754b053dd0b",
+      "retained_files": 3
+    },
+    {
+      "name": "beautiful-shadows",
+      "source_path": "agent-skills/web-design/beautiful-shadows",
+      "original_skill_sha256": "bffcd48435f743e9fd59d76977d490742ca48be6e620fc94afee734ad1dce3dc",
+      "canonical_skill_sha256": "fe996b63f8286b019367c049aa4a9aea1f4772bbb79a8c718ebd1611f905f04b",
+      "retained_files": 1
+    },
+    {
+      "name": "blue-cloudy-clean-modern",
+      "source_path": "agent-skills/web-design/blue-cloudy-clean-modern",
+      "original_skill_sha256": "7c464a4e39f524344e798e1005350b22eecbc302f3ef0ce6367d1a94b43acca3",
+      "canonical_skill_sha256": "b3812af72b2ea44a1638eb267ea384c4b63c03eb207dcf7cf12a20c440b03c78",
+      "retained_files": 1
+    },
+    {
+      "name": "blue-laser-clean-glass-layout",
+      "source_path": "agent-skills/web-design/blue-laser-clean-glass-layout",
+      "original_skill_sha256": "8b77cb7fc86db4e6727235289b8b34860bc48d6ee94694a131b5200e31b71ede",
+      "canonical_skill_sha256": "b49d3a447dce01b3df2c8f3d74fd7d1cd6bdc2ab7ddff68ca1f418d2ef1726df",
+      "retained_files": 1
+    },
+    {
+      "name": "book-serif-index",
+      "source_path": "agent-skills/web-design/book-serif-index",
+      "original_skill_sha256": "1ee9d687ae1530937d032791e5e600fdf82d6cc19212d5276422a191c0c3ab39",
+      "canonical_skill_sha256": "5a4023d29f9ac2ade324a106046843d70fc5061ca975232d0a629ce2827b73a8",
+      "retained_files": 1
+    },
+    {
+      "name": "bright-green-tech-system-webgl",
+      "source_path": "agent-skills/web-design/bright-green-tech-system-webgl",
+      "original_skill_sha256": "eb852d5f3dc7efc738654ea7ad07f25c8bc236285126bd30123207277363b89f",
+      "canonical_skill_sha256": "68b73ddd6dd8a647925365b30bfb469843315dc5c6e802c2c7b4c66017bb3aaf",
+      "retained_files": 1
+    },
+    {
+      "name": "build-awwwards-quality-sites",
+      "source_path": "agent-skills/web-design/build-awwwards-quality-sites",
+      "original_skill_sha256": "955df3fef8ee1262ff40fc8fb5bca97498867855ccfc8e4b016a1aea60b04c9e",
+      "canonical_skill_sha256": "0ed767743dbb67d2bd6fc0dcb3dff9c929ad5119911d9be45c87c49ee78f6f44",
+      "retained_files": 2
+    },
+    {
+      "name": "build-interactive-particle-trail",
+      "source_path": "agent-skills/web-design/build-interactive-particle-trail",
+      "original_skill_sha256": "aaff474f9bbfeb9353033488621d7dca9e5cacc127bb6c6461e419eb5941a0b0",
+      "canonical_skill_sha256": "509aeffc81c96fd986367df723722e1fdb0e96a242b2e7ccecae9065fe8a2286",
+      "retained_files": 8
+    },
+    {
+      "name": "build-threejs-scroll-worlds",
+      "source_path": "agent-skills/web-design/build-threejs-scroll-worlds",
+      "original_skill_sha256": "0af3ee649bb67ccf461261527b4aaff8842650e80169262a7b296a6168820fcb",
+      "canonical_skill_sha256": "d8352c91c8d6ce36da0e28a08edf631d2e422626e0243148046f6dd060f2ba09",
+      "retained_files": 26
+    },
+    {
+      "name": "build-wireframe-scan-reveal",
+      "source_path": "agent-skills/web-design/build-wireframe-scan-reveal",
+      "original_skill_sha256": "0d52591f0f4f713cc3c127d0c83c7690374c7c3a34738eefad762530953b0014",
+      "canonical_skill_sha256": "bf351e711768814554b47472dcf111dcfefe49559740ed1c4da5549454ff6dd5",
+      "retained_files": 8
+    },
+    {
+      "name": "cinematic-gsap-lenis-motion-system",
+      "source_path": "agent-skills/web-design/cinematic-gsap-lenis-motion-system",
+      "original_skill_sha256": "b7935fe9496355cc74304219aeed8e99b5f1a87bb787c3eee73e0cbb93f432aa",
+      "canonical_skill_sha256": "053ac06d5138b48f538ffd2b69d66ef490ae722b6d22cf0a007455e146965382",
+      "retained_files": 2
+    },
+    {
+      "name": "cinematic-scroll-storytelling",
+      "source_path": "agent-skills/web-design/cinematic-scroll-storytelling",
+      "original_skill_sha256": "d5388ae08facbf0a65d8f22304fa4fdbb334d270940c4157fd34f9cdf481518c",
+      "canonical_skill_sha256": "6174c3b680eeeed8b5a0476a309fdabf028b1dc41813986f34e9516fd5af5117",
+      "retained_files": 2
+    },
+    {
+      "name": "clean-minimal-beige-light-mode",
+      "source_path": "agent-skills/web-design/clean-minimal-beige-light-mode",
+      "original_skill_sha256": "78288f046e7db4d6ace81543751230b48dc302c1541340a838200ec0c63effca",
+      "canonical_skill_sha256": "91255b3a66c16a5049185be738a8398ee2c311a994096dc1838c86f786dd6a0b",
+      "retained_files": 1
+    },
+    {
+      "name": "cobejs",
+      "source_path": "agent-skills/web-design/cobejs",
+      "original_skill_sha256": "fca946296339ba6e5eeeab337def04e85b8a5b7fe98972f6462b7c0e275729a6",
+      "canonical_skill_sha256": "0b4f083f8a50eddcae27c443510746058776b301308212e2915653293e10b0e6",
+      "retained_files": 2
+    },
+    {
+      "name": "company-logos",
+      "source_path": "agent-skills/web-design/company-logos",
+      "original_skill_sha256": "1fb7f4a753fbec72caa9c0d05bcc0ebeac84d21aed29dda2364f8060fd419ef9",
+      "canonical_skill_sha256": "50ab6749b7a03fd1915dfb4bcbc9fabd70677dddbb00d836098dc25563f6f97a",
+      "retained_files": 1
+    },
+    {
+      "name": "container-lines",
+      "source_path": "agent-skills/web-design/container-lines",
+      "original_skill_sha256": "fb68121d0b1e2f8d6588bac839eae9208614efc6c46fd8d86a15dfecc4ab1354",
+      "canonical_skill_sha256": "9853287b0cdd231050d1d9072616a69c225bfe4c0f347f6a576a6a3dd0ec94cd",
+      "retained_files": 1
+    },
+    {
+      "name": "corner-diagonals",
+      "source_path": "agent-skills/web-design/corner-diagonals",
+      "original_skill_sha256": "17dd6e7d3d873943980099baf122418c819a7979955d6fa6b16b82311e799971",
+      "canonical_skill_sha256": "d71599c279e24e48d3e260b38d50dba3634b0f5fc5211dd7dff2ca455b7e5cc3",
+      "retained_files": 1
+    },
+    {
+      "name": "corner-lasers",
+      "source_path": "agent-skills/web-design/corner-lasers",
+      "original_skill_sha256": "b5186baa73212e1df8f078baca735f24ad65aaee1dd39d3f57e0340c9df2a503",
+      "canonical_skill_sha256": "a4de7275f99a302efd71cbaae2a0ff6bff5b1a028fe3122cf5022ca1b72c12d1",
+      "retained_files": 1
+    },
+    {
+      "name": "css-alpha-masking",
+      "source_path": "agent-skills/web-design/css-alpha-masking",
+      "original_skill_sha256": "1c43abb3fbec206ba1687af4c7f281dec805547b5afe085dba287044b11b6b09",
+      "canonical_skill_sha256": "1f55cfbe8f4290b53e5d0cdf6e226d54c898dc361788912fb9fee80a3ddba31b",
+      "retained_files": 1
+    },
+    {
+      "name": "css-border-gradient",
+      "source_path": "agent-skills/web-design/css-border-gradient",
+      "original_skill_sha256": "e57268e7b1a23e741da948392d2d3734cf9e7918d576f2f9b7dce1563e1cafd2",
+      "canonical_skill_sha256": "7e0818ed0255c822611420fdbce3afb82329546b150bbd70727fd67eeb85e5d8",
+      "retained_files": 1
+    },
+    {
+      "name": "dark-blue-contrasting-clean",
+      "source_path": "agent-skills/web-design/dark-blue-contrasting-clean",
+      "original_skill_sha256": "bf32a725e5c7f0a981ba947d25a73016aa3a4278066a3c44069f7fea72b3c31a",
+      "canonical_skill_sha256": "934a72ffc355e6cd4f292506ec16f2c38605a108f78d36b12f9202f71422e2db",
+      "retained_files": 1
+    },
+    {
+      "name": "dark-glass-clean-layout",
+      "source_path": "agent-skills/web-design/dark-glass-clean-layout",
+      "original_skill_sha256": "d355e423f4b57eee6cdc143da61b68bfbba44e692762c3132f33da2f06380c43",
+      "canonical_skill_sha256": "001f19b2640c331296ca32d953c7c539f7a358649dd27a2bc1b52718adbd3472",
+      "retained_files": 1
+    },
+    {
+      "name": "dither-background",
+      "source_path": "agent-skills/web-design/dither-background",
+      "original_skill_sha256": "29356ea430b57c2fa33d56199393655e2bbd17595f72c82fdd1e3b5f251dce65",
+      "canonical_skill_sha256": "d07b44754776b1b43819b0172eaecb1032199cf49a958a3127cbfd9d004ecdad",
+      "retained_files": 1
+    },
+    {
+      "name": "dither-laser-dark-mode",
+      "source_path": "agent-skills/web-design/dither-laser-dark-mode",
+      "original_skill_sha256": "b29df1a3ebf45804ea4c81e17a16c8dee19117d5e8821d460e6c18613d39da21",
+      "canonical_skill_sha256": "bef8fd0493ad449887f4a71c26e9249a72bd5a40146ae23a2ff81e6cc60a0ce1",
+      "retained_files": 1
+    },
+    {
+      "name": "documentary-brutalist-agency",
+      "source_path": "agent-skills/web-design/documentary-brutalist-agency",
+      "original_skill_sha256": "b8e44918132ca80f165a0505ac2e5c041849b64e6ecfa9a76fd3fce97c2b6789",
+      "canonical_skill_sha256": "6ce1fac2512bc85b632e9a211f387c7e54844b01f2a4c2141d83e31b5af3b917",
+      "retained_files": 3
+    },
+    {
+      "name": "editorial-portfolio-chapters",
+      "source_path": "agent-skills/web-design/editorial-portfolio-chapters",
+      "original_skill_sha256": "e1f64e8f534d6319e01452511b5d38cd5cdcfc0b0c8e32fa34bdc708241f07ec",
+      "canonical_skill_sha256": "4caf6f7e5652e3db0d3b66a78ba9bdca3e68f963824b990434eaf6fd7a0211f1",
+      "retained_files": 17
+    },
+    {
+      "name": "editorial-service-booking",
+      "source_path": "agent-skills/web-design/editorial-service-booking",
+      "original_skill_sha256": "8c6a6359d6a8e46a34d81ff1a93b62ce163e75e9f9883d42a696deb6f52dff90",
+      "canonical_skill_sha256": "eb30394f0753b5c1081bdd9defd9b66b5b097a895a1f1af81a4345891ea9a8f0",
+      "retained_files": 3
+    },
+    {
+      "name": "editorial-tech",
+      "source_path": "agent-skills/web-design/editorial-tech",
+      "original_skill_sha256": "e732f9aaeb9613de3dd3b7b4160450cbf2429e4458648d7f3271264e567dd769",
+      "canonical_skill_sha256": "2fe44487cd337978459bc8e8814bf3cb6651eddeadbd173c3258281da3388693",
+      "retained_files": 1
+    },
+    {
+      "name": "falling-leaves",
+      "source_path": "agent-skills/web-design/falling-leaves",
+      "original_skill_sha256": "256a16fa346ff54688ad3c448b3f95a443acfc966e6ae294181882a03d6b3bb8",
+      "canonical_skill_sha256": "41ba1a35bd49d96d0e8a50ab98c63d9ebc86f819c57397b580f8830de0a05ee6",
+      "retained_files": 2
+    },
+    {
+      "name": "framed-grid-layout",
+      "source_path": "agent-skills/web-design/framed-grid-layout",
+      "original_skill_sha256": "3c76a1c151a33cee8ded7d2f84c48917108059d33fe96c8ebb06410de9ca261b",
+      "canonical_skill_sha256": "842d97a76c799ff4d5b864025eeabc9443c75cf33ac6c3f071583477670e00a0",
+      "retained_files": 1
+    },
+    {
+      "name": "framed-tech-dark-border-gradient",
+      "source_path": "agent-skills/web-design/framed-tech-dark-border-gradient",
+      "original_skill_sha256": "7568717970a1f11a151484fbd30a6130241f73ac5ed52e8c03e1a9baed11bdaa",
+      "canonical_skill_sha256": "da1a0f81d713c37bda97f430a19f9a487e890e2f96caddffc659e14e76ad3db2",
+      "retained_files": 1
+    },
+    {
+      "name": "funky-purple-container-tech",
+      "source_path": "agent-skills/web-design/funky-purple-container-tech",
+      "original_skill_sha256": "42a855f25d66f28e36da25353adb1c376f53d49bdd11c80e5631b159440d8315",
+      "canonical_skill_sha256": "275cbf5cc11017bec62906ea018b1e32fabf4a329ff7a20399a3f926a598b5e8",
+      "retained_files": 1
+    },
+    {
+      "name": "glass-dark-mode-clock",
+      "source_path": "agent-skills/web-design/glass-dark-mode-clock",
+      "original_skill_sha256": "2ebd2c31970debe118367cf862ed91381ad40160b5f3385ec0c26965b943afeb",
+      "canonical_skill_sha256": "a54e316bc8b5c198f3a4fbd469279e86e6c78f61864165a154055606adc1b97a",
+      "retained_files": 1
+    },
+    {
+      "name": "glass-dark-ui",
+      "source_path": "agent-skills/web-design/glass-dark-ui",
+      "original_skill_sha256": "27a2e3e9a9e21d98db8e5507a27b571b1c9d3b03a677083e6a78390355f55caa",
+      "canonical_skill_sha256": "db85c7f4878d884a8402102fc58611c3384bfee07a11d1448d22565dedcd0f76",
+      "retained_files": 1
+    },
+    {
+      "name": "globe-gl",
+      "source_path": "agent-skills/web-design/globe-gl",
+      "original_skill_sha256": "ddcc800b5130be8e2818e11f6e28abe6c366c5f73588d614b7aef98e04c0ea23",
+      "canonical_skill_sha256": "68984b775e78fa9cd0312524d2943041f0cf1d771912aafba1e6a7397522ff2c",
+      "retained_files": 1
+    },
+    {
+      "name": "globe-particles",
+      "source_path": "agent-skills/web-design/globe-particles",
+      "original_skill_sha256": "deac008240b045d47c96f06fd476961149f1167afe86a14d7fdcb86538648f04",
+      "canonical_skill_sha256": "7abcda87782b2bfc24399cbff079d0d06c82bc1de6fb753d58e1832baeef4f10",
+      "retained_files": 1
+    },
+    {
+      "name": "gooey-blob-system",
+      "source_path": "agent-skills/web-design/gooey-blob-system",
+      "original_skill_sha256": "b0b1524f0501042d3df27e7229f06bc18fbaa958687ad8ec903be2b24e1bd08b",
+      "canonical_skill_sha256": "e3daea816f65df2d47d295f65f25a15a20db26e881954f49e5a8e1dfa370c320",
+      "retained_files": 1
+    },
+    {
+      "name": "gsap",
+      "source_path": "agent-skills/web-design/gsap",
+      "original_skill_sha256": "7a70139af20dfae9e35b14c3642836bc93cdfd5c07769266bb71221afbf01c12",
+      "canonical_skill_sha256": "0eb2e047db775b7c890ec53c069ecab0a38c82f9352d41ef76efdba48b5ae476",
+      "retained_files": 2
+    },
+    {
+      "name": "gsap-scrolltrigger-storytelling",
+      "source_path": "agent-skills/web-design/gsap-scrolltrigger-storytelling",
+      "original_skill_sha256": "9e560fdb05c67880102c35e26be6c77adcec7db0fa1de0ed07367503a79753ff",
+      "canonical_skill_sha256": "b32f4886c950a38e5bb41ab07d05e7e76e475f966817f3f98ece7aa73a46aff5",
+      "retained_files": 1
+    },
+    {
+      "name": "high-contrast-skeuomorphic-clean",
+      "source_path": "agent-skills/web-design/high-contrast-skeuomorphic-clean",
+      "original_skill_sha256": "9d4913bc06b1615600e3329703fb553fab6f33cf65b4cc81db5cd85cfa490ccb",
+      "canonical_skill_sha256": "3cf081bbe5fa405726584a5ba7c03111e9dd499a63bd0e28101b17d8b4333ba4",
+      "retained_files": 1
+    },
+    {
+      "name": "image-first-grid-layout",
+      "source_path": "agent-skills/web-design/image-first-grid-layout",
+      "original_skill_sha256": "76693ea0c584d8b3901f153fa59b66f63297367488fff87d0d4f28d283ebb3f1",
+      "canonical_skill_sha256": "2016b1e253ed03108dd6d793daba49d84fca88cb80938baf9d9479027e439b63",
+      "retained_files": 1
+    },
+    {
+      "name": "landing-page",
+      "source_path": "agent-skills/web-design/landing-page",
+      "original_skill_sha256": "a75f6e8e2d4b2f4ffd0fe793af496de226d3897de359a84a39ddb6d971e694db",
+      "canonical_skill_sha256": "b4a8bfbc531a35c6149bc9cb7c4d6dd0c26859f113761e7ce60a2ecd6c01f495",
+      "retained_files": 2
+    },
+    {
+      "name": "light-mode-paper-technical",
+      "source_path": "agent-skills/web-design/light-mode-paper-technical",
+      "original_skill_sha256": "b19668eb068149d69e5bc16e7e4675977eb55fc8015a1a02adb3576e173bc180",
+      "canonical_skill_sha256": "4392c3117ddc2a35c13a554cfcd999bc32a5963b4689c28977a88c81a6ba329f",
+      "retained_files": 1
+    },
+    {
+      "name": "liquid-metal-border",
+      "source_path": "agent-skills/web-design/liquid-metal-border",
+      "original_skill_sha256": "48cfbe4b4b529f62389a63167bfc8a781ffd778bc21772fffdae0cd06415b961",
+      "canonical_skill_sha256": "4542e5a9cd599252ee5aecda35e288c89ef3388280a497d3dbb92f7cead8a166",
+      "retained_files": 3
+    },
+    {
+      "name": "marquee-loop",
+      "source_path": "agent-skills/web-design/marquee-loop",
+      "original_skill_sha256": "851e6883dbfa4786d56c343f0216f98a5fb692d6083e51e5402569f7bc9961f6",
+      "canonical_skill_sha256": "ba59bf28ac03f69bc9c7f1a6c81ece7b9b07198f95049c22666852d1d3c2ff73",
+      "retained_files": 1
+    },
+    {
+      "name": "masked-reveal",
+      "source_path": "agent-skills/web-design/masked-reveal",
+      "original_skill_sha256": "42fd8ab9f3659cbe2ba5782a4b79cbe9f69a9628778d63bb04e7117ffd332e8f",
+      "canonical_skill_sha256": "a096e4e23ab189548d4d4aba183af9cac4fec2d7b942ca4adfd4f25116f5a682",
+      "retained_files": 1
+    },
+    {
+      "name": "matterjs",
+      "source_path": "agent-skills/web-design/matterjs",
+      "original_skill_sha256": "73b7c50e54e23284ffa3d7ddafd702a12fcf6dccdfd41b8b244e5558c4311b8c",
+      "canonical_skill_sha256": "8d832596c663f1b75d11ec3cf0ba2cc053eaf3dbcc021191982320c2fa159b2c",
+      "retained_files": 1
+    },
+    {
+      "name": "mesh-gradient-dark-blue-clean",
+      "source_path": "agent-skills/web-design/mesh-gradient-dark-blue-clean",
+      "original_skill_sha256": "6ec1052685d7cecc774ae94bb0878fe1e15889915554163c4034bd2e0bcbe064",
+      "canonical_skill_sha256": "1ba22c95dc03c061ea619d70d593679c52804230eb21a2e02ec92fdc0094579d",
+      "retained_files": 1
+    },
+    {
+      "name": "nested-container-clean-agency",
+      "source_path": "agent-skills/web-design/nested-container-clean-agency",
+      "original_skill_sha256": "9ff7c08cd199bf199f9b855ebfff072847d299e8fee70c0d21d2ed81dc0ea796",
+      "canonical_skill_sha256": "02f469c64a515232e192c51171aa77269717faebea762646ff6a734508bde85b",
+      "retained_files": 1
+    },
+    {
+      "name": "nested-container-frames",
+      "source_path": "agent-skills/web-design/nested-container-frames",
+      "original_skill_sha256": "63ee2b26954de4d4ac833afd80010c188aa6d6effd4f22a9b7c115f39d343a2f",
+      "canonical_skill_sha256": "029ca158caa2ebe6ced17c4a9b2c223be7225c4691b44b3330bff75348b44412",
+      "retained_files": 1
+    },
+    {
+      "name": "number-details",
+      "source_path": "agent-skills/web-design/number-details",
+      "original_skill_sha256": "0ac0c4502111c41c66f21e8006a1731097fd8bd2ba3cc1fa6151b467ac2a58e9",
+      "canonical_skill_sha256": "65f0364328a149d28a0101365f1282711b1c7a649afa2337353e63e9f1c865e2",
+      "retained_files": 1
+    },
+    {
+      "name": "operational-enterprise-ai",
+      "source_path": "agent-skills/web-design/operational-enterprise-ai",
+      "original_skill_sha256": "b11b89452bfd61095e17248862fb5217f3f27e419cf93d4c5011e07cb38998b3",
+      "canonical_skill_sha256": "e4c0bb08b06263d7d2d1a0dc345dcd0a087be3ff963f82576f64ceb1f90807e1",
+      "retained_files": 3
+    },
+    {
+      "name": "orange-clean-paper-saas",
+      "source_path": "agent-skills/web-design/orange-clean-paper-saas",
+      "original_skill_sha256": "fb1a7ebc7e47b14c947b23f36777b6e46a318da221f5dc74afc82d3b4a333245",
+      "canonical_skill_sha256": "6625af8c8f42ac023e12ff4621d4a0aa8c29ad3dd5caf9d7c019a296c29a2826",
+      "retained_files": 1
+    },
+    {
+      "name": "pointer-trail-emitter",
+      "source_path": "agent-skills/web-design/pointer-trail-emitter",
+      "original_skill_sha256": "32f81e8c28ad1f648d71e44270e106f8c1c51ce26b5e9ead8fa0d3d3931dc26f",
+      "canonical_skill_sha256": "8d6e2e575b0d92af4b1fa4434943067b3adfba25a7074b40e56d736459cf081d",
+      "retained_files": 2
+    },
+    {
+      "name": "pricing-page",
+      "source_path": "agent-skills/web-design/pricing-page",
+      "original_skill_sha256": "dfcf2976aa9497b88dfe253a10a8ac008ac1c175399b0823a126500a9795e77f",
+      "canonical_skill_sha256": "77f8a3df89fe73c70e4d37b261951ff585f9b4648a7bfd652f07fe27b1076b51",
+      "retained_files": 2
+    },
+    {
+      "name": "product-proof-saas",
+      "source_path": "agent-skills/web-design/product-proof-saas",
+      "original_skill_sha256": "1e5ac0b79ffc9f0d0df97549d11f576747859bf9a2c3c380fff7cd14ca965187",
+      "canonical_skill_sha256": "8156b2901a6d1b4ca7b52e56dd04e70f118b99934ab65ed12faf97598a6a615b",
+      "retained_files": 3
+    },
+    {
+      "name": "progressive-blur",
+      "source_path": "agent-skills/web-design/progressive-blur",
+      "original_skill_sha256": "166f43eeef4bc77accb0ae60149cfdec66d0ed67c4fba190a7a812f43931c39c",
+      "canonical_skill_sha256": "c878a1aeb430ff5db77bee91ea7626b02fc7b9da619d30b623d5ee22ee98c455",
+      "retained_files": 1
+    },
+    {
+      "name": "reveal-hover-effect",
+      "source_path": "agent-skills/web-design/reveal-hover-effect",
+      "original_skill_sha256": "b6aa45da3ac37c056371a4766bbe91bb7ca90993f6d4a67486460f7a07274b10",
+      "canonical_skill_sha256": "605f80e1a2ee3f99186a59e58856d74d93537b425be88a9342581a1e287e6977",
+      "retained_files": 3
+    },
+    {
+      "name": "scroll-progress-timeline",
+      "source_path": "agent-skills/web-design/scroll-progress-timeline",
+      "original_skill_sha256": "bd2f0cc520619243c54570e672f04f6a54540ec6cf09efb1f23defb500b41d3a",
+      "canonical_skill_sha256": "fecbd638d6dcb39bcdde3614f9eb100cbc9c3ad9271005010a87648fcf1a6286",
+      "retained_files": 6
+    },
+    {
+      "name": "scroll-scrubbed-visual-sequence",
+      "source_path": "agent-skills/web-design/scroll-scrubbed-visual-sequence",
+      "original_skill_sha256": "7417a9ef323f296c508efdc958bca45e2fea90d2a155b79b29e8b3a07c1629c5",
+      "canonical_skill_sha256": "c4e324b59a749df772856869e672ca858b7b3a978f4a82626d8ee468a7c30e52",
+      "retained_files": 6
+    },
+    {
+      "name": "scroll-scrubbed-word-reveal",
+      "source_path": "agent-skills/web-design/scroll-scrubbed-word-reveal",
+      "original_skill_sha256": "c3792004c19e12e8f3bc273220e00ff5031484e2134acf5add3ccaaa647a2c5e",
+      "canonical_skill_sha256": "33d6c728084645c0d2b26c95f9d56d4ab1e521886942014a99e6f638c399179d",
+      "retained_files": 6
+    },
+    {
+      "name": "scroll-world-storytelling",
+      "source_path": "agent-skills/web-design/scroll-world-storytelling",
+      "original_skill_sha256": "28b93103f59927b17dae4f528dd81ada4354092c49359fad1c5d0927d8face18",
+      "canonical_skill_sha256": "d870e935189636fbe76c49b626776dd90cbe75e27e6b22757b3bab2d8f9b7956",
+      "retained_files": 19
+    },
+    {
+      "name": "shaders-cursor-ripples",
+      "source_path": "agent-skills/web-design/shaders-cursor-ripples",
+      "original_skill_sha256": "61912897df41391567a18200076865c7fa1993bf5c120e6573e82a74a1b962bc",
+      "canonical_skill_sha256": "de82c749b322d5588f6090fc23284ea172b51451f2002ed30f3757194155cd46",
+      "retained_files": 5
+    },
+    {
+      "name": "skeuomorphic-ui",
+      "source_path": "agent-skills/web-design/skeuomorphic-ui",
+      "original_skill_sha256": "e1d7aa6b70622c313ac268342ea42c9e16ddd746e3c6ae0d5e8b6585f1a701fa",
+      "canonical_skill_sha256": "348719899ec047ed159599bb35deca8dd20ddd20caaa1b300533a6a93b91ccb6",
+      "retained_files": 1
+    },
+    {
+      "name": "solar-duotone-bold",
+      "source_path": "agent-skills/web-design/solar-duotone-bold",
+      "original_skill_sha256": "c29c5949c57fa4bb6ae8119d47e80bf78f80399dfc3b1fc9e5754eaecff3c34f",
+      "canonical_skill_sha256": "8ae76ec3b1a3ca1ced33cfe5c84c7a7685f2b577fdf9651a13cbfae0fa2df215",
+      "retained_files": 1
+    },
+    {
+      "name": "split-layout-technical",
+      "source_path": "agent-skills/web-design/split-layout-technical",
+      "original_skill_sha256": "0cfe189e2a66ee71320cf7401f68ad83c659bbe55d5de8c94470f667d0a54bda",
+      "canonical_skill_sha256": "29b9dbdc04ba47210514c571ff9ca23d83563723608b00ddab87c9e1dbed44f5",
+      "retained_files": 1
+    },
+    {
+      "name": "staggered-word-reveal",
+      "source_path": "agent-skills/web-design/staggered-word-reveal",
+      "original_skill_sha256": "1faca177affcead3cbd59ebca4f0fb1e63b9129022fe2d947aee4bfb2f664451",
+      "canonical_skill_sha256": "3df6706f6b8d0fedb0dbfaccc397434e0d4b0218759a8db8d44a1d8437ec460d",
+      "retained_files": 1
+    },
+    {
+      "name": "tailwindcss",
+      "source_path": "agent-skills/web-design/tailwindcss",
+      "original_skill_sha256": "a92dd36c740146a2ccac242051e23c4240ca060e47988050da6498e8354fa7c1",
+      "canonical_skill_sha256": "f10866581db9e178711de894fb93a83ec0060968ec8d1d802c92ce6971346850",
+      "retained_files": 2
+    },
+    {
+      "name": "tech-green-dark-mode-modern",
+      "source_path": "agent-skills/web-design/tech-green-dark-mode-modern",
+      "original_skill_sha256": "0d3c7ebeaed1463e71b519da01ab0831c424a94a4dabb6b79d351533b058cd14",
+      "canonical_skill_sha256": "81ba3656c9be88945ddef645e36b21e2ef97d398cbfd2efacf22889bb451b53f",
+      "retained_files": 1
+    },
+    {
+      "name": "technical-wireframe-info-layout",
+      "source_path": "agent-skills/web-design/technical-wireframe-info-layout",
+      "original_skill_sha256": "7e1a3f31126f6b9c5160bb3e3e80275b70b51d42288f4b9514997017c0befb0c",
+      "canonical_skill_sha256": "f4649a19dad026b7de3dd16e4a12bc2844c2626e8860e0e755375d05aaf6f325",
+      "retained_files": 1
+    },
+    {
+      "name": "thinking-orbs",
+      "source_path": "agent-skills/web-design/thinking-orbs",
+      "original_skill_sha256": "65a6e1f070d9c25d9b73e0af6d8b8fc914f848c3e2d0f412b1b00f43a2ee32b0",
+      "canonical_skill_sha256": "4415404db0693e7188ce03a8d940b09e60be14e88150a67c510c8edac5249e13",
+      "retained_files": 3
+    },
+    {
+      "name": "threejs",
+      "source_path": "agent-skills/web-design/threejs",
+      "original_skill_sha256": "4168d6d78a5a348c353f603ef33c74085965febb515e0e70cf7966f35cb5cead",
+      "canonical_skill_sha256": "a7e3f89120135a2b392d21217bb5f13824bb1772b42b0483b8ee3cb7d41f3f91",
+      "retained_files": 2
+    },
+    {
+      "name": "threejs-landscape",
+      "source_path": "agent-skills/web-design/threejs-landscape",
+      "original_skill_sha256": "733a63d0a59842827b0bbe3520a6de838319d484804dee4be8348c00425cd663",
+      "canonical_skill_sha256": "39f42b56ff27d451ab295b63436a73ee7a56bf4eff1a06078e9e191edd37ff1b",
+      "retained_files": 2
+    },
+    {
+      "name": "threejs-towers",
+      "source_path": "agent-skills/web-design/threejs-towers",
+      "original_skill_sha256": "21ffebe2159b772874a92339e8d145ee34a282f8bfa0797e442cf64d805c4025",
+      "canonical_skill_sha256": "9ec32e7609c788d02c09ab16d30dcab54a45e80f13aa87d11046665f83267340",
+      "retained_files": 2
+    },
+    {
+      "name": "threejs-weather",
+      "source_path": "agent-skills/web-design/threejs-weather",
+      "original_skill_sha256": "144393c0fa37e10b896f1c8882c57b8c345eff0472c11bc8d22cc6f2c14618e3",
+      "canonical_skill_sha256": "13a16a9f9b8ac200a1df58fc013b58f5c8ee91b9e455a4994289dae5b5a093bf",
+      "retained_files": 2
+    },
+    {
+      "name": "unicorn-studio",
+      "source_path": "agent-skills/web-design/unicorn-studio",
+      "original_skill_sha256": "ba9875dc7e9b8792d835cd61545af1e295403b20a6308b60622a8c9f17825e64",
+      "canonical_skill_sha256": "975f4f1911af03d0de8d05cca81be907da8d3a562fd2e2d72c5453f476a49b56",
+      "retained_files": 2
+    },
+    {
+      "name": "vantajs",
+      "source_path": "agent-skills/web-design/vantajs",
+      "original_skill_sha256": "da2096f65758a8c16490589e153fbfbebf94305e3f7d163964f64f0ab5682fba",
+      "canonical_skill_sha256": "afa6919cbf9ea9b0183bb0a16bd33a9124334c295aabba553b3d859c30e2b46f",
+      "retained_files": 2
+    },
+    {
+      "name": "webgl-3d-object",
+      "source_path": "agent-skills/web-design/webgl-3d-object",
+      "original_skill_sha256": "c58ef1d5be5e59138100548cc4c87f7d7bab6b3b600450577807cc3dd1b18c1a",
+      "canonical_skill_sha256": "a0927268734a924d168392ba4b167edfb639bae254420800692fa6e7f1abc1b0",
+      "retained_files": 1
+    },
+    {
+      "name": "webgl-landing-steering",
+      "source_path": "agent-skills/web-design/webgl-landing-steering",
+      "original_skill_sha256": "892ba3bc63fb4dadc9ec508b522abccc2d1281b6fbb854ebd74a10452f27fbd7",
+      "canonical_skill_sha256": "3189237589642c82bef5ff15b6e67a3fd5ea380c254dfb9a5a422eb1e924a540",
+      "retained_files": 2
+    },
+    {
+      "name": "webgl-laser",
+      "source_path": "agent-skills/web-design/webgl-laser",
+      "original_skill_sha256": "c7afb9c4ea22f8d78b6964872551cabda12c7f3755fcae1309c13ae33220da95",
+      "canonical_skill_sha256": "d7b05c4f597050c921bf074566f4c28d507cf8f3d6073539d3941b62ccc880d8",
+      "retained_files": 1
+    }
+  ]
+}

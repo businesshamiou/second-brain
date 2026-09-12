@@ -1,0 +1,1571 @@
+{
+  "skill": {
+    "name": "unknown",
+    "source": "C:\\Users\\<utilisateur>\\AppData\\Local\\Temp\\skillspector_d_u8g1lv\\extracted",
+    "scanned_at": "2026-09-07T18:09:15.835521+00:00"
+  },
+  "risk_assessment": {
+    "score": 100,
+    "severity": "CRITICAL",
+    "recommendation": "DO_NOT_INSTALL",
+    "max_issue_severity": "HIGH"
+  },
+  "components": [
+    {
+      "path": "LICENSES.md",
+      "type": "markdown",
+      "lines": 39,
+      "executable": false,
+      "size_bytes": 6514,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/ask-matt/PHASE-BOUNDARIES.md",
+      "type": "markdown",
+      "lines": 55,
+      "executable": false,
+      "size_bytes": 4288,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/ask-matt/SKILL.md",
+      "type": "markdown",
+      "lines": 96,
+      "executable": false,
+      "size_bytes": 11351,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/ask-matt/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 5,
+      "executable": false,
+      "size_bytes": 137,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/code-review/SKILL.md",
+      "type": "markdown",
+      "lines": 93,
+      "executable": false,
+      "size_bytes": 7448,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/code-review/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 3,
+      "executable": false,
+      "size_bytes": 100,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/codebase-design/DEEPENING.md",
+      "type": "markdown",
+      "lines": 37,
+      "executable": false,
+      "size_bytes": 2553,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/codebase-design/DESIGN-IT-TWICE.md",
+      "type": "markdown",
+      "lines": 44,
+      "executable": false,
+      "size_bytes": 3008,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/codebase-design/SKILL.md",
+      "type": "markdown",
+      "lines": 118,
+      "executable": false,
+      "size_bytes": 6672,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/codebase-design/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 3,
+      "executable": false,
+      "size_bytes": 102,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/diagnosing-bugs/SKILL.md",
+      "type": "markdown",
+      "lines": 142,
+      "executable": false,
+      "size_bytes": 8786,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/diagnosing-bugs/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 3,
+      "executable": false,
+      "size_bytes": 103,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/diagnosing-bugs/scripts/hitl-loop.template.sh",
+      "type": "shell",
+      "lines": 44,
+      "executable": true,
+      "size_bytes": 1316,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/domain-modeling/ADR-FORMAT.md",
+      "type": "markdown",
+      "lines": 47,
+      "executable": false,
+      "size_bytes": 2733,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/domain-modeling/CONTEXT-FORMAT.md",
+      "type": "markdown",
+      "lines": 60,
+      "executable": false,
+      "size_bytes": 2290,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/domain-modeling/SKILL.md",
+      "type": "markdown",
+      "lines": 78,
+      "executable": false,
+      "size_bytes": 3584,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/domain-modeling/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 3,
+      "executable": false,
+      "size_bytes": 101,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/git-guardrails-claude-code/SKILL.md",
+      "type": "markdown",
+      "lines": 99,
+      "executable": false,
+      "size_bytes": 2506,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/git-guardrails-claude-code/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 3,
+      "executable": false,
+      "size_bytes": 112,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/git-guardrails-claude-code/scripts/block-dangerous-git.sh",
+      "type": "shell",
+      "lines": 25,
+      "executable": true,
+      "size_bytes": 507,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/grill-me/SKILL.md",
+      "type": "markdown",
+      "lines": 11,
+      "executable": false,
+      "size_bytes": 590,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/grill-me/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 5,
+      "executable": false,
+      "size_bytes": 137,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/grill-with-docs/SKILL.md",
+      "type": "markdown",
+      "lines": 11,
+      "executable": false,
+      "size_bytes": 738,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/grill-with-docs/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 5,
+      "executable": false,
+      "size_bytes": 145,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/grilling/SKILL.md",
+      "type": "markdown",
+      "lines": 32,
+      "executable": false,
+      "size_bytes": 2356,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/grilling/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 3,
+      "executable": false,
+      "size_bytes": 113,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/handoff/SKILL.md",
+      "type": "markdown",
+      "lines": 20,
+      "executable": false,
+      "size_bytes": 1424,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/handoff/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 5,
+      "executable": false,
+      "size_bytes": 141,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/implement/SKILL.md",
+      "type": "markdown",
+      "lines": 19,
+      "executable": false,
+      "size_bytes": 919,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/implement/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 5,
+      "executable": false,
+      "size_bytes": 139,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/improve-codebase-architecture/HTML-REPORT.md",
+      "type": "markdown",
+      "lines": 121,
+      "executable": false,
+      "size_bytes": 6638,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/improve-codebase-architecture/SKILL.md",
+      "type": "markdown",
+      "lines": 75,
+      "executable": false,
+      "size_bytes": 6754,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/improve-codebase-architecture/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 5,
+      "executable": false,
+      "size_bytes": 166,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/migrate-to-shoehorn/SKILL.md",
+      "type": "markdown",
+      "lines": 122,
+      "executable": false,
+      "size_bytes": 3048,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/migrate-to-shoehorn/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 3,
+      "executable": false,
+      "size_bytes": 110,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/prototype/LOGIC.md",
+      "type": "markdown",
+      "lines": 67,
+      "executable": false,
+      "size_bytes": 6036,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/prototype/SKILL.md",
+      "type": "markdown",
+      "lines": 30,
+      "executable": false,
+      "size_bytes": 3184,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/prototype/UI.md",
+      "type": "markdown",
+      "lines": 112,
+      "executable": false,
+      "size_bytes": 6913,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/prototype/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 3,
+      "executable": false,
+      "size_bytes": 100,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/research/SKILL.md",
+      "type": "markdown",
+      "lines": 18,
+      "executable": false,
+      "size_bytes": 1582,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/research/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 3,
+      "executable": false,
+      "size_bytes": 94,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/resolving-merge-conflicts/SKILL.md",
+      "type": "markdown",
+      "lines": 18,
+      "executable": false,
+      "size_bytes": 1169,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/resolving-merge-conflicts/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 3,
+      "executable": false,
+      "size_bytes": 113,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/scaffold-exercises/SKILL.md",
+      "type": "markdown",
+      "lines": 110,
+      "executable": false,
+      "size_bytes": 3817,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/scaffold-exercises/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 3,
+      "executable": false,
+      "size_bytes": 108,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/setup-matt-pocock-skills/SKILL.md",
+      "type": "markdown",
+      "lines": 119,
+      "executable": false,
+      "size_bytes": 7661,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/setup-matt-pocock-skills/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 5,
+      "executable": false,
+      "size_bytes": 152,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/setup-matt-pocock-skills/domain.md",
+      "type": "markdown",
+      "lines": 51,
+      "executable": false,
+      "size_bytes": 2039,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/setup-matt-pocock-skills/issue-tracker-github.md",
+      "type": "markdown",
+      "lines": 45,
+      "executable": false,
+      "size_bytes": 3749,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/setup-matt-pocock-skills/issue-tracker-gitlab.md",
+      "type": "markdown",
+      "lines": 46,
+      "executable": false,
+      "size_bytes": 3827,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/setup-matt-pocock-skills/issue-tracker-local.md",
+      "type": "markdown",
+      "lines": 30,
+      "executable": false,
+      "size_bytes": 1819,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/setup-matt-pocock-skills/triage-labels.md",
+      "type": "markdown",
+      "lines": 15,
+      "executable": false,
+      "size_bytes": 1045,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/setup-pre-commit/SKILL.md",
+      "type": "markdown",
+      "lines": 95,
+      "executable": false,
+      "size_bytes": 2448,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/setup-pre-commit/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 3,
+      "executable": false,
+      "size_bytes": 99,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/tdd/SKILL.md",
+      "type": "markdown",
+      "lines": 42,
+      "executable": false,
+      "size_bytes": 3872,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/tdd/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 3,
+      "executable": false,
+      "size_bytes": 87,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/tdd/mocking.md",
+      "type": "markdown",
+      "lines": 59,
+      "executable": false,
+      "size_bytes": 1481,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/tdd/tests.md",
+      "type": "markdown",
+      "lines": 77,
+      "executable": false,
+      "size_bytes": 2214,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/teach/GLOSSARY-FORMAT.md",
+      "type": "markdown",
+      "lines": 35,
+      "executable": false,
+      "size_bytes": 2122,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/teach/LEARNING-RECORD-FORMAT.md",
+      "type": "markdown",
+      "lines": 46,
+      "executable": false,
+      "size_bytes": 2747,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/teach/MISSION-FORMAT.md",
+      "type": "markdown",
+      "lines": 31,
+      "executable": false,
+      "size_bytes": 1540,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/teach/RESOURCES-FORMAT.md",
+      "type": "markdown",
+      "lines": 32,
+      "executable": false,
+      "size_bytes": 1924,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/teach/SKILL.md",
+      "type": "markdown",
+      "lines": 144,
+      "executable": false,
+      "size_bytes": 9789,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/teach/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 5,
+      "executable": false,
+      "size_bytes": 139,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/to-questionnaire/SKILL.md",
+      "type": "markdown",
+      "lines": 58,
+      "executable": false,
+      "size_bytes": 3173,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/to-questionnaire/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 5,
+      "executable": false,
+      "size_bytes": 166,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/to-spec/SKILL.md",
+      "type": "markdown",
+      "lines": 79,
+      "executable": false,
+      "size_bytes": 3321,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/to-spec/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 5,
+      "executable": false,
+      "size_bytes": 135,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/to-tickets/SKILL.md",
+      "type": "markdown",
+      "lines": 109,
+      "executable": false,
+      "size_bytes": 5880,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/to-tickets/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 5,
+      "executable": false,
+      "size_bytes": 146,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/triage/AGENT-BRIEF.md",
+      "type": "markdown",
+      "lines": 207,
+      "executable": false,
+      "size_bytes": 7954,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/triage/OUT-OF-SCOPE.md",
+      "type": "markdown",
+      "lines": 105,
+      "executable": false,
+      "size_bytes": 4667,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/triage/SKILL.md",
+      "type": "markdown",
+      "lines": 116,
+      "executable": false,
+      "size_bytes": 6958,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/triage/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 5,
+      "executable": false,
+      "size_bytes": 135,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/wait-what/SKILL.md",
+      "type": "markdown",
+      "lines": 11,
+      "executable": false,
+      "size_bytes": 661,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/wait-what/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 5,
+      "executable": false,
+      "size_bytes": 158,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/wayfinder/SKILL.md",
+      "type": "markdown",
+      "lines": 132,
+      "executable": false,
+      "size_bytes": 12671,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/wayfinder/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 5,
+      "executable": false,
+      "size_bytes": 144,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/wizard/SKILL.md",
+      "type": "markdown",
+      "lines": 48,
+      "executable": false,
+      "size_bytes": 4703,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/wizard/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 3,
+      "executable": false,
+      "size_bytes": 96,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/wizard/template.sh",
+      "type": "shell",
+      "lines": 206,
+      "executable": true,
+      "size_bytes": 8778,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/writing-for-agents/SKILL-MECHANICS.md",
+      "type": "markdown",
+      "lines": 28,
+      "executable": false,
+      "size_bytes": 2577,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/writing-for-agents/SKILL.md",
+      "type": "markdown",
+      "lines": 85,
+      "executable": false,
+      "size_bytes": 11285,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/writing-for-agents/adapters/claude.md",
+      "type": "markdown",
+      "lines": 10,
+      "executable": false,
+      "size_bytes": 426,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/writing-for-agents/adapters/generic.md",
+      "type": "markdown",
+      "lines": 10,
+      "executable": false,
+      "size_bytes": 632,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/writing-for-agents/adapters/openai.md",
+      "type": "markdown",
+      "lines": 11,
+      "executable": false,
+      "size_bytes": 445,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    },
+    {
+      "path": "skills/writing-for-agents/agents/openai.yaml",
+      "type": "yaml",
+      "lines": 3,
+      "executable": false,
+      "size_bytes": 102,
+      "source_url": null,
+      "source_identity": null,
+      "source_digest": null
+    }
+  ],
+  "structured_summaries": [],
+  "issues": [
+    {
+      "id": "P6",
+      "finding_id": "finding-b16bf78fe4e84e2fb5208e863252d3a9",
+      "category": "System Prompt Leakage",
+      "pattern": "Direct Prompt Extraction",
+      "severity": "HIGH",
+      "confidence": 0.85,
+      "location": {
+        "file": "skills/diagnosing-bugs/scripts/hitl-loop.template.sh",
+        "start_line": 10,
+        "end_line": null
+      },
+      "finding": "show instruction",
+      "explanation": "Skill contains instructions that could directly expose system prompts, internal rules, or hidden instructions to users or external parties.",
+      "remediation": "Remove any instructions that reveal, print, or output system prompts or internal rules. System instructions should never be exposed to end users.",
+      "code_snippet": "#   bash hitl-loop.template.sh\n#\n# Two helpers:\n#   step \"<instruction>\"          \u2192 show instruction, wait for Enter\n#   capture VAR \"<question>\"      \u2192 show question, read response into VAR\n#\n# At the end, captured values are printed as KEY=VALUE for the agent to parse.",
+      "intent": null,
+      "tags": [
+        "System Prompt Leakage"
+      ],
+      "evidence": {},
+      "match_fingerprint": "58f8a51bca70aeabbb60a53582a78222a10262e9d9bf749609a7cbe055c22812",
+      "occurrences": [
+        {
+          "file": "skills/diagnosing-bugs/scripts/hitl-loop.template.sh",
+          "start_line": 10,
+          "end_line": null
+        }
+      ]
+    },
+    {
+      "id": "AS1",
+      "finding_id": "finding-068ce2786e274bea9722735acf8be8d7",
+      "category": "Agent Snooping",
+      "pattern": "Agent Config Directory Access",
+      "severity": "HIGH",
+      "confidence": 0.9,
+      "location": {
+        "file": "skills/git-guardrails-claude-code/SKILL.md",
+        "start_line": 28,
+        "end_line": null
+      },
+      "finding": "~/.claude/settings.json",
+      "explanation": "Skill reads from agent configuration directories (.claude/, .codex/, .gemini/). These directories may contain API keys, personal settings, and other credentials that the skill has no legitimate need to access.",
+      "remediation": "Remove all code or instructions that access agent configuration directories (.claude/, .codex/, .gemini/). If configuration values are needed, pass them explicitly as parameters or environment variables \u2014 never read the agent's own config files.",
+      "code_snippet": "\n### 1. Ask scope\n\nAsk the user: install for **this project only** (`.claude/settings.json`) or **all projects** (`~/.claude/settings.json`)?\n\n### 2. Copy the hook script\n",
+      "intent": null,
+      "tags": [
+        "Agent Snooping"
+      ],
+      "evidence": {},
+      "match_fingerprint": "5a1df888db5d4ec0b5b9acca20cfc27be4af48718ceb134b7edd155d53abdf2c",
+      "occurrences": [
+        {
+          "file": "skills/git-guardrails-claude-code/SKILL.md",
+          "start_line": 28,
+          "end_line": null
+        }
+      ]
+    },
+    {
+      "id": "AS1",
+      "finding_id": "finding-068ce2786e274bea9722735acf8be8d7",
+      "category": "Agent Snooping",
+      "pattern": "Agent Config Directory Access",
+      "severity": "HIGH",
+      "confidence": 0.9,
+      "location": {
+        "file": "skills/git-guardrails-claude-code/SKILL.md",
+        "start_line": 65,
+        "end_line": null
+      },
+      "finding": "~/.claude/settings.json",
+      "explanation": "Skill reads from agent configuration directories (.claude/, .codex/, .gemini/). These directories may contain API keys, personal settings, and other credentials that the skill has no legitimate need to access.",
+      "remediation": "Remove all code or instructions that access agent configuration directories (.claude/, .codex/, .gemini/). If configuration values are needed, pass them explicitly as parameters or environment variables \u2014 never read the agent's own config files.",
+      "code_snippet": "\n### 1. Ask scope\n\nAsk the user: install for **this project only** (`.claude/settings.json`) or **all projects** (`~/.claude/settings.json`)?\n\n### 2. Copy the hook script\n",
+      "intent": null,
+      "tags": [
+        "Agent Snooping"
+      ],
+      "evidence": {},
+      "match_fingerprint": "5a1df888db5d4ec0b5b9acca20cfc27be4af48718ceb134b7edd155d53abdf2c",
+      "occurrences": [
+        {
+          "file": "skills/git-guardrails-claude-code/SKILL.md",
+          "start_line": 65,
+          "end_line": null
+        }
+      ]
+    },
+    {
+      "id": "TM1",
+      "finding_id": "finding-c835a62f8cb147a294d30d760be1c584",
+      "category": "Tool Misuse",
+      "pattern": "Tool Parameter Abuse",
+      "severity": "HIGH",
+      "confidence": 0.75,
+      "location": {
+        "file": "skills/git-guardrails-claude-code/SKILL.md",
+        "start_line": 17,
+        "end_line": null
+      },
+      "finding": "git reset --hard",
+      "explanation": "Tool parameters are crafted to achieve unintended or unsafe behavior. Parameter abuse can bypass intended safety checks (e.g. shell=True, --force, dangerous glob patterns).",
+      "remediation": "Validate all tool parameters against an allowlist. Reject dangerous parameter values (shell=True, --force, -rf /) and use safe defaults.",
+      "code_snippet": "\nDANGEROUS_PATTERNS=(\n  \"git push\"\n  \"git reset --hard\"\n  \"git clean -fd\"\n  \"git clean -f\"\n  \"git branch -D\"",
+      "intent": null,
+      "tags": [
+        "Tool Misuse"
+      ],
+      "evidence": {},
+      "match_fingerprint": "f21f5124192a6ca491d13034d2b1dcaae69642decbd659201773b11a2bc5c2a5",
+      "occurrences": [
+        {
+          "file": "skills/git-guardrails-claude-code/SKILL.md",
+          "start_line": 17,
+          "end_line": null
+        }
+      ]
+    },
+    {
+      "id": "TM1",
+      "finding_id": "finding-c835a62f8cb147a294d30d760be1c584",
+      "category": "Tool Misuse",
+      "pattern": "Tool Parameter Abuse",
+      "severity": "HIGH",
+      "confidence": 0.75,
+      "location": {
+        "file": "skills/git-guardrails-claude-code/scripts/block-dangerous-git.sh",
+        "start_line": 8,
+        "end_line": null
+      },
+      "finding": "git reset --hard",
+      "explanation": "Tool parameters are crafted to achieve unintended or unsafe behavior. Parameter abuse can bypass intended safety checks (e.g. shell=True, --force, dangerous glob patterns).",
+      "remediation": "Validate all tool parameters against an allowlist. Reject dangerous parameter values (shell=True, --force, -rf /) and use safe defaults.",
+      "code_snippet": "\nDANGEROUS_PATTERNS=(\n  \"git push\"\n  \"git reset --hard\"\n  \"git clean -fd\"\n  \"git clean -f\"\n  \"git branch -D\"",
+      "intent": null,
+      "tags": [
+        "Tool Misuse"
+      ],
+      "evidence": {},
+      "match_fingerprint": "f21f5124192a6ca491d13034d2b1dcaae69642decbd659201773b11a2bc5c2a5",
+      "occurrences": [
+        {
+          "file": "skills/git-guardrails-claude-code/scripts/block-dangerous-git.sh",
+          "start_line": 8,
+          "end_line": null
+        }
+      ]
+    },
+    {
+      "id": "AR1",
+      "finding_id": "finding-eedcb98824ee48c8987db141037915bd",
+      "category": "Anti-Refusal",
+      "pattern": "Anti-Refusal Statement",
+      "severity": "HIGH",
+      "confidence": 0.7,
+      "location": {
+        "file": "skills/to-questionnaire/SKILL.md",
+        "start_line": 13,
+        "end_line": null
+      },
+      "finding": "always answer",
+      "explanation": "Skill instructs the agent to never refuse or to always comply. Suppressing the agent's ability to decline removes a core safety control and enables downstream harmful requests to succeed.",
+      "remediation": "Remove any instruction telling the agent to never refuse or always comply. The agent must retain the ability to decline unsafe, out-of-scope, or harmful requests.",
+      "code_snippet": "\nTurn something the user can't answer alone into a **questionnaire**: a Markdown document they hand to one person to fill in async, or fill out together over a meeting. The recipient holds knowledge the user lacks; the questionnaire pulls it out of them.\n\n**Grill the send, not the subject.** Interview the user only about the _send_, which they can always answer: who it goes to, and what they need back. The questions in the document then target the **gap** between what the recipient knows and what the user needs.\n\n\n1. **Who is it going to?** Ask, in one exchange, the recipient's role, expertise, and relationship to the user. This fixes the questionnaire's tone and how much context it must carry. Done when you know who the recipient is and what they know that the user doesn't.",
+      "intent": null,
+      "tags": [
+        "Anti-Refusal"
+      ],
+      "evidence": {},
+      "match_fingerprint": "b4404d69f30b43064cedf6b7a3bc0f82006c7ad3e8bc125c4f8dc6a681444289",
+      "occurrences": [
+        {
+          "file": "skills/to-questionnaire/SKILL.md",
+          "start_line": 13,
+          "end_line": null
+        }
+      ]
+    },
+    {
+      "id": "TM2",
+      "finding_id": "finding-026b1c8ffe9a4309a02ec3c25c260c79",
+      "category": "Tool Misuse",
+      "pattern": "Chaining Abuse",
+      "severity": "HIGH",
+      "confidence": 0.7,
+      "location": {
+        "file": "skills/to-tickets/SKILL.md",
+        "start_line": 44,
+        "end_line": null
+      },
+      "finding": "First expand: add the new form beside the old so nothing breaks. Then migrate the call sites over in batches sized by blast radius (per package, per directory), each batch its own ticket blocked by th",
+      "explanation": "Tool calls are chained to bypass individual safety checks or escalate capabilities beyond what any single tool call would allow.",
+      "remediation": "Limit tool chaining depth and validate the output of each tool before passing it to the next. Require explicit user approval for multi-step chains.",
+      "code_snippet": "\nGive each ticket its **blocking edges**: the other tickets that must complete before it can start. A ticket with no blockers can start immediately.\n\n**Wide refactors are the exception to vertical slicing.** A **wide refactor** is one mechanical change (rename a column, retype a shared symbol) whose **blast radius** fans across the whole codebase, so a single edit breaks thousands of call sites at once and no vertical slice can land green. Don't force it into a tracer bullet; sequence it as **expand\u2013contract**. First expand: add the new form beside the old so nothing breaks. Then migrate the call sites over in batches sized by blast radius (per package, per directory), each batch its own ticket blocked by the expand, keeping CI green batch to batch because the old form still exists. Finally contract: delete the old form once no caller remains, in a ticket blocked by every migrate batch. When even the batches can't stay green alone, keep the sequence but let them share an integration branch that all block a final integrate-and-verify ticket; green is promised only there.\n\n### 4. Quiz the user\n",
+      "intent": null,
+      "tags": [
+        "Tool Misuse"
+      ],
+      "evidence": {},
+      "match_fingerprint": "1ead48911d2b3c7b725c74a8d0315f6b0f3793cf35a3e30c71b07df21abf3eab",
+      "occurrences": [
+        {
+          "file": "skills/to-tickets/SKILL.md",
+          "start_line": 44,
+          "end_line": null
+        }
+      ]
+    },
+    {
+      "id": "PE3",
+      "finding_id": "finding-f34fd6952599428e8771715ca5ae03f4",
+      "category": "Privilege Escalation",
+      "pattern": "Credential Access",
+      "severity": "HIGH",
+      "confidence": 0.6,
+      "location": {
+        "file": "skills/wizard/template.sh",
+        "start_line": 98,
+        "end_line": null
+      },
+      "finding": ".env ",
+      "explanation": "Code accesses credential files (SSH keys, AWS credentials, etc.). This could indicate credential theft attempts.",
+      "remediation": "Remove references to credential paths. Use environment variables or secrets managers. For docs, use placeholder paths (e.g., /path/to/config). Never load .env or token files in production code paths.",
+      "code_snippet": "  printf '%s' \"${line#*=}\"\n}\n\n# ask KEY \"Prompt\" reads a value into $KEY. Offers the existing .env value as\n# a default on re-runs (Enter keeps it). Visible input (non-secret).\nask() {\n  local key=\"$1\" prompt=\"$2\" current input",
+      "intent": null,
+      "tags": [
+        "Privilege Escalation"
+      ],
+      "evidence": {},
+      "match_fingerprint": "66ef81c27c03406fd9935e5fc86fc4126d7150c15b8d076fdc528d05cea7c7bf",
+      "occurrences": [
+        {
+          "file": "skills/wizard/template.sh",
+          "start_line": 98,
+          "end_line": null
+        }
+      ]
+    },
+    {
+      "id": "EA2",
+      "finding_id": "finding-126ae31e24ad46fa850b6a24849efc81",
+      "category": "Excessive Agency",
+      "pattern": "Autonomous Decision Making",
+      "severity": "MEDIUM",
+      "confidence": 0.75,
+      "location": {
+        "file": "skills/setup-matt-pocock-skills/SKILL.md",
+        "start_line": 63,
+        "end_line": null
+      },
+      "finding": "without asking",
+      "explanation": "Skill enables autonomous high-impact decisions without human-in-the-loop verification. Critical operations (destructive commands, financial transactions, data deletion) should require explicit user confirmation.",
+      "remediation": "Add human-in-the-loop confirmation for destructive, irreversible, or high-impact operations. Never auto-execute commands that modify files, send data, or alter system state.",
+      "code_snippet": "\nThe defaults are the five canonical roles, each label string equal to its name: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. On **yes**, write them as-is. Only if the user says no, usually because their tracker already uses other names (e.g. `bug:triage` for `needs-triage`), collect the overrides so `triage` applies existing labels instead of creating duplicates.\n\n**Section C: Domain docs.** Default to **single-context** (one `CONTEXT.md` + `docs/adr/` at the repo root). This fits almost every repo; write it without asking.\n\nOffer **multi-context** (a root `CONTEXT-MAP.md` pointing to per-context `CONTEXT.md` files) only when exploration found monorepo signals. Then confirm which layout they want.\n",
+      "intent": null,
+      "tags": [
+        "Excessive Agency"
+      ],
+      "evidence": {},
+      "match_fingerprint": "8dc77d3dce9ba1f2672e813265a1b1a0c8594866ef38a4e978bf4f4451795465",
+      "occurrences": [
+        {
+          "file": "skills/setup-matt-pocock-skills/SKILL.md",
+          "start_line": 63,
+          "end_line": null
+        }
+      ]
+    },
+    {
+      "id": "RP1",
+      "finding_id": "finding-4c5171bf358c476f8f50af1c9fd9fe7f",
+      "category": "MCP Rug Pull",
+      "pattern": null,
+      "severity": "MEDIUM",
+      "confidence": 0.7,
+      "location": {
+        "file": "skills/setup-pre-commit/SKILL.md",
+        "start_line": 36,
+        "end_line": null
+      },
+      "finding": null,
+      "explanation": "npx commands without a version suffix (e.g. @1.0.0) create a rug-pull risk if the upstream server is compromised and publishes a malicious update.",
+      "remediation": "Pin the version: npx @scope/server@1.2.3",
+      "code_snippet": null,
+      "intent": null,
+      "tags": [
+        "ASI16"
+      ],
+      "evidence": {},
+      "match_fingerprint": "d21683db97c3acd92938c9c7d8d4f5bb17c88f4c709f68948dc6b7b15cdcf69b",
+      "occurrences": [
+        {
+          "file": "skills/setup-pre-commit/SKILL.md",
+          "start_line": 36,
+          "end_line": null
+        }
+      ]
+    },
+    {
+      "id": "RP1",
+      "finding_id": "finding-fd25746dd1cb4755b4cb02c4621fa776",
+      "category": "MCP Rug Pull",
+      "pattern": null,
+      "severity": "MEDIUM",
+      "confidence": 0.7,
+      "location": {
+        "file": "skills/setup-pre-commit/SKILL.md",
+        "start_line": 46,
+        "end_line": null
+      },
+      "finding": null,
+      "explanation": "npx commands without a version suffix (e.g. @1.0.0) create a rug-pull risk if the upstream server is compromised and publishes a malicious update.",
+      "remediation": "Pin the version: npx @scope/server@1.2.3",
+      "code_snippet": null,
+      "intent": null,
+      "tags": [
+        "ASI16"
+      ],
+      "evidence": {},
+      "match_fingerprint": "c4fb3cf9d4d6ba0e7c9ba14d0cafec733e7ae1e1705ea0f7e8cf46370e8346e1",
+      "occurrences": [
+        {
+          "file": "skills/setup-pre-commit/SKILL.md",
+          "start_line": 46,
+          "end_line": null
+        }
+      ]
+    },
+    {
+      "id": "RP1",
+      "finding_id": "finding-fd25746dd1cb4755b4cb02c4621fa776",
+      "category": "MCP Rug Pull",
+      "pattern": null,
+      "severity": "MEDIUM",
+      "confidence": 0.7,
+      "location": {
+        "file": "skills/setup-pre-commit/SKILL.md",
+        "start_line": 83,
+        "end_line": null
+      },
+      "finding": null,
+      "explanation": "npx commands without a version suffix (e.g. @1.0.0) create a rug-pull risk if the upstream server is compromised and publishes a malicious update.",
+      "remediation": "Pin the version: npx @scope/server@1.2.3",
+      "code_snippet": null,
+      "intent": null,
+      "tags": [
+        "ASI16"
+      ],
+      "evidence": {},
+      "match_fingerprint": "c4fb3cf9d4d6ba0e7c9ba14d0cafec733e7ae1e1705ea0f7e8cf46370e8346e1",
+      "occurrences": [
+        {
+          "file": "skills/setup-pre-commit/SKILL.md",
+          "start_line": 83,
+          "end_line": null
+        }
+      ]
+    }
+  ],
+  "suppressed_count": 0,
+  "suppressed": [],
+  "metadata": {
+    "has_executable_scripts": true,
+    "skillspector_version": "2.11.1",
+    "llm_requested": false,
+    "llm_available": false,
+    "meta_analysis_applied": false,
+    "inference_usage": [],
+    "filtering_mode": "heuristic"
+  },
+  "execution_successful": true,
+  "analysis_completeness": {
+    "total_components": 87,
+    "scanned_components": 86,
+    "coverage_percent": 98.9,
+    "is_complete": false,
+    "status": "partial",
+    "execution_successful": true,
+    "fully_inspected_files": 86,
+    "partially_inspected_files": 1,
+    "entirely_uninspected_files": 0,
+    "ledger_exceptions": [
+      {
+        "outcome": "partial",
+        "phase": "static",
+        "reason_code": "obfuscated_instruction_text",
+        "message": "Obfuscated instruction text could not be fully evaluated by the deterministic layer.",
+        "path": "skills/setup-matt-pocock-skills/issue-tracker-github.md",
+        "start_line": null,
+        "end_line": null,
+        "fatal": false,
+        "analyzers": [
+          "static_patterns_agent_snooping",
+          "static_patterns_anti_refusal",
+          "static_patterns_deserialization",
+          "static_patterns_excessive_agency",
+          "static_patterns_harmful_content",
+          "static_patterns_memory_poisoning",
+          "static_patterns_privilege_escalation",
+          "static_patterns_prompt_injection",
+          "static_patterns_rogue_agent",
+          "static_patterns_ssrf",
+          "static_patterns_supply_chain",
+          "static_patterns_system_prompt_leakage",
+          "static_patterns_tool_misuse"
+        ]
+      }
+    ],
+    "scope_exclusions": [],
+    "analyzer_statuses": [
+      {
+        "analyzer_id": "artifact_integrity",
+        "status": "completed",
+        "planned_work": 87,
+        "completed": 87,
+        "partial": 0,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0
+      },
+      {
+        "analyzer_id": "behavioral_ast",
+        "status": "not_applicable",
+        "planned_work": 0,
+        "completed": 0,
+        "partial": 0,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0,
+        "reason_code": "no_applicable_files",
+        "message": "No files matched this analyzer's applicability contract."
+      },
+      {
+        "analyzer_id": "behavioral_taint_tracking",
+        "status": "not_applicable",
+        "planned_work": 0,
+        "completed": 0,
+        "partial": 0,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0,
+        "reason_code": "no_applicable_files",
+        "message": "No files matched this analyzer's applicability contract."
+      },
+      {
+        "analyzer_id": "bundled_execution_surface",
+        "status": "not_applicable",
+        "planned_work": 0,
+        "completed": 0,
+        "partial": 0,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0,
+        "reason_code": "no_applicable_files",
+        "message": "No files matched this analyzer's applicability contract."
+      },
+      {
+        "analyzer_id": "mcp_least_privilege",
+        "status": "not_applicable",
+        "planned_work": 0,
+        "completed": 0,
+        "partial": 0,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0,
+        "reason_code": "manifest_absent",
+        "message": "No compatible manifest was present for this analyzer."
+      },
+      {
+        "analyzer_id": "mcp_rug_pull",
+        "status": "completed",
+        "planned_work": 87,
+        "completed": 87,
+        "partial": 0,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0
+      },
+      {
+        "analyzer_id": "mcp_tool_poisoning",
+        "status": "not_applicable",
+        "planned_work": 0,
+        "completed": 0,
+        "partial": 0,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0,
+        "reason_code": "manifest_absent",
+        "message": "No compatible manifest was present for this analyzer."
+      },
+      {
+        "analyzer_id": "meta_analyzer",
+        "status": "disabled",
+        "planned_work": 0,
+        "completed": 0,
+        "partial": 0,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0,
+        "reason_code": "disabled_by_configuration",
+        "message": "Analyzer was disabled by the requested configuration."
+      },
+      {
+        "analyzer_id": "static_patterns_agent_snooping",
+        "status": "degraded",
+        "planned_work": 87,
+        "completed": 86,
+        "partial": 1,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0
+      },
+      {
+        "analyzer_id": "static_patterns_anti_refusal",
+        "status": "degraded",
+        "planned_work": 87,
+        "completed": 86,
+        "partial": 1,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0
+      },
+      {
+        "analyzer_id": "static_patterns_data_exfiltration",
+        "status": "completed",
+        "planned_work": 87,
+        "completed": 87,
+        "partial": 0,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0
+      },
+      {
+        "analyzer_id": "static_patterns_deserialization",
+        "status": "degraded",
+        "planned_work": 87,
+        "completed": 86,
+        "partial": 1,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0
+      },
+      {
+        "analyzer_id": "static_patterns_excessive_agency",
+        "status": "degraded",
+        "planned_work": 87,
+        "completed": 86,
+        "partial": 1,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0
+      },
+      {
+        "analyzer_id": "static_patterns_harmful_content",
+        "status": "degraded",
+        "planned_work": 87,
+        "completed": 86,
+        "partial": 1,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0
+      },
+      {
+        "analyzer_id": "static_patterns_memory_poisoning",
+        "status": "degraded",
+        "planned_work": 87,
+        "completed": 86,
+        "partial": 1,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0
+      },
+      {
+        "analyzer_id": "static_patterns_output_handling",
+        "status": "completed",
+        "planned_work": 87,
+        "completed": 87,
+        "partial": 0,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0
+      },
+      {
+        "analyzer_id": "static_patterns_privilege_escalation",
+        "status": "degraded",
+        "planned_work": 87,
+        "completed": 86,
+        "partial": 1,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0
+      },
+      {
+        "analyzer_id": "static_patterns_prompt_injection",
+        "status": "degraded",
+        "planned_work": 87,
+        "completed": 86,
+        "partial": 1,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0
+      },
+      {
+        "analyzer_id": "static_patterns_rogue_agent",
+        "status": "degraded",
+        "planned_work": 87,
+        "completed": 86,
+        "partial": 1,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0
+      },
+      {
+        "analyzer_id": "static_patterns_ssrf",
+        "status": "degraded",
+        "planned_work": 87,
+        "completed": 86,
+        "partial": 1,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0
+      },
+      {
+        "analyzer_id": "static_patterns_supply_chain",
+        "status": "degraded",
+        "planned_work": 87,
+        "completed": 86,
+        "partial": 1,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0
+      },
+      {
+        "analyzer_id": "static_patterns_system_prompt_leakage",
+        "status": "degraded",
+        "planned_work": 87,
+        "completed": 86,
+        "partial": 1,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0
+      },
+      {
+        "analyzer_id": "static_patterns_tool_misuse",
+        "status": "degraded",
+        "planned_work": 87,
+        "completed": 86,
+        "partial": 1,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0
+      },
+      {
+        "analyzer_id": "static_yara",
+        "status": "completed",
+        "planned_work": 87,
+        "completed": 87,
+        "partial": 0,
+        "skipped": 0,
+        "failed": 0,
+        "unaccounted": 0
+      }
+    ],
+    "references": [],
+    "limitations": [
+      "Analyzer static_patterns_agent_snooping status: degraded.",
+      "Analyzer static_patterns_anti_refusal status: degraded.",
+      "Analyzer static_patterns_deserialization status: degraded.",
+      "Analyzer static_patterns_excessive_agency status: degraded.",
+      "Analyzer static_patterns_harmful_content status: degraded.",
+      "Analyzer static_patterns_memory_poisoning status: degraded.",
+      "Analyzer static_patterns_privilege_escalation status: degraded.",
+      "Analyzer static_patterns_prompt_injection status: degraded.",
+      "Analyzer static_patterns_rogue_agent status: degraded.",
+      "Analyzer static_patterns_ssrf status: degraded.",
+      "Analyzer static_patterns_supply_chain status: degraded.",
+      "Analyzer static_patterns_system_prompt_leakage status: degraded.",
+      "Analyzer static_patterns_tool_misuse status: degraded."
+    ],
+    "findings_before_filtering": 12,
+    "findings_after_filtering": 12
+  }
+}

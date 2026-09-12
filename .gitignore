@@ -1,0 +1,41 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+credentials.*
+secrets/
+
+# Dependencies and virtual environments
+node_modules/
+.venv/
+venv/
+
+# Caches and generated runtime state
+.cache/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+graphify-out/
+.claude/.preflight_stamp.json
+
+# Install notebook (Mission 168, ticket 03): answers and completed steps of
+# a run of install.ps1, born with the workspace inside the cloned copy.
+# Machine-local state, never distributed, never committed.
+.install/
+
+# Temporary files and logs
+*.tmp
+*.temp
+*.log
+*.bak
+*.swp
+~$*
+
+# Operating-system noise
+.DS_Store
+Thumbs.db
+Desktop.ini

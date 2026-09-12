@@ -1,0 +1,52 @@
+{
+  "_comment": "English installer catalog (Mission 168, ticket 05). Same keys as catalog.fr.json and catalog.es.json -- tests/test-catalog-key-parity.ps1 verifies this. Placeholders use .NET composite-format syntax ({0}, {1}, ...), applied with the -f operator.",
+
+  "questionnaire.assistantName.prompt": "What name would you like to give your assistant?",
+  "questionnaire.assistantName.defaultNote": "(default: {0})",
+  "questionnaire.workspace.prompt": "Where should your Second Brain workspace live?",
+  "questionnaire.workspace.defaultNote": "(default: {0})",
+  "questionnaire.firstName.prompt": "What is your first name?",
+  "questionnaire.activity.prompt": "What do you do, in one sentence?",
+  "questionnaire.activity.default": "Not specified yet.",
+  "questionnaire.aiTools.prompt": "How do you work with AI? (comma-separated: claude-code, codex, claude-ai, chatgpt)",
+  "questionnaire.aiTools.detectedNote": "(detected on this machine: {0})",
+  "questionnaire.whatMatters.prompt": "What matters most to you?",
+  "questionnaire.whatMatters.default": "simplicity, no over-engineering",
+  "questionnaire.skillCollections.prompt": "Any extra skill collections to enable? (comma-separated, or leave blank)",
+  "questionnaire.skillCollections.defaultNote": "(default: none)",
+  "questionnaire.firstProject.prompt": "Create a first project now?",
+  "questionnaire.firstProject.defaultNote": "(default: yes)",
+  "questionnaire.firstProject.namePrompt": "Name for the first project?",
+
+  "progress.prerequisites": "Checking prerequisites (Git, uv, pre-commit)...",
+  "progress.workspaceCreated": "Workspace created.",
+  "progress.cloned": "Second Brain cloned.",
+  "progress.guardiansConfigured": "Guardians configured.",
+  "progress.markerWritten": "Workspace marker written.",
+  "progress.firstProjectCreated": "First project created.",
+  "progress.profileWritten": "Profile written.",
+
+  "verdict.success": "Installation complete: everything is in place.",
+  "verdict.stoppedAtStep": "Stopped at step {0}: {1}",
+  "verdict.remedy": "What to do: {0}",
+  "verdict.signature": "— {0}",
+
+  "update.header": "Here is what was recorded previously:",
+  "update.anythingChanged": "Has anything changed? (y/N)",
+  "update.noChangeNote": "Nothing changed: no file was modified.",
+  "update.rewriting": "Updating your profile...",
+
+  "step.name.prerequisites": "prerequisites",
+  "step.name.workspace": "workspace",
+  "step.name.clone": "clone",
+  "step.name.guardians": "guardians",
+  "step.name.marker": "marker",
+  "step.name.assistant": "assistant",
+  "step.name.skillsDeployed": "skills",
+  "step.name.firstProject": "first project",
+  "step.name.profile": "profile",
+
+  "cause.networkUnreachable": "Network unreachable while downloading a required tool.",
+  "remedy.networkUnreachable": "Check your internet connection, then run the installer line again.",
+  "remedy.generic": "Review the error above; once it is fixed, run the installer line again to resume."
+}

@@ -1,0 +1,30 @@
+# External staging and generated delivery material
+/.workspace/
+/intake/
+/dist/
+/skills/
+**/releases/
+*.zip
+
+# Versioned delivery artifacts are part of this warehouse's published history.
+!deliverables/
+!deliverables/**/
+!deliverables/**/*.zip
+
+# Build candidates and temporary files
+*.candidate.zip
+*.tmp
+*.bak
+*.orig
+*.rej
+
+# Dependencies and caches
+node_modules/
+__pycache__/
+.cache/
+
+# Editor and operating-system files
+.DS_Store
+Thumbs.db
+*.swp
+*~

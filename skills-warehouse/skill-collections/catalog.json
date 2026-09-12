@@ -1,0 +1,15 @@
+{
+  "schema_version": "1",
+  "authority": "COLLECTIONS_STANDARD.md",
+  "categories": [
+    { "slug": "software-engineering", "title": "Software Engineering", "meaning": "Building, testing, maintaining, debugging, reviewing, and architecting software." },
+    { "slug": "web-design", "title": "Web Design", "meaning": "Designing and implementing websites and browser-based visual experiences." },
+    { "slug": "visual-content", "title": "Visual Content", "meaning": "Creating visual narratives and non-site visual artifacts such as storyboards, diagrams, and illustrations." },
+    { "slug": "game-development", "title": "Game Development", "meaning": "Designing, implementing, testing, and shipping games and gameplay systems." },
+    { "slug": "research-writing", "title": "Research and Writing", "meaning": "Discovering, evaluating, synthesizing, and communicating knowledge." },
+    { "slug": "automation-workflows", "title": "Automation Workflows", "meaning": "Orchestrating repeatable actions across tools, services, repositories, or human gates." },
+    { "slug": "media-production", "title": "Media Production", "meaning": "Producing or transforming audio, video, images, and related media assets." },
+    { "slug": "business-marketing", "title": "Business and Marketing", "meaning": "Supporting commercial communication, acquisition, conversion, positioning, and business operations." },
+    { "slug": "general-purpose", "title": "General Purpose", "meaning": "Truly cross-domain agent workflows with no honest dominant domain; never an uncertainty bucket." }
+  ]
+}

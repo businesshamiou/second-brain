@@ -1,0 +1,14 @@
+{
+  "_comment": "Sample answers file for install.ps1 (Mission 168, ticket 03). This ticket does not implement the interactive questionnaire yet (T06 complement 2, questions 1-8): only the fields the current installer flow actually consumes are defined here. Later tickets (05, 06) are expected to extend this schema, never to narrow it.",
+  "workspacePath": "C:\\Users\\example\\second-brain-workspace",
+  "vaultName": "Brian",
+  "firstProject": {
+    "create": true,
+    "name": "premier-projet",
+    "displayName": "Premier projet"
+  },
+  "git": {
+    "userName": "Second Brain Installer",
+    "userEmail": "installer@example.invalid"
+  }
+}

@@ -1,0 +1,491 @@
+.claude/settings.json	DISTRIBUABLE
+.codex/hooks.json	DISTRIBUABLE
+.env.example	DISTRIBUABLE
+.gitattributes	DISTRIBUABLE
+.githooks/commit-msg	DISTRIBUABLE
+.githooks/pre-commit	DISTRIBUABLE
+.githooks/pre-push	DISTRIBUABLE
+.gitignore	DISTRIBUABLE
+.pre-commit-hooks.yaml	DISTRIBUABLE
+AGENTS.md	DISTRIBUABLE
+distribution-manifest.txt	DISTRIBUABLE
+CLAUDE.md	DISTRIBUABLE
+README.md	DISTRIBUABLE
+INSTALL.md	DISTRIBUABLE
+install.ps1	DISTRIBUABLE
+install.sh	DISTRIBUABLE
+LICENSE	DISTRIBUABLE
+USER.md	DISTRIBUABLE
+assistant/ASSISTANT.md	DISTRIBUABLE
+assistant/index.md	DISTRIBUABLE
+decisions/DECISION-2026-08-17-003000-vault-central-architecture.md	DISTRIBUABLE
+decisions/DECISION-2026-08-17-111018-vault-v1-information-architecture.md	DISTRIBUABLE
+decisions/DECISION-2026-08-18-004740-graphify-v1-architecture.md	DISTRIBUABLE
+decisions/DECISION-2026-08-19-115306-adopt-okf-knowledge-format.md	DISTRIBUABLE
+decisions/DECISION-2026-08-19-115306-project-registry-v1.md	DISTRIBUABLE
+decisions/DECISION-2026-08-19-233650-graphify-integrations-amendment.md	DISTRIBUABLE
+decisions/DECISION-2026-08-20-015748-mission-status-field-semantics.md	DISTRIBUABLE
+decisions/DECISION-2026-08-21-000236-execution-report-channel.md	DISTRIBUABLE
+decisions/DECISION-2026-08-21-105117-vault-installation-runbook.md	DISTRIBUABLE
+decisions/DECISION-2026-08-21-115658-document-linking-standard.md	DISTRIBUABLE
+decisions/DECISION-2026-08-23-124848-seven-arbitrations-2026-08-23.md	DISTRIBUABLE
+decisions/DECISION-2026-08-23-124917-scope-obsidian-and-content-search.md	DISTRIBUABLE
+decisions/DECISION-2026-08-23-124937-role-relay-mini-prompts.md	DISTRIBUABLE
+decisions/DECISION-2026-08-23-143542-pilot-contract-superseded-marking-and-journal-tags-ratification.md	DISTRIBUABLE
+decisions/DECISION-2026-08-23-155831-relay-forward-snippet-and-superseded-list-graph-exclusion.md	DISTRIBUABLE
+decisions/DECISION-2026-08-23-180500-relay-summary-rubric.md	DISTRIBUABLE
+decisions/DECISION-2026-08-23-184200-graphify-graph-role-withdrawal.md	DISTRIBUABLE
+decisions/DECISION-2026-08-23-220049-piv-taxonomy-and-english-system-language.md	DISTRIBUABLE
+decisions/DECISION-2026-08-24-214607-transverse-mechanism-distribution.md	DISTRIBUABLE
+decisions/DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md	DISTRIBUABLE
+decisions/DECISION-2026-08-25-131034-doctrinal-arbitrations-2026-08-25.md	DISTRIBUABLE
+decisions/DECISION-2026-08-26-154553-delegated-push-exception-becomes-rule.md	DISTRIBUABLE
+decisions/DECISION-2026-08-26-163958-stage2-mcp-allowlist-status-quo.md	DISTRIBUABLE
+decisions/DECISION-2026-08-26-231617-one-authorization-line-one-gesture.md	DISTRIBUABLE
+decisions/DECISION-2026-08-27-100016-copy-protocol-snippets-and-destinations.md	DISTRIBUABLE
+decisions/DECISION-2026-08-27-112528-delegated-push-exception-covers-its-journal-commit.md	DISTRIBUABLE
+decisions/DECISION-2026-08-28-203627-link-section-requirement-scoped-to-corpus.md	DISTRIBUABLE
+decisions/DECISION-2026-08-28-205904-amendment-lives-in-amended-repo.md	DISTRIBUABLE
+decisions/DECISION-2026-08-29-110852-deletion-is-owner-gesture-trash-zone.md	DISTRIBUABLE
+decisions/DECISION-2026-08-29-212009-evidence-status-and-stop-control.md	DISTRIBUABLE
+decisions/DECISION-2026-08-30-013217-mission-frozen-at-snippet-emission.md	DISTRIBUABLE
+decisions/DECISION-2026-09-02-191407-journal-and-index-as-pointers-300-chars.md	DISTRIBUABLE
+decisions/DECISION-2026-09-03-140714-pilot-context-budget-mission-size-cap.md	DISTRIBUABLE
+decisions/DECISION-2026-09-03-230604-one-mcp-window-per-workspace-skills-fully-exposed.md	DISTRIBUABLE
+decisions/DECISION-2026-09-04-121443-existence-sweep-memory-hypothesis-measured-existing.md	DISTRIBUABLE
+decisions/DECISION-2026-09-04-145256-amend-two-engraved-norms-and-amendment-rule.md	DISTRIBUABLE
+decisions/DECISION-2026-09-04-154756-mission-preflight-step-zero.md	DISTRIBUABLE
+decisions/DECISION-2026-09-05-124647-index-as-locator-8000-cap-live-archive.md	DISTRIBUABLE
+decisions/DECISION-2026-09-05-144700-mission-size-cap-20000-and-drafting-budget-5.md	DISTRIBUABLE
+decisions/DECISION-2026-09-05-204248-memory-retrieval-closure-benchmark-freeze.md	DISTRIBUABLE
+decisions/DECISION-2026-09-06-113850-memory-benchmark-verdicts-and-freeze.md	DISTRIBUABLE
+decisions/DECISION-2026-09-06-114521-legacy-already-prepared-migration-from-acquired-state.md	DISTRIBUABLE
+decisions/DECISION-2026-09-07-125156-cutover-dependencies-seven-arbitrations.md	DISTRIBUABLE
+decisions/index-archive-2026-08.md	DISTRIBUABLE
+decisions/index-archive-2026-09.md	DISTRIBUABLE
+decisions/index.md	DISTRIBUABLE
+handoffs/index.md	DISTRIBUABLE
+i18n/catalog.en.json	DISTRIBUABLE
+i18n/catalog.es.json	DISTRIBUABLE
+i18n/catalog.fr.json	DISTRIBUABLE
+index.md	DISTRIBUABLE
+knowledge/BRIEF-2026-08-17-003000-vault-concept-operating-model.md	DISTRIBUABLE
+knowledge/BRIEF-2026-08-17-140100-project-operating-model.md	DISTRIBUABLE
+knowledge/BRIEF-2026-08-17-211522-project-operating-model-v2.md	DISTRIBUABLE
+knowledge/corpus-layering.md	DISTRIBUABLE
+knowledge/index.md	DISTRIBUABLE
+knowledge/runbook-vault-setup.md	DISTRIBUABLE
+knowledge/verification-and-evidence.md	DISTRIBUABLE
+projects/PROJECT-REGISTRY.md	DISTRIBUABLE
+projects/index.md	DISTRIBUABLE
+rules/RULES-2026-08-17-005717-vault-operating-rules.md	DISTRIBUABLE
+rules/RULES-2026-08-17-013937-context-lifecycle.md	DISTRIBUABLE
+rules/RULES-2026-08-17-111018-context-lifecycle-v2.md	DISTRIBUABLE
+rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md	DISTRIBUABLE
+rules/RULES-2026-08-19-210803-guardrails-and-evidence-levels.md	DISTRIBUABLE
+rules/RULES-2026-08-21-115658-document-linking-standard.md	DISTRIBUABLE
+rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md	DISTRIBUABLE
+rules/RULES-2026-08-23-220049-activity-classification-and-system-keywords.md	DISTRIBUABLE
+rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md	DISTRIBUABLE
+rules/RULES-2026-08-26-142800-project-structure-standard.md	DISTRIBUABLE
+rules/index.md	DISTRIBUABLE
+rules/patterns/bypass-patterns.txt	DISTRIBUABLE
+rules/patterns/secret-patterns.txt	DISTRIBUABLE
+rules/superseded-files.txt	DISTRIBUABLE
+skills/external/LICENSE-mattpocock-skills.txt	DISTRIBUABLE
+skills/external/OWNER-EXCEPTIONS.md	DISTRIBUABLE
+skills/external/PROVENANCE.md	DISTRIBUABLE
+skills/external/ask-matt/PHASE-BOUNDARIES.md	DISTRIBUABLE
+skills/external/ask-matt/SKILL.md	DISTRIBUABLE
+skills/external/ask-matt/agents/openai.yaml	DISTRIBUABLE
+skills/external/ask-matt/index.md	DISTRIBUABLE
+skills/external/code-review/SKILL.md	DISTRIBUABLE
+skills/external/code-review/agents/openai.yaml	DISTRIBUABLE
+skills/external/code-review/index.md	DISTRIBUABLE
+skills/external/codebase-design/DEEPENING.md	DISTRIBUABLE
+skills/external/codebase-design/DESIGN-IT-TWICE.md	DISTRIBUABLE
+skills/external/codebase-design/SKILL.md	DISTRIBUABLE
+skills/external/codebase-design/agents/openai.yaml	DISTRIBUABLE
+skills/external/codebase-design/index.md	DISTRIBUABLE
+skills/external/diagnosing-bugs/SKILL.md	DISTRIBUABLE
+skills/external/diagnosing-bugs/agents/openai.yaml	DISTRIBUABLE
+skills/external/diagnosing-bugs/index.md	DISTRIBUABLE
+skills/external/diagnosing-bugs/scripts/hitl-loop.template.sh	DISTRIBUABLE
+skills/external/domain-modeling/ADR-FORMAT.md	DISTRIBUABLE
+skills/external/domain-modeling/CONTEXT-FORMAT.md	DISTRIBUABLE
+skills/external/domain-modeling/SKILL.md	DISTRIBUABLE
+skills/external/domain-modeling/agents/openai.yaml	DISTRIBUABLE
+skills/external/domain-modeling/index.md	DISTRIBUABLE
+skills/external/excalidraw-automate/LICENSE	DISTRIBUABLE
+skills/external/excalidraw-automate/SKILL.md	DISTRIBUABLE
+skills/external/excalidraw-automate/index.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/SECURITY.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/api-usage-index.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/excalidraw-lib-functions.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/index.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Add Connector Point.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Add Link to Existing File and Open.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Add Link to New Page and Open.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Add Next Step in Process.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Auto Layout.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Boolean Operations.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Box Each Selected Groups.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Box Selected Elements.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Capture Note.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Change shape of selected elements.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Comicbook Callout Editor.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Concatenate lines.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Connect elements.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Convert freedraw to line.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Convert selected text elements to sticky notes.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Convert text to link with folder and alias.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Copy Selected Element Styles to Global.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Create new markdown file and embed into active drawing.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Crop Vintage Mask.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Custom Zoom.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Darken background color.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Deconstruct selected elements into new drawing.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Elbow connectors.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Ellipse Selected Elements.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/ExcaliAI.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/ExcaliMath.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Excalidraw Collaboration Frame.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Excalidraw Writing Machine.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Expand rectangles horizontally keep text centered.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Expand rectangles horizontally.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Expand rectangles vertically keep text centered.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Expand rectangles vertically.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Fixed horizontal distance between centers.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Fixed inner distance.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Fixed spacing.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Fixed vertical distance between centers.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Fixed vertical distance.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Folder Note Core - Make Current Drawing a Folder.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Full-Year Calendar Generator.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Golden Ratio.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Grid Selected Images.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Icon Library.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Image Occlusion.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Invert colors.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Lighten background color.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Linear Calendar Generator.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Mindmap Builder.js	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Mindmap Builder.js.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Mindmap connector.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Mindmap format.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Modify background color opacity.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Normalize Selected Arrows.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Organic Line Legacy.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Organic Line.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/PDF Page Text to Clipboard.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Palette loader.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Palm Guard.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Printable Layout Wizard.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Relative Font Size Cycle.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Rename Image.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Repeat Elements.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Repeat Texts.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Reset LaTeX Size.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Reverse arrows.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Scribble Helper.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Select Elements of Type.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Select Similar Elements.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Set Dimensions.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Set Font Family.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Set Grid.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Set Link Alias.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Set Stroke Width of Selected Elements.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Set Text Alignment.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Set background color of unclosed line object by adding a shadow clone.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Shade Master.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Slideshow.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Split Ellipse.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Split text by lines.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Text Aura.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Text to Path.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Text to Sticky Notes.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/To Line.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Toggle Grid.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Uniform size.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/VoronoiDiagramGenerator.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/Zoom to Fit Selected Elements.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/scripts/index.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/startup-scripts.md	DISTRIBUABLE
+skills/external/excalidraw-automate/references/type-definitions.md	DISTRIBUABLE
+skills/external/git-guardrails-claude-code/SKILL.md	DISTRIBUABLE
+skills/external/git-guardrails-claude-code/agents/openai.yaml	DISTRIBUABLE
+skills/external/git-guardrails-claude-code/index.md	DISTRIBUABLE
+skills/external/git-guardrails-claude-code/scripts/block-dangerous-git.sh	DISTRIBUABLE
+skills/external/grill-me/SKILL.md	DISTRIBUABLE
+skills/external/grill-me/agents/openai.yaml	DISTRIBUABLE
+skills/external/grill-me/index.md	DISTRIBUABLE
+skills/external/grill-with-docs/SKILL.md	DISTRIBUABLE
+skills/external/grill-with-docs/agents/openai.yaml	DISTRIBUABLE
+skills/external/grill-with-docs/index.md	DISTRIBUABLE
+skills/external/grilling/SKILL.md	DISTRIBUABLE
+skills/external/grilling/agents/openai.yaml	DISTRIBUABLE
+skills/external/grilling/index.md	DISTRIBUABLE
+skills/external/handoff/SKILL.md	DISTRIBUABLE
+skills/external/handoff/agents/openai.yaml	DISTRIBUABLE
+skills/external/handoff/index.md	DISTRIBUABLE
+skills/external/implement/SKILL.md	DISTRIBUABLE
+skills/external/implement/agents/openai.yaml	DISTRIBUABLE
+skills/external/implement-spec/SKILL.md	DISTRIBUABLE
+skills/external/implement-spec/agents/openai.yaml	DISTRIBUABLE
+skills/external/implement-spec/index.md	DISTRIBUABLE
+skills/external/implement/index.md	DISTRIBUABLE
+skills/external/improve-codebase-architecture/HTML-REPORT.md	DISTRIBUABLE
+skills/external/improve-codebase-architecture/SKILL.md	DISTRIBUABLE
+skills/external/improve-codebase-architecture/agents/openai.yaml	DISTRIBUABLE
+skills/external/improve-codebase-architecture/index.md	DISTRIBUABLE
+skills/external/index.md	DISTRIBUABLE
+skills/external/loop-me/SKILL.md	DISTRIBUABLE
+skills/external/loop-me/agents/openai.yaml	DISTRIBUABLE
+skills/external/loop-me/index.md	DISTRIBUABLE
+skills/external/migrate-to-shoehorn/SKILL.md	DISTRIBUABLE
+skills/external/migrate-to-shoehorn/agents/openai.yaml	DISTRIBUABLE
+skills/external/migrate-to-shoehorn/index.md	DISTRIBUABLE
+skills/external/prototype/LOGIC.md	DISTRIBUABLE
+skills/external/prototype/SKILL.md	DISTRIBUABLE
+skills/external/prototype/UI.md	DISTRIBUABLE
+skills/external/prototype/agents/openai.yaml	DISTRIBUABLE
+skills/external/prototype/index.md	DISTRIBUABLE
+skills/external/research/SKILL.md	DISTRIBUABLE
+skills/external/research/agents/openai.yaml	DISTRIBUABLE
+skills/external/research/index.md	DISTRIBUABLE
+skills/external/resolving-merge-conflicts/SKILL.md	DISTRIBUABLE
+skills/external/resolving-merge-conflicts/agents/openai.yaml	DISTRIBUABLE
+skills/external/resolving-merge-conflicts/index.md	DISTRIBUABLE
+skills/external/retro/SKILL.md	DISTRIBUABLE
+skills/external/retro/agents/openai.yaml	DISTRIBUABLE
+skills/external/retro/index.md	DISTRIBUABLE
+skills/external/scaffold-exercises/SKILL.md	DISTRIBUABLE
+skills/external/scaffold-exercises/agents/openai.yaml	DISTRIBUABLE
+skills/external/scaffold-exercises/index.md	DISTRIBUABLE
+skills/external/script-to-whiteboard-storyboard/SKILL.md	DISTRIBUABLE
+skills/external/script-to-whiteboard-storyboard/agents/openai.yaml	DISTRIBUABLE
+skills/external/script-to-whiteboard-storyboard/assets/example-storyboard.json	DISTRIBUABLE
+skills/external/script-to-whiteboard-storyboard/assets/mascot-reference.png	DISTRIBUABLE
+skills/external/script-to-whiteboard-storyboard/assets/readme-hero.png	DISTRIBUABLE
+skills/external/script-to-whiteboard-storyboard/assets/style-reference.png	DISTRIBUABLE
+skills/external/script-to-whiteboard-storyboard/index.md	DISTRIBUABLE
+skills/external/script-to-whiteboard-storyboard/references/index.md	DISTRIBUABLE
+skills/external/script-to-whiteboard-storyboard/references/manifest-schema.md	DISTRIBUABLE
+skills/external/script-to-whiteboard-storyboard/references/prompt-system.md	DISTRIBUABLE
+skills/external/script-to-whiteboard-storyboard/references/qa-checklist.md	DISTRIBUABLE
+skills/external/script-to-whiteboard-storyboard/references/visual-grammar.md	DISTRIBUABLE
+skills/external/script-to-whiteboard-storyboard/scripts/build-review.mjs	DISTRIBUABLE
+skills/external/script-to-whiteboard-storyboard/scripts/generate-images.mjs	DISTRIBUABLE
+skills/external/script-to-whiteboard-storyboard/scripts/validate-storyboard.mjs	DISTRIBUABLE
+skills/external/scroll-film-studio/SKILL.md	DISTRIBUABLE
+skills/external/scroll-film-studio/index.md	DISTRIBUABLE
+skills/external/scroll-film-studio/references/engine.md	DISTRIBUABLE
+skills/external/scroll-film-studio/references/finishing.md	DISTRIBUABLE
+skills/external/scroll-film-studio/references/index.md	DISTRIBUABLE
+skills/external/scroll-film-studio/references/playbook.md	DISTRIBUABLE
+skills/external/scroll-film-studio/scripts/assemble.sh	DISTRIBUABLE
+skills/external/scroll-film-studio/scripts/chain-step.sh	DISTRIBUABLE
+skills/external/scroll-film-studio/scripts/continuity-gate.sh	DISTRIBUABLE
+skills/external/scroll-film-studio/scripts/copy-gate.js	DISTRIBUABLE
+skills/external/scroll-film-studio/scripts/kie-chain.py	DISTRIBUABLE
+skills/external/scroll-film-studio/scripts/package-lock.json	DISTRIBUABLE
+skills/external/scroll-film-studio/scripts/package.json	DISTRIBUABLE
+skills/external/scroll-film-studio/scripts/shot.js	DISTRIBUABLE
+skills/external/scroll-film-studio/scripts/vector-check.py	DISTRIBUABLE
+skills/external/scroll-film-studio/scripts/verify.js	DISTRIBUABLE
+skills/external/scroll-world/LICENSE	DISTRIBUABLE
+skills/external/scroll-world/SKILL.md	DISTRIBUABLE
+skills/external/scroll-world/index.md	DISTRIBUABLE
+skills/external/scroll-world/references/index-template.html	DISTRIBUABLE
+skills/external/scroll-world/references/index.md	DISTRIBUABLE
+skills/external/scroll-world/references/knockout.py	DISTRIBUABLE
+skills/external/scroll-world/references/pipeline.md	DISTRIBUABLE
+skills/external/scroll-world/references/prompts.md	DISTRIBUABLE
+skills/external/scroll-world/references/scrub-engine.js	DISTRIBUABLE
+skills/external/setup-matt-pocock-skills/SKILL.md	DISTRIBUABLE
+skills/external/setup-matt-pocock-skills/agents/openai.yaml	DISTRIBUABLE
+skills/external/setup-matt-pocock-skills/domain.md	DISTRIBUABLE
+skills/external/setup-matt-pocock-skills/index.md	DISTRIBUABLE
+skills/external/setup-matt-pocock-skills/issue-tracker-github.md	DISTRIBUABLE
+skills/external/setup-matt-pocock-skills/issue-tracker-gitlab.md	DISTRIBUABLE
+skills/external/setup-matt-pocock-skills/issue-tracker-local.md	DISTRIBUABLE
+skills/external/setup-matt-pocock-skills/triage-labels.md	DISTRIBUABLE
+skills/external/setup-pre-commit/SKILL.md	DISTRIBUABLE
+skills/external/setup-pre-commit/agents/openai.yaml	DISTRIBUABLE
+skills/external/setup-pre-commit/index.md	DISTRIBUABLE
+skills/external/setup-ts-deep-modules/SKILL.md	DISTRIBUABLE
+skills/external/setup-ts-deep-modules/agents/openai.yaml	DISTRIBUABLE
+skills/external/setup-ts-deep-modules/dependency-cruiser.config.cjs	DISTRIBUABLE
+skills/external/setup-ts-deep-modules/index.md	DISTRIBUABLE
+skills/external/tdd/SKILL.md	DISTRIBUABLE
+skills/external/tdd/agents/openai.yaml	DISTRIBUABLE
+skills/external/tdd/index.md	DISTRIBUABLE
+skills/external/tdd/mocking.md	DISTRIBUABLE
+skills/external/tdd/tests.md	DISTRIBUABLE
+skills/external/teach/GLOSSARY-FORMAT.md	DISTRIBUABLE
+skills/external/teach/LEARNING-RECORD-FORMAT.md	DISTRIBUABLE
+skills/external/teach/MISSION-FORMAT.md	DISTRIBUABLE
+skills/external/teach/RESOURCES-FORMAT.md	DISTRIBUABLE
+skills/external/teach/SKILL.md	DISTRIBUABLE
+skills/external/teach/agents/openai.yaml	DISTRIBUABLE
+skills/external/teach/index.md	DISTRIBUABLE
+skills/external/to-questionnaire/SKILL.md	DISTRIBUABLE
+skills/external/to-questionnaire/agents/openai.yaml	DISTRIBUABLE
+skills/external/to-questionnaire/index.md	DISTRIBUABLE
+skills/external/to-spec/SKILL.md	DISTRIBUABLE
+skills/external/to-spec/agents/openai.yaml	DISTRIBUABLE
+skills/external/to-spec/index.md	DISTRIBUABLE
+skills/external/to-tickets/SKILL.md	DISTRIBUABLE
+skills/external/to-tickets/agents/openai.yaml	DISTRIBUABLE
+skills/external/to-tickets/index.md	DISTRIBUABLE
+skills/external/triage/AGENT-BRIEF.md	DISTRIBUABLE
+skills/external/triage/OUT-OF-SCOPE.md	DISTRIBUABLE
+skills/external/triage/SKILL.md	DISTRIBUABLE
+skills/external/triage/agents/openai.yaml	DISTRIBUABLE
+skills/external/triage/index.md	DISTRIBUABLE
+skills/external/wait-what/SKILL.md	DISTRIBUABLE
+skills/external/wait-what/agents/openai.yaml	DISTRIBUABLE
+skills/external/wait-what/index.md	DISTRIBUABLE
+skills/external/wayfinder/SKILL.md	DISTRIBUABLE
+skills/external/wayfinder/agents/openai.yaml	DISTRIBUABLE
+skills/external/wayfinder/index.md	DISTRIBUABLE
+skills/external/wizard/SKILL.md	DISTRIBUABLE
+skills/external/wizard/agents/openai.yaml	DISTRIBUABLE
+skills/external/wizard/index.md	DISTRIBUABLE
+skills/external/wizard/template.sh	DISTRIBUABLE
+skills/external/writing-beats/SKILL.md	DISTRIBUABLE
+skills/external/writing-beats/agents/openai.yaml	DISTRIBUABLE
+skills/external/writing-beats/index.md	DISTRIBUABLE
+skills/external/writing-for-agents/SKILL-MECHANICS.md	DISTRIBUABLE
+skills/external/writing-for-agents/SKILL.md	DISTRIBUABLE
+skills/external/writing-for-agents/adapters/claude.md	DISTRIBUABLE
+skills/external/writing-for-agents/adapters/generic.md	DISTRIBUABLE
+skills/external/writing-for-agents/adapters/index.md	DISTRIBUABLE
+skills/external/writing-for-agents/adapters/openai.md	DISTRIBUABLE
+skills/external/writing-for-agents/agents/openai.yaml	DISTRIBUABLE
+skills/external/writing-for-agents/index.md	DISTRIBUABLE
+skills/external/writing-fragments/SKILL.md	DISTRIBUABLE
+skills/external/writing-fragments/agents/openai.yaml	DISTRIBUABLE
+skills/external/writing-fragments/index.md	DISTRIBUABLE
+skills/external/writing-shape/SKILL.md	DISTRIBUABLE
+skills/external/writing-shape/agents/openai.yaml	DISTRIBUABLE
+skills/external/writing-shape/index.md	DISTRIBUABLE
+skills/index.md	DISTRIBUABLE
+skills/first-install/SKILL.md	DISTRIBUABLE
+skills/first-install/index.md	DISTRIBUABLE
+skills/first-install/install-checklist.md	DISTRIBUABLE
+skills/first-install/install-report-template.md	DISTRIBUABLE
+skills/recherche-interne/SKILL.md	DISTRIBUABLE
+skills/recherche-interne/index.md	DISTRIBUABLE
+skills/project-bootstrap/SKILL.md	DISTRIBUABLE
+skills/project-bootstrap/index.md	DISTRIBUABLE
+skills/project-bootstrap/preflight-hook.sh	DISTRIBUABLE
+skills/project-bootstrap/settings-hook.json	DISTRIBUABLE
+skills/ecriture-de-mission/SKILL.md	DISTRIBUABLE
+skills/ecriture-de-mission/index.md	DISTRIBUABLE
+skills/ecriture-de-mission/mission-checklist.md	DISTRIBUABLE
+skills/session-close/SKILL.md	DISTRIBUABLE
+skills/session-close/closing-checklist.md	DISTRIBUABLE
+skills/session-close/index.md	DISTRIBUABLE
+skills/session-start/SKILL.md	DISTRIBUABLE
+skills/session-start/index.md	DISTRIBUABLE
+skills/session-start/reading-list.md	DISTRIBUABLE
+skills/superseded-files.txt	DISTRIBUABLE
+superseded-files.txt	DISTRIBUABLE
+templates/capture-template.md	DISTRIBUABLE
+templates/current-state-template.md	DISTRIBUABLE
+templates/decision-template.md	DISTRIBUABLE
+templates/handoff-template.md	DISTRIBUABLE
+templates/index.md	DISTRIBUABLE
+templates/mission-template.md	DISTRIBUABLE
+templates/pilot-contract-template.md	DISTRIBUABLE
+templates/project-registry-template.md	DISTRIBUABLE
+templates/proposal-template.md	DISTRIBUABLE
+templates/report-template.md	DISTRIBUABLE
+templates/session-opening-prompt-template.md	DISTRIBUABLE
+templates/vault-root-template.md	DISTRIBUABLE
+tests/index.md	DISTRIBUABLE
+tests/fixtures/install-answers.sample.json	DISTRIBUABLE
+tests/standalone.sh	DISTRIBUABLE
+tests/test-catalog-key-parity.ps1	DISTRIBUABLE
+tests/test-check-links-code-block-scope.sh	DISTRIBUABLE
+tests/test-check-links-cross-repo.sh	DISTRIBUABLE
+tests/test-link-graph-drone-view-empty-status-field.sh	DISTRIBUABLE
+tests/test-install-e2e.ps1	DISTRIBUABLE
+tests/test-install-e2e.sh	DISTRIBUABLE
+tests/test-prerequisites-e2e.ps1	DISTRIBUABLE
+tests/test-questionnaire-network-failure.ps1	DISTRIBUABLE
+tests/test-questionnaire-resume.ps1	DISTRIBUABLE
+tests/test-questionnaire-update-mode.ps1	DISTRIBUABLE
+tests/test-assistant-generation.ps1	DISTRIBUABLE
+tests/test-skills-deployment.ps1	DISTRIBUABLE
+tools/append-journal.sh	DISTRIBUABLE
+tools/build-digest.sh	DISTRIBUABLE
+tools/build-indexes.sh	DISTRIBUABLE
+tools/build-state.sh	DISTRIBUABLE
+tools/build_indexes.py	DISTRIBUABLE
+tools/check-asserted-paths.sh	DISTRIBUABLE
+tools/check-distribution-manifest.sh	DISTRIBUABLE
+tools/check-obsolescence-guardrail.py	DISTRIBUABLE
+tools/check-index-weight.sh	DISTRIBUABLE
+tools/check-indexes-fresh.sh	DISTRIBUABLE
+tools/check-links.sh	DISTRIBUABLE
+tools/check-project-conformity.sh	DISTRIBUABLE
+tools/check-secrets.sh	DISTRIBUABLE
+tools/check_index_weight.py	DISTRIBUABLE
+tools/check_indexes_fresh.py	DISTRIBUABLE
+tools/deploy-skills.ps1	DISTRIBUABLE
+tools/environment-fingerprint.ps1	DISTRIBUABLE
+tools/environment-fingerprint.sh	DISTRIBUABLE
+tools/find-in-vault.sh	DISTRIBUABLE
+tools/generate-assistant.ps1	DISTRIBUABLE
+tools/link-graph-drone-view.sh	DISTRIBUABLE
+tools/prerequisites.lock.json	DISTRIBUABLE
+tools/prerequisites.ps1	DISTRIBUABLE
+tools/prerequisites.sh	DISTRIBUABLE
+tools/project-bootstrap.sh	DISTRIBUABLE
+tools/questionnaire.ps1	DISTRIBUABLE
+tools/resolve-bash-exe.ps1	DISTRIBUABLE
+tools/sb_installer_helper.py	DISTRIBUABLE
+tools/session-preflight.sh	DISTRIBUABLE
+tools/session-start-role.sh	DISTRIBUABLE
+tools/start-executor.sh	DISTRIBUABLE
+tools/write-marker.sh	DISTRIBUABLE
+decisions/DECISION-2026-08-17-211409-graphify-v1-baseline-gate-record.md	DISTRIBUABLE
+decisions/DECISION-2026-08-25-205728-workshop-case-study-pivot-wordpress.md	DISTRIBUABLE
+decisions/DECISION-2026-08-25-213150-session-opening-directory-freed.md	DISTRIBUABLE
+decisions/DECISION-2026-08-25-232341-evening-consolidation-project-standard-and-plan.md	DISTRIBUABLE
+decisions/DECISION-2026-08-28-160213-skills-library-into-vault-amendment.md	DISTRIBUABLE
+decisions/DECISION-2026-08-28-171209-skills-adoption-by-v1-envelope-rewrite.md	DISTRIBUABLE
+decisions/DECISION-2026-08-31-210731-project-vault-awareness-three-tiers.md	DISTRIBUABLE
+decisions/DECISION-2026-08-31-231841-skills-library-standard-form-warehouse.md	DISTRIBUABLE
+decisions/DECISION-2026-09-01-115547-mission-context-coherence-and-least-powerful-reading.md	DISTRIBUABLE
+decisions/DECISION-2026-09-01-144931-skills-v1-end-of-pass.md	DISTRIBUABLE
+decisions/DECISION-2026-09-02-005041-cross-repo-links-checked-only-when-target-repo-present.md	DISTRIBUABLE
+CONTEXT.md	DISTRIBUABLE
+THIRD-PARTY-LICENSES.md	DISTRIBUABLE
+rules/RULES-2026-09-11-190000-project-second-brain-boundary.md	DISTRIBUABLE
+.github/workflows/ci.yml	DISTRIBUABLE
+tools/check-private-patterns.sh	DISTRIBUABLE
+tools/lint-ci-workflow.py	DISTRIBUABLE
+tests/test-check-private-patterns.sh	DISTRIBUABLE
+tests/test-lint-ci-workflow.sh	DISTRIBUABLE
+templates/example-project-book-club/README.md	DISTRIBUABLE
+templates/example-project-book-club/decisions/DECISION-2026-09-11-194000-alterner-genres-tous-les-deux-mois.md	DISTRIBUABLE
+templates/example-project-book-club/decisions/index.md	DISTRIBUABLE
+templates/example-project-book-club/handoffs/HANDOFF-2026-09-11-195500-passation-animation-octobre.md	DISTRIBUABLE
+templates/example-project-book-club/handoffs/index.md	DISTRIBUABLE
+templates/example-project-book-club/index.md	DISTRIBUABLE
+templates/example-project-book-club/knowledge/CAPTURE-2026-09-11-195000-notes-de-la-rencontre-de-septembre.md	DISTRIBUABLE
+templates/example-project-book-club/knowledge/index.md	DISTRIBUABLE
+templates/example-project-book-club/missions/MISSION-2026-09-11-193500-organiser-la-rencontre-doctobre.md	DISTRIBUABLE
+templates/example-project-book-club/missions/index.md	DISTRIBUABLE
+templates/example-project-book-club/proposals/PROPOSAL-2026-09-11-194500-lecture-a-voix-haute-en-fin-de-rencontre.md	DISTRIBUABLE
+templates/example-project-book-club/proposals/index.md	DISTRIBUABLE
+templates/example-project-book-club/rules/RULES-2026-09-11-193000-choix-du-livre-du-mois.md	DISTRIBUABLE
+templates/example-project-book-club/rules/index.md	DISTRIBUABLE
+templates/example-project-book-club/state/journal.md	DISTRIBUABLE
+tests/test-third-party-licenses.sh	DISTRIBUABLE
+tools/generate-third-party-licenses.sh	DISTRIBUABLE
+tools/acceptance-wizard.sh	DISTRIBUABLE
+tests/test-acceptance-wizard-functions.sh	DISTRIBUABLE

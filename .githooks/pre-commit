@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+# Refuse un commit contenant un secret.
+# Actif pour tout client Git : agent, humain, script.
+
+set -u
+
+VAULT_ROOT="$(git rev-parse --show-toplevel)"
+
+# Invocation via `bash "$SCRIPT"` dans les deux cas : le bit executable du
+# fichier sur disque n'est pas fiable (mesure Mission 046, Windows/MSYS,
+# noacl) et ne doit jamais decider si un controle s'enchaine ou saute.
+
+# --- Pre-vol agregateur (Mission 151, Decision 154756) --------------------
+# Chaque gardien tourne, meme si un autre a deja echoue : plus de sortie au
+# premier `|| exit 1` (defaut mesure au rapport 150 -- "reciprocite au
+# premier passage, chemin nu au second"). Un gardien qui exige un prealable
+# le declare en DEPS ; si ce prealable echoue ou est lui-meme SKIPPED, les
+# gardiens qui en dependent sont SKIPPED (blocked by <x>), jamais executes
+# a l'aveugle -- la dependance se propage en chaine (transitif). Les scripts
+# gardiens eux-memes ne sont pas modifies -- seul cet enchainement l'est.
+# Ordre des gardiens conserve (identique a l'ancien enchainement sequentiel) :
+# le tampon de preflight (Mission 039) devient le premier gardien du meme
+# rapport plutot qu'une muraille silencieuse a part -- une session dont le
+# preflight est perime doit voir, dans le meme rapport, que tout le reste a
+# ete saute a cause de ca, pas recevoir une ligne isolee sans contexte.
+
+# --- Gardien 0 : tampon de preflight (Mission 039) -------------------------
+preflight_guardian() {
+  local stamp="$VAULT_ROOT/.claude/.preflight_stamp.json"
+  if [ ! -f "$stamp" ]; then
+    echo "REFUS : preflight absent. Remede : bash tools/session-preflight.sh"
+    return 1
+  fi
+  if ! grep -qE '"ready"[[:space:]]*:[[:space:]]*true' "$stamp" 2>/dev/null; then
+    echo "REFUS : preflight illisible ou ready != true. Remede : bash tools/session-preflight.sh"
+    return 1
+  fi
+  if [ -n "$(find "$stamp" -mmin +1440 2>/dev/null)" ]; then
+    echo "REFUS : preflight perime (> 1440 min). Remede : bash tools/session-preflight.sh"
+    return 1
+  fi
+  return 0
+}
+
+# Un gardien introuvable ou son interprete absent = FAIL (fail-closed),
+# jamais un saut silencieux : "le controle ne peut pas verifier, il refuse."
+uv_guardian() {
+  local script="$1"
+  if [ ! -f "$script" ]; then
+    echo "REFUS : garde-fou introuvable : $script"
+    return 1
+  fi
+  if ! command -v uv >/dev/null 2>&1; then
+    echo "REFUS : uv introuvable, impossible d'executer $script"
+    return 1
+  fi
+  uv run "$script"
+}
+
+bash_guardian() {
+  local script="$1"
+  if [ ! -f "$script" ]; then
+    echo "REFUS : garde-fou introuvable : $script"
+    return 1
+  fi
+  bash "$script"
+}
+
+declare -a G_NAME=()
+declare -a G_CMD=()
+declare -a G_DEP=()
+
+add_guardian() { G_NAME+=("$1"); G_CMD+=("$2"); G_DEP+=("$3"); }
+
+add_guardian "preflight"        "preflight_guardian" ""
+add_guardian "reciprocite"      "uv_guardian \"$VAULT_ROOT/tools/check-obsolescence-guardrail.py\"" "preflight"
+add_guardian "fraicheur-index"  "bash_guardian \"$VAULT_ROOT/tools/check-indexes-fresh.sh\"" "preflight"
+add_guardian "poids-index"      "bash_guardian \"$VAULT_ROOT/tools/check-index-weight.sh\"" "fraicheur-index"
+add_guardian "secrets"          "bash_guardian \"$VAULT_ROOT/tools/check-secrets.sh\"" "preflight"
+add_guardian "liens"            "bash_guardian \"$VAULT_ROOT/tools/check-links.sh\"" "fraicheur-index"
+add_guardian "chemins-affirmes" "bash_guardian \"$VAULT_ROOT/tools/check-asserted-paths.sh\"" "preflight"
+add_guardian "manifeste"        "bash_guardian \"$VAULT_ROOT/tools/check-distribution-manifest.sh\"" "preflight"
+
+declare -A VERDICT
+declare -A OUTPUT
+FAIL_COUNT=0
+
+blocked() {
+  # Vrai si la dependance $1 a echoue ou a ete elle-meme sautee (transitif).
+  local v="${VERDICT[$1]:-}"
+  [ "$v" = "FAIL" ] || [[ "$v" == SKIPPED* ]]
+}
+
+for i in "${!G_NAME[@]}"; do
+  name="${G_NAME[$i]}"
+  dep="${G_DEP[$i]}"
+
+  if [ -n "$dep" ] && blocked "$dep"; then
+    VERDICT["$name"]="SKIPPED (blocked by $dep)"
+    OUTPUT["$name"]=""
+    continue
+  fi
+
+  out="$(eval "${G_CMD[$i]}" 2>&1)"
+  code=$?
+  OUTPUT["$name"]="$out"
+  if [ "$code" -eq 0 ]; then
+    VERDICT["$name"]="PASS"
+  else
+    VERDICT["$name"]="FAIL"
+    FAIL_COUNT=$((FAIL_COUNT + 1))
+  fi
+done
+
+echo "=== Pre-vol agregateur vault (Mission 151) ==="
+for name in "${G_NAME[@]}"; do
+  printf '%-18s %s\n' "$name" "${VERDICT[$name]}"
+done
+echo "---"
+for name in "${G_NAME[@]}"; do
+  case "${VERDICT[$name]}" in
+    FAIL)
+      echo "--- $name (FAIL) ---"
+      echo "${OUTPUT[$name]}"
+      ;;
+  esac
+done
+
+if [ "$FAIL_COUNT" -gt 0 ]; then
+  echo "REFUS : $FAIL_COUNT gardien(s) en echec sur ${#G_NAME[@]}."
+  exit 1
+fi
+
+echo "PASS : ${#G_NAME[@]}/${#G_NAME[@]} gardiens (0 echec)."
+exit 0
