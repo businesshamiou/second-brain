@@ -65,7 +65,6 @@ TEST_MODE=0
 TEST_ROOT=""
 STOP_AFTER_STEP=""
 SCRIPTED_ANSWERS=()
-SCRIPTED_INDEX=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -79,6 +78,27 @@ while [ $# -gt 0 ]; do
     *) echo "Unknown argument: $1" >&2; exit 2 ;;
   esac
 done
+
+# SCRIPTED_INDEX is tracked in a file, not a plain shell variable
+# (pre-existing bug, fixed as part of Mission 171-C01): every caller of
+# next_scripted_or_read captures its stdout via command substitution --
+# `line="$(next_scripted_or_read ...)"` in read_field/read_required_field
+# -- which runs the function in a SUBSHELL. A subshell's own increment of
+# a shell variable never reaches the parent shell, so a plain
+# `SCRIPTED_INDEX=$((SCRIPTED_INDEX + 1))` was silently discarded after
+# every single call: the second and every later --scripted-answers entry
+# was unreachable, and every question kept replaying the FIRST scripted
+# answer forever -- measured directly while testing this ticket's own
+# workspace-path validation loop, which is the first install.sh code path
+# to call read_field more than once for a single question and so the
+# first to ever expose it. A file survives across subshells the way a
+# shell variable cannot.
+SCRIPTED_INDEX_FILE=""
+if [ "${#SCRIPTED_ANSWERS[@]}" -gt 0 ]; then
+  SCRIPTED_INDEX_FILE="$(mktemp)"
+  printf '0' > "$SCRIPTED_INDEX_FILE"
+  trap 'rm -f "$SCRIPTED_INDEX_FILE"' EXIT
+fi
 
 if [ -z "$SOURCE" ]; then
   echo "Usage: install.sh --source <path> [--answers-file <json>] [--test-mode --test-root <path>]" >&2
@@ -97,16 +117,24 @@ sb_trim() {
 next_scripted_or_read() {
   # $1 = prompt text, printed to stderr (never stdout: this function's
   # return value, printed to stdout, is the answer itself -- same
-  # separation as install.ps1's Write-Host/Read-Host split).
+  # separation as install.ps1's Write-Host/Read-Host split). The dequeue
+  # index lives in $SCRIPTED_INDEX_FILE, not a shell variable -- see that
+  # variable's own header comment: this function is always called through
+  # a command substitution, i.e. a subshell, so a shell-variable increment
+  # here would never be visible to the next call.
   echo "$1" >&2
-  if [ "$SCRIPTED_INDEX" -lt "${#SCRIPTED_ANSWERS[@]}" ]; then
-    printf '%s' "${SCRIPTED_ANSWERS[$SCRIPTED_INDEX]}"
-    SCRIPTED_INDEX=$((SCRIPTED_INDEX + 1))
-  else
-    local line
-    IFS= read -r line || line=""
-    printf '%s' "$line"
+  if [ -n "$SCRIPTED_INDEX_FILE" ]; then
+    local idx
+    idx="$(cat "$SCRIPTED_INDEX_FILE")"
+    if [ "$idx" -lt "${#SCRIPTED_ANSWERS[@]}" ]; then
+      printf '%s' "${SCRIPTED_ANSWERS[$idx]}"
+      printf '%s' "$((idx + 1))" > "$SCRIPTED_INDEX_FILE"
+      return 0
+    fi
   fi
+  local line
+  IFS= read -r line || line=""
+  printf '%s' "$line"
 }
 
 read_field() {
@@ -132,6 +160,80 @@ is_affirmative() {
     y|yes|o|oui|s|si) return 0 ;;
     *) return 1 ;;
   esac
+}
+
+sb_is_absolute_path() {
+  # True for a POSIX absolute path (leading '/') or a Windows drive-letter
+  # absolute path (e.g. C:\Users\... or C:/Users\...) -- this installer's
+  # own bash entry point can run under Git Bash/MSYS on Windows too
+  # (tests/test-install-e2e.sh's own HYPOTHESIS notice), where a
+  # participant may naturally type a Windows-spelled path. The Windows form
+  # is matched with a regex (`[[ =~ ]]`), never a glob `case` bracket
+  # expression: bash's glob engine treats an unquoted backslash inside
+  # `[...]` as an escape character, not a literal one, so a bracket meant
+  # to match either '/' or '\' silently never matches '\' at all (measured
+  # directly while building this check).
+  case "$1" in
+    /*) return 0 ;;
+  esac
+  [[ "$1" =~ ^[A-Za-z]:[/\\] ]]
+}
+
+sb_normalize_path_for_compare() {
+  # String-only normalization for the "is candidate inside the source
+  # repository" check below: backslashes become slashes and a trailing
+  # slash is stripped, so the same location spelled with '\' or '/'
+  # compares equal. Never touches the filesystem -- the candidate
+  # workspace usually does not exist yet, so a realpath-style
+  # canonicalization is not available (and not needed: the source side of
+  # the comparison, $SOURCE_ABS, is already resolved to an absolute path
+  # via `cd ... && pwd` before this is ever called).
+  local p
+  p="$(printf '%s' "$1" | tr '\\' '/')"
+  case "$p" in
+    ?*/) p="${p%/}" ;;
+  esac
+  printf '%s' "$p"
+}
+
+sb_path_is_inside_or_equal() {
+  # $1 = candidate, $2 = root. Both normalized here before comparing.
+  local candidate root
+  candidate="$(sb_normalize_path_for_compare "$1")"
+  root="$(sb_normalize_path_for_compare "$2")"
+  [ "$candidate" = "$root" ] && return 0
+  case "$candidate" in
+    "$root"/*) return 0 ;;
+  esac
+  return 1
+}
+
+validate_workspace_path_answer() {
+  # $1 = candidate typed at the workspace-path question. Prints one cause
+  # key and returns 1 when invalid ("blankOrYesNo", "notAbsolute",
+  # "insideSource" -- catalog.*.json's own
+  # "questionnaire.workspace.error.<cause>" keys); prints nothing and
+  # returns 0 when the candidate is acceptable.
+  #
+  # Defects 1/2 (this ticket, Mission 171-C01): oui/non/y/n and a blank
+  # line are not paths -- the literal 'oui' folder found under
+  # _trash-oui-20260912 is this exact defect's own physical proof -- a
+  # relative path would resolve against whatever directory `git clone`
+  # happens to run from rather than the participant's intent (Defect 1),
+  # and a path inside $SOURCE_ABS would clone second-brain into its own
+  # source (Defect 1 as well).
+  local candidate="$1" lower
+  lower="$(sb_lower "$(sb_trim "$candidate")")"
+  case "$lower" in
+    ""|oui|non|y|n) printf '%s' "blankOrYesNo"; return 1 ;;
+  esac
+  if ! sb_is_absolute_path "$candidate"; then
+    printf '%s' "notAbsolute"; return 1
+  fi
+  if sb_path_is_inside_or_equal "$candidate" "$SOURCE_ABS"; then
+    printf '%s' "insideSource"; return 1
+  fi
+  return 0
 }
 
 catalog_get() {
@@ -177,6 +279,46 @@ resolve_answer() {
   fi
   printf -v "$varname" '%s' "$value"
   printf '%s' "$value"
+}
+
+resolve_workspace_path() {
+  # Same resolution contract as resolve_answer above (an already recorded
+  # value is returned untouched, silent mode never prompts) but adds a
+  # validation loop for the one field where a bad answer is worst (Defects
+  # 1/2, Mission 171-C01): interactive prompting here never accepts
+  # oui/non/y/n, a blank line, a relative path, or a path inside the
+  # source repository (validate_workspace_path_answer decides) -- it names
+  # the cause and asks again instead of falling through to a bad value.
+  # $1=prompt $2=default $3=interactive(0/1) $4=forceReask(0/1)
+  local prompt="$1" default="$2" interactive="$3" force_reask="$4"
+  local existing="$ANSWER_WORKSPACEPATH"
+  local has_existing=0
+  [ -n "$existing" ] && has_existing=1
+
+  if [ "$has_existing" = "1" ] && [ "$force_reask" != "1" ]; then
+    printf '%s' "$existing"
+    return 0
+  fi
+
+  if [ "$interactive" != "1" ]; then
+    local value
+    if [ "$has_existing" = "1" ]; then value="$existing"; else value="$default"; fi
+    printf -v ANSWER_WORKSPACEPATH '%s' "$value"
+    printf '%s' "$value"
+    return 0
+  fi
+
+  local effective_default candidate cause
+  if [ "$has_existing" = "1" ]; then effective_default="$existing"; else effective_default="$default"; fi
+  while true; do
+    candidate="$(read_field "$prompt" "$effective_default")"
+    if cause="$(validate_workspace_path_answer "$candidate")"; then
+      break
+    fi
+    echo "$(catalog_get "questionnaire.workspace.error.$cause" "$candidate" "$default")" >&2
+  done
+  printf -v ANSWER_WORKSPACEPATH '%s' "$candidate"
+  printf '%s' "$candidate"
 }
 
 project_slug_from_activity() {
@@ -355,6 +497,10 @@ fi
 if ! git -C "$SOURCE" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   fail "Source is not a git repository: $SOURCE"
 fi
+# Resolved once, here, to an absolute path -- the workspace-path question
+# below (validate_workspace_path_answer) compares every typed candidate
+# against this, never against the raw (possibly relative) $SOURCE.
+SOURCE_ABS="$(cd "$SOURCE" && pwd)"
 
 I18N_DIR="$SCRIPT_DIR/i18n"
 INTERACTIVE=1
@@ -427,8 +573,10 @@ if [ "$INTERACTIVE" = "1" ]; then
 
   workspace_prompt="$(prompt_with_default "questionnaire.workspace.prompt" "questionnaire.workspace.defaultNote" "$CTX_DEFAULT_WORKSPACE_PATH")"
   # Workspace never moves once a real install exists there -- never
-  # force-reasked even in update mode.
-  resolve_answer WORKSPACEPATH "$workspace_prompt" "$CTX_DEFAULT_WORKSPACE_PATH" 1 0 0 >/dev/null
+  # force-reasked even in update mode. resolve_workspace_path, not
+  # resolve_answer: a typed answer is validated in a loop (Defects 1/2,
+  # Mission 171-C01) instead of accepted as-is.
+  resolve_workspace_path "$workspace_prompt" "$CTX_DEFAULT_WORKSPACE_PATH" 1 0 >/dev/null
 else
   resolve_answer VAULTNAME "" "$DEFAULT_ASSISTANT_NAME" 0 0 0 >/dev/null
 fi

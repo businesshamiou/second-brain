@@ -395,6 +395,11 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw "Source is not a git repository: $Source"
     }
+    # Resolved once, here, to an absolute path -- the workspace-path
+    # question below (Resolve-WorkspacePathAnswer/Test-ValidWorkspacePath)
+    # compares every typed candidate against this, never against the raw
+    # (possibly relative) $Source.
+    $sourceAbs = (Resolve-Path $Source).Path
 
     $i18nDir = Join-Path $PSScriptRoot 'i18n'
     $interactive = [string]::IsNullOrWhiteSpace($AnswersFile)
@@ -499,9 +504,12 @@ try {
             -DefaultNoteArgs @($context.DefaultWorkspacePath)
         # Workspace never moves once a real install exists there (T06: no
         # later displacement) -- never force-reasked even in update mode,
-        # only ever asked when truly unknown.
-        Resolve-QuestionnaireAnswer -Answers $answers -Name 'workspacePath' -PromptText $workspacePrompt `
-            -DefaultValue $context.DefaultWorkspacePath -Interactive:$true -ScriptedInputs $scriptedQueue | Out-Null
+        # only ever asked when truly unknown. Resolve-WorkspacePathAnswer,
+        # not Resolve-QuestionnaireAnswer: a typed answer is validated in a
+        # loop (Defects 1/2, Mission 171-C01) instead of accepted as-is.
+        Resolve-WorkspacePathAnswer -Answers $answers -PromptText $workspacePrompt `
+            -DefaultValue $context.DefaultWorkspacePath -SourceRoot $sourceAbs -Catalog $catalog `
+            -ScriptedInputs $scriptedQueue | Out-Null
     }
     else {
         Resolve-QuestionnaireAnswer -Answers $answers -Name 'vaultName' -PromptText '' `

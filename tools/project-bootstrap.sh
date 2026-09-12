@@ -17,13 +17,40 @@ if [ -z "$TARGET" ] || [ -z "$DISPLAY_NAME" ]; then
   exit 1
 fi
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+VAULT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# --- Validation du chemin cible (Mission 171-C01, etape 3 : defaut de
+# meme famille que install.sh/install.ps1 -- validation de chemin absente).
+# Refuse un chemin cible relatif ou situe a l'interieur de ce depot Vault
+# lui-meme : un projet cree dans le Vault casserait la frontiere
+# Vault/projet qu'AGENTS.md impose ("Maintenir la frontiere entre le
+# Vault et les projets externes"). ---
+if [[ "$TARGET" != /* ]] && ! [[ "$TARGET" =~ ^[A-Za-z]:[/\\] ]]; then
+  echo "REFUS : chemin cible non absolu : $TARGET" >&2
+  exit 1
+fi
+TARGET_NORMALIZED="$(printf '%s' "$TARGET" | tr '\\' '/')"
+case "$TARGET_NORMALIZED" in ?*/) TARGET_NORMALIZED="${TARGET_NORMALIZED%/}" ;; esac
+VAULT_ROOT_NORMALIZED="$(printf '%s' "$VAULT_ROOT" | tr '\\' '/')"
+TARGET_INSIDE_VAULT=0
+if [ "$TARGET_NORMALIZED" = "$VAULT_ROOT_NORMALIZED" ]; then
+  TARGET_INSIDE_VAULT=1
+else
+  case "$TARGET_NORMALIZED" in
+    "$VAULT_ROOT_NORMALIZED"/*) TARGET_INSIDE_VAULT=1 ;;
+  esac
+fi
+if [ "$TARGET_INSIDE_VAULT" = "1" ]; then
+  echo "REFUS : chemin cible a l'interieur du depot Vault ($VAULT_ROOT) : $TARGET" >&2
+  exit 1
+fi
+
 if [ -e "$TARGET" ]; then
   echo "REFUS : la cible existe deja : $TARGET" >&2
   exit 1
 fi
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-VAULT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 CONFORMITY_CHECK="$VAULT_ROOT/tools/check-project-conformity.sh"
 INDEXES_BUILD="$VAULT_ROOT/tools/build-indexes.sh"
 JOURNAL_APPEND="$VAULT_ROOT/tools/append-journal.sh"

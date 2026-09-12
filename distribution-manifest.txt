@@ -414,6 +414,9 @@ tests/test-check-links-cross-repo.sh	DISTRIBUABLE
 tests/test-link-graph-drone-view-empty-status-field.sh	DISTRIBUABLE
 tests/test-install-e2e.ps1	DISTRIBUABLE
 tests/test-install-e2e.sh	DISTRIBUABLE
+tests/test-install-workspace-path-validation.ps1	DISTRIBUABLE
+tests/test-install-workspace-path-validation.sh	DISTRIBUABLE
+tests/test-project-bootstrap-path-validation.sh	DISTRIBUABLE
 tests/test-prerequisites-e2e.ps1	DISTRIBUABLE
 tests/test-questionnaire-network-failure.ps1	DISTRIBUABLE
 tests/test-questionnaire-resume.ps1	DISTRIBUABLE

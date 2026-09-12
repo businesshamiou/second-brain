@@ -240,6 +240,102 @@ function Set-AnswerField {
     $Answers | Add-Member -MemberType NoteProperty -Name $Name -Value $Value -Force
 }
 
+function Test-AbsolutePath {
+    # True for a Windows drive-letter absolute path (C:\... or C:/...) or a
+    # UNC path (\\server\share\...) -- every path shape a real install.ps1
+    # participant can type here. Deliberately not
+    # [System.IO.Path]::IsPathRooted: that also returns $true for a
+    # drive-relative path like '\foo' (rooted, but resolved against
+    # whatever drive happens to be current -- not what "absolute" means
+    # for a workspace that must never move once created, T06).
+    param([string] $Path)
+    if ($Path -match '^[A-Za-z]:[\\/]') { return $true }
+    if ($Path -match '^\\\\') { return $true }
+    return $false
+}
+
+function ConvertTo-ComparablePath {
+    # String-only normalization for Test-PathInsideOrEqual below:
+    # backslashes become slashes, a trailing slash is stripped, and the
+    # comparison is case-insensitive (Windows' own filesystem semantics).
+    # Never a filesystem canonicalization (Resolve-Path/GetFullPath): the
+    # candidate workspace usually does not exist yet.
+    param([string] $Path)
+    $normalized = $Path -replace '\\', '/'
+    $normalized = $normalized.TrimEnd('/')
+    return $normalized.ToLowerInvariant()
+}
+
+function Test-PathInsideOrEqual {
+    # True when $Candidate is $Root itself, or a descendant of it.
+    param([string] $Candidate, [string] $Root)
+    $c = ConvertTo-ComparablePath -Path $Candidate
+    $r = ConvertTo-ComparablePath -Path $Root
+    if ($c -eq $r) { return $true }
+    return $c.StartsWith("$r/")
+}
+
+function Test-ValidWorkspacePath {
+    # The one place that decides whether a typed workspace-path answer is
+    # acceptable (Defects 1/2, Mission 171-C01): 'oui'/'non'/'y'/'n' and a
+    # blank line are not paths -- the literal 'oui' folder found under
+    # _trash-oui-20260912 is this exact defect's own physical proof -- a
+    # relative path is not usable ('git clone' would resolve it against
+    # install.ps1's own current directory, not the participant's intent),
+    # and a path inside the source repository would clone second-brain
+    # into itself. Returns 'Valid', 'BlankOrYesNo', 'NotAbsolute' or
+    # 'InsideSource' -- never throws, so the caller's loop can print a
+    # cause-naming message (a "questionnaire.workspace.error.<cause>"
+    # catalog key, first letter lowercased) and ask again.
+    param([string] $Candidate, [string] $SourceRoot)
+    $trimmed = $Candidate.Trim()
+    $lower = $trimmed.ToLowerInvariant()
+    if ($lower -eq '' -or ($lower -in @('oui', 'non', 'y', 'n'))) {
+        return 'BlankOrYesNo'
+    }
+    if (-not (Test-AbsolutePath -Path $trimmed)) {
+        return 'NotAbsolute'
+    }
+    if (Test-PathInsideOrEqual -Candidate $trimmed -Root $SourceRoot) {
+        return 'InsideSource'
+    }
+    return 'Valid'
+}
+
+function Resolve-WorkspacePathAnswer {
+    # Same resolution contract as Resolve-QuestionnaireAnswer (an already
+    # recorded value is returned untouched; this is only ever called from
+    # the interactive path, install.ps1's own $interactive branch) but
+    # adds Test-ValidWorkspacePath's validation loop: a typed answer is
+    # asked again, with a cause-naming message, until it is an absolute
+    # path outside the source repository (Defects 1/2, Mission 171-C01).
+    param(
+        [Parameter(Mandatory = $true)][psobject] $Answers,
+        [Parameter(Mandatory = $true)][string] $PromptText,
+        [Parameter(Mandatory = $true)][string] $DefaultValue,
+        [Parameter(Mandatory = $true)][string] $SourceRoot,
+        [Parameter(Mandatory = $true)][psobject] $Catalog,
+        [System.Collections.Generic.Queue[string]] $ScriptedInputs
+    )
+    $existing = $Answers.workspacePath
+    $hasExisting = ($null -ne $existing) -and -not [string]::IsNullOrWhiteSpace($existing)
+    if ($hasExisting) {
+        return $existing
+    }
+
+    while ($true) {
+        $candidate = Read-QuestionnaireField -PromptText $PromptText -DefaultValue $DefaultValue -ScriptedInputs $ScriptedInputs
+        $verdict = Test-ValidWorkspacePath -Candidate $candidate -SourceRoot $SourceRoot
+        if ($verdict -eq 'Valid') {
+            $resolved = $candidate.Trim()
+            Set-AnswerField -Answers $Answers -Name 'workspacePath' -Value $resolved
+            return $resolved
+        }
+        $causeKey = $verdict.Substring(0, 1).ToLowerInvariant() + $verdict.Substring(1)
+        Write-Host (Format-CatalogText -Catalog $Catalog -Key "questionnaire.workspace.error.$causeKey" -FormatArgs @($candidate, $DefaultValue))
+    }
+}
+
 function Get-DetectedAiTools {
     # Tools already present on this machine come pre-checked (T06 Q4 /
     # complement 2 Q6) -- Claude Code and Codex are the only two of the four options a
