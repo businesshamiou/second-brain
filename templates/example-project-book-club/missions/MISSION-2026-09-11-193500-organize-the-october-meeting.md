@@ -15,7 +15,7 @@ _Illustration simplifiée, propre à ce projet d'exemple — voir la [note d'ens
 
 ## Objectif
 
-Réserver une salle, choisir la date, et relancer les membres pour qu'ils proposent un titre avant le 20 septembre — voir la [règle de choix du livre du mois](../rules/RULES-2026-09-11-193000-choix-du-livre-du-mois.md).
+Réserver une salle, choisir la date, et relancer les membres pour qu'ils proposent un titre avant le 20 septembre — voir la [règle de choix du livre du mois](../rules/RULES-2026-09-11-193000-choosing-the-book-of-the-month.md).
 
 ## Étapes
 
@@ -26,4 +26,4 @@ Réserver une salle, choisir la date, et relancer les membres pour qu'ils propos
 ## Liens
 
 - `see also` — [Les Pages Suspendues](../README.md)
-- `see also` — [Choix du livre du mois](../rules/RULES-2026-09-11-193000-choix-du-livre-du-mois.md)
+- `see also` — [Choix du livre du mois](../rules/RULES-2026-09-11-193000-choosing-the-book-of-the-month.md)

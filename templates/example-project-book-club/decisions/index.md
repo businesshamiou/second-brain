@@ -12,7 +12,7 @@ Index généré automatiquement. Ne pas éditer à la main : régénérer via `t
 
 ## Contenu
 
-- `2026-09-11-194000` · ARBITRATED · Alterner les genres tous les deux mois (exemple fictif) · `DECISION-2026-09-11-194000-alterner-genres-tous-les-deux-mois.md`
+- `2026-09-11-194000` · ARBITRATED · Alterner les genres tous les deux mois (exemple fictif) · `DECISION-2026-09-11-194000-alternate-genres-every-two-months.md`
 
 ## Liens
 

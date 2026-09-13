@@ -12,7 +12,7 @@ Index généré automatiquement. Ne pas éditer à la main : régénérer via `t
 
 ## Contenu
 
-- `2026-09-11-193000` · active · Choix du livre du mois · `RULES-2026-09-11-193000-choix-du-livre-du-mois.md`
+- `2026-09-11-193000` · active · Choix du livre du mois · `RULES-2026-09-11-193000-choosing-the-book-of-the-month.md`
 
 ## Liens
 

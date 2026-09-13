@@ -17,7 +17,7 @@ Passer l'animation du club à la personne qui prend le relais pour la rencontre 
 
 ## État actuel
 
-Date et salle à confirmer (voir la [Mission d'organisation](../missions/MISSION-2026-09-11-193500-organiser-la-rencontre-doctobre.md)) ; le livre du mois n'est pas encore choisi.
+Date et salle à confirmer (voir la [Mission d'organisation](../missions/MISSION-2026-09-11-193500-organize-the-october-meeting.md)) ; le livre du mois n'est pas encore choisi.
 
 ## Prochaine action recommandée
 
@@ -26,4 +26,4 @@ Relancer les membres pour des propositions de titre avant le 20, puis tenir le v
 ## Liens
 
 - `see also` — [Les Pages Suspendues](../README.md)
-- `see also` — [Mission — organiser la rencontre d'octobre](../missions/MISSION-2026-09-11-193500-organiser-la-rencontre-doctobre.md)
+- `see also` — [Mission — organiser la rencontre d'octobre](../missions/MISSION-2026-09-11-193500-organize-the-october-meeting.md)

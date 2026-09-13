@@ -80,6 +80,7 @@ add_guardian "secrets"          "bash_guardian \"$VAULT_ROOT/tools/check-secrets
 add_guardian "liens"            "bash_guardian \"$VAULT_ROOT/tools/check-links.sh\"" "fraicheur-index"
 add_guardian "chemins-affirmes" "bash_guardian \"$VAULT_ROOT/tools/check-asserted-paths.sh\"" "preflight"
 add_guardian "manifeste"        "bash_guardian \"$VAULT_ROOT/tools/check-distribution-manifest.sh\"" "preflight"
+add_guardian "sans-agents"      "bash_guardian \"$VAULT_ROOT/tools/check-no-slash-agents.sh\"" "preflight"
 
 declare -A VERDICT
 declare -A OUTPUT

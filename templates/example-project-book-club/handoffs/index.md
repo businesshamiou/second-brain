@@ -12,7 +12,7 @@ Index généré automatiquement. Ne pas éditer à la main : régénérer via `t
 
 ## Contenu
 
-- `2026-09-11-195500` · active · Passation de l'animation à octobre (exemple fictif) · `HANDOFF-2026-09-11-195500-passation-animation-octobre.md`
+- `2026-09-11-195500` · active · Passation de l'animation à octobre (exemple fictif) · `HANDOFF-2026-09-11-195500-october-facilitation-handoff.md`
 
 ## Liens
 

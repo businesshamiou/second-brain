@@ -9,7 +9,7 @@ scope: example-project-book-club
 
 # PROPOSAL — LECTURE À VOIX HAUTE EN FIN DE RENCONTRE
 
-_Proposition fictive, propre à ce projet d'exemple — voir la [note d'ensemble](../README.md). Une option en attente d'arbitrage n'est pas une décision : voir la [Décision — alterner les genres](../decisions/DECISION-2026-09-11-194000-alterner-genres-tous-les-deux-mois.md) pour un exemple de ce que devient une proposition une fois tranchée._
+_Proposition fictive, propre à ce projet d'exemple — voir la [note d'ensemble](../README.md). Une option en attente d'arbitrage n'est pas une décision : voir la [Décision — alterner les genres](../decisions/DECISION-2026-09-11-194000-alternate-genres-every-two-months.md) pour un exemple de ce que devient une proposition une fois tranchée._
 
 ## Proposition
 
@@ -22,4 +22,4 @@ Deux membres l'ont suggéré à la rencontre de septembre ; personne n'a encore 
 ## Liens
 
 - `see also` — [Les Pages Suspendues](../README.md)
-- `see also` — [Décision — alterner les genres](../decisions/DECISION-2026-09-11-194000-alterner-genres-tous-les-deux-mois.md)
+- `see also` — [Décision — alterner les genres](../decisions/DECISION-2026-09-11-194000-alternate-genres-every-two-months.md)

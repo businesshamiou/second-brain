@@ -21,9 +21,9 @@ Trois rencontres de suite en fiction avaient fait fuir deux membres intéressés
 
 ## Impact
 
-La [règle de choix du livre du mois](../rules/RULES-2026-09-11-193000-choix-du-livre-du-mois.md) s'applique désormais à l'intérieur du genre imposé par le mois.
+La [règle de choix du livre du mois](../rules/RULES-2026-09-11-193000-choosing-the-book-of-the-month.md) s'applique désormais à l'intérieur du genre imposé par le mois.
 
 ## Liens
 
 - `see also` — [Les Pages Suspendues](../README.md)
-- `see also` — [Choix du livre du mois](../rules/RULES-2026-09-11-193000-choix-du-livre-du-mois.md)
+- `see also` — [Choix du livre du mois](../rules/RULES-2026-09-11-193000-choosing-the-book-of-the-month.md)
