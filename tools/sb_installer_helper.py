@@ -149,7 +149,19 @@ def shq(value):
 
 
 def read_json(path):
-    with open(path, encoding="utf-8") as f:
+    # Mission 173 step 4: utf-8-sig, not utf-8 -- a carnet written by
+    # install.ps1's own Save-Carnet (Set-Content -Encoding UTF8) always
+    # carries a UTF-8 BOM, a well-known PowerShell 5.1 quirk (unlike
+    # .NET's own UTF8Encoding(false)). Measured directly: json.load()
+    # raises "Unexpected UTF-8 BOM" on such a file. This surfaced only
+    # once a Python code path (link-project, called from
+    # tools/project-bootstrap.sh, itself invoked from install.ps1's own
+    # 'firstProject' step) needed to read a carnet install.ps1 had just
+    # written -- no prior Python code path crossed that boundary.
+    # utf-8-sig strips a leading BOM when present and reads plain UTF-8
+    # identically otherwise, so every existing (BOM-less, bash-written)
+    # carnet keeps parsing exactly as before.
+    with open(path, encoding="utf-8-sig") as f:
         return json.load(f)
 
 
@@ -735,6 +747,93 @@ def _publish_file_link(link_path, target_path):
     return "Created"
 
 
+def _read_assistant_slug(clone_path):
+    # The assistant's slug is chosen at questionnaire time and can change
+    # between two runs (rename handling) -- read from the clone's own
+    # carnet (.install/state.json) rather than accepted as a parameter, so
+    # tools/project-bootstrap.sh (Mission 173 step 4) can link the CURRENT
+    # assistant into a project it creates standalone, long after install
+    # time, with no caller left around to pass the slug explicitly.
+    carnet_path = os.path.join(clone_path, ".install", "state.json")
+    if not os.path.exists(carnet_path):
+        return None
+    data = read_json(carnet_path)
+    assistant = data.get("assistant") or {}
+    return assistant.get("slug") or None
+
+
+def cmd_link_project(args):
+    # Mission 173 step 4 (Q17, "rien dans le profil"): links the method
+    # skills (skills/ and skills/external/, same Doctrine rule 3 Codex
+    # budget fallback as the retired cmd_deploy_skills) and the current
+    # assistant's two linkable forms (same two forms cmd_deploy_assistant
+    # used to link, see this file's own header comment) into THIS PROJECT
+    # instead of the profile -- .claude/skills, .claude/agents and
+    # .agents/skills, all under the project's own root. Called by
+    # tools/project-bootstrap.sh for every project it creates, so a
+    # project created standalone (the first-install/project-bootstrap
+    # skill, long after the installer's own first-project step) gets the
+    # exact same links a fresh install's own first project gets.
+    clone_path = args.clone_path
+    project_path = args.project_path
+
+    claude_skills_dir = os.path.join(project_path, ".claude", "skills")
+    claude_agents_dir = os.path.join(project_path, ".claude", "agents")
+    codex_agents_skills_dir = os.path.join(project_path, ".agents", "skills")
+
+    default_entries, external_entries = _method_skill_entries(clone_path)
+    total, _breakdown = _codex_budget(default_entries, external_entries)
+    over_budget = total > MAX_CODEX_DEFAULT_SKILLS_BUDGET
+
+    claude_entries, claude_duplicates = _merge_skill_entries([default_entries, external_entries])
+    codex_source_lists = [default_entries] if over_budget else [default_entries, external_entries]
+    codex_entries, codex_duplicates = _merge_skill_entries(codex_source_lists)
+
+    conflict_count = 0
+    for target_root, entries in (
+        (claude_skills_dir, claude_entries),
+        (codex_agents_skills_dir, codex_entries),
+    ):
+        for name, source_path in entries:
+            link_path = os.path.join(target_root, name)
+            status = _publish_skill_link(link_path, source_path)
+            if status == "Conflict":
+                conflict_count += 1
+                print(f"CONFLICT SKILL {link_path}")
+
+    for name in sorted(set(claude_duplicates + codex_duplicates)):
+        print(f"DUPLICATE {name}")
+    print(f"DEFAULT_COUNT {len(default_entries)}")
+    print(f"EXTERNAL_COUNT {len(external_entries)}")
+    print(f"BUDGET {total} {MAX_CODEX_DEFAULT_SKILLS_BUDGET}")
+    print(f"FALLBACK {'1' if over_budget else '0'}")
+
+    slug = _read_assistant_slug(clone_path)
+    if slug:
+        subagent_source = os.path.join(clone_path, ".claude", "agents", f"{slug}.md")
+        subagent_link = os.path.join(claude_agents_dir, f"{slug}.md")
+        subagent_status = _publish_file_link(subagent_link, subagent_source)
+        if subagent_status == "Conflict":
+            conflict_count += 1
+            print(f"CONFLICT ASSISTANT {subagent_link}")
+
+        skill_source = os.path.join(clone_path, ".agents", "skills", slug)
+        skill_link = os.path.join(codex_agents_skills_dir, slug)
+        skill_status = _publish_skill_link(skill_link, skill_source)
+        if skill_status == "Conflict":
+            conflict_count += 1
+            print(f"CONFLICT ASSISTANT {skill_link}")
+
+        print(f"ASSISTANT_SLUG {slug}")
+        print(f"SUBAGENT_STATUS {subagent_status}")
+        print(f"CODEX_SKILL_STATUS {skill_status}")
+    else:
+        print("ASSISTANT_SLUG_MISSING 1")
+
+    print(f"CONFLICT_COUNT {conflict_count}")
+    return 0
+
+
 
 
 # --- USER.md profile (ticket 05 parity) ------------------------------------
@@ -855,6 +954,11 @@ def build_parser():
     p.add_argument("clone_path")
     p.add_argument("old_slug")
     p.set_defaults(func=cmd_move_assistant_trash)
+
+    p = sub.add_parser("link-project")
+    p.add_argument("clone_path")
+    p.add_argument("project_path")
+    p.set_defaults(func=cmd_link_project)
 
     p = sub.add_parser("write-user-profile")
     p.add_argument("path")

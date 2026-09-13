@@ -1,0 +1,147 @@
+#Requires -Version 5.1
+<#
+.SYNOPSIS
+    Project-level assistant/skills linking test (Mission 173 step 4, Q17).
+
+.DESCRIPTION
+    Rerun with one command, from the repository root:
+
+        powershell -NoProfile -ExecutionPolicy Bypass -File tests\test-project-assistant-and-skills-links.ps1
+
+    Replaces test-assistant-deployment.ps1 and test-skills-deployment.ps1
+    (Mission 173 step 3 retired the profile-level mechanism they tested).
+    Proves the new mechanism: tools/project-bootstrap.sh links the method
+    skills (skills/ and skills/external/) and the current assistant's two
+    linkable forms into the CREATED PROJECT's own .claude/skills,
+    .claude/agents and .agents/skills -- never the profile.
+
+    Runs a real, full, silent install (-AnswersFile, -TestMode) so the
+    first project is created for real by the real installer, then:
+      1. checks every expected link exists and resolves to its real
+         source (Resolve-Path, not just Test-Path -- proves it is a link
+         to the right target, not a coincidental plain file/folder);
+      2. reruns project-bootstrap.sh a second time for the SAME project
+         path found already existing (guarded by install.ps1's own
+         Test-Path check) -- instead calls the link-project subcommand a
+         second time directly against the same project, proving no
+         duplicate link and no drift (AlreadyLinked, not a second Created
+         nor a Conflict against itself);
+      3. HYPOTHESIS, not measured live: a real /memory probe inside a
+         running Claude Code session (Mesures prealables, regle 4) is
+         outside what an automated test in this environment can drive --
+         the on-disk link resolution this test DOES measure is exactly
+         what Claude Code's and Codex's own file-discovery mechanisms
+         would traverse (same reasoning already applied to every prior
+         Mission's own project-level file-discovery claims).
+
+    Exit code 0 means every assertion passed. Exit code 1 means at least one
+    did not; details are printed to stdout as each check runs.
+#>
+
+[CmdletBinding()]
+param([switch] $KeepTemp)
+
+$ErrorActionPreference = 'Stop'
+$RepoRoot = Split-Path $PSScriptRoot -Parent
+$failures = New-Object System.Collections.Generic.List[string]
+
+function Assert-True {
+    param([bool] $Condition, [string] $Message)
+    if ($Condition) { Write-Output "  PASS - $Message" }
+    else { Write-Output "  FAIL - $Message"; $failures.Add($Message) | Out-Null }
+}
+
+function Test-LinkResolvesTo {
+    param([string] $LinkPath, [string] $ExpectedTargetPath)
+    if (-not (Test-Path $LinkPath)) { return $false }
+    $resolvedLink = (Resolve-Path -LiteralPath $LinkPath).ProviderPath.TrimEnd('\', '/')
+    $resolvedTarget = (Resolve-Path -LiteralPath $ExpectedTargetPath).ProviderPath.TrimEnd('\', '/')
+    return ($resolvedLink -ieq $resolvedTarget)
+}
+
+$TestRoot = Join-Path $env:TEMP ("sb-projectlinks-" + [Guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Force -Path $TestRoot | Out-Null
+Write-Output ""
+Write-Output "TestRoot: $TestRoot"
+
+try {
+    Write-Output ""
+    Write-Output "=== Fresh install creates the first project with its links ==="
+    $workspacePath = Join-Path $TestRoot 'workspace'
+    $answersPath = Join-Path $TestRoot 'answers.json'
+    $sampleAnswers = Get-Content -Raw -Path (Join-Path $PSScriptRoot 'fixtures\install-answers.sample.json') | ConvertFrom-Json
+    $sampleAnswers.workspacePath = $workspacePath
+    $sampleAnswers | ConvertTo-Json -Depth 10 | Set-Content -Path $answersPath -Encoding UTF8
+
+    $installScript = Join-Path $RepoRoot 'install.ps1'
+    $verdict = & $installScript -Source $RepoRoot -AnswersFile $answersPath -TestMode -TestRoot $TestRoot
+    Assert-True ($LASTEXITCODE -eq 0) "install exits 0"
+    Assert-True ($verdict -match 'Installation complete') "verdict reports success"
+
+    $clonePath = Join-Path $workspacePath 'second-brain'
+    $projectPath = Join-Path $workspacePath $sampleAnswers.firstProject.name
+    Assert-True (Test-Path $projectPath) "the first project exists"
+
+    Write-Output ""
+    Write-Output "=== Every method skill resolves from the project to the clone ==="
+    $methodSkillNames = @(Get-ChildItem -Path (Join-Path $clonePath 'skills') -Directory | Where-Object { $_.Name -ne 'external' -and (Test-Path (Join-Path $_.FullName 'SKILL.md')) } | ForEach-Object { $_.Name })
+    $methodSkillNames += @(Get-ChildItem -Path (Join-Path $clonePath 'skills\external') -Directory -ErrorAction SilentlyContinue | Where-Object { Test-Path (Join-Path $_.FullName 'SKILL.md') } | ForEach-Object { $_.Name })
+    Assert-True ($methodSkillNames.Count -gt 0) "measured at least one method skill to check ($($methodSkillNames.Count) found)"
+    $claudeSkillsOk = $true
+    $codexSkillsOk = $true
+    foreach ($name in $methodSkillNames) {
+        $source = Join-Path $clonePath "skills\$name"
+        if (-not (Test-Path $source)) { $source = Join-Path $clonePath "skills\external\$name" }
+        if (-not (Test-LinkResolvesTo -LinkPath (Join-Path $projectPath ".claude\skills\$name") -ExpectedTargetPath $source)) { $claudeSkillsOk = $false }
+        if (-not (Test-LinkResolvesTo -LinkPath (Join-Path $projectPath ".agents\skills\$name") -ExpectedTargetPath $source)) { $codexSkillsOk = $false }
+    }
+    Assert-True $claudeSkillsOk "every method skill resolves from the project's .claude/skills to its real source in the clone"
+    Assert-True $codexSkillsOk "every method skill resolves from the project's .agents/skills to its real source in the clone"
+
+    Write-Output ""
+    Write-Output "=== The current assistant resolves from the project to the clone ==="
+    $carnetPath = Join-Path $clonePath '.install\state.json'
+    $carnet = Get-Content -Raw -Path $carnetPath | ConvertFrom-Json
+    $slug = $carnet.assistant.slug
+    Assert-True (-not [string]::IsNullOrWhiteSpace($slug)) "the clone's own carnet names the current assistant's slug ('$slug')"
+    Assert-True (Test-LinkResolvesTo -LinkPath (Join-Path $projectPath ".claude\agents\$slug.md") -ExpectedTargetPath (Join-Path $clonePath ".claude\agents\$slug.md")) `
+        "the project's .claude/agents/$slug.md resolves to the clone's own subagent file"
+    Assert-True (Test-LinkResolvesTo -LinkPath (Join-Path $projectPath ".agents\skills\$slug") -ExpectedTargetPath (Join-Path $clonePath ".agents\skills\$slug")) `
+        "the project's .agents/skills/$slug resolves to the clone's own Codex skill"
+
+    Write-Output ""
+    Write-Output "=== Rerunning link-project against the same project: no duplicate, no drift ==="
+    $helperScript = Join-Path $RepoRoot 'tools\sb_installer_helper.py'
+    $secondRunOutput = & uv run --no-project $helperScript link-project $clonePath $projectPath
+    Assert-True ($LASTEXITCODE -eq 0) "second link-project run exits 0"
+    Assert-True (($secondRunOutput -join "`n") -notmatch 'CONFLICT') "second run reports no conflict against its own, already-correct links"
+    Assert-True (($secondRunOutput -join "`n") -match "ASSISTANT_SLUG $slug") "second run still resolves the same assistant slug"
+    $claudeSkillsAfterRerun = @(Get-ChildItem -Path (Join-Path $projectPath '.claude\skills') -ErrorAction SilentlyContinue)
+    Assert-True ($claudeSkillsAfterRerun.Count -eq $methodSkillNames.Count) "no duplicate skill link after a second run ($($claudeSkillsAfterRerun.Count) entries, expected $($methodSkillNames.Count))"
+
+    Write-Output ""
+    Write-Output "=== HYPOTHESIS (not measured live in this environment) ==="
+    Write-Output "  A running Claude Code session's own /memory (or Codex's own AGENTS.md/skill"
+    Write-Output "  discovery) was not driven live from this automated test -- the on-disk link"
+    Write-Output "  resolution proven above is exactly what those mechanisms are documented to"
+    Write-Output "  traverse from a project's own working directory upward (Mesures prealables,"
+    Write-Output "  regle 4 fallback: HYPOTHESE, poursuivre)."
+}
+finally {
+    if (-not $KeepTemp) {
+        Remove-Item -Recurse -Force -Path $TestRoot -ErrorAction SilentlyContinue
+    }
+    else {
+        Write-Output ""
+        Write-Output "Kept: $TestRoot"
+    }
+}
+
+Write-Output ""
+if ($failures.Count -gt 0) {
+    Write-Output "=== FAILURES ($($failures.Count)) ==="
+    $failures | ForEach-Object { Write-Output "  - $_" }
+    exit 1
+}
+Write-Output "All assertions passed."
+exit 0

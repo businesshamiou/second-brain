@@ -57,8 +57,13 @@ JOURNAL_APPEND="$VAULT_ROOT/tools/append-journal.sh"
 PROJECTS_DIR="$VAULT_ROOT/projects"
 REGISTRY="$PROJECTS_DIR/PROJECT-REGISTRY.md"
 STANDARD_RULE="$VAULT_ROOT/rules/RULES-2026-08-26-142800-project-structure-standard.md"
+HELPER="$VAULT_ROOT/tools/sb_installer_helper.py"
 
-for DEP in "$CONFORMITY_CHECK" "$INDEXES_BUILD" "$JOURNAL_APPEND" "$STANDARD_RULE"; do
+PYRUN() {
+  uv run --no-project "$HELPER" "$@"
+}
+
+for DEP in "$CONFORMITY_CHECK" "$INDEXES_BUILD" "$JOURNAL_APPEND" "$STANDARD_RULE" "$HELPER"; do
   if [ ! -e "$DEP" ]; then
     echo "REFUS : dependance introuvable : $DEP" >&2
     exit 1
@@ -260,5 +265,28 @@ EOF
 # PROJECTS_DIR seul : projects/ n'est pas une racine de balayage a elle seule,
 # le superseded-files.txt du Vault reste unique, a sa racine. ---
 bash "$INDEXES_BUILD" "$TARGET_ABS" "$VAULT_ROOT" >/dev/null
+
+# --- Liens vers l'assistant et les skills de la methode (Mission 173,
+# Q17 : "rien dans le profil"). Poses ici, pour TOUT projet cree par ce
+# script -- au moment de l'installation comme des annees plus tard, via le
+# skill first-install/project-bootstrap -- jamais dans le profil de
+# l'utilisateur. Lecture seule sur le Vault ($VAULT_ROOT) ; ecriture
+# uniquement sous $TARGET_ABS. ---
+LINK_OUTPUT="$(PYRUN link-project "$VAULT_ROOT" "$TARGET_ABS")" \
+  || { echo "REFUS : la creation des liens (assistant/skills) dans $TARGET_ABS a echoue" >&2; exit 1; }
+
+CLAUDE_CONFLICTS="$(printf '%s\n' "$LINK_OUTPUT" | grep '^CONFLICT SKILL ' | sed 's/^CONFLICT SKILL //')"
+ASSISTANT_CONFLICTS="$(printf '%s\n' "$LINK_OUTPUT" | grep '^CONFLICT ASSISTANT ' | sed 's/^CONFLICT ASSISTANT //')"
+CONFLICT_COUNT="$(printf '%s\n' "$LINK_OUTPUT" | grep '^CONFLICT_COUNT ' | sed 's/^CONFLICT_COUNT //')"
+if [ -n "$CONFLICT_COUNT" ] && [ "$CONFLICT_COUNT" != "0" ]; then
+  echo "Note: $CONFLICT_COUNT link(s) already occupied by something else in this project -- left untouched, the existing file/folder always wins:"
+  [ -n "$CLAUDE_CONFLICTS" ] && printf '%s\n' "$CLAUDE_CONFLICTS" | while IFS= read -r p; do [ -n "$p" ] && echo "  - skill: $p"; done
+  [ -n "$ASSISTANT_CONFLICTS" ] && printf '%s\n' "$ASSISTANT_CONFLICTS" | while IFS= read -r p; do [ -n "$p" ] && echo "  - assistant: $p"; done
+  echo "  To use Second Brain's version of one of these instead, remove or rename the existing item at that path yourself, then rerun."
+fi
+printf '%s\n' "$LINK_OUTPUT" | grep '^FALLBACK 1' >/dev/null \
+  && echo "Note: combined skill description budget exceeds the Codex ceiling in this project -- Codex received skills/ only, Claude Code received everything (Doctrine rule 3)."
+printf '%s\n' "$LINK_OUTPUT" | grep '^ASSISTANT_SLUG_MISSING' >/dev/null \
+  && echo "Note: no assistant slug found in this clone's own carnet -- skills were linked into this project, the assistant was not (HYPOTHESIS: never generated, or a carnet from before Mission 168 ticket 06)."
 
 echo "$FICHE"

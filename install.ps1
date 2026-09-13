@@ -773,8 +773,16 @@ try {
     if ($createFirstProject) {
         if (-not (Test-Path $firstProjectPath)) {
             $bootstrapScript = Join-Path $clonePath 'tools\project-bootstrap.sh'
-            Invoke-BashTool -BashExe $bashExe -ScriptPath $bootstrapScript `
-                -ScriptArgs @((ConvertTo-PosixPath $firstProjectPath), $firstProjectDisplayName) | Out-Null
+            # Mission 173 step 4 (Q17): project-bootstrap.sh now also links
+            # the assistant and the method skills into the new project's own
+            # folders (tools/sb_installer_helper.py's link-project) and
+            # prints "Note: ..." lines about it (conflicts, Codex budget
+            # fallback) -- captured and relayed here instead of discarded,
+            # the fiche path itself (also on stdout) is not needed by this
+            # caller and simply passes through unprinted.
+            $bootstrapOutput = Invoke-BashTool -BashExe $bashExe -ScriptPath $bootstrapScript `
+                -ScriptArgs @((ConvertTo-PosixPath $firstProjectPath), $firstProjectDisplayName)
+            $bootstrapOutput | Where-Object { $_ -match '^(Note:|  - |  To use)' } | ForEach-Object { Write-Output $_ }
 
             $registrationChanges = & git -C $clonePath status --porcelain
             if ($registrationChanges) {

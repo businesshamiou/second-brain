@@ -507,3 +507,4 @@ tests/test-install-log-line-count.ps1	DISTRIBUABLE
 tests/test-project-structure-standard-conformity.ps1	DISTRIBUABLE
 tests/test-web-package-knowledge-file-front-matter.ps1	DISTRIBUABLE
 tests/test-install-no-profile-writes.ps1	DISTRIBUABLE
+tests/test-project-assistant-and-skills-links.ps1	DISTRIBUABLE
