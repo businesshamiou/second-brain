@@ -4,7 +4,11 @@
 # eligible, sous chaque racine passee en argument. Genere uniquement : ne
 # jamais editer un index.md a la main.
 #
-# usage: build_indexes.py <racine...>
+# usage: build_indexes.py [-v|--verbose] <racine...>
+#
+# Mission 172, audit defect 3: quiet by default (one summary line per
+# invocation) since Mission 172; -v/--verbose restores the full per-file
+# detail this file used to always print.
 #
 # SEMANTIQUE CONSERVEE de tools/build-indexes.sh (lu en entier avant
 # reecriture) : parcours du WORKTREE (jamais de l'arbre stage -- c'est le
@@ -308,9 +312,33 @@ def render(title, entries, rel_std, hors_suffix, archive_note=""):
 
 
 def main(argv):
+    # Mission 172, audit defect 3: this used to write one stderr line per
+    # regenerated index.md/archive unconditionally -- across the 3 calls a
+    # nominal install makes (Save-ClonePendingChanges x2, project-bootstrap.sh
+    # x1), that dumped the full list three times over, with no per-step
+    # result line to make sense of it. Default is now one summary line per
+    # invocation; -v/--verbose restores the full per-file detail this file
+    # used to always print (kept byte-identical when passed, so a
+    # troubleshooting session loses nothing).
+    verbose = False
+    roots = []
+    for arg in argv:
+        if arg in ("-v", "--verbose"):
+            verbose = True
+        else:
+            roots.append(arg)
+    argv = roots
+
     if not argv:
-        sys.stderr.write("usage: build_indexes.py <racine...>\n")
+        sys.stderr.write("usage: build_indexes.py [-v|--verbose] <racine...>\n")
         return 1
+
+    live_count = 0
+    archive_count = 0
+
+    def emit(message):
+        if verbose:
+            sys.stderr.write(message)
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     vault_root = os.path.abspath(os.path.join(script_dir, ".."))
@@ -389,7 +417,8 @@ def main(argv):
                 write_text(index_path, whole)
                 for stale in existing_archives:
                     os.remove(os.path.join(dirpath, stale))
-                sys.stderr.write(index_path + "\n")
+                live_count += 1
+                emit(index_path + "\n")
                 continue
 
             # --- Scission (DECISION point 4, precision Owner 2026-09-05) ---
@@ -420,7 +449,8 @@ def main(argv):
                 produced.add(arch_name)
                 size = len(arch.encode("utf-8", errors="surrogateescape"))
                 flag = "" if size <= WEIGHT_CAP else "  DEPASSE LE PLAFOND"
-                sys.stderr.write("%s (%d o)%s\n" % (arch_path, size, flag))
+                archive_count += 1
+                emit("%s (%d o)%s\n" % (arch_path, size, flag))
 
             for stale in existing_archives - produced:
                 os.remove(os.path.join(dirpath, stale))
@@ -442,7 +472,14 @@ def main(argv):
                 n -= 1
             live = render(title, entries[len(entries) - n:], rel_std, hors, note)
             write_text(index_path, live)
-            sys.stderr.write("%s (vivant, N=%d)\n" % (index_path, n))
+            live_count += 1
+            emit("%s (vivant, N=%d)\n" % (index_path, n))
+
+    if not verbose:
+        sys.stderr.write(
+            "build_indexes.py: %d index(es) regenerated (%d archived) across %d root(s) -- rerun with -v for detail\n"
+            % (live_count, archive_count, len(argv))
+        )
 
     return 0
 

@@ -44,6 +44,11 @@
 #                    skillsDeployed, firstProject, profile. Stops right
 #                    after that step's own carnet flag is saved (resume
 #                    testing).
+# --verbose          Restores the full per-index detail build-indexes.sh
+#                    used to always print (Mission 172, audit defect 3: a
+#                    nominal install is quiet by default -- one summary
+#                    line per index-regeneration call instead of one line
+#                    per regenerated index.md/archive).
 #
 # Outputs: exit code 0 and a one-line verdict on stdout on success; exit
 # code 1 and a verdict naming the step, the cause and the remedy
@@ -66,6 +71,7 @@ TEST_MODE=0
 TEST_ROOT=""
 STOP_AFTER_STEP=""
 SCRIPTED_ANSWERS=()
+VERBOSE=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -75,6 +81,7 @@ while [ $# -gt 0 ]; do
     --test-root) TEST_ROOT="${2:-}"; shift 2 ;;
     --scripted-answers) SCRIPTED_ANSWERS+=("${2:-}"); shift 2 ;;
     --stop-after-step) STOP_AFTER_STEP="${2:-}"; shift 2 ;;
+    --verbose) VERBOSE=1; shift ;;
     -h|--help) sed -n '2,45p' "${BASH_SOURCE[0]}"; exit 0 ;;
     *) echo "Unknown argument: $1" >&2; exit 2 ;;
   esac
@@ -395,8 +402,17 @@ save_clone_pending_changes() {
   # build_indexes.py compute a wrong cross-repo root and corrupt unrelated
   # index.md files), then stages and commits via stage_and_commit_clone_changes.
   local commit_message="$1"
-  run_or_fail "build-indexes.sh failed in $CLONE_PATH" \
-    "$CLONE_PATH/tools/build-indexes.sh" "$CLONE_PATH" >/dev/null
+  # Mission 172, audit defect 3: build-indexes.sh (-> build_indexes.py) is
+  # quiet by default since that Mission (one summary line instead of one
+  # per regenerated index -- this call alone used to dump the whole
+  # repository's index tree to the console). --verbose restores the detail.
+  if [ "$VERBOSE" = "1" ]; then
+    run_or_fail "build-indexes.sh failed in $CLONE_PATH" \
+      "$CLONE_PATH/tools/build-indexes.sh" -v "$CLONE_PATH"
+  else
+    run_or_fail "build-indexes.sh failed in $CLONE_PATH" \
+      "$CLONE_PATH/tools/build-indexes.sh" "$CLONE_PATH" >/dev/null
+  fi
   stage_and_commit_clone_changes "$commit_message"
 }
 

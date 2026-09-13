@@ -119,6 +119,13 @@
                           interrupted run via a test flag naming the step).
                           Never used outside
                           tests/test-questionnaire-resume.ps1.
+        -Verbose          Common parameter (this script has [CmdletBinding()]).
+                          Restores the full per-index detail
+                          tools/build-indexes.sh used to always print
+                          (Mission 172, audit defect 3: a nominal install is
+                          quiet by default -- one summary line per
+                          index-regeneration call instead of one line per
+                          regenerated index.md/archive).
 
     Outputs:
         Exit code 0 and a one-line verdict on stdout on success (English in
@@ -228,8 +235,17 @@ function Save-ClonePendingChanges {
     # first pass, and the guardian named exactly this file). Regenerated
     # before computing $changes so the refreshed index.md is part of the
     # same commit as the change that made it stale.
+    # Mission 172, audit defect 3: build-indexes.sh (-> build_indexes.py) is
+    # quiet by default since that Mission (one summary line instead of one
+    # line per regenerated index -- this call alone used to dump the whole
+    # repository's index tree to the console, measured at acceptance). -v
+    # restores the detail, forwarded only when the installer itself was run
+    # with the common -Verbose switch -- never on by default.
+    $buildIndexesArgs = @()
+    if ($VerbosePreference -eq 'Continue') { $buildIndexesArgs += '-v' }
+    $buildIndexesArgs += (ConvertTo-PosixPath $ClonePath)
     Invoke-BashTool -BashExe $BashExe -ScriptPath (Join-Path $ClonePath 'tools\build-indexes.sh') `
-        -ScriptArgs @((ConvertTo-PosixPath $ClonePath)) | Out-Null
+        -ScriptArgs $buildIndexesArgs | Out-Null
 
     $changes = & git -C $ClonePath status --porcelain
     if (-not $changes) { return }
