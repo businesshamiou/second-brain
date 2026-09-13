@@ -15,7 +15,13 @@
 #   --out <path>   Write the generated document to <path> instead of the
 #                  default root/THIRD-PARTY-LICENSES.md. Used by
 #                  tests/test-third-party-licenses.sh so a test run never
-#                  has to touch the committed file.
+#                  has to touch the committed file. <path> may be spelled
+#                  as a POSIX path or a Windows path (C:\... or C:/...);
+#                  an already-absolute <path>, in either notation, is
+#                  never prefixed with the current directory. Refused
+#                  (before anything is written) if it resolves inside this
+#                  repository -- Mission 171-C01 step 9, same family as
+#                  acceptance-wizard.sh's report-path guard.
 #   --check        Write nothing. Regenerate in memory and compare against
 #                  the file already on disk at the target path (the
 #                  default root file, or the path given to --out): exit 0
@@ -52,11 +58,81 @@ WAREHOUSE_DIR="$VAULT_ROOT/skills-warehouse/skill-collections"
 OUT_PATH="$VAULT_ROOT/THIRD-PARTY-LICENSES.md"
 CHECK_ONLY=0
 
+# sb_is_absolute_path PATH -- true for a POSIX absolute path (leading '/')
+# or a Windows drive-letter absolute path (e.g. C:\Users\... or
+# C:/Users\...) -- this script runs under Git Bash/MSYS on Windows too
+# (VAULT_ROOT above, from `git rev-parse --show-toplevel`, is itself
+# spelled "C:/Users/..." there), so a caller may naturally pass --out a
+# Windows-spelled path (audit defect, same family as acceptance-wizard.sh's
+# resolve_report_path). Matched with a regex (`[[ =~ ]]`), never a glob
+# `case` bracket expression: bash's glob engine treats an unquoted
+# backslash inside `[...]` as an escape character, not a literal one, so a
+# bracket meant to match either '/' or '\' silently never matches '\' at
+# all (measured while building the equivalent check in install.sh).
+sb_is_absolute_path() {
+  case "$1" in
+    /*) return 0 ;;
+  esac
+  [[ "$1" =~ ^[A-Za-z]:[/\\] ]]
+}
+
+# sb_normalize_path_for_compare PATH -- string-only normalization so the
+# same location spelled as a Windows drive-letter path (C:\... or C:/...)
+# or an MSYS/Git-Bash mount path (/c/...) compares equal to VAULT_ROOT
+# regardless of which form either side happens to use: backslashes become
+# slashes, a drive letter becomes the equivalent lowercase MSYS mount
+# segment, and a trailing slash is stripped. Never touches the filesystem.
+sb_normalize_path_for_compare() {
+  local p drive rest
+  p="$(printf '%s' "$1" | tr '\\' '/')"
+  if [[ "$p" =~ ^([A-Za-z]):(/.*)$ ]]; then
+    drive="$(printf '%s' "${BASH_REMATCH[1]}" | tr '[:upper:]' '[:lower:]')"
+    rest="${BASH_REMATCH[2]}"
+    p="/$drive$rest"
+  fi
+  case "$p" in
+    ?*/) p="${p%/}" ;;
+  esac
+  printf '%s' "$p"
+}
+
+# sb_path_is_inside_or_equal CANDIDATE ROOT -- both normalized before
+# comparing (see sb_normalize_path_for_compare above).
+sb_path_is_inside_or_equal() {
+  local candidate root
+  candidate="$(sb_normalize_path_for_compare "$1")"
+  root="$(sb_normalize_path_for_compare "$2")"
+  [ "$candidate" = "$root" ] && return 0
+  case "$candidate" in
+    "$root"/*) return 0 ;;
+  esac
+  return 1
+}
+
+# sb_resolve_out_path PATH -- honours an already-absolute PATH (POSIX or
+# Windows notation) verbatim, never prefixing it with the current
+# directory; prefixes a relative PATH with the current directory. Refuses
+# (prints to stderr, returns 1) when the resolved path lands inside
+# VAULT_ROOT: this script's default output IS inside VAULT_ROOT on
+# purpose, so this guard only ever runs against an explicit --out, never
+# against the default.
+sb_resolve_out_path() {
+  local path="$1"
+  if ! sb_is_absolute_path "$path"; then
+    path="$(pwd)/$path"
+  fi
+  if sb_path_is_inside_or_equal "$path" "$VAULT_ROOT"; then
+    echo "REFUS : --out $path est a l'interieur de $VAULT_ROOT -- choisir un chemin hors du depot" >&2
+    return 1
+  fi
+  printf '%s' "$path"
+}
+
 while [ $# -gt 0 ]; do
   case "$1" in
     --out)
       [ $# -ge 2 ] || { echo "REFUS : --out attend un chemin" >&2; exit 1; }
-      OUT_PATH="$2"
+      OUT_PATH="$(sb_resolve_out_path "$2")" || exit 1
       shift 2
       ;;
     --check)

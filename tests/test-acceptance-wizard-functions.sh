@@ -6,9 +6,10 @@
 # criterion 4). What IS testable without a human at the keyboard is the
 # handful of small functions the interactive stages call into: the y/N
 # reply parser (_is_yes), the note sanitizer (_sanitize_note), the report
-# path guard (resolve_report_path) and the report writer (write_report),
-# plus record_scenario/record_skipped (fed simulated stdin, never a real
-# prompt waiting on a human).
+# path guard (resolve_report_path, including its Windows-path recognition
+# fixed under audit defect 7, Mission 171-C01 step 9) and the report writer
+# (write_report), plus record_scenario/record_skipped (fed simulated
+# stdin, never a real prompt waiting on a human).
 #
 # Sourcing the wizard script (guarded by its own
 # `[[ "${BASH_SOURCE[0]}" == "${0}" ]]` check) defines every function below
@@ -158,8 +159,59 @@ case "$REPORT_PATH" in
     ;;
 esac
 
+# --- 12/13. resolve_report_path: Windows-spelled paths (audit defect 7, ----
+# Mission 171-C01 step 9). _win_form POSIX_PATH converts an MSYS mount path
+# ("/c/foo/bar") to its Windows drive-letter, backslash spelling
+# ("C:\foo\bar") -- the inverse of resolve_report_path's own
+# _normalize_path_for_compare -- so these cases exercise a genuine Windows
+# path for this machine's own drive mapping, not a hand-typed guess. Each
+# case skips gracefully (does not fail) if its own POSIX source path is not
+# itself under a drive mount (e.g. a real Linux CI box, or a mktemp-issued
+# path under MSYS's own separate "/tmp" overlay): the defect this guards
+# against is Windows-specific and cannot occur there.
+_win_form() {
+  local p="$1" drive rest
+  if [[ "$p" =~ ^/([A-Za-z])(/.*)?$ ]]; then
+    drive="$(printf '%s' "${BASH_REMATCH[1]}" | tr '[:lower:]' '[:upper:]')"
+    rest="${BASH_REMATCH[2]:-/}"
+    rest="${rest//\//\\}"
+    printf '%s:%s' "$drive" "$rest"
+  fi
+}
+
+# 12. A valid Windows-notation path outside the repo is accepted verbatim
+# -- no pwd prefix, and in particular never the corrupted
+# "/c/.../C:\Users\..." shape the pre-fix bug produced. Built as a sibling
+# of REPO_ROOT (guaranteed drive-mounted whenever REPO_ROOT itself is)
+# rather than under TMP_OUT_DIR, which mktemp places under MSYS's own
+# "/tmp" overlay -- not a drive-letter path this conversion can invert.
+WIN_CUSTOM_OUT_POSIX="$(dirname "$REPO_ROOT")/sb-test-custom-report.md"
+WIN_CUSTOM_OUT="$(_win_form "$WIN_CUSTOM_OUT_POSIX")"
+if [ -z "$WIN_CUSTOM_OUT" ]; then
+  echo "ok [12-windows-outside-accepted]: skipped, not on a drive-mounted filesystem"
+else
+  GOT_WIN="$(resolve_report_path "$WIN_CUSTOM_OUT")"
+  check "12-windows-outside-accepted" "$GOT_WIN" "$WIN_CUSTOM_OUT"
+fi
+
+# 13. A Windows-notation path pointing INSIDE the repo is refused, same as
+# the POSIX-notation case above (case 4) -- not just accepted by accident
+# for want of normalization between the two notations.
+WIN_REPO_ROOT="$(_win_form "$REPO_ROOT")"
+if [ -z "$WIN_REPO_ROOT" ]; then
+  echo "ok [13-windows-inside-refused]: skipped, not on a drive-mounted filesystem"
+else
+  WIN_INSIDE="$WIN_REPO_ROOT\leaked-report.md"
+  if OUT="$(resolve_report_path "$WIN_INSIDE" 2>&1)"; then
+    echo "FAIL [13-windows-inside-refused]: accepted a Windows-notation in-repo path: $OUT" >&2
+    FAILURES=$((FAILURES + 1))
+  else
+    echo "ok [13-windows-inside-refused]"
+  fi
+fi
+
 if [ "$FAILURES" -eq 0 ]; then
-  echo "PASS: 11/11 cases"
+  echo "PASS: 13/13 cases"
   exit 0
 else
   echo "FAIL: $FAILURES cases"

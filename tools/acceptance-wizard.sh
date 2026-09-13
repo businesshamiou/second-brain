@@ -302,11 +302,65 @@ find_mechanical_report() {
   printf '%s' "$newest"
 }
 
+# _is_absolute_path PATH -- true for a POSIX absolute path (leading '/') or
+# a Windows drive-letter absolute path (e.g. C:\Users\... or C:/Users\...)
+# -- this wizard's own SCRIPT_DIR/REPO_ROOT already prove it can run under
+# Git Bash/MSYS on Windows, where an Owner may naturally type --out with a
+# Windows-spelled path (audit defect 7, Mission 171-C01 step 9). The
+# Windows form is matched with a regex (`[[ =~ ]]`), never a glob `case`
+# bracket expression: bash's glob engine treats an unquoted backslash
+# inside `[...]` as an escape character, not a literal one, so a bracket
+# meant to match either '/' or '\' silently never matches '\' at all (the
+# same pitfall documented next to install.sh's sb_is_absolute_path, which
+# this mirrors).
+_is_absolute_path() {
+  case "$1" in
+    /*) return 0 ;;
+  esac
+  [[ "$1" =~ ^[A-Za-z]:[/\\] ]]
+}
+
+# _normalize_path_for_compare PATH -- string-only normalization for the "is
+# candidate inside REPO_ROOT" check below: backslashes become slashes, a
+# Windows drive letter (C:/...) becomes the equivalent lowercase MSYS mount
+# segment (/c/...) so it compares equal to REPO_ROOT's own `pwd`-produced
+# form, and a trailing slash is stripped. Never touches the filesystem.
+_normalize_path_for_compare() {
+  local p drive rest
+  p="$(printf '%s' "$1" | tr '\\' '/')"
+  if [[ "$p" =~ ^([A-Za-z]):(/.*)$ ]]; then
+    drive="$(printf '%s' "${BASH_REMATCH[1]}" | tr '[:upper:]' '[:lower:]')"
+    rest="${BASH_REMATCH[2]}"
+    p="/$drive$rest"
+  fi
+  case "$p" in
+    ?*/) p="${p%/}" ;;
+  esac
+  printf '%s' "$p"
+}
+
+# _path_is_inside_or_equal CANDIDATE ROOT -- both normalized here before
+# comparing, so a Windows-spelled candidate (C:\...) is correctly caught
+# against a POSIX-spelled ROOT (/c/...) and vice versa.
+_path_is_inside_or_equal() {
+  local candidate root
+  candidate="$(_normalize_path_for_compare "$1")"
+  root="$(_normalize_path_for_compare "$2")"
+  [[ "$candidate" == "$root" ]] && return 0
+  case "$candidate" in
+    "$root"/*) return 0 ;;
+  esac
+  return 1
+}
+
 # resolve_report_path [OUT] -- default: a sibling file next to this
 # checkout, timestamped (never inside it: ticket 11's own requirement --
 # the finished report must never enter a repository a later Owner push
 # makes public). A custom OUT is honoured, but still refused if it resolves
-# inside REPO_ROOT: caught here, not discovered after a push.
+# inside REPO_ROOT: caught here, not discovered after a push. OUT is
+# accepted spelled either as a POSIX path or a Windows path (audit defect
+# 7): an already-absolute OUT, in either notation, is never prefixed with
+# the current directory -- only a relative OUT is.
 resolve_report_path() {
   local out="${1:-}"
   local path
@@ -317,16 +371,13 @@ resolve_report_path() {
     workspace_root="$(cd "$REPO_ROOT/.." && pwd)"
     path="$workspace_root/second-brain-acceptance-$(date +%Y%m%d-%H%M%S).md"
   fi
-  case "$path" in
-    /*) : ;;
-    *) path="$(pwd)/$path" ;;
-  esac
-  case "$path" in
-    "$REPO_ROOT"/*|"$REPO_ROOT")
-      printf 'Error: report path %s is inside %s -- pick a path outside second-brain.\n' "$path" "$REPO_ROOT" >&2
-      return 1
-      ;;
-  esac
+  if ! _is_absolute_path "$path"; then
+    path="$(pwd)/$path"
+  fi
+  if _path_is_inside_or_equal "$path" "$REPO_ROOT"; then
+    printf 'Error: report path %s is inside %s -- pick a path outside second-brain.\n' "$path" "$REPO_ROOT" >&2
+    return 1
+  fi
   printf '%s' "$path"
 }
 
