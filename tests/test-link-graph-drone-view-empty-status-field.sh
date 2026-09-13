@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Essai de non-regression (Mission 043) pour le defaut de lecture du
+# Essai de non-regression (build history) pour le defaut de lecture du
 # front-matter dans tools/link-graph-drone-view.sh : un champ `status:`
 # present mais vide decalait les colonnes lues ensuite (voir la note de
 # correction en tete du script reparé).
 #
 # Methode : sandbox jetable (aucun fichier du vrai corpus touche), copie
 # verbatim du script courant de tools/, executee sur un mini corpus
-# synthetique contenant exactement l'entree fautive decrite par la Mission
-# 043 (`status:` present, vide). Le signal observe est le titre affiche par
+# synthetique contenant exactement l'entree fautive decrite (build history)
+# (`status:` present, vide). Le signal observe est le titre affiche par
 # la vue Mermaid complete pour le document fautif : avant correction, le
 # decalage de colonnes vide le champ titre lu (repli sur le nom de fichier,
 # "DOC-A") ; apres correction, le vrai titre ("Test Doc A") est lu.
@@ -79,7 +79,12 @@ EOF
 (cd "$TMP/vault" && git init -q && git add -A && git -c user.email=t@t -c user.name=t commit -q -m init)
 (cd "$TMP/workshop-build" && git init -q && git add -A && git -c user.email=t@t -c user.name=t commit -q -m init)
 
-OUTPUT="$(cd "$TMP/vault/tools" && bash link-graph-drone-view.sh 2>/tmp/test-lgdv-stderr.$$)"
+# The hardcoded "../workshop-build" default was retired (build history): the
+# sibling must now be declared explicitly, same mechanism as every other
+# tool (tools/resolve-sibling-repo.sh). Declared here via the environment
+# variable so this fixture keeps exercising the two-corpus code path.
+cp "$SCRIPT_DIR/../tools/resolve-sibling-repo.sh" "$TMP/vault/tools/resolve-sibling-repo.sh"
+OUTPUT="$(cd "$TMP/vault/tools" && SECOND_BRAIN_SIBLING_REPO=workshop-build bash link-graph-drone-view.sh 2>/tmp/test-lgdv-stderr.$$)"
 STDERR_CONTENT="$(cat /tmp/test-lgdv-stderr.$$ 2>/dev/null)"
 rm -f /tmp/test-lgdv-stderr.$$
 

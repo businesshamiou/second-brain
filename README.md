@@ -77,6 +77,17 @@ Si tu veux aussi retirer les outils installés pour toi (Git portable et `uv`, a
 
 **Installation antérieure à la Mission 173 ?** Si tu as installé Second Brain avant cette Mission, une version plus ancienne peut avoir posé des liens dans ton profil (*.claude/agents/*, *.claude/skills/*, *.agents/skills/*, dans ton compte). Le script `tools/remove-profile-links.ps1` (dans ton clone) les liste et les retire sur confirmation, sans jamais toucher au contenu qu'ils pointaient — lance-le, lis ce qu'il propose, puis confirme.
 
+## Relier un second dépôt (avancé)
+
+Par défaut, Second Brain ne suppose l'existence d'aucun autre dépôt à côté du tien : les outils qui pourraient comparer ton clone à un dépôt voisin (`tools/session-preflight.sh`, `tools/check-asserted-paths.sh`, `tools/link-graph-drone-view.sh`) ne cherchent rien et n'avertissent de rien tant que tu n'en déclares pas un explicitement.
+
+Si tu utilises un second dépôt à côté de `second-brain` dans ton espace de travail (par exemple pour y garder tes propres missions et rapports) et que tu veux que ces outils le voient, déclare-le d'une des deux façons suivantes :
+
+- variable d'environnement `SECOND_BRAIN_SIBLING_REPO` (le nom du dossier, pas un chemin) avant de lancer une commande ; ou
+- un fichier *SIBLING-REPO.txt* (que tu crées toi-même), une seule ligne avec ce même nom, à la racine de ton espace de travail (à côté de `VAULT-ROOT.md`) — pratique pour une déclaration durable, valable pour toute session ouverte depuis ce dossier.
+
+Sans déclaration : silence, comme si l'outil n'existait pas. Avec une déclaration dont le dossier est introuvable : un seul avertissement clair, jamais un refus.
+
 ## Questions fréquentes
 
 **Comment je demande quelque chose à mon assistant ?** Nomme-le explicitement dans ta question, par exemple `Demande à Brian : quelles sont les décisions actives sur la structure des projets ?` — Claude Code délègue alors réellement au sous-agent en lecture seule dédié, qui cite ses sources par chemin. Sans le nommer, l'agent principal de Claude Code peut répondre lui-même à ta place ; sa réponse est en général correcte, mais elle n'a pas la garantie de lecture seule que porte ton assistant dédié.

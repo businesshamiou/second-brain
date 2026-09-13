@@ -512,3 +512,5 @@ tests/test-project-assistant-and-skills-links.ps1	DISTRIBUABLE
 tests/test-claude-md-hierarchy.ps1	DISTRIBUABLE
 tests/test-external-import-approval-announced.ps1	DISTRIBUABLE
 tests/test-remove-profile-links.ps1	DISTRIBUABLE
+tools/resolve-sibling-repo.sh	DISTRIBUABLE
+tests/test-sibling-repo-declaration.sh	DISTRIBUABLE

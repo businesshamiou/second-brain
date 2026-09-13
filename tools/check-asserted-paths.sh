@@ -3,8 +3,8 @@
 # cites en prose (entre accents graves simples) par le corpus normatif vivant
 # de ce depot. Lecture seule : ne corrige jamais un defaut trouve, se
 # contente de refuser et de le lister. Est cable sur .githooks/pre-commit
-# (mesure 2026-09-04, Mission 132) -- l'en-tete precedente affirmait a tort
-# l'absence de cablage depuis la Mission 103 ; execution manuelle possible
+# (mesure 2026-09-04, build history) -- l'en-tete precedente affirmait a tort
+# l'absence de cablage (build history) ; execution manuelle possible
 # aussi, resultat rapporte par l'appelant dans ce cas.
 #
 # Perimetre : fichiers .md suivis de ce depot dont le front-matter `type`
@@ -33,8 +33,14 @@ VAULT_ROOT="$(git rev-parse --show-toplevel)" || {
   exit 1
 }
 WORKSPACE_ROOT="$(cd "$VAULT_ROOT/.." && pwd)"
-SIBLING_NAME="${ASSERTED_PATHS_SIBLING_NAME:-workshop-build}"
-SIBLING_ROOT="$WORKSPACE_ROOT/$SIBLING_NAME"
+# Sibling repository (build history; Mission 174 step 3, T21): no name
+# assumed by default. See tools/resolve-sibling-repo.sh -- SIBLING_NAME and
+# SIBLING_ROOT stay empty when nothing is declared, which is exactly the
+# prior behaviour for a Vault-only checkout (a token that would have
+# resolved against the sibling now simply falls through to the other
+# candidate roots, same as before this repo ever existed).
+. "$(dirname "$0")/resolve-sibling-repo.sh"
+resolve_declared_sibling "$WORKSPACE_ROOT"
 
 FAIL=0
 CHECKED=0
@@ -164,9 +170,14 @@ names_a_file() {
 outside_root() {
   local token="$1" source_dir="$2"
 
-  case "$token" in
-    "$SIBLING_NAME"/*) return 0 ;;
-  esac
+  # SIBLING_NAME can be empty (no sibling declared) -- an empty-prefix case
+  # pattern would then match any token starting with "/", which is not what
+  # this rule means. Guarded explicitly rather than relying on the pattern.
+  if [ -n "$SIBLING_NAME" ]; then
+    case "$token" in
+      "$SIBLING_NAME"/*) return 0 ;;
+    esac
+  fi
 
   case "$token" in
     ../*)

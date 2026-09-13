@@ -1,22 +1,26 @@
 #!/usr/bin/env bash
-# Preflight de session (Mission 039) : verifie sans rien modifier.
-# Sortie stdout : une ligne READY ou NOT-READY: <n> issue(s). Detail sur stderr.
-# Ecrit le tampon local .claude/.preflight_stamp.json (non verse a Git).
+# Session preflight (build history) : verifies without modifying anything.
+# Stdout: one line, READY or NOT-READY: <n> issue(s). Detail on stderr.
+# Writes the local stamp .claude/.preflight_stamp.json (never committed).
 #
 # usage: session-preflight.sh
 #
-# Nom du depot frere parametrable (Mission 069, douteux 6) :
-# PREFLIGHT_SIBLING_NAME en variable d'environnement, defaut inchange
-# "workshop-build". Son absence devient un avertissement (READY possible),
-# plus un echec -- un detenteur du Vault seul (aucun projet frere encore
-# clone) reste READY.
+# Sibling repository (build history; Mission 174 step 3, T21): no name is
+# assumed by default any more. See tools/resolve-sibling-repo.sh -- without
+# an explicit declaration (SECOND_BRAIN_SIBLING_REPO or a workspace-root
+# SIBLING-REPO.txt), this check is skipped entirely: no search, no warning.
+# Declared but not found on disk: one clear warning (READY still possible,
+# never a failure -- a participant with no second repository is a normal,
+# complete setup).
 
 set -u
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 VAULT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-SIBLING_NAME="${PREFLIGHT_SIBLING_NAME:-workshop-build}"
-BUILD_ROOT="$(cd "$VAULT_ROOT/../$SIBLING_NAME" 2>/dev/null && pwd || true)"
+WORKSPACE_ROOT="$(cd "$VAULT_ROOT/.." && pwd)"
+. "$SCRIPT_DIR/resolve-sibling-repo.sh"
+resolve_declared_sibling "$WORKSPACE_ROOT"
+BUILD_ROOT="$SIBLING_ROOT"
 STAMP="$VAULT_ROOT/.claude/.preflight_stamp.json"
 CHARTER="$VAULT_ROOT/rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md"
 
@@ -44,8 +48,8 @@ check_pointer "$VAULT_ROOT/CLAUDE.md"
 if [ -n "$BUILD_ROOT" ]; then
   check_pointer "$BUILD_ROOT/AGENTS.md"
   check_pointer "$BUILD_ROOT/CLAUDE.md"
-else
-  WARNINGS+=("depot frere introuvable en ../$SIBLING_NAME -- avertissement, pas un echec (detenteur du Vault seul)")
+elif [ "$SIBLING_DECLARED" -eq 1 ]; then
+  WARNINGS+=("declared sibling repository '$SIBLING_NAME' not found next to this workspace -- warning, not a failure")
 fi
 
 # --- 3. .claude/settings.json present et JSON valide ---
@@ -138,7 +142,7 @@ mkdir -p "$(dirname "$STAMP")"
 
 # --- Sortie ---
 for WARNING in "${WARNINGS[@]}"; do
-  echo "  - avertissement : $WARNING" >&2
+  echo "  - warning: $WARNING" >&2
 done
 
 if [ "$N" -eq 0 ]; then

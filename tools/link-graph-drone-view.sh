@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Vue drone des liens ecrits (Mission 042) : mesure deterministe, zero appel
-# modele, zero reseau. Lit les deux corpus (vault entier, workshop-build/
-# workshop-production), parcourt la section "## Liens" de chaque fichier .md
-# suivi par Git, construit le graphe oriente et rend quatre mesures plus
-# deux vues Mermaid. Ecrit uniquement sur la sortie standard : aucun fichier
-# de sortie persistant (Mission 042, contrainte).
+# Vue drone des liens ecrits (build history) : mesure deterministe, zero appel
+# modele, zero reseau. Lit ce depot, et un second corpus si un depot voisin
+# est declare (voir plus bas), parcourt la section "## Liens" de chaque
+# fichier .md suivi par Git, construit le graphe oriente et rend quatre
+# mesures plus deux vues Mermaid. Ecrit uniquement sur la sortie standard :
+# aucun fichier de sortie persistant (build history, contrainte).
 #
 # Complement (Session Executor, 2026-08-24) : la mesure 4 ajoute une
 # ventilation des couples de remplacement selon la date de creation
@@ -12,7 +12,7 @@
 # (adoption du standard de liens). Dates absentes ou illisibles comptees a
 # part, jamais devinees ni substituees par la date du nom de fichier.
 #
-# Correction (Mission 043, 2026-08-24) : le pipeline d'extraction FM/SUP/LINK
+# Correction (build history, 2026-08-24) : le pipeline d'extraction FM/SUP/LINK
 # (section 2 ci-dessous) utilisait une tabulation comme separateur de champ,
 # lue par `read` avec IFS reduit a cette meme tabulation. Or IFS compose
 # uniquement d'espace/tabulation/saut de ligne est traite par bash comme de
@@ -30,24 +30,25 @@
 #
 # usage: link-graph-drone-view.sh
 #
-# Depot frere parametrable (Mission 069, douteux 5) : LINK_GRAPH_WORKSHOP_BUILD_ROOT
-# et LINK_GRAPH_WORKSHOP_ROOT en variables d'environnement surchargent le
-# nom/emplacement en dur ; non definies, le script recalcule exactement la
-# meme valeur qu'avant (defaut inchange, "../workshop-build" puis
-# "workshop-production" en sous-dossier).
+# Sibling repository (build history; Mission 174 step 3, T21): no name or
+# subfolder assumed by default any more. See tools/resolve-sibling-repo.sh --
+# LINK_GRAPH_WORKSHOP_SUBDIR still overrides the sub-folder name inside a
+# declared sibling (default "workshop-production", unchanged), but the
+# sibling itself must be declared (SECOND_BRAIN_SIBLING_REPO or a
+# workspace-root SIBLING-REPO.txt) or this tool analyzes the Vault corpus
+# alone -- no search, no warning, no crash.
 
 set -u
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 VAULT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-WORKSHOP_BUILD_ROOT="${LINK_GRAPH_WORKSHOP_BUILD_ROOT:-}"
-if [ -z "$WORKSHOP_BUILD_ROOT" ]; then
-  WORKSHOP_BUILD_ROOT="$(cd "$VAULT_ROOT/../workshop-build" && pwd)"
-fi
-WORKSHOP_ROOT="${LINK_GRAPH_WORKSHOP_ROOT:-$WORKSHOP_BUILD_ROOT/workshop-production}"
-WORKSHOP_SUBDIR="$(realpath --relative-to="$WORKSHOP_BUILD_ROOT" "$WORKSHOP_ROOT" 2>/dev/null)"
-[ -z "$WORKSHOP_SUBDIR" ] && WORKSHOP_SUBDIR="workshop-production"
-STATE_FILE="$WORKSHOP_ROOT/state/STATE.md"
+WORKSPACE_ROOT="$(cd "$VAULT_ROOT/.." && pwd)"
+. "$SCRIPT_DIR/resolve-sibling-repo.sh"
+resolve_declared_sibling "$WORKSPACE_ROOT"
+WORKSHOP_BUILD_ROOT="$SIBLING_ROOT"
+WORKSHOP_SUBDIR="${LINK_GRAPH_WORKSHOP_SUBDIR:-workshop-production}"
+WORKSHOP_ROOT="${WORKSHOP_BUILD_ROOT:+$WORKSHOP_BUILD_ROOT/$WORKSHOP_SUBDIR}"
+STATE_FILE="${WORKSHOP_ROOT:+$WORKSHOP_ROOT/state/STATE.md}"
 
 resolve_path() {
   # $1 = chemin, potentiellement relatif et contenant . ou ..
@@ -61,7 +62,12 @@ resolve_path() {
 
 # --- 1. Inventaire : union des deux corpus, fichiers .md suivis par Git ---
 VAULT_FILES="$(cd "$VAULT_ROOT" && git ls-files '*.md' | while IFS= read -r f; do printf '%s/%s\n' "$VAULT_ROOT" "$f"; done)"
-WORKSHOP_FILES="$(cd "$WORKSHOP_BUILD_ROOT" && git ls-files -- "$WORKSHOP_SUBDIR/*.md" | while IFS= read -r f; do printf '%s/%s\n' "$WORKSHOP_BUILD_ROOT" "$f"; done)"
+WORKSHOP_FILES=""
+if [ -n "$WORKSHOP_BUILD_ROOT" ]; then
+  WORKSHOP_FILES="$(cd "$WORKSHOP_BUILD_ROOT" && git ls-files -- "$WORKSHOP_SUBDIR/*.md" | while IFS= read -r f; do printf '%s/%s\n' "$WORKSHOP_BUILD_ROOT" "$f"; done)"
+else
+  echo "No sibling repository declared -- analyzing this repository's own corpus only." >&2
+fi
 ALL_FILES="$(printf '%s\n%s\n' "$VAULT_FILES" "$WORKSHOP_FILES")"
 TOTAL_DOCS="$(printf '%s\n' "$ALL_FILES" | grep -c .)"
 
@@ -212,7 +218,7 @@ echo "  dont forme anterieure (type : [texte](cible), sans guillemets)  : $FORM_
 echo "liens non resolus (cible introuvable)    : $UNRESOLVED"
 printf 'taux de liens non resolus                : %d.%01d%%\n' $((UNRESOLVED_PCT / 10)) $((UNRESOLVED_PCT % 10))
 if [ "$UNRESOLVED_PCT" -gt 100 ]; then
-  echo "ARRET : plus d'un lien sur dix est non resolu (condition d'arret Mission 042). Aucune mesure rendue." >&2
+  echo "ARRET : plus d'un lien sur dix est non resolu (condition d'arret, build history). Aucune mesure rendue." >&2
   exit 1
 fi
 if [ "$UNRESOLVED" -gt 0 ]; then
@@ -263,9 +269,9 @@ printf '%b' "$ORPHAN_OTHER_LIST" | grep . | sort
 echo ""
 
 # --- Mesure 3 : portee, BFS oriente depuis STATE.md ---
-echo "=== MESURE 3 — PORTEE depuis $STATE_FILE ==="
+echo "=== MESURE 3 — PORTEE depuis ${STATE_FILE:-<aucun depot voisin declare>} ==="
 declare -A DIST
-if [ -f "$STATE_FILE" ]; then
+if [ -n "$STATE_FILE" ] && [ -f "$STATE_FILE" ]; then
   DIST["$STATE_FILE"]=0
   FRONTIER="$STATE_FILE"
   D=0
@@ -289,7 +295,7 @@ FRONTIER_EOF
     FRONTIER="$(printf '%s' "$NEXT" | sort -u | grep .)"
   done
 else
-  echo "ANOMALY : fiche d'etat introuvable a $STATE_FILE" >&2
+  echo "ANOMALY : fiche d'etat introuvable a ${STATE_FILE:-<aucun depot voisin declare>}" >&2
 fi
 
 for k in 1 2 3; do
