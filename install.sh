@@ -450,7 +450,13 @@ step_line() {
   # with its result -- mirrors install.ps1's own Write-StepLine. Not
   # numbered ("Step N/8"): firstProject/projectLinks are skipped entirely
   # when the participant declines a first project.
-  echo "Step: $1 -- OK"
+  #
+  # >&2, not stdout: ticket 05 criterion 7 (tests/test-install-e2e.sh) reads
+  # VERDICT1="$(bash install.sh ...)" and requires that capture to be
+  # exactly the one verdict line in silent (--answers-file) mode -- a line
+  # on stdout here would join that capture on every install, not just the
+  # nominal nothing-to-report case.
+  echo "Step: $1 -- OK" >&2
 }
 
 # --- Context (Mission constraint: Owner's / CI runner's real environment
@@ -708,7 +714,13 @@ check_forced_stop "guardians"
 # --- Step: workspace marker -------------------------------------------------
 CURRENT_STEP="marker"
 if [ ! -f "$MARKER_PATH" ]; then
-  run_or_fail "write-marker.sh failed" "$CLONE_PATH/tools/write-marker.sh" "$WORKSPACE_PATH" "$ANSWER_VAULTNAME"
+  # Discarded to /dev/null, not run_or_fail's inherited stdio: write-marker.sh
+  # echoes the marker path on stdout for its OTHER caller (the standalone
+  # first-install skill), unneeded here -- mirrors install.ps1's own
+  # `... | Out-Null` for this same call, and keeps that path out of
+  # VERDICT1="$(bash install.sh ...)" (ticket 05 criterion 7).
+  "$CLONE_PATH/tools/write-marker.sh" "$WORKSPACE_PATH" "$ANSWER_VAULTNAME" > /dev/null \
+    || fail "write-marker.sh failed"
 fi
 mark_step "markerWritten"
 save_carnet
@@ -776,9 +788,20 @@ FIRST_PROJECT_PATH="$WORKSPACE_PATH/$FIRST_PROJECT_NAME"
 CURRENT_STEP="firstProject"
 if [ "$ANSWER_FP_CREATE" = "true" ]; then
   if [ ! -e "$FIRST_PROJECT_PATH" ]; then
-    run_or_fail "project-bootstrap.sh failed" \
-      "$CLONE_PATH/tools/project-bootstrap.sh" "$FIRST_PROJECT_PATH" "$FIRST_PROJECT_DISPLAY_NAME"
+    # Captured via $(...), not run_or_fail: project-bootstrap.sh's own
+    # stdout (the fiche path it prints for its other caller, plus its
+    # "Note: ..." lines about skill/assistant links) would otherwise
+    # inherit straight through into install.sh's own stdout -- exactly
+    # what VERDICT1="$(bash install.sh ...)" captures (ticket 05
+    # criterion 7, tests/test-install-e2e.sh: silent mode must be one
+    # line). Only the matching "Note:" lines are relayed, and on stderr
+    # like step_line, so they still reach a real console without joining
+    # that capture; the fiche path is unneeded here and dropped, mirroring
+    # install.ps1's own $bootstrapOutput handling.
+    BOOTSTRAP_OUTPUT="$("$CLONE_PATH/tools/project-bootstrap.sh" "$FIRST_PROJECT_PATH" "$FIRST_PROJECT_DISPLAY_NAME")" \
+      || fail "project-bootstrap.sh failed"
     step_line "First project"
+    printf '%s\n' "$BOOTSTRAP_OUTPUT" | grep -E '^(Note:|  - |  To use)' >&2 || true
     step_line "Project links"
 
     # No build-indexes.sh here, unlike save_clone_pending_changes -- same

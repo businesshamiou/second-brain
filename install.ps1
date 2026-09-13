@@ -192,8 +192,14 @@ function Write-StepLine {
     # skipped entirely when the participant declines a first project, and
     # a fixed denominator would then either lie about the total or need
     # its own conditional logic for no real benefit over a plain list.
+    # Write-Host, not Write-Output: this line must reach a real console (and
+    # a redirected-stdout child process, which is how a real user's terminal
+    # and tests/test-install-log-line-count.ps1 both see it) without also
+    # landing in the PowerShell success stream -- ticket 05 criterion 7
+    # (tests/test-install-e2e.ps1) requires that `$verdict = & install.ps1 ...`
+    # capture the verdict line and nothing else in silent (-AnswersFile) mode.
     param([string] $Name)
-    Write-Output "Step: $Name -- OK"
+    Write-Host "Step: $Name -- OK"
 }
 
 function Invoke-BashTool {
@@ -804,7 +810,11 @@ try {
             $bootstrapOutput = Invoke-BashTool -BashExe $bashExe -ScriptPath $bootstrapScript `
                 -ScriptArgs @((ConvertTo-PosixPath $firstProjectPath), $firstProjectDisplayName)
             Write-StepLine -Name 'First project'
-            $bootstrapOutput | Where-Object { $_ -match '^(Note:|  - |  To use)' } | ForEach-Object { Write-Output $_ }
+            # Write-Host, not Write-Output -- same reason as Write-StepLine
+            # above: these notes must reach the console without joining the
+            # PowerShell success stream that ticket 05's silent-mode
+            # assertion (tests/test-install-e2e.ps1) captures.
+            $bootstrapOutput | Where-Object { $_ -match '^(Note:|  - |  To use)' } | ForEach-Object { Write-Host $_ }
             Write-StepLine -Name 'Project links'
 
             $registrationChanges = & git -C $clonePath status --porcelain
