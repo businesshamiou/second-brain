@@ -408,9 +408,6 @@ function Write-UserProfile {
     $aiToolsList = @($Answers.aiTools)
     $aiTools = if ($aiToolsList.Count -gt 0) { ($aiToolsList -join ', ') } else { 'aucun renseigné' }
 
-    $skillCollectionsList = @($Answers.skillCollections)
-    $skillCollections = if ($skillCollectionsList.Count -gt 0) { ($skillCollectionsList -join ', ') } else { 'aucune' }
-
     $firstName = $Answers.firstName
     $activity = $Answers.activity
     $whatMatters = $Answers.whatMatters
@@ -454,7 +451,6 @@ function Write-UserProfile {
         ''
         "- **Assistant :** $assistantName"
         "- **Espace de travail :** $workspacePath"
-        "- **Collections de skills :** $skillCollections"
         "- **Installé le :** $InstalledAt"
         ''
         '## Liens'
@@ -487,7 +483,7 @@ function ConvertTo-ProjectSlug {
 
 function Resolve-QuestionnaireAnswer {
     # The one place that decides, for a single field, whether to ask at all
-    # -- used by install.ps1 for every one of the eight questions plus the
+    # -- used by install.ps1 for every one of the seven questions plus the
     # first-project confirmation, so the resume/update-mode/silent-mode
     # decision is made identically for all of them instead of drifting
     # field by field:

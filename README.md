@@ -44,7 +44,7 @@ git clone https://github.com/businesshamiou/second-brain.git /tmp/second-brain-i
 
 **Depuis Claude Code ou Codex**, ouvre une session dans un dossier quelconque et lance `/first-install` : l'agent pose les mêmes questions dans son propre chat, écrit le fichier de réponses, puis appelle le même installeur.
 
-Dans les trois cas, l'installeur crée ton espace de travail, y clone `second-brain` à sa place définitive, pose le marqueur `VAULT-ROOT.md`, et te pose huit questions courtes (langue, nom de l'assistant, emplacement de l'espace de travail, prénom, activité, façon de travailler avec l'IA, ce qui compte pour toi, collections de skills en plus) avant de te proposer un premier projet.
+Dans les trois cas, l'installeur crée ton espace de travail, y clone `second-brain` à sa place définitive, pose le marqueur `VAULT-ROOT.md`, et te pose sept questions courtes (langue, nom de l'assistant, emplacement de l'espace de travail, prénom, activité, façon de travailler avec l'IA, ce qui compte pour toi) avant de te proposer un premier projet.
 
 **L'installation par archive (zip) reste refusée.** Second Brain se publie par étiquette de version (« tag ») sur un dépôt Git, jamais accompagné d'une archive : les gardiens de ce dépôt (contrôle de secrets, de liens, de fraîcheur des index) exigent un dépôt Git réel (`git rev-parse` doit répondre) pour s'exécuter, et un dossier extrait d'une archive n'en est pas un — ni les gardiens ni `/first-install` n'y fonctionnent correctement. Clone toujours avec `git clone`.
 
@@ -55,8 +55,7 @@ Dans les trois cas, l'installeur crée ton espace de travail, y clone `second-br
 | Composant | Emplacement | Portée |
 |---|---|---|
 | Le dépôt `second-brain` lui-même (règles, skills fabriqués, warehouse, outils) | dossier choisi par toi à la question 3, dans ton espace de travail | ce dépôt uniquement |
-| Skills fabriqués (six skills de méthode, `skills/` sauf `external/`) | liens dans ton dossier de skills Claude Code et dans celui de Codex | ton profil utilisateur |
-| Collections du warehouse choisies à la question 8, et `skills/external/` sur demande | mêmes deux dossiers de skills, par lien | ton profil utilisateur |
+| Skills de la méthode, toujours déployés (`skills/` et `skills/external/`) | liens dans ton dossier de skills Claude Code et dans celui de Codex (Codex reçoit `skills/` seul si le budget de description dépasse le plafond mesuré) | ton profil utilisateur |
 | L'assistant (par défaut « Brian ») | sous-agent Claude Code, skill Codex, et un paquet web à téléverser toi-même dans un Projet claude.ai ou ChatGPT | ton profil utilisateur, plus un geste manuel pour le paquet web |
 | Git, Python et `pre-commit`, si absents de ton poste | ton profil utilisateur uniquement (jamais un emplacement machine, jamais avec élévation) | ton profil utilisateur |
 | Ta fiche `USER.md`, ton premier projet éventuel | dans `second-brain` (`USER.md`) et à côté de lui dans l'espace de travail (le projet) | ton espace de travail |
@@ -85,7 +84,7 @@ Second Brain n'écrit rien de global : désinstaller consiste à retirer ce que 
 
 **Puis-je installer depuis une archive zip téléchargée sur GitHub ?** Non, par construction : voir « Ligne d'installation » ci-dessus. Clone toujours le dépôt avec `git clone`.
 
-**Qu'est-ce que le warehouse, et est-ce que j'en ai besoin ?** `skills-warehouse/` est une bibliothèque de skills tiers déjà vérifiés (licence, portabilité). Tu n'en actives aucune collection par défaut (question 8) ; ton assistant t'explique comment en ajouter une plus tard.
+**Qu'est-ce que le warehouse, et est-ce que j'en ai besoin ?** `skills-warehouse/` est une bibliothèque de skills tiers déjà vérifiés (licence, portabilité). L'installeur n'en déploie aucune collection : seuls les skills de la méthode (`skills/` et `skills/external/`) sont liés dans ton profil ; ton assistant t'explique comment ajouter une collection du warehouse plus tard.
 
 **« Vault » et « Second Brain », c'est la même chose ?** Oui : « Vault » est le nom interne, utilisé dans les règles et les outils ; « Second Brain » est le nom que tu vois. Voir [CONTEXT.md](./CONTEXT.md).
 

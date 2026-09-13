@@ -15,8 +15,6 @@
   "questionnaire.aiTools.detectedNote": "(détectés sur ce poste : {0})",
   "questionnaire.whatMatters.prompt": "Qu'est-ce qui compte le plus pour toi ?",
   "questionnaire.whatMatters.default": "simplicité, pas de sur-ingénierie",
-  "questionnaire.skillCollections.prompt": "Des collections de skills en plus à activer ? (liste séparée par des virgules, ou rien)",
-  "questionnaire.skillCollections.defaultNote": "(défaut : aucune)",
   "questionnaire.firstProject.prompt": "Créer un premier projet maintenant ?",
   "questionnaire.firstProject.defaultNote": "(défaut : oui)",
   "questionnaire.firstProject.namePrompt": "Nom du premier projet ?",

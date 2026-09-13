@@ -15,7 +15,7 @@
     tests/test-install-e2e.ps1's own second-run assertion) -- this test
     drives install.ps1's -ScriptedAnswers replay queue for both runs, never
     Read-Host, never the real console:
-      1. A first, fully interactive run completes every one of the eight
+      1. A first, fully interactive run completes every one of the seven
          questions plus the first-project confirmation, at the installer's
          own default workspace path (so a second interactive run can find
          it without being told where to look, per T06 complement 2's
@@ -62,10 +62,11 @@ try {
     Write-Output ""
     Write-Output "=== 1. First run: a full interactive install, English, default workspace ==="
     # Order: language, assistant name, workspace path (blank -> default),
-    # firstName, activity, aiToolsRaw (blank), whatMatters, skillCollectionsRaw
-    # (blank), firstProject confirm (n -- keeps this test's assertions
-    # focused on the clone alone, no separate first-project repo to check).
-    $run1Answers = @('EN', 'Brian', '', 'Ana', 'Building a personal AI system', '', 'Simplicity', '', 'n')
+    # firstName, activity, aiToolsRaw (blank), whatMatters, firstProject
+    # confirm (n -- keeps this test's assertions focused on the clone
+    # alone, no separate first-project repo to check). The eighth question
+    # (skillCollectionsRaw) is retired (Mission 171-C01 step 4).
+    $run1Answers = @('EN', 'Brian', '', 'Ana', 'Building a personal AI system', '', 'Simplicity', 'n')
     $run1Output = & $installScript -Source $RepoRoot -TestMode -TestRoot $TestRoot `
         -ScriptedAnswers $run1Answers 6>&1 | Out-String
     $run1Exit = $LASTEXITCODE

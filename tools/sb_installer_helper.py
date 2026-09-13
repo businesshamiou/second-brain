@@ -24,6 +24,8 @@ import argparse
 import json
 import os
 import re
+import stat
+import subprocess
 import sys
 import unicodedata
 
@@ -62,7 +64,6 @@ def extract_answers_exports(answers):
         val = a.get(key)
         out.append(f"ANSWER_{key.upper()}={shq('' if val is None else val)}")
     out.append(f"ANSWER_AITOOLS={shq(' '.join(a.get('aiTools') or []))}")
-    out.append(f"ANSWER_SKILLCOLLECTIONS={shq(' '.join(a.get('skillCollections') or []))}")
     fp = a.get("firstProject") or {}
     fp_create = fp.get("create")
     fp_create_str = "" if fp_create is None else ("true" if fp_create else "false")
@@ -126,7 +127,6 @@ def cmd_save_carnet(args):
             "activity": args.activity or None,
             "aiTools": [t for t in (args.ai_tools or "").split(" ") if t],
             "whatMatters": args.what_matters or None,
-            "skillCollections": [t for t in (args.skill_collections or "").split(" ") if t],
             "firstProject": {
                 "create": _bool_or_none(args.fp_create),
                 "name": args.fp_name or None,
@@ -355,7 +355,9 @@ def cmd_move_assistant_trash(args):
     return 0
 
 
-# --- Skill deployment by link (ticket 07 parity) ---------------------------
+# --- Skill deployment by link (ticket 07; combined budget and unconditional
+# external deployment, Mission 171-C01 step 4 -- see tools/deploy-skills.ps1's
+# own header comment for the full rationale, this file mirrors it exactly) --
 
 def _skill_dir_entries(skills_root, exclude_names=()):
     if not os.path.isdir(skills_root):
@@ -384,86 +386,151 @@ def _skill_description(skill_md_path):
     return ""
 
 
-def _available_warehouse_slugs(clone_path):
-    root = os.path.join(clone_path, "skills-warehouse", "skill-collections")
-    if not os.path.isdir(root):
-        return []
-    return sorted(
-        name for name in os.listdir(root)
-        if os.path.isdir(os.path.join(root, name, "skills"))
+def _method_skill_entries(clone_path):
+    # The two unconditional method-skill sources (Mission 171-C01 step 4):
+    # skills/ (default, excluding external/) and skills/external/ itself.
+    # Warehouse collections (skills-warehouse/) are never a source here any
+    # more -- the retired eighth question used to gate both skills/external/
+    # and warehouse collections through one free-text token list; both are
+    # superseded (external is now unconditional, warehouse is delivered as
+    # zip packages instead, a separate mechanism).
+    default_entries = _skill_dir_entries(os.path.join(clone_path, "skills"), exclude_names={"external"})
+    external_entries = _skill_dir_entries(os.path.join(clone_path, "skills", "external"))
+    return default_entries, external_entries
+
+
+def _codex_budget(default_entries, external_entries):
+    # Doctrine rule 3 (Mission 171-C01 step 4): sums BOTH sources together,
+    # unlike the superseded ticket-07 measurement which only summed
+    # default_entries. Never raises -- the caller turns an over-budget total
+    # into a per-target fallback instead of a failure (Doctrine: "Pas d'arret").
+    total = 0
+    breakdown = []
+    for name, source_path in default_entries + external_entries:
+        length = len(_skill_description(os.path.join(source_path, "SKILL.md")))
+        total += length
+        breakdown.append((name, length))
+    return total, breakdown
+
+
+def _merge_skill_entries(entry_lists):
+    # Keeps the first occurrence of each skill name across ordered entry
+    # lists, recording the rest as duplicates -- mirrors
+    # tools/deploy-skills.ps1's Merge-SkillEntriesByName exactly.
+    seen = set()
+    duplicates = []
+    merged = []
+    for entries in entry_lists:
+        for name, source_path in entries:
+            if name in seen:
+                duplicates.append(name)
+                continue
+            seen.add(name)
+            merged.append((name, source_path))
+    return merged, duplicates
+
+
+def _is_windows_platform():
+    return os.name == "nt"
+
+
+def _is_reparse_point(path):
+    # Detects BOTH a symbolic link and an NTFS junction. os.path.islink()
+    # alone misses a junction (a different reparse tag,
+    # IO_REPARSE_TAG_MOUNT_POINT, not IO_REPARSE_TAG_SYMLINK), but every
+    # reparse point -- either tag -- sets the same FILE_ATTRIBUTE_REPARSE_POINT
+    # bit (measured directly on this machine: a junction created by
+    # tools/deploy-skills.ps1's own Publish-SkillLink reports this bit set on
+    # os.lstat().st_file_attributes, while os.path.islink() on that same path
+    # returns False). st_file_attributes only exists on Windows.
+    try:
+        attrs = os.lstat(path).st_file_attributes
+    except (AttributeError, OSError):
+        return False
+    return bool(attrs & stat.FILE_ATTRIBUTE_REPARSE_POINT)
+
+
+def _create_windows_junction(link_path, target_path):
+    # An NTFS junction, not a symbolic link: os.symlink() fails on this
+    # machine with WinError 1314 ("the client does not have the required
+    # privilege") -- measured directly while building Mission 171-C01 step
+    # 4 -- because creating a symbolic link on Windows needs Developer Mode
+    # or an elevated process, neither of which this unattended installer
+    # may ever require. A junction needs neither (same constraint, same fix
+    # already applied on the PowerShell side,
+    # tools/deploy-skills.ps1's own Publish-SkillLink). mklink is a cmd.exe
+    # builtin, not its own executable, so it must run through `cmd /c`,
+    # never as a direct subprocess target.
+    #
+    # os.path.normpath() is mandatory here, not cosmetic: this helper is
+    # install.sh's own backend, called from Git Bash where $HOME and every
+    # path built from it use forward slashes (C:/Users/...). cmd.exe's
+    # mklink parses its own arguments looking for "/switch" tokens, and a
+    # forward-slash path like "C:/Users/..." is misread as a run of
+    # switches -- measured directly: "Option non valide - \"Users\"." --
+    # even though a mixed-separator path resolves correctly for ordinary
+    # filesystem APIs. normpath() converts every forward slash to a
+    # backslash on Windows, which mklink parses correctly.
+    subprocess.run(
+        ["cmd", "/c", "mklink", "/J", os.path.normpath(link_path), os.path.normpath(target_path)],
+        check=True, capture_output=True, text=True,
     )
 
 
 def _publish_skill_link(link_path, target_path):
     resolved_target = os.path.realpath(target_path)
     if os.path.lexists(link_path):
-        if os.path.islink(link_path):
-            existing_target = os.path.realpath(link_path)
-            if os.path.normcase(existing_target.rstrip("/")) == os.path.normcase(resolved_target.rstrip("/")):
+        if os.path.islink(link_path) or _is_reparse_point(link_path):
+            try:
+                existing_target = os.path.realpath(link_path)
+            except OSError:
+                existing_target = None
+            if existing_target and (
+                os.path.normcase(existing_target.rstrip("/\\")) == os.path.normcase(resolved_target.rstrip("/\\"))
+            ):
                 return "AlreadyLinked"
         return "Conflict"
     os.makedirs(os.path.dirname(link_path), exist_ok=True)
-    os.symlink(resolved_target, link_path, target_is_directory=True)
+    if _is_windows_platform():
+        _create_windows_junction(link_path, resolved_target)
+    else:
+        os.symlink(resolved_target, link_path, target_is_directory=True)
     return "Created"
 
 
 def cmd_deploy_skills(args):
+    # Unconditional deployment (Mission 171-C01 step 4): no --collections
+    # input any more (the retired eighth question used to supply it) --
+    # skills/ and skills/external/ are always the two sources. Codex drops
+    # skills/external/ under Doctrine rule 3 when the combined description
+    # budget is over the ceiling; Claude Code never does.
     clone_path = args.clone_path
-    default_entries = _skill_dir_entries(os.path.join(clone_path, "skills"), exclude_names={"external"})
+    default_entries, external_entries = _method_skill_entries(clone_path)
+    total, _breakdown = _codex_budget(default_entries, external_entries)
+    over_budget = total > MAX_CODEX_DEFAULT_SKILLS_BUDGET
 
-    total = 0
-    for name, source_path in default_entries:
-        total += len(_skill_description(os.path.join(source_path, "SKILL.md")))
-    if total > MAX_CODEX_DEFAULT_SKILLS_BUDGET:
-        print(
-            f"Default-deployed skills' descriptions total {total} characters, over the "
-            f"{MAX_CODEX_DEFAULT_SKILLS_BUDGET}-character Codex budget ceiling (ticket 07 criterion 3).",
-            file=sys.stderr,
-        )
-        return 1
-
-    tokens = [t for t in (args.collections or "").split(" ") if t]
-    available_warehouse = {s.lower() for s in _available_warehouse_slugs(clone_path)}
-    collected = []
-    unknown_tokens = []
-    for raw_token in tokens:
-        token = raw_token.strip().lower()
-        if not token:
-            continue
-        if token == "external":
-            collected += _skill_dir_entries(os.path.join(clone_path, "skills", "external"))
-        elif token in available_warehouse:
-            collected += _skill_dir_entries(
-                os.path.join(clone_path, "skills-warehouse", "skill-collections", token, "skills")
-            )
-        else:
-            unknown_tokens.append(raw_token)
-
-    seen = set()
-    duplicates = []
-    to_link = []
-    for name, source_path in default_entries + collected:
-        if name in seen:
-            duplicates.append(name)
-            continue
-        seen.add(name)
-        to_link.append((name, source_path))
+    claude_entries, claude_duplicates = _merge_skill_entries([default_entries, external_entries])
+    codex_source_lists = [default_entries] if over_budget else [default_entries, external_entries]
+    codex_entries, codex_duplicates = _merge_skill_entries(codex_source_lists)
 
     conflict_count = 0
-    for name, source_path in to_link:
-        for target_root in (args.claude_skills_dir, args.codex_agents_skills_dir):
+    for target_root, entries in (
+        (args.claude_skills_dir, claude_entries),
+        (args.codex_agents_skills_dir, codex_entries),
+    ):
+        for name, source_path in entries:
             link_path = os.path.join(target_root, name)
             status = _publish_skill_link(link_path, source_path)
             if status == "Conflict":
                 conflict_count += 1
                 print(f"CONFLICT {link_path}")
 
-    for name in duplicates:
+    for name in sorted(set(claude_duplicates + codex_duplicates)):
         print(f"DUPLICATE {name}")
-    for token in unknown_tokens:
-        print(f"UNKNOWN {token}")
     print(f"DEFAULT_COUNT {len(default_entries)}")
+    print(f"EXTERNAL_COUNT {len(external_entries)}")
     print(f"BUDGET {total} {MAX_CODEX_DEFAULT_SKILLS_BUDGET}")
+    print(f"FALLBACK {'1' if over_budget else '0'}")
     print(f"CONFLICT_COUNT {conflict_count}")
     return 0
 
@@ -475,8 +542,6 @@ def cmd_write_user_profile(args):
     language_label = language_labels.get(args.language, args.language)
     ai_tools = args.ai_tools.split(" ") if args.ai_tools else []
     ai_tools_text = ", ".join(t for t in ai_tools if t) or "aucun renseigné"
-    skill_collections = args.skill_collections.split(" ") if args.skill_collections else []
-    skill_collections_text = ", ".join(t for t in skill_collections if t) or "aucune"
 
     lines = [
         "---",
@@ -516,7 +581,6 @@ def cmd_write_user_profile(args):
         "",
         f"- **Assistant :** {args.vault_name}",
         f"- **Espace de travail :** {args.workspace_path}",
-        f"- **Collections de skills :** {skill_collections_text}",
         f"- **Installé le :** {args.installed_at}",
         "",
         "## Liens",
@@ -550,7 +614,6 @@ def build_parser():
     p.add_argument("--activity", default="")
     p.add_argument("--ai-tools", default="")
     p.add_argument("--what-matters", default="")
-    p.add_argument("--skill-collections", default="")
     p.add_argument("--fp-create", default="")
     p.add_argument("--fp-name", default="")
     p.add_argument("--fp-display-name", default="")
@@ -594,7 +657,6 @@ def build_parser():
     p.add_argument("clone_path")
     p.add_argument("claude_skills_dir")
     p.add_argument("codex_agents_skills_dir")
-    p.add_argument("--collections", default="")
     p.set_defaults(func=cmd_deploy_skills)
 
     p = sub.add_parser("write-user-profile")
@@ -606,7 +668,6 @@ def build_parser():
     p.add_argument("--activity", default="")
     p.add_argument("--ai-tools", default="")
     p.add_argument("--what-matters", default="")
-    p.add_argument("--skill-collections", default="")
     p.add_argument("--installed-at", default="")
     p.add_argument("--os-info", default="unknown")
     p.add_argument("--shell-info", default="unknown")

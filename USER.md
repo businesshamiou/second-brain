@@ -1,7 +1,7 @@
 ---
 type: profile
 title: "Fiche utilisateur — squelette"
-description: "Squelette vide, rédigé par le questionnaire d'installation (huit questions). Aucun contenu personnel avant l'installation."
+description: "Squelette vide, rédigé par le questionnaire d'installation (sept questions). Aucun contenu personnel avant l'installation."
 status: template
 ---
 

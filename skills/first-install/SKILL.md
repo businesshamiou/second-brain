@@ -1,6 +1,6 @@
 ---
 name: first-install
-description: "Install Second Brain from Claude Code or Codex: ask the same eight questions the installer's own terminal questionnaire asks, in the agent's own chat, write them to an answers file, then run install.ps1 or install.sh non-interactively. Also handles an already-existing clone: examines the parent folder for a prior or partial installation before deciding whether to start fresh, resume, or update. Use when asked to install, repair, resume, or update Second Brain from an agent chat."
+description: "Install Second Brain from Claude Code or Codex: ask the same seven questions the installer's own terminal questionnaire asks, in the agent's own chat, write them to an answers file, then run install.ps1 or install.sh non-interactively. Also handles an already-existing clone: examines the parent folder for a prior or partial installation before deciding whether to start fresh, resume, or update. Use when asked to install, repair, resume, or update Second Brain from an agent chat."
 license: "MIT"
 metadata:
   vault-implements: "(historique de l'atelier, non distribué), (historique de l'atelier, non distribué), (historique de l'atelier, non distribué)"
@@ -21,7 +21,7 @@ Examine ensuite le dossier parent de `<clone>` (le workspace) :
 
 Ne devine jamais cet état de mémoire : lis le carnet réel. N'y écris jamais toi-même — le script installeur en est le seul propriétaire ; ce skill ne produit que le fichier de réponses que l'installeur lit.
 
-## 2. Poser les huit questions, dans cet ordre exact
+## 2. Poser les sept questions, dans cet ordre exact
 
 Même ordre et mêmes défauts que le questionnaire du terminal (T06 complément 2), car un mélange de questions répondues au terminal et par l'agent, sur la même installation, doit rester indistinguable pour l'installeur :
 
@@ -32,7 +32,8 @@ Même ordre et mêmes défauts que le questionnaire du terminal (T06 complément
 5. **Ce que la personne fait, en une phrase.**
 6. **Comment elle travaille avec l'IA** — jetons séparés par des virgules parmi `claude-code`, `codex`, `claude-ai`, `chatgpt`. Tu sais déjà lesquels des deux premiers sont vrais pour *cette* conversation — propose-le en défaut, ne demande jamais à la personne ce que tu peux déjà constater.
 7. **Ce qui compte pour elle** — défaut : « simplicity, no over-engineering ».
-8. **Collections de skills en plus** — séparées par des virgules (`external`, ou un slug de collection du warehouse mesuré sous `<clone>/skills-warehouse/skill-collections/`), défaut : aucune.
+
+Les skills de la méthode (`skills/` et `skills/external/`) sont désormais toujours déployés par lien, pour Claude Code comme pour Codex : plus aucune question ne les concerne (l'ancienne huitième question, retirée). Le warehouse (`skills-warehouse/`) n'est jamais déployé par ce skill.
 
 Confirme ensuite le **premier projet** : défaut oui, nom suggéré dérivé de la réponse à la question 5 (minuscules, suites non alphanumériques réduites à un tiret), modifiable.
 
@@ -51,7 +52,6 @@ Ne jamais poser une question dont la réponse est mesurable par l'environnement 
   "activity": "...",
   "aiTools": ["claude-code", "codex"],
   "whatMatters": "simplicity, no over-engineering",
-  "skillCollections": [],
   "firstProject": { "create": true, "name": "...", "displayName": "..." },
   "git": { "userName": "Second Brain Installer", "userEmail": "installer@example.invalid" }
 }

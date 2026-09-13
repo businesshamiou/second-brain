@@ -5,7 +5,7 @@
     notebook (Mission 168, tickets 03, 04, 05 and 07).
 
 .DESCRIPTION
-    Role: drives the whole install from a local source, gathering its eight
+    Role: drives the whole install from a local source, gathering its seven
     questions plus the first-project confirmation either from an answers
     file (silent, T04's CI mode) or by asking them one at a time in the
     terminal (T06 complements 2-3), in the language the first question
@@ -17,13 +17,16 @@
     not this one -- nothing here is ever printed in the assistant's own
     voice.
 
-    It also links the six method-fabricated skills (skills/, except
-    external/) into the user's Claude Code and Codex skills folders, by
-    link and never by copy (ticket 07, tools/deploy-skills.ps1), plus any
-    warehouse or `skills/external/` collections chosen at Q8
-    ($answers.skillCollections) -- see that file's own header comment for
-    the deployment rules, the idempotency model and the Codex description
-    budget.
+    It also links every method skill (skills/, including external/) into
+    the user's Claude Code and Codex skills folders, by link and never by
+    copy (ticket 07, extended unconditionally to skills/external/ by
+    Mission 171-C01 step 4, tools/deploy-skills.ps1) -- see that file's own
+    header comment for the deployment rules, the idempotency model and the
+    Codex description budget. The eighth question that used to gate
+    skills/external/ and warehouse collections is retired: nothing about
+    skill deployment is asked any more, and warehouse collections are never
+    linked by this installer (Mission 171-C01 Context: delivered as zip
+    packages instead, a separate mechanism).
 
     Before touching the source or the workspace at all, it ensures Git, uv
     and pre-commit are usable (tools/prerequisites.ps1, ticket 04):
@@ -84,15 +87,15 @@
                           (ticket 05 criterion 7): every field takes its
                           value from the file, or the same static default a
                           missing field always took, silently. When omitted,
-                          the installer asks its eight questions plus the
+                          the installer asks its seven questions plus the
                           first-project confirmation in the terminal.
         -TestMode         Redirects everything the installer would ever
                           write outside the workspace itself (profile-rooted
                           defaults, the per-tool skill folders -- Claude
                           Code's, Codex's AI-tool-detection probe, and
-                          Codex's own official skills location the six
-                          method skills are linked into (ticket 07) -- the
-                          user PATH, and Git/uv/pre-commit's own install
+                          Codex's own official skills location every method
+                          skill is linked into (ticket 07, Mission 171-C01
+                          step 4) -- the user PATH, and Git/uv/pre-commit's own install
                           locations and uv's tool/cache/managed-Python
                           directories) into -TestRoot instead of the real
                           profile. Required by the Mission's constraint that
@@ -160,9 +163,9 @@ $ErrorActionPreference = 'Stop'
 # skill, web package) and rename-to-_trash handling.
 . (Join-Path $PSScriptRoot 'tools\generate-assistant.ps1')
 
-# Ticket 07: deploys the six method-fabricated skills (and any chosen
-# warehouse/external collections) by link into the user's Claude Code and
-# Codex skills folders.
+# Ticket 07: deploys every method skill (skills/, including external/,
+# Mission 171-C01 step 4) by link into the user's Claude Code and Codex
+# skills folders. Warehouse collections are never linked here.
 . (Join-Path $PSScriptRoot 'tools\deploy-skills.ps1')
 
 # --- Small helpers ----------------------------------------------------------
@@ -595,14 +598,6 @@ try {
             -PromptText (Format-CatalogText -Catalog $catalog -Key 'questionnaire.whatMatters.prompt') `
             -DefaultValue $whatMattersDefault -Interactive:$true -ForceReask:$forceReask -ScriptedInputs $scriptedQueue | Out-Null
         Save-Carnet -Path $carnetPath -Carnet $carnet
-
-        $skillCollectionsPrompt = Format-PromptWithDefault -Catalog $catalog `
-            -PromptKey 'questionnaire.skillCollections.prompt' -DefaultNoteKey 'questionnaire.skillCollections.defaultNote'
-        Resolve-QuestionnaireAnswer -Answers $answers -Name 'skillCollectionsRaw' -PromptText $skillCollectionsPrompt `
-            -DefaultValue '' -Interactive:$true -ForceReask:$forceReask -ScriptedInputs $scriptedQueue | Out-Null
-        $skillCollectionsValue = @(($answers.skillCollectionsRaw -split ',') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' })
-        Set-AnswerField -Answers $answers -Name 'skillCollections' -Value $skillCollectionsValue
-        Save-Carnet -Path $carnetPath -Carnet $carnet
     }
     else {
         Resolve-QuestionnaireAnswer -Answers $answers -Name 'firstName' -PromptText '' `
@@ -612,7 +607,6 @@ try {
         if ($null -eq $answers.aiTools) { Set-AnswerField -Answers $answers -Name 'aiTools' -Value @() }
         Resolve-QuestionnaireAnswer -Answers $answers -Name 'whatMatters' -PromptText '' `
             -DefaultValue (Format-CatalogText -Catalog $catalog -Key 'questionnaire.whatMatters.default') -Interactive:$false | Out-Null
-        if ($null -eq $answers.skillCollections) { Set-AnswerField -Answers $answers -Name 'skillCollections' -Value @() }
     }
 
     # Step: wire the clone's own guardians. core.hooksPath is local git
@@ -665,40 +659,42 @@ try {
     Save-ClonePendingChanges -BashExe $bashExe -ClonePath $clonePath -CommitMessage $assistantCommitMessage
     Test-ForcedStop -StopAfterStep $StopAfterStep -StepName 'assistant'
 
-    # Step: deploy skills by link (ticket 07). Always links the six
-    # method-fabricated skills into both the Claude Code and Codex skills
-    # folders (T19: unconditional, regardless of what Get-DetectedAiTools
-    # found); additionally links any collections the participant chose at
-    # Q8 ($answers.skillCollections, already collected by ticket 05).
-    # Idempotent (tools/deploy-skills.ps1's own Publish-SkillLink): a
-    # relaunch with the same answers creates no new link and touches no
+    # Step: deploy skills by link (ticket 07; unconditional external and
+    # combined Codex budget, Mission 171-C01 step 4). Always links every
+    # method skill -- skills/ and skills/external/ -- into both the Claude
+    # Code and Codex skills folders (unconditional, regardless of what
+    # Get-DetectedAiTools found, and regardless of any questionnaire
+    # answer: the eighth question that used to gate skills/external/ and
+    # warehouse collections is retired). Codex drops skills/external/ under
+    # Doctrine rule 3 when the combined description budget is over the
+    # ceiling; Claude Code never does (see tools/deploy-skills.ps1's own
+    # header comment). Idempotent (tools/deploy-skills.ps1's own
+    # Publish-SkillLink): a relaunch creates no new link and touches no
     # file, the same rule every other step already follows. Nothing here
     # is git-tracked content inside the clone -- the link targets live in
     # the user's profile ($context.ClaudeSkillsDir /
     # CodexAgentsSkillsDir), so unlike 'assistant' this step never calls
     # Save-ClonePendingChanges.
     $currentStepKey = 'skillsDeployed'
-    $skillCollectionsRequested = @($answers.skillCollections)
-    $deployResult = Publish-DeployedSkills -Context $context -ClonePath $clonePath `
-        -SkillCollections $skillCollectionsRequested
-    if ($deployResult.RequestedUnknownTokens.Count -gt 0) {
-        Write-Output "Note: unrecognized skill collection token(s), skipped: $($deployResult.RequestedUnknownTokens -join ', ')"
-    }
+    $deployResult = Publish-DeployedSkills -Context $context -ClonePath $clonePath
     if ($deployResult.DuplicateNames.Count -gt 0) {
-        Write-Output "Note: duplicate skill name(s) across chosen sources, only the first source was linked: $($deployResult.DuplicateNames -join ', ')"
+        Write-Output "Note: duplicate skill name(s) across sources, only the first source was linked: $($deployResult.DuplicateNames -join ', ')"
+    }
+    if ($deployResult.FallbackApplied) {
+        Write-Output "Note: combined skill description budget ($($deployResult.Budget.Total) chars) exceeds the $($deployResult.Budget.Ceiling)-character Codex ceiling -- Codex received skills/ only, Claude Code received everything (Doctrine rule 3)."
     }
     if ($deployResult.ConflictCount -gt 0) {
         $conflictPaths = @($deployResult.LinkResults | Where-Object { $_.Status -eq 'Conflict' } | ForEach-Object { $_.LinkPath }) -join ', '
         Write-Output "Note: $($deployResult.ConflictCount) skill link path(s) already occupied by something else, left untouched: $conflictPaths"
     }
     $carnet | Add-Member -MemberType NoteProperty -Name 'skillsDeployment' -Force -Value ([PSCustomObject]@{
-        defaultSkillNames    = @($deployResult.DefaultEntries | ForEach-Object { $_.Name })
-        codexBudgetTotal     = $deployResult.Budget.Total
-        codexBudgetCeiling   = $deployResult.Budget.Ceiling
-        requestedCollections = $skillCollectionsRequested
-        unknownTokens        = $deployResult.RequestedUnknownTokens
-        duplicateNames       = $deployResult.DuplicateNames
-        conflictCount        = $deployResult.ConflictCount
+        defaultSkillNames  = @($deployResult.DefaultEntries | ForEach-Object { $_.Name })
+        externalSkillNames = @($deployResult.ExternalEntries | ForEach-Object { $_.Name })
+        codexBudgetTotal   = $deployResult.Budget.Total
+        codexBudgetCeiling = $deployResult.Budget.Ceiling
+        fallbackApplied    = $deployResult.FallbackApplied
+        duplicateNames     = $deployResult.DuplicateNames
+        conflictCount      = $deployResult.ConflictCount
     })
     Set-CarnetStep -Carnet $carnet -Name 'skillsDeployed'
     Save-Carnet -Path $carnetPath -Carnet $carnet

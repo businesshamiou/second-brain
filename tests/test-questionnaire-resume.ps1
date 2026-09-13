@@ -20,7 +20,7 @@
       2. The notebook on disk is asserted to hold exactly those two steps
          (workspaceCreated, cloned) and those three answers -- nothing more.
       3. A second run, given only the answers for the REMAINING questions
-         (4-8 plus the first-project confirmation), completes successfully.
+         (4-7 plus the first-project confirmation), completes successfully.
          Its own stdout is asserted to contain the prompts for the
          not-yet-answered questions but NOT the prompts for Questions 1-3 --
          the literal proof that an already-answered question is never
@@ -89,9 +89,10 @@ try {
     Write-Output ""
     Write-Output "=== 3. Second run: only the remaining answers, must not re-ask Q1-Q3 ==="
     # Order: firstName, activity, aiToolsRaw (blank -> detected default),
-    # whatMatters, skillCollectionsRaw (blank -> none), firstProject confirm
-    # (y), firstProject name (blank -> suggested slug).
-    $run2Answers = @('Ana', 'Building a personal AI system', '', 'Simplicite', '', 'y', '')
+    # whatMatters, firstProject confirm (y), firstProject name (blank ->
+    # suggested slug). The eighth question (skillCollectionsRaw) is retired
+    # (Mission 171-C01 step 4).
+    $run2Answers = @('Ana', 'Building a personal AI system', '', 'Simplicite', 'y', '')
     $run2Output = & $installScript -Source $RepoRoot -TestMode -TestRoot $TestRoot `
         -ScriptedAnswers $run2Answers 6>&1 | Out-String
     $run2Exit = $LASTEXITCODE

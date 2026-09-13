@@ -352,7 +352,6 @@ save_carnet() {
     --activity "${ANSWER_ACTIVITY:-}" \
     --ai-tools "${ANSWER_AITOOLS:-}" \
     --what-matters "${ANSWER_WHATMATTERS:-}" \
-    --skill-collections "${ANSWER_SKILLCOLLECTIONS:-}" \
     --fp-create "${ANSWER_FP_CREATE:-}" \
     --fp-name "${ANSWER_FP_NAME:-}" \
     --fp-display-name "${ANSWER_FP_DISPLAYNAME:-}" \
@@ -484,7 +483,7 @@ CARNET_VERDICT=""
 STEPS_DONE=""
 ANSWER_LANGUAGE=""; ANSWER_VAULTNAME=""; ANSWER_WORKSPACEPATH=""
 ANSWER_FIRSTNAME=""; ANSWER_ACTIVITY=""; ANSWER_AITOOLS=""; ANSWER_WHATMATTERS=""
-ANSWER_SKILLCOLLECTIONS=""; ANSWER_FP_CREATE=""; ANSWER_FP_NAME=""; ANSWER_FP_DISPLAYNAME=""
+ANSWER_FP_CREATE=""; ANSWER_FP_NAME=""; ANSWER_FP_DISPLAYNAME=""
 ANSWER_GIT_USERNAME=""; ANSWER_GIT_USEREMAIL=""
 ASSISTANT_NAME=""; ASSISTANT_SLUG=""; PREV_ASSISTANT_SLUG=""
 
@@ -635,7 +634,8 @@ mark_step "cloned"
 save_carnet
 check_forced_stop "clone"
 
-# --- Questions 4-8 (T06 complement 2) --------------------------------------
+# --- Questions 4-7 (T06 complement 2; eighth question retired, Mission
+# 171-C01 step 4 -- skill deployment is unconditional now) ------------------
 if [ "$INTERACTIVE" = "1" ]; then
   resolve_answer FIRSTNAME "$(catalog_get "questionnaire.firstName.prompt")" "" 1 "$FORCE_REASK" 1 >/dev/null
   save_carnet
@@ -656,11 +656,6 @@ if [ "$INTERACTIVE" = "1" ]; then
 
   what_matters_default="$(catalog_get "questionnaire.whatMatters.default")"
   resolve_answer WHATMATTERS "$(catalog_get "questionnaire.whatMatters.prompt")" "$what_matters_default" 1 "$FORCE_REASK" 0 >/dev/null
-  save_carnet
-
-  skill_collections_prompt="$(prompt_with_default "questionnaire.skillCollections.prompt" "questionnaire.skillCollections.defaultNote")"
-  skill_collections_raw="$(resolve_answer SKILLCOLLECTIONSRAW "$skill_collections_prompt" "" 1 "$FORCE_REASK" 0)"
-  ANSWER_SKILLCOLLECTIONS="$(printf '%s' "$skill_collections_raw" | tr ',' ' ')"
   save_carnet
 else
   resolve_answer FIRSTNAME "" "Second Brain user" 0 0 0 >/dev/null
@@ -704,12 +699,13 @@ save_carnet
 save_clone_pending_changes "$assistant_commit_message"
 check_forced_stop "assistant"
 
-# --- Step: deploy skills by link (ticket 07 parity) -------------------------
+# --- Step: deploy skills by link (ticket 07 parity; unconditional external
+# and combined Codex budget, Mission 171-C01 step 4) -------------------------
 CURRENT_STEP="skillsDeployed"
-deploy_output="$(PYRUN deploy-skills "$CLONE_PATH" "$CTX_CLAUDE_SKILLS_DIR" "$CTX_CODEX_AGENTS_SKILLS_DIR" --collections "$ANSWER_SKILLCOLLECTIONS")" \
-  || fail "Skill deployment failed (Codex description budget exceeded, or a link could not be created -- see the error above)"
-echo "$deploy_output" | grep '^UNKNOWN ' | sed 's/^UNKNOWN /Note: unrecognized skill collection token, skipped: /' || true
-echo "$deploy_output" | grep '^DUPLICATE ' | sed 's/^DUPLICATE /Note: duplicate skill name across chosen sources, only the first source was linked: /' || true
+deploy_output="$(PYRUN deploy-skills "$CLONE_PATH" "$CTX_CLAUDE_SKILLS_DIR" "$CTX_CODEX_AGENTS_SKILLS_DIR")" \
+  || fail "Skill deployment failed (a link could not be created -- see the error above)"
+echo "$deploy_output" | grep '^DUPLICATE ' | sed 's/^DUPLICATE /Note: duplicate skill name across sources, only the first source was linked: /' || true
+echo "$deploy_output" | grep '^FALLBACK 1' >/dev/null && echo "Note: combined skill description budget exceeds the Codex ceiling -- Codex received skills/ only, Claude Code received everything (Doctrine rule 3)."
 echo "$deploy_output" | grep '^CONFLICT ' | sed 's/^CONFLICT /Note: a skill link path was already occupied by something else, left untouched: /' || true
 mark_step "skillsDeployed"
 save_carnet
@@ -789,9 +785,9 @@ if [ "$STEP_PROFILEWRITTEN" != "true" ] || [ "$IS_UPDATE_RUN" = "1" ]; then
   installed_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
   run_or_fail "Writing USER.md failed" \
-    bash -c 'uv run --no-project "$0" write-user-profile "$1" --language "$2" --vault-name "$3" --workspace-path "$4" --first-name "$5" --activity "$6" --ai-tools "$7" --what-matters "$8" --skill-collections "$9" --installed-at "${10}" --os-info "${11}" --shell-info "${12}" --timezone "${13}" --git-version "${14}" --claude-detected "${15}" --codex-detected "${16}"' \
+    bash -c 'uv run --no-project "$0" write-user-profile "$1" --language "$2" --vault-name "$3" --workspace-path "$4" --first-name "$5" --activity "$6" --ai-tools "$7" --what-matters "$8" --installed-at "$9" --os-info "${10}" --shell-info "${11}" --timezone "${12}" --git-version "${13}" --claude-detected "${14}" --codex-detected "${15}"' \
     "$HELPER" "$USER_PROFILE_PATH" "$ANSWER_LANGUAGE" "$ANSWER_VAULTNAME" "$WORKSPACE_PATH" "$ANSWER_FIRSTNAME" \
-    "$ANSWER_ACTIVITY" "$ANSWER_AITOOLS" "$ANSWER_WHATMATTERS" "$ANSWER_SKILLCOLLECTIONS" "$installed_at" \
+    "$ANSWER_ACTIVITY" "$ANSWER_AITOOLS" "$ANSWER_WHATMATTERS" "$installed_at" \
     "$os_info" "$shell_info" "$timezone" "$git_version" "$claude_detected" "$codex_detected"
 
   save_clone_pending_changes "Write user profile from installer answers"

@@ -179,8 +179,10 @@ try {
     Write-Output "=== 3a. Fresh interactive install, default name 'Brian' ==="
     # Order: language, assistant name (blank -> default 'Brian'), workspace
     # (blank -> default), firstName, activity, aiToolsRaw (blank),
-    # whatMatters, skillCollectionsRaw (blank), firstProject confirm (n).
-    $run1Answers = @('EN', '', '', 'Ana', 'Building a personal AI system', '', 'Simplicity', '', 'n')
+    # whatMatters, firstProject confirm (n). The eighth question
+    # (skillCollectionsRaw) is retired (Mission 171-C01 step 4): skill
+    # deployment is unconditional now, nothing about it is asked.
+    $run1Answers = @('EN', '', '', 'Ana', 'Building a personal AI system', '', 'Simplicity', 'n')
     $run1Output = & $installScript -Source $RepoRoot -TestMode -TestRoot $TestRoot3 -ScriptedAnswers $run1Answers 6>&1 | Out-String
     $run1Exit = $LASTEXITCODE
     Assert-True ($run1Exit -eq 0) "fresh interactive install (default name) exits 0"
@@ -194,9 +196,9 @@ try {
     # Order after 'y' (something changed): language (blank -> keep EN),
     # assistant name ('Nova' -- the rename), firstName (must be non-blank,
     # Required), activity (blank -> keep), aiToolsRaw (blank -> keep),
-    # whatMatters (blank -> keep), skillCollectionsRaw (blank -> keep),
-    # firstProject confirm (n).
-    $run2Answers = @('y', '', 'Nova', 'Ana', '', '', '', '', 'n')
+    # whatMatters (blank -> keep), firstProject confirm (n). The eighth
+    # question is retired (Mission 171-C01 step 4).
+    $run2Answers = @('y', '', 'Nova', 'Ana', '', '', '', 'n')
     $run2Output = & $installScript -Source $RepoRoot -TestMode -TestRoot $TestRoot3 -ScriptedAnswers $run2Answers 6>&1 | Out-String
     $run2Exit = $LASTEXITCODE
     Write-Output $run2Output
