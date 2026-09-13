@@ -360,10 +360,25 @@ function Get-WebPackageKnowledgeFileContent {
         $body = $sections[0]
     }
     else {
+        # Mission 172 regression, found at this Mission's own final control
+        # (test-install-e2e.sh end to end): a source with its own YAML
+        # front matter (e.g. skills/session-start/SKILL.md) keeps that
+        # front matter in $sections[$i] (unchanged, deliberate -- see this
+        # function's own header comment). A '---' divider placed BEFORE
+        # THE FIRST section made that the file's own literal first line,
+        # which check-obsolescence-guardrail.py's front-matter reader
+        # (tools/check-obsolescence-guardrail.py:84) treats as an opening
+        # front-matter fence regardless of what follows -- the divider's own
+        # heading line breaks its flat key:value parser, then the
+        # embedded/repeated fences down the file. No divider is emitted
+        # before the FIRST section (so the file's own first line is never a
+        # bare '---'); dividers between LATER sections are harmless, since
+        # the front-matter check only inspects line 0.
         $parts = @()
         for ($i = 0; $i -lt $SourceRelativePaths.Count; $i++) {
             $sourceLink = $SourceRelativePaths[$i].Replace('\', '/')
-            $parts += ('---' + "`n`n" + '### Source : `' + $sourceLink + '`' + "`n")
+            $heading = '### Source : `' + $sourceLink + '`' + "`n"
+            $parts += if ($i -eq 0) { $heading } else { '---' + "`n`n" + $heading }
             $parts += $sections[$i]
         }
         $body = $parts -join "`n`n"

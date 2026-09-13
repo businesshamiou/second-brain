@@ -362,10 +362,21 @@ def _web_package_knowledge_file_content(clone_path, source_relative_paths):
     if len(source_relative_paths) == 1:
         body = sections[0]
     else:
+        # Mission 172 regression, found at this Mission's own final control:
+        # a '---' divider before the FIRST section made it the file's
+        # literal first line, which check-obsolescence-guardrail.py's
+        # front-matter reader treats as an opening fence regardless of
+        # what follows -- breaking its flat key:value parser on the
+        # heading text, then on any source's own embedded front matter
+        # further down. No divider before the first section (mirrors
+        # tools/generate-assistant.ps1's own fix); dividers between LATER
+        # sections are harmless, since the front-matter check only
+        # inspects line 0.
         parts = []
-        for source_relative_path, section in zip(source_relative_paths, sections):
+        for index, (source_relative_path, section) in enumerate(zip(source_relative_paths, sections)):
             source_link = source_relative_path.replace("\\", "/")
-            parts.append(f"---\n\n### Source : `{source_link}`\n")
+            heading = f"### Source : `{source_link}`\n"
+            parts.append(heading if index == 0 else f"---\n\n{heading}")
             parts.append(section)
         body = "\n\n".join(parts)
 
