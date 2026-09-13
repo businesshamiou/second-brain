@@ -156,7 +156,10 @@ EOF
 # import de la methode (le CLAUDE.md de second-brain lui-meme, qui remonte
 # jusqu'a la charte des roles) -- rien de plus, la methode se lit par la
 # chaine d'imports, jamais recopiee ici. Contenu identique dans les deux
-# fichiers. ---
+# fichiers. Rubrique ## Liens obligatoire : ces deux fichiers sont suivis
+# par le depot de CE projet (contrairement au niveau workspace, hors de
+# tout depot) et son propre gardien check-links.sh la refuse sinon
+# (mesure directement : "section manquante" au premier essai). ---
 PROJECT_GUIDE_CONTENT="# $DISPLAY_NAME
 
 But : à compléter.
@@ -167,7 +170,11 @@ Rédiger en français ; identifiants machine en anglais.
 
 ## Méthode
 
-@$REL_VAULT/CLAUDE.md"
+@$REL_VAULT/CLAUDE.md
+
+## Liens
+
+- \`see also\` — [Second Brain]($REL_VAULT/CLAUDE.md) (hors Vault)"
 
 printf '%s\n' "$PROJECT_GUIDE_CONTENT" > "$TARGET_ABS/CLAUDE.md"
 printf '%s\n' "$PROJECT_GUIDE_CONTENT" > "$TARGET_ABS/AGENTS.md"
