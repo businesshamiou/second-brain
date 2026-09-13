@@ -514,3 +514,5 @@ tests/test-external-import-approval-announced.ps1	DISTRIBUABLE
 tests/test-remove-profile-links.ps1	DISTRIBUABLE
 tools/resolve-sibling-repo.sh	DISTRIBUABLE
 tests/test-sibling-repo-declaration.sh	DISTRIBUABLE
+tests/test-nominal-flow-no-atelier-vocabulary.ps1	DISTRIBUABLE
+tests/test-nominal-flow-no-atelier-vocabulary.sh	DISTRIBUABLE

@@ -61,6 +61,10 @@ jobs:
         shell: powershell
         run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-install-e2e.ps1
 
+      - name: Main -- nominal flow shows no atelier vocabulary (T21)
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-nominal-flow-no-atelier-vocabulary.ps1
+
       - name: Secondary -- resume after forced stop
         shell: powershell
         run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-questionnaire-resume.ps1
@@ -106,9 +110,9 @@ jobs:
         shell: powershell
         run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-questionnaire-update-mode.ps1
 
-      - name: Secondary -- skills deployment
+      - name: Secondary -- project assistant and skills links
         shell: powershell
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-skills-deployment.ps1
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-project-assistant-and-skills-links.ps1
 
       # continue-on-error: a real, pre-existing environment drift (named in
       # the Mission 168 ticket 07 report, S23, finding 1) makes this one
@@ -164,6 +168,9 @@ jobs:
       - name: Main install test -- answers file, second pass at empty porcelain
         run: bash tests/test-install-e2e.sh
 
+      - name: Main -- nominal flow shows no atelier vocabulary (T21)
+        run: bash tests/test-nominal-flow-no-atelier-vocabulary.sh
+
       - name: Secondary -- third-party licenses
         run: bash tests/test-third-party-licenses.sh
 
@@ -203,7 +210,7 @@ jobs:
           pwsh -NoProfile -File tests/test-web-package-readme-matches-contents.ps1
           pwsh -NoProfile -File tests/test-catalog-key-parity.ps1
           pwsh -NoProfile -File tests/test-questionnaire-update-mode.ps1
-          pwsh -NoProfile -File tests/test-skills-deployment.ps1
+          pwsh -NoProfile -File tests/test-project-assistant-and-skills-links.ps1
           pwsh -NoProfile -File tests/test-prerequisites-e2e.ps1
 
   macos:
@@ -235,6 +242,9 @@ jobs:
 
       - name: Main install test -- answers file, second pass at empty porcelain
         run: bash tests/test-install-e2e.sh
+
+      - name: Main -- nominal flow shows no atelier vocabulary (T21)
+        run: bash tests/test-nominal-flow-no-atelier-vocabulary.sh
 
       - name: Secondary -- third-party licenses
         run: bash tests/test-third-party-licenses.sh

@@ -25,6 +25,14 @@
       S6  Cold session (session-start)  -> test-install-e2e.ps1
       S10 Offline commit                -> test-guardian-offline-commit.sh (new)
 
+    Mission 174 step 5 (T21) adds an eighth, unnumbered check alongside
+    these seven: tests/test-nominal-flow-no-atelier-vocabulary.ps1 replays
+    the same three phases (install, session opening, trial commit) and
+    refuses if their combined output shows a participant any name or word
+    of the Owner's atelier. Not one of the acceptance playbook's own S1-S11
+    scenarios -- a standing non-regression guard this Mission's own
+    Objectif required, run every time this suite runs.
+
     test-install-e2e.ps1 backs three scenarios (S1, S4, S6) from a single
     run: it already asserts a fresh install's success verdict (S1), the
     first-project creation plus a trial commit accepted by its guardians
@@ -59,8 +67,9 @@
         powershell -NoProfile -ExecutionPolicy Bypass -File tests\run-mechanical-acceptance.ps1
         powershell -NoProfile -ExecutionPolicy Bypass -File tests\run-mechanical-acceptance.ps1 -Out C:\path\outside\report.md
 
-    Exit code 0 means all seven scenarios passed. Exit code 1 means at least
-    one did not, or the report path was refused; the console output says
+    Exit code 0 means all seven scenarios plus the step-5 check passed.
+    Exit code 1 means at least one did not, or the report path was refused;
+    the console output says
     which.
 #>
 
@@ -195,6 +204,14 @@ Write-Output $offlineRun.Output
 Add-Result -Id 'S10' -Title 'Offline commit' -Suite 'tests/test-guardian-offline-commit.sh' -Delegated $false -Pass ($offlineRun.Exit -eq 0) `
     -Detail 'no guardian calls the network; standalone.sh commit survives a poisoned proxy'
 
+# --- Unnumbered: nominal flow shows no atelier vocabulary (Mission 174, step 5) ---
+Write-Output ""
+Write-Output "=== Running tests/test-nominal-flow-no-atelier-vocabulary.ps1 (T21, new) ==="
+$noAtelierRun = Invoke-PsSuite -RelativePath 'tests\test-nominal-flow-no-atelier-vocabulary.ps1'
+Write-Output $noAtelierRun.Output
+Add-Result -Id 'T21' -Title 'No atelier vocabulary in the nominal flow' -Suite 'tests/test-nominal-flow-no-atelier-vocabulary.ps1' -Delegated $false -Pass ($noAtelierRun.Exit -eq 0) `
+    -Detail 'fresh install + session opening + trial commit: combined output carries no atelier name/word'
+
 Write-Output ""
 Write-Output "=== Environment fingerprint (after) ==="
 $after = Get-EnvironmentFingerprint
@@ -211,7 +228,7 @@ $envIdentical = $pathIdentical -and $claudeIdentical -and $codexIdentical -and $
 Write-Output "  real environment identical before/after: $envIdentical"
 
 # --- Ordered scenario order, matching the Mission's own list ----------------
-$order = 'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S10'
+$order = 'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S10', 'T21'
 $ordered = $order | ForEach-Object { $id = $_; $Results | Where-Object { $_.Id -eq $id } }
 
 Write-Output ""
@@ -246,11 +263,11 @@ Write-Output "Report written to: $reportPath"
 
 if ($failCount -eq 0) {
     Write-Output ""
-    Write-Output "=== RESULT: PASS (7/7 mechanical scenarios) ==="
+    Write-Output "=== RESULT: PASS ($($ordered.Count)/$($ordered.Count) mechanical scenarios) ==="
     exit 0
 }
 else {
     Write-Output ""
-    Write-Output "=== RESULT: FAIL ($failCount/7 mechanical scenario(s) failed) ==="
+    Write-Output "=== RESULT: FAIL ($failCount/$($ordered.Count) mechanical scenario(s) failed) ==="
     exit 1
 }
