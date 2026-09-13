@@ -7,24 +7,24 @@ set -u
 VAULT_ROOT="$(git rev-parse --show-toplevel)"
 
 # Invocation via `bash "$SCRIPT"` dans les deux cas : le bit executable du
-# fichier sur disque n'est pas fiable (mesure Mission 046, Windows/MSYS,
+# fichier sur disque n'est pas fiable (mesure, build history, Windows/MSYS,
 # noacl) et ne doit jamais decider si un controle s'enchaine ou saute.
 
-# --- Pre-vol agregateur (Mission 151, Decision 154756) --------------------
+# --- Pre-vol agregateur (build history, Decision 154756) --------------------
 # Chaque gardien tourne, meme si un autre a deja echoue : plus de sortie au
-# premier `|| exit 1` (defaut mesure au rapport 150 -- "reciprocite au
+# premier `|| exit 1` (defaut mesure, build history -- "reciprocite au
 # premier passage, chemin nu au second"). Un gardien qui exige un prealable
 # le declare en DEPS ; si ce prealable echoue ou est lui-meme SKIPPED, les
 # gardiens qui en dependent sont SKIPPED (blocked by <x>), jamais executes
 # a l'aveugle -- la dependance se propage en chaine (transitif). Les scripts
 # gardiens eux-memes ne sont pas modifies -- seul cet enchainement l'est.
 # Ordre des gardiens conserve (identique a l'ancien enchainement sequentiel) :
-# le tampon de preflight (Mission 039) devient le premier gardien du meme
+# le tampon de preflight (build history) devient le premier gardien du meme
 # rapport plutot qu'une muraille silencieuse a part -- une session dont le
 # preflight est perime doit voir, dans le meme rapport, que tout le reste a
 # ete saute a cause de ca, pas recevoir une ligne isolee sans contexte.
 
-# --- Gardien 0 : tampon de preflight (Mission 039) -------------------------
+# --- Gardien 0 : tampon de preflight (build history) -------------------------
 preflight_guardian() {
   local stamp="$VAULT_ROOT/.claude/.preflight_stamp.json"
   if [ ! -f "$stamp" ]; then
@@ -113,7 +113,7 @@ for i in "${!G_NAME[@]}"; do
   fi
 done
 
-echo "=== Pre-vol agregateur vault (Mission 151) ==="
+echo "=== Guardian suite ==="
 for name in "${G_NAME[@]}"; do
   printf '%-18s %s\n' "$name" "${VERDICT[$name]}"
 done

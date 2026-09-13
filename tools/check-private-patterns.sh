@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Verifie qu'aucun motif prive (categorie P4, Mission 168 ticket 01 -- rapport
-# 167 Table 3) ne subsiste dans l'arbre de travail et, en mode complet,
+# Verifie qu'aucun motif prive (categorie P4, build history, ticket 01 --
+# build history) ne subsiste dans l'arbre de travail et, en mode complet,
 # dans l'historique de ce depot. Ticket 10 : "gardien hors ligne" secondaire
 # manquant -- aucun outil existant (tools/check-secrets.sh ne couvre que les
 # identifiants de service, jamais les chemins-machine ou les noms de depots
 # prives) ne rejouait la verification manuelle faite une fois au ticket 01 ;
-# ce script la rend repetable et l'attache a la CI (Mission 168, Validation 2 :
+# ce script la rend repetable et l'attache a la CI (build history, Validation 2 :
 # "Motifs P4 : -> 0 dans l'arbre et dans l'historique").
 #
 # Modes :
@@ -132,8 +132,8 @@ if [ "$FAIL" -ne 0 ]; then
 fi
 
 if [ "$TREE_ONLY" -eq 1 ]; then
-  echo "PASS : 0 motif prive dans l'arbre (mode --tree-only, 4 motifs verifies : hamio hors businesshamiou, aios-production, WIN-AE600DJQCF6, glintbloom)."
+  echo "PASS : 0 motif prive dans l'arbre (mode --tree-only, 4 motifs verifies)."
 else
-  echo "PASS : 0 motif prive dans l'arbre et l'historique (4 motifs verifies : hamio hors businesshamiou, aios-production, WIN-AE600DJQCF6, glintbloom)."
+  echo "PASS : 0 motif prive dans l'arbre et l'historique (4 motifs verifies)."
 fi
 exit 0

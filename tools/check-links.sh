@@ -3,7 +3,7 @@
 # Shell portable : aucune dependance a Python, meme structure que check-secrets.sh.
 # Le refus est la position par defaut : toute condition anormale bloque.
 #
-# Mission 060 : le balayage de liens (regles 2/3 ci-dessous) reconnait la
+# (build history) : le balayage de liens (regles 2/3 ci-dessous) reconnait la
 # couche dans laquelle il lit -- un exemple pedagogique a l'interieur d'un
 # bloc de code cloture (``` ou ~~~) ou d'un span de code inline (backticks
 # apparies, meme imbrique comme un span `` `x` `` a deux niveaux) n'est plus
@@ -198,7 +198,7 @@ while IFS= read -r file; do
           # de refus -- morts par construction dans un paquet autonome. ---
           REL_TO_WS="${RESOLVED#"$WORKSPACE_ROOT"/}"
           if [ "$REL_TO_WS" = "$RESOLVED" ]; then
-            echo "LIENS: AVERTI (hors depot indetermine) : $file:$LINE_NO -> $TARGET" >&2
+            echo "LIENS: avertissement (depot cible non determinable depuis l'espace de travail, lien non verifie) : $file:$LINE_NO -> $TARGET" >&2
           else
             TARGET_REPO_NAME="${REL_TO_WS%%/*}"
             TARGET_REPO_ROOT="$WORKSPACE_ROOT/$TARGET_REPO_NAME"
@@ -210,7 +210,7 @@ while IFS= read -r file; do
                 BLOCK=1
               fi
             else
-              echo "LIENS: AVERTI (hors depot absent) : $file:$LINE_NO -> $TARGET" >&2
+              echo "LIENS: avertissement (depot cible absent du disque, lien non verifie) : $file:$LINE_NO -> $TARGET" >&2
             fi
           fi
           ;;

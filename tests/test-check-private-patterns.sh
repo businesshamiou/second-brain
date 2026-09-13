@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regression test for tools/check-private-patterns.sh (Mission 168, ticket
+# Regression test for tools/check-private-patterns.sh (build history, ticket
 # 10). Written after a real bug found in code review: the script's own
 # source file names all four P4 patterns in clear (pattern list, function
 # calls, PASS message), so scanning the tree including itself made it

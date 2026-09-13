@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Essai de non-regression (Mission 118, DECISION-2026-09-02-005041) pour la
+# Essai de non-regression (build history, DECISION-2026-09-02-005041) pour la
 # distinction lien interne / lien sortant de tools/check-links.sh : un lien
 # dont la cible resolue sort de la racine du depot courant est desormais
 # controle seulement si le depot cible (premier segment sous la racine du
@@ -12,8 +12,8 @@
 # le "depot courant" (vaultcanary), workspace-parent controle par cas pour
 # simuler la presence ou l'absence du depot cible.
 #
-# Quatre cas (memes lettres que le rapport de la Mission 118) :
-#   (a) sortant vers un depot absent du workspace -> AVERTI, exit 0.
+# Quatre cas (memes lettres que le rapport d'origine, build history) :
+#   (a) sortant vers un depot absent du workspace -> avertissement, exit 0.
 #   (b) sortant vers un depot present, cible absente -> refuse.
 #   (c) sortant vers un depot present, cible presente -> PASS silencieux.
 #   (d) interne au depot courant, cible absente -> refuse (comportement
@@ -55,7 +55,7 @@ run() {
   (cd "$repo" && bash tools/check-links.sh 2>&1)
 }
 
-# --- (a) sortant vers depot absent -> AVERTI, exit 0 ---
+# --- (a) sortant vers depot absent -> avertissement, exit 0 ---
 WS_A="$TMP/case-a"
 mkdir -p "$WS_A"
 REPO_A="$(make_repo "$WS_A")"
@@ -69,8 +69,8 @@ Contenu.
 - `amended by` — [Cible absente](../../absentrepo/somefile.md) (hors dépôt)
 EOF
 OUT_A="$(run "$REPO_A")"; RC_A=$?
-if [ "$RC_A" -eq 0 ] && printf '%s' "$OUT_A" | grep -q 'AVERTI (hors depot absent)'; then
-  echo "ok [a-sortant-depot-absent]: exit 0, AVERTI present"
+if [ "$RC_A" -eq 0 ] && printf '%s' "$OUT_A" | grep -q 'avertissement (depot cible absent du disque'; then
+  echo "ok [a-sortant-depot-absent]: exit 0, avertissement present"
 else
   echo "FAIL [a-sortant-depot-absent]: exit=$RC_A, sortie:" >&2
   printf '%s\n' "$OUT_A" >&2
@@ -116,7 +116,7 @@ Contenu.
 - `amended by` — [Cible presente](../../presentrepo/target/Y.md) (hors dépôt)
 EOF
 OUT_C="$(run "$REPO_C")"; RC_C=$?
-if [ "$RC_C" -eq 0 ] && ! printf '%s' "$OUT_C" | grep -q 'cible introuvable\|AVERTI'; then
+if [ "$RC_C" -eq 0 ] && ! printf '%s' "$OUT_C" | grep -q 'cible introuvable\|avertissement (depot cible'; then
   echo "ok [c-sortant-cible-presente]: exit 0, silencieux"
 else
   echo "FAIL [c-sortant-cible-presente]: exit=$RC_C, sortie:" >&2

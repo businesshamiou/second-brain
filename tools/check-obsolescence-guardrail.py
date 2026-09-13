@@ -6,14 +6,14 @@
 """Obsolescence guardrail: reciprocity of `supersedes`/`amends` links and
 status of superseded targets, on the .md files staged for this commit only.
 
-Mission 046. Three refusals, each blocking:
+(build history) Three refusals, each blocking:
   R1 - missing reciprocity (front-matter <-> ## Liens section, including
        inconsistency between the two)
   R2 - inconsistent status (superseded target still `status: active`,
        except `type: mission` documents, whose status is read as
        deprecated for this signal)
   R3 - unresolved target for a typed relation (closed vocabulary),
-       except links suffixed `(hors Vault)` / `(hors workshop-build)`
+       except links suffixed `(hors Vault)`
 
 Traced override: see OVERRIDE_FILENAME below. Refusal is the default
 position; any abnormal condition (git root not found, unreadable
@@ -28,14 +28,14 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-# Vocabulaire de liens anglais seul (Mission 054, bascule etape 6). Le
-# francais a ete migre dans tout le corpus indexe des deux depots (residu
-# documente : 7 fichiers a lien mort R3 preexistant, geles, hors mandat de
-# reparation de cette Mission) ; toute etiquette francaise rencontree
-# desormais n'est plus reconnue et ne satisfait plus la reciprocite R1.
+# Vocabulaire de liens anglais seul (build history). Le francais a ete migre
+# dans tout le corpus indexe (residu documente : 7 fichiers a lien mort R3
+# preexistant, geles, hors mandat de reparation de cette Mission) ; toute
+# etiquette francaise rencontree desormais n'est plus reconnue et ne
+# satisfait plus la reciprocite R1.
 KNOWN_LINK_TYPES = {"applies", "supersedes", "amends", "source", "prescribed by", "see also"}
 ACTIVE_STATUS_VALUES = {"active", "actif"}
-HORS_MARKERS = ("(hors Vault)", "(hors workshop-build)")
+HORS_MARKERS = ("(hors Vault)",)
 
 # Relation front-matter <-> types de lien acceptes <-> inverses acceptes
 RECIPROCAL_RELATIONS = (
