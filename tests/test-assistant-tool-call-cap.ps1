@@ -19,6 +19,18 @@
     order, and an explicit permission to answer with what was read while
     naming what was not.
 
+    Mission 172 step 5 (audit defect 6, second pass) moved this block to
+    French (171-C01's own debt: it was the only English text in an
+    otherwise-French identity body) and added a fourth, concrete search
+    step -- consult the closest folder's own index.md before reading files
+    one by one -- because the three-step order alone still let a question
+    about "the relay rules" or "the decisions cited" read dozens of files
+    individually, over the 8-call cap (measured at the 2026-09-13
+    acceptance: 52 seconds, admitted-unread checklist/rules/decisions).
+    Needles below were updated to match; this file itself stays ASCII-only
+    (accented needles are phrased to avoid the accented character, same
+    rule test-web-package-answers-test-questions.ps1 already follows).
+
     This test does not re-run the whole installer (test-assistant-generation.ps1
     already covers install.ps1 end to end) -- it drives each generator
     directly against a throwaway clone that carries the REAL, current
@@ -52,19 +64,21 @@ function Assert-True {
     else { Write-Output "  FAIL - $Message"; $failures.Add($Message) | Out-Null }
 }
 
-# The three literal needles this defect requires, read straight off the
-# current assistant/ASSISTANT.md corps-generateur body -- if that body's
-# wording ever changes, this test (and the source) should be updated
-# together, never silently left checking stale phrasing.
-$capNeedle = 'at most 8 tool calls'
+# The literal needles this defect requires, read straight off the current
+# assistant/ASSISTANT.md corps-generateur body -- if that body's wording
+# ever changes, this test (and the source) should be updated together,
+# never silently left checking stale phrasing. French since Mission 172
+# step 5 moved this block to French (171-C01's own debt: the block used to
+# be the only English text in an otherwise-French body).
+$capNeedle = '8 appels d''outils au plus'
 $orderNeedles = @(
-    'named exactly'
-    'closest to the topic'
-    'broad search across the whole workspace'
+    "exactement par la question"
+    "dossier le plus proche du sujet"
+    "recherche large dans tout l'espace de travail"
 )
 $permissionNeedles = @(
-    'answers with what he has read'
-    'naming plainly what he did not read'
+    "avec ce qu'il a lu"
+    "en nommant clairement ce qu'il n'a pas lu"
 )
 
 function Test-GeneratedForm {
