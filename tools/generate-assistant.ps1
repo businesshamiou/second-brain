@@ -43,7 +43,9 @@
         30MB-per-file size cap apply), so there is no lower real
         Claude-side ceiling to clamp to; 25 stands as the technical ceiling.
         The package this generator actually produces (Mission 171-C01 step
-        8, audit defects 8 and 9) stays far below that ceiling on purpose:
+        8, audit defects 8 and 9; knowledge-file selection revised by
+        Mission 172 to also cover assistant/ASSISTANT.md's own "Trois
+        questions de test") stays far below that ceiling on purpose:
         INSTRUCTIONS.md, README.md and three knowledge files, five files
         total -- see $Script:WebPackageKnowledgeFiles's own comment for why
         those three and not more.
@@ -88,7 +90,23 @@ $Script:MaxWebPackageFiles = 25
 # instructions). Chosen from documents this repository already carries,
 # never invented for this package, each picked because it is the kind of
 # thing user story 23 (spec) says the web package needs to be useful
-# without Claude Code's or Codex's own file access:
+# without Claude Code's or Codex's own file access.
+#
+# Mission 172 closed a second audit finding on top of that: two of the
+# three "Trois questions de test" in assistant/ASSISTANT.md's own
+# corps-generateur body -- "Comment j'ouvre une session ?" and "Qu'est-ce
+# qu'une Mission et ou je l'ecris ?" -- had no source anywhere in this
+# package. A Project has no filesystem of its own; it can only answer from
+# what is pasted into its instructions or uploaded as knowledge, and
+# neither the session-start skill nor the Mission template/operating model
+# were ever in either place.
+#
+# Each entry below carries SourcePaths (plural, always an array, even for
+# a single source) rather than a single SourcePath, because closing that
+# finding without breaking the Owner's own five-file ceiling for this
+# package (see the comment at the end of this block) meant condensing
+# several sources into one new file BY THEME (Doctrine rule 2: condense
+# rather than drop content) instead of adding a file per source:
 #   - CONTEXT.md is this repository's own validated product glossary (T18)
 #     -- the vocabulary both the instructions and every other generated
 #     form already assume;
@@ -96,27 +114,43 @@ $Script:MaxWebPackageFiles = 25
 #     (user story 29), this repository's own README FAQ, and CONTEXT.md's
 #     own glossary note all point back to as the one participants most need
 #     answered ("where does this belong, second-brain or my project?");
-#   - this repository's own README.md is the project overview the
-#     assistant needs to answer "what is Second Brain / what did the
-#     installer set up" without inventing an answer.
-# assistant/ASSISTANT.md's own body was considered and rejected as a fourth
-# entry: it is already INSTRUCTIONS.md's entire content once expanded, so
-# uploading it again as a knowledge file would duplicate what the Project's
-# own instructions field already carries, not add anything.
+#   - HOW-TO.md answers the two remaining test questions, condensed from
+#     five sources by theme rather than shrunk word by word: the
+#     session-start skill and its reading list answer "how do I open a
+#     session" (skills/session-start/SKILL.md,
+#     skills/session-start/reading-list.md); the Mission template and the
+#     project operating model -- named by assistant/ASSISTANT.md itself as
+#     "le gabarit de Mission" and "le modele operatoire des projets" --
+#     answer "what is a Mission and where do I write it"
+#     (templates/mission-template.md,
+#     knowledge/BRIEF-2026-08-17-211522-project-operating-model-v2.md),
+#     together with the rule those two point back to for the actual path
+#     convention (rules/RULES-2026-08-17-211522-mission-versioning-and-
+#     generated-output.md, section 1: "<projet>/missions/MISSION-...").
+# This repository's own README.md (formerly copied verbatim as
+# OVERVIEW.md) is dropped to make room: of the original three knowledge
+# files it is the only one that answered none of the three test questions
+# in assistant/ASSISTANT.md -- the sole acceptance bar this package is
+# measured against (tests/test-web-package-answers-test-questions.ps1) --
+# so dropping it costs no answer to any of those three while staying under
+# the file ceiling below. assistant/ASSISTANT.md's own body remains
+# excluded from this list for the reason it always was: it is already
+# INSTRUCTIONS.md's entire content once expanded, so uploading it again as
+# a knowledge file would duplicate what the Project's own instructions
+# field already carries, not add anything.
 #
-# These three files are copied verbatim (Get-WebPackageKnowledgeFileContent
-# below), never rewritten or name-substituted: two of them (CONTEXT.md's own
-# "Assistant" glossary entry, this repository's own README) mention "Brian"
-# exactly the way assistant/ASSISTANT.md's own excluded preamble does --
-# as the documented system default, a true statement about Second Brain
-# regardless of what name this installation chose. Rewriting that sentence
-# to the chosen name would make it read as a false claim about the
+# Every source is still copied verbatim (Get-WebPackageKnowledgeFileContent
+# below), never rewritten or name-substituted, and CONTEXT.md still mentions
+# "Brian" exactly the way assistant/ASSISTANT.md's own excluded preamble
+# does -- as the documented system default, a true statement about Second
+# Brain regardless of what name this installation chose. Rewriting that
+# sentence to the chosen name would make it read as a false claim about the
 # system's own documented default; leaving it be is why
 # tests/test-assistant-generation.ps1 scopes its own "no generated form
 # contains 'Brian'" scan to the three personalized identity files (the
 # subagent, the Codex skill, INSTRUCTIONS.md) rather than the whole
-# web-package tree -- these three copied documents are reference material,
-# not identity text, the same distinction this file's own header comment
+# web-package tree -- these copied documents are reference material, not
+# identity text, the same distinction this file's own header comment
 # already draws for ASSISTANT.md's preamble.
 #
 # Three knowledge files plus INSTRUCTIONS.md plus README.md is five files
@@ -127,22 +161,32 @@ $Script:MaxWebPackageFiles = 25
 # T19-T21: "Brian web = Projet, paquet de 5 fichiers au plus", DECIDED).
 # That earlier figure is not re-derived here -- it is simply honoured as
 # the more conservative of the two: fewer, load-bearing files a person
-# uploads by hand beats maximizing toward the technical ceiling.
+# uploads by hand beats maximizing toward the technical ceiling. It is also
+# why the fix for Mission 172's finding is one condensed file replacing
+# OVERVIEW.md rather than three new files added alongside it: three new
+# knowledge-file slots plus the existing three would be six, over this
+# five-file ceiling even before the 25-file platform ceiling comes into it.
 $Script:WebPackageKnowledgeFiles = @(
     @{
-        SourcePath = 'CONTEXT.md'
-        FileName   = 'GLOSSARY.md'
-        Purpose    = "the product glossary (validated terms this assistant's own instructions and this package both use)"
+        SourcePaths = @('CONTEXT.md')
+        FileName    = 'GLOSSARY.md'
+        Purpose     = "the product glossary (validated terms this assistant's own instructions and this package both use)"
     },
     @{
-        SourcePath = 'rules\RULES-2026-09-11-190000-project-second-brain-boundary.md'
-        FileName   = 'PROJECT-BOUNDARY.md'
-        Purpose    = 'the rule deciding whether something belongs in Second Brain itself or in one of your projects'
+        SourcePaths = @('rules\RULES-2026-09-11-190000-project-second-brain-boundary.md')
+        FileName    = 'PROJECT-BOUNDARY.md'
+        Purpose     = 'the rule deciding whether something belongs in Second Brain itself or in one of your projects'
     },
     @{
-        SourcePath = 'README.md'
-        FileName   = 'OVERVIEW.md'
-        Purpose    = "this repository's own README: what Second Brain is, how it installs, and what is installed, and where"
+        SourcePaths = @(
+            'skills\session-start\SKILL.md',
+            'skills\session-start\reading-list.md',
+            'templates\mission-template.md',
+            'knowledge\BRIEF-2026-08-17-211522-project-operating-model-v2.md',
+            'rules\RULES-2026-08-17-211522-mission-versioning-and-generated-output.md'
+        )
+        FileName    = 'HOW-TO.md'
+        Purpose     = 'how to open a session (skills/session-start/SKILL.md, skills/session-start/reading-list.md) and what a Mission is and where to write one (templates/mission-template.md, knowledge/BRIEF-2026-08-17-211522-project-operating-model-v2.md, rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md) -- condensed by theme, each source named where its section begins'
     }
 )
 
@@ -213,12 +257,12 @@ function Get-AssistantIdentityBody {
 }
 
 function Get-WebPackageKnowledgeFileContent {
-    # Reads one knowledge-file source (UTF8, same BOM-less-source reasoning
-    # as Get-AssistantIdentityBody), then prepares it for the web package:
-    # the words are never rewritten or name-substituted (see
-    # $Script:WebPackageKnowledgeFiles's own comment for why: two of these
-    # sources mention "Brian" as Second Brain's documented default, a true
-    # statement regardless of the name this installation chose) -- but the
+    # Reads one or more knowledge-file sources (UTF8, same BOM-less-source
+    # reasoning as Get-AssistantIdentityBody) and prepares them for the web
+    # package: the words are never rewritten or name-substituted (see
+    # $Script:WebPackageKnowledgeFiles's own comment for why: CONTEXT.md
+    # mentions "Brian" as Second Brain's documented default, a true
+    # statement regardless of the name this installation chose) -- but each
     # source's own '## Liens' section and every OTHER relative Markdown
     # link in its body are stripped, because both are correct only from
     # the source's OWN location in this repository, never from
@@ -235,12 +279,20 @@ function Get-WebPackageKnowledgeFileContent {
     # document that was never itself uploaded resolves to nothing on
     # either platform anyway -- an unclickable but guardian-correct '[text]
     # (../../rules/...)' is not meaningfully better than plain text once it
-    # can never be clicked in the first place. A fresh, single '## Liens'
-    # entry is appended afterward, pointing back at this exact source with
-    # the '../../' depth every other generated form already uses for
-    # assistant/ASSISTANT.md (this repository's own convention, not
-    # invented here). Absolute links (http/https/mailto) and in-page
-    # anchors (#...) are left untouched -- those still work wherever this
+    # can never be clicked in the first place.
+    #
+    # A single source produces exactly the output this function always
+    # produced (byte for byte -- GLOSSARY.md and PROJECT-BOUNDARY.md are
+    # unaffected by Mission 172): the flattened body, then one '## Liens'
+    # entry pointing back at it. More than one source (HOW-TO.md, Mission
+    # 172) condenses them into one file BY THEME (Doctrine rule 2: condense
+    # rather than drop content, and never hand-write substantial prose
+    # disconnected from the sources) -- each source's flattened body kept
+    # in full, separated by a rule and a heading that names its own source
+    # path, so a reader can always tell which paragraph came from which
+    # file; the '## Liens' section then lists every source in the same
+    # order. Absolute links (http/https/mailto) and in-page anchors (#...)
+    # are left untouched in every case -- those still work wherever this
     # content ends up. A missing source fails the whole generation loudly
     # (thrown, not skipped) -- same fail-closed posture as
     # Get-AssistantIdentityBody's own missing-source check, because a
@@ -248,30 +300,43 @@ function Get-WebPackageKnowledgeFileContent {
     # exists to close.
     param(
         [Parameter(Mandatory = $true)][string] $ClonePath,
-        [Parameter(Mandatory = $true)][string] $SourceRelativePath
+        [Parameter(Mandatory = $true)][string[]] $SourceRelativePaths
     )
-    $sourcePath = Join-Path $ClonePath $SourceRelativePath
-    if (-not (Test-Path $sourcePath)) {
-        throw "Web package knowledge file source not found: $sourcePath"
+    $sections = @()
+    foreach ($sourceRelativePath in $SourceRelativePaths) {
+        $sourcePath = Join-Path $ClonePath $sourceRelativePath
+        if (-not (Test-Path $sourcePath)) {
+            throw "Web package knowledge file source not found: $sourcePath"
+        }
+        $raw = (Get-Content -Raw -Path $sourcePath -Encoding UTF8) -replace "`r`n", "`n"
+
+        $liensMarker = "`n## Liens"
+        $liensIndex = $raw.IndexOf($liensMarker)
+        $body = if ($liensIndex -ge 0) { $raw.Substring(0, $liensIndex) } else { $raw }
+        $body = $body.TrimEnd()
+        $body = [regex]::Replace($body, '\[([^\]]+)\]\((?!https?://|mailto:|#)[^)]+\)', '$1')
+        $sections += , $body
     }
-    $raw = (Get-Content -Raw -Path $sourcePath -Encoding UTF8) -replace "`r`n", "`n"
 
-    $liensMarker = "`n## Liens"
-    $liensIndex = $raw.IndexOf($liensMarker)
-    $body = if ($liensIndex -ge 0) { $raw.Substring(0, $liensIndex) } else { $raw }
-    $body = $body.TrimEnd()
-    $body = [regex]::Replace($body, '\[([^\]]+)\]\((?!https?://|mailto:|#)[^)]+\)', '$1')
+    if ($SourceRelativePaths.Count -eq 1) {
+        $body = $sections[0]
+    }
+    else {
+        $parts = @()
+        for ($i = 0; $i -lt $SourceRelativePaths.Count; $i++) {
+            $sourceLink = $SourceRelativePaths[$i].Replace('\', '/')
+            $parts += ('---' + "`n`n" + '### Source : `' + $sourceLink + '`' + "`n")
+            $parts += $sections[$i]
+        }
+        $body = $parts -join "`n`n"
+    }
 
-    $sourceLink = $SourceRelativePath.Replace('\', '/')
-    $liensLine = '- `see also` -- [' + $sourceLink + '](../../' + $sourceLink + ')'
-    $lines = @(
-        $body
-        ''
-        '## Liens'
-        ''
-        $liensLine
-        ''
-    )
+    $liensLines = @()
+    foreach ($sourceRelativePath in $SourceRelativePaths) {
+        $sourceLink = $sourceRelativePath.Replace('\', '/')
+        $liensLines += ('- `see also` -- [' + $sourceLink + '](../../' + $sourceLink + ')')
+    }
+    $lines = @($body, '', '## Liens', '') + $liensLines + @('')
     return ($lines -join "`n")
 }
 
@@ -347,7 +412,7 @@ function New-AssistantForms {
     Set-Content -Path (Join-Path $webPackageDir 'INSTRUCTIONS.md') -Encoding UTF8 -Value $instructionsText
 
     foreach ($knowledgeFile in $Script:WebPackageKnowledgeFiles) {
-        $content = Get-WebPackageKnowledgeFileContent -ClonePath $ClonePath -SourceRelativePath $knowledgeFile.SourcePath
+        $content = Get-WebPackageKnowledgeFileContent -ClonePath $ClonePath -SourceRelativePaths $knowledgeFile.SourcePaths
         Set-Content -Path (Join-Path $webPackageDir $knowledgeFile.FileName) -Encoding UTF8 -Value $content
     }
 

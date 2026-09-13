@@ -101,10 +101,12 @@ function Copy-ToolCapTestClone {
     New-Item -ItemType Directory -Force -Path (Join-Path $TestRoot 'assistant') | Out-Null
     Copy-Item -Path (Join-Path $RepoRoot 'assistant\ASSISTANT.md') -Destination (Join-Path $TestRoot 'assistant\ASSISTANT.md') -Force
     foreach ($knowledgeFile in $Script:WebPackageKnowledgeFiles) {
-        $src = Join-Path $RepoRoot $knowledgeFile.SourcePath
-        $dst = Join-Path $TestRoot $knowledgeFile.SourcePath
-        New-Item -ItemType Directory -Force -Path (Split-Path $dst -Parent) | Out-Null
-        Copy-Item -Path $src -Destination $dst -Force
+        foreach ($sourceRelativePath in $knowledgeFile.SourcePaths) {
+            $src = Join-Path $RepoRoot $sourceRelativePath
+            $dst = Join-Path $TestRoot $sourceRelativePath
+            New-Item -ItemType Directory -Force -Path (Split-Path $dst -Parent) | Out-Null
+            Copy-Item -Path $src -Destination $dst -Force
+        }
     }
 }
 

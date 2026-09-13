@@ -15,12 +15,15 @@
     against a minimal temp clone -- never the real second-brain checkout,
     and never install.ps1's own heavier end-to-end path (that is already
     covered by tests/test-assistant-generation.ps1). The temp clone carries
-    only the four source files New-AssistantForms's web-package path
-    actually reads: assistant/ASSISTANT.md (the identity source) and the
-    three knowledge-file sources in $Script:WebPackageKnowledgeFiles
-    (CONTEXT.md, the project/Second-Brain boundary rule, README.md) --
-    copied from the real repository, never invented, so this test exercises
-    the same content the real installer would.
+    only the source files New-AssistantForms's web-package path actually
+    reads: assistant/ASSISTANT.md (the identity source) and every source
+    path in $Script:WebPackageKnowledgeFiles's own SourcePaths lists
+    (Mission 172: CONTEXT.md and the project/Second-Brain boundary rule,
+    one source each, plus the session-start skill, its reading list, the
+    Mission template, the project operating model brief and the Mission
+    versioning rule -- the five sources HOW-TO.md condenses) -- copied from
+    the real repository, never invented, so this test exercises the same
+    content the real installer would.
 
     The check runs both directions against the generated README.md:
       - every filename the README announces (matched by the narrow regex
@@ -73,7 +76,7 @@ try {
     # from). The list below is built from $Script:WebPackageKnowledgeFiles
     # itself (plus the identity source), so this test never drifts out of
     # sync with which sources the generator actually reads.
-    $sourceFiles = @('assistant\ASSISTANT.md') + @($Script:WebPackageKnowledgeFiles | ForEach-Object { $_.SourcePath })
+    $sourceFiles = @('assistant\ASSISTANT.md') + @($Script:WebPackageKnowledgeFiles | ForEach-Object { $_.SourcePaths })
     foreach ($relative in $sourceFiles) {
         $src = Join-Path $RepoRoot $relative
         $dst = Join-Path $TestClone $relative

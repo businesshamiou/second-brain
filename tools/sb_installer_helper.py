@@ -38,27 +38,50 @@ MAX_CODEX_DEFAULT_SKILLS_BUDGET = 8000
 # Knowledge files bundled into the web package alongside INSTRUCTIONS.md
 # (Mission 171-C01 step 8, audit defects 8 and 9 -- shell/Python parity with
 # tools/generate-assistant.ps1's own $Script:WebPackageKnowledgeFiles;
-# that file's own comment carries the full reasoning for why these three
-# and not more, and why they are copied verbatim rather than name-
-# substituted). Kept as a tuple of (source path relative to the clone,
+# that file's own comment carries the full reasoning, including Mission
+# 172's revision of this list to also cover assistant/ASSISTANT.md's own
+# "Trois questions de test": the session-start skill and the Mission
+# template/operating model were nowhere in the package, so two of those
+# three test questions had no source a Project (no filesystem of its own)
+# could ever answer from. Kept as a tuple of (source paths relative to the
+# clone -- a tuple, even for a single source, so this file and the
+# PowerShell generator share the same "one or many sources per file" shape,
 # file name inside web-package/<slug>/, one-line purpose for the README)
 # so cmd_render_assistant and the README text below read from the same
-# single list, never two.
+# single list, never two. This repository's own README.md (formerly copied
+# verbatim as OVERVIEW.md) is dropped to make room under the Owner's own
+# five-file ceiling for this package (INSTRUCTIONS.md + README.md + at most
+# three knowledge files, DECIDED -- see the PowerShell generator's own
+# comment): of the original three knowledge files it is the only one that
+# answered none of the three test questions, so dropping it costs no
+# answer to any of those three while making room for HOW-TO.md, which
+# condenses five sources by theme (Doctrine rule 2: condense rather than
+# drop content) rather than adding a file per source.
 WEB_PACKAGE_KNOWLEDGE_FILES = (
     (
-        "CONTEXT.md",
+        ("CONTEXT.md",),
         "GLOSSARY.md",
         "the product glossary (validated terms this assistant's own instructions and this package both use)",
     ),
     (
-        os.path.join("rules", "RULES-2026-09-11-190000-project-second-brain-boundary.md"),
+        (os.path.join("rules", "RULES-2026-09-11-190000-project-second-brain-boundary.md"),),
         "PROJECT-BOUNDARY.md",
         "the rule deciding whether something belongs in Second Brain itself or in one of your projects",
     ),
     (
-        "README.md",
-        "OVERVIEW.md",
-        "this repository's own README: what Second Brain is, how it installs, and what is installed, and where",
+        (
+            os.path.join("skills", "session-start", "SKILL.md"),
+            os.path.join("skills", "session-start", "reading-list.md"),
+            os.path.join("templates", "mission-template.md"),
+            os.path.join("knowledge", "BRIEF-2026-08-17-211522-project-operating-model-v2.md"),
+            os.path.join("rules", "RULES-2026-08-17-211522-mission-versioning-and-generated-output.md"),
+        ),
+        "HOW-TO.md",
+        "how to open a session (skills/session-start/SKILL.md, skills/session-start/reading-list.md) and what a "
+        "Mission is and where to write one (templates/mission-template.md, "
+        "knowledge/BRIEF-2026-08-17-211522-project-operating-model-v2.md, "
+        "rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md) -- condensed by theme, each "
+        "source named where its section begins",
     ),
 )
 
@@ -242,35 +265,58 @@ def _assistant_body(clone_path, name):
     return body.replace("{{ASSISTANT_NAME}}", name)
 
 
-def _web_package_knowledge_file_content(clone_path, source_relative_path):
-    """Reads one knowledge-file source, then prepares it for the web
-    package: words are never rewritten or name-substituted (see
-    WEB_PACKAGE_KNOWLEDGE_FILES's own comment), but the source's own
+def _web_package_knowledge_file_content(clone_path, source_relative_paths):
+    """Reads one or more knowledge-file sources, then prepares them for the
+    web package: words are never rewritten or name-substituted (see
+    WEB_PACKAGE_KNOWLEDGE_FILES's own comment), but each source's own
     '## Liens' section and every other relative Markdown link in its body
     are stripped -- both are correct only from the source's own location
     in this repository, never from web-package/<slug>/, always two levels
     below the clone root (shell/PowerShell parity: mirrors
     tools/generate-assistant.ps1's own Get-WebPackageKnowledgeFileContent,
-    including that function's own comment for the full reasoning). A
-    fresh '## Liens' entry is appended, pointing back at the exact source
-    with the same '../../' depth every other generated form already uses.
+    including that function's own comment for the full reasoning).
+
+    A single source produces exactly the output this function always
+    produced (GLOSSARY.md and PROJECT-BOUNDARY.md are unaffected by
+    Mission 172): the flattened body, then one '## Liens' entry pointing
+    back at it. More than one source (HOW-TO.md, Mission 172) condenses
+    them into one file by theme: each source's flattened body kept in
+    full, separated by a rule and a heading naming its own source path, so
+    a reader can always tell which paragraph came from which file; the
+    '## Liens' section then lists every source in the same order.
+
     A missing source fails loudly: a silently thinner package is exactly
     the defect (8) this ticket exists to close."""
-    source_path = os.path.join(clone_path, source_relative_path)
-    if not os.path.exists(source_path):
-        raise SystemExit(f"Web package knowledge file source not found: {source_path}")
-    with open(source_path, encoding="utf-8") as f:
-        raw = f.read().replace("\r\n", "\n")
+    sections = []
+    for source_relative_path in source_relative_paths:
+        source_path = os.path.join(clone_path, source_relative_path)
+        if not os.path.exists(source_path):
+            raise SystemExit(f"Web package knowledge file source not found: {source_path}")
+        with open(source_path, encoding="utf-8") as f:
+            raw = f.read().replace("\r\n", "\n")
 
-    liens_marker = "\n## Liens"
-    liens_index = raw.find(liens_marker)
-    body = raw[:liens_index] if liens_index >= 0 else raw
-    body = body.rstrip()
-    body = re.sub(r'\[([^\]]+)\]\((?!https?://|mailto:|#)[^)]+\)', r'\1', body)
+        liens_marker = "\n## Liens"
+        liens_index = raw.find(liens_marker)
+        body = raw[:liens_index] if liens_index >= 0 else raw
+        body = body.rstrip()
+        body = re.sub(r'\[([^\]]+)\]\((?!https?://|mailto:|#)[^)]+\)', r'\1', body)
+        sections.append(body)
 
-    source_link = source_relative_path.replace("\\", "/")
-    liens_line = f"- `see also` -- [{source_link}](../../{source_link})"
-    return "\n".join([body, "", "## Liens", "", liens_line, ""])
+    if len(source_relative_paths) == 1:
+        body = sections[0]
+    else:
+        parts = []
+        for source_relative_path, section in zip(source_relative_paths, sections):
+            source_link = source_relative_path.replace("\\", "/")
+            parts.append(f"---\n\n### Source : `{source_link}`\n")
+            parts.append(section)
+        body = "\n\n".join(parts)
+
+    liens_lines = []
+    for source_relative_path in source_relative_paths:
+        source_link = source_relative_path.replace("\\", "/")
+        liens_lines.append(f"- `see also` -- [{source_link}](../../{source_link})")
+    return "\n".join([body, "", "## Liens", "", *liens_lines, ""])
 
 
 def _yaml_double_quoted_safe(text):
@@ -360,8 +406,8 @@ def cmd_render_assistant(args):
     with open(os.path.join(web_dir, "INSTRUCTIONS.md"), "w", encoding="utf-8", newline="\n") as f:
         f.write(instructions_text)
 
-    for source_relative_path, file_name, _purpose in WEB_PACKAGE_KNOWLEDGE_FILES:
-        knowledge_content = _web_package_knowledge_file_content(clone_path, source_relative_path)
+    for source_relative_paths, file_name, _purpose in WEB_PACKAGE_KNOWLEDGE_FILES:
+        knowledge_content = _web_package_knowledge_file_content(clone_path, source_relative_paths)
         with open(os.path.join(web_dir, file_name), "w", encoding="utf-8", newline="\n") as f:
             f.write(knowledge_content)
 
