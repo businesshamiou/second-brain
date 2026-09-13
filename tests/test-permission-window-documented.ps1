@@ -17,13 +17,29 @@
     second-brain would let a neighbour project write into second-brain,
     contradicting this repository's own project/second-brain boundary rule
     (rules/RULES-2026-09-11-190000-project-second-brain-boundary.md). Mission
-    172 step 6 therefore takes the spec's "sinon" branch: no settings.json
-    is written by the installer; README.md documents the window and what to
+    172 step 6 therefore took the spec's "sinon" branch: no settings.json is
+    written by the installer; README.md documents the window and what to
     answer instead.
 
-    Mechanical, model-free: greps README.md for the FAQ entry and its two
-    required elements (what to answer, and why it is safe not to grant
-    write access) -- no model call.
+    Updated for Mission 173 step 6 (Q17, corrected at step 9's own Contrôle):
+    Mission 173 replaced the scenario this test originally measured (a
+    NEIGHBOUR project reading a PROFILE-level link) with project-level
+    links from each project straight to its own second-brain clone --
+    `additionalDirectories` is no longer even a candidate setting to avoid,
+    since nothing lives in the profile any more for a neighbour project to
+    need cross-directory read access to (Mission 173 step 3). The window
+    itself still appears (now for a different reason: Claude Code's own
+    "external import" treatment of a project-local link whose target
+    resolves outside the project folder, tested in full by
+    tests/test-external-import-approval-announced.ps1) and README.md's FAQ
+    entry was rewritten in French to document THAT window. This test keeps
+    its own distinct angle -- confirming no settings.json permissions block
+    is ever written for the created project, and that the boundary rule is
+    linked as part of the reasoning -- rather than duplicate the other
+    test's own assertions about the announcement's wording.
+
+    Mechanical, model-free: greps README.md and tools/project-bootstrap.sh --
+    no model call.
 
     Exit code 0 means every assertion passed. Exit code 1 means at least one
     did not; details are printed to stdout as each check runs.
@@ -45,14 +61,14 @@ function Assert-True {
 $readmeText = Get-Content -Raw -Path (Join-Path $RepoRoot 'README.md') -Encoding UTF8
 
 Write-Output ""
-Write-Output "=== README.md documents the first-access permission window ==="
-Assert-True $readmeText.Contains('permission') "README.md mentions a permission window"
-Assert-True $readmeText.Contains('Yes') "README.md tells what to answer (the actual button text)"
-Assert-True $readmeText.Contains('additionalDirectories') "README.md names the setting it deliberately does not use"
-Assert-True $readmeText.Contains('RULES-2026-09-11-190000-project-second-brain-boundary.md') "README.md links the boundary rule as the reason additionalDirectories is not set"
+Write-Output "=== README.md documents the first-access permission window (Mission 173 wording) ==="
+Assert-True ($readmeText -match 'approbation') "README.md mentions the approval window (approbation)"
+Assert-True ($readmeText -match '(?i)r.ponds?\s*\*{0,2}oui') "README.md tells what to answer (repond oui)"
+Assert-True ($readmeText -match 'import externe') "README.md names the mechanism now in play (import externe, not additionalDirectories)"
+Assert-True $readmeText.Contains('RULES-2026-09-11-190000-project-second-brain-boundary.md') "README.md links the boundary rule as part of why answering yes is safe"
 
 Write-Output ""
-Write-Output "=== The installer does not write a settings.json permissions block for the created project ==="
+Write-Output "=== The installer never writes a settings.json permissions block for the created project ==="
 $bootstrapText = Get-Content -Raw -Path (Join-Path $RepoRoot 'tools\project-bootstrap.sh') -Encoding UTF8
 Assert-True (-not $bootstrapText.Contains('additionalDirectories')) "tools/project-bootstrap.sh does not write additionalDirectories (would grant write access into second-brain)"
 
