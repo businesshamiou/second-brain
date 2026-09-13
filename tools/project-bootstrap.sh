@@ -337,4 +337,10 @@ printf '%s\n' "$LINK_OUTPUT" | grep '^FALLBACK 1' >/dev/null \
 printf '%s\n' "$LINK_OUTPUT" | grep '^ASSISTANT_SLUG_MISSING' >/dev/null \
   && echo "Note: no assistant slug found in this clone's own carnet -- skills were linked into this project, the assistant was not (HYPOTHESIS: never generated, or a carnet from before Mission 168 ticket 06)."
 
+# --- Annonce de l'approbation d'import externe (Mission 173, Q17, etape 6).
+# Meme annonce que le README/INSTALL.md : la creation de projet est le
+# geste qui pose les liens sortant du dossier de travail, donc l'endroit le
+# plus utile pour prevenir avant que Claude Code ne pose la question. ---
+echo "Note: the first time you open this project in Claude Code, it will ask for a one-time approval (an external import) because the assistant/skills links above point outside this project's folder -- answer yes, it only grants read access to second-brain (see the README's FAQ)."
+
 echo "$FICHE"

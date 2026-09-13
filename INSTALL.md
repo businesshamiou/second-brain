@@ -43,8 +43,11 @@ Dans l'ordre :
 1. Il s'assure que Git, `uv` et `pre-commit` sont utilisables (récupérés dans ton profil au besoin, jamais globalement, jamais avec élévation).
 2. Il crée ton espace de travail (dossier qui contiendra `second-brain` et tes projets), y clone `second-brain` à sa place définitive, et y pose le marqueur `VAULT-ROOT.md`.
 3. Il pose sept questions courtes, dans la langue que tu choisis à la première (français, anglais ou espagnol) : nom de l'assistant, emplacement de l'espace de travail, prénom, ce que tu fais, comment tu travailles avec l'IA, ce qui compte pour toi — puis confirme un premier projet.
-4. Il écrit `USER.md` à partir de tes réponses, déploie l'assistant (sous-agent Claude Code, skill Codex, paquet web à téléverser toi-même) et les skills de la méthode (`skills/` et `skills/external/`), par lien, sans question.
-5. Il rend un verdict d'une ligne, signé par le nom de ton assistant : installation terminée, ou étape d'arrêt et cause.
+4. Il écrit `USER.md` à partir de tes réponses, génère l'assistant (sous-agent Claude Code, skill Codex, paquet web à téléverser toi-même) et pose un `CLAUDE.md`/`AGENTS.md` de dix lignes au plus à côté de `VAULT-ROOT.md`.
+5. Il crée ton premier projet si tu l'as confirmé, avec son propre `CLAUDE.md`/`AGENTS.md`, et y lie l'assistant et les skills de la méthode (`skills/` et `skills/external/`) — jamais dans ton profil.
+6. Il rend un verdict d'une ligne, signé par le nom de ton assistant : installation terminée, ou étape d'arrêt et cause.
+
+**Première ouverture d'un projet.** La première fois que tu ouvres un projet dans Claude Code, il détecte que les liens vers l'assistant et les skills sortent du dossier de travail (import externe) et demande une approbation, une fois par projet. Réponds oui : voir la question « Pourquoi Claude Code me demande une approbation » dans les questions fréquentes du [README](./README.md).
 
 Chaque étape est notée dans un carnet (`.install/state.json`, à la racine de ton clone, jamais suivi par Git) : une interruption reprend à l'étape manquante, sans reposer les questions déjà répondues. Relancer l'installeur sur un poste déjà installé bascule en mode mise à jour (réponses actuelles affichées, confirmation de tout changement, `USER.md` réécrit).
 
