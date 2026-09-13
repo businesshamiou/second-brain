@@ -151,6 +151,27 @@ Point d'entree du projet, cree par \`tools/project-bootstrap.sh\` (Mission 061),
 - \`prescribed by\` — [Standard de structure de projet]($REL_STANDARD) (hors Vault)
 EOF
 
+# --- CLAUDE.md et AGENTS.md de niveau projet (Mission 173, Q17 : hierarchie
+# a trois niveaux). Sous 60 lignes ; nom, but, conventions minimales, puis
+# import de la methode (le CLAUDE.md de second-brain lui-meme, qui remonte
+# jusqu'a la charte des roles) -- rien de plus, la methode se lit par la
+# chaine d'imports, jamais recopiee ici. Contenu identique dans les deux
+# fichiers. ---
+PROJECT_GUIDE_CONTENT="# $DISPLAY_NAME
+
+But : à compléter.
+
+## Conventions
+
+Rédiger en français ; identifiants machine en anglais.
+
+## Méthode
+
+@$REL_VAULT/CLAUDE.md"
+
+printf '%s\n' "$PROJECT_GUIDE_CONTENT" > "$TARGET_ABS/CLAUDE.md"
+printf '%s\n' "$PROJECT_GUIDE_CONTENT" > "$TARGET_ABS/AGENTS.md"
+
 # --- Epingle des gardiens, repo: local sur ce Vault voisin (T01, ticket 02
 # de la Mission 168) : jamais une URL distante -- reservee a l'atelier de
 # l'Owner -- un chemin relatif mesure vers ce Vault, entry par entry, aucun

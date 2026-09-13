@@ -39,4 +39,20 @@ sed \
   -e "s#](\.\./#]($REL_PATH/#g" \
   "$TEMPLATE" > "$MARKER"
 
+# --- CLAUDE.md et AGENTS.md de niveau workspace (Mission 173, Q17 :
+# hierarchie a trois niveaux). Poses ici, jamais sous 10 lignes, a cote de
+# VAULT-ROOT.md -- hors de tout depot Git (le workspace lui-meme n'en est
+# pas un), donc jamais suivis, jamais soumis aux gardiens ou au standard de
+# liens de second-brain. Contenu identique dans les deux fichiers (meme
+# consigne que les niveaux second-brain et projet). Idempotent : reecrit a
+# chaque installation (le nom de l'assistant peut changer), jamais append. ---
+WORKSPACE_GUIDE_CONTENT="La méthode de ce workspace vit dans \`$REL_PATH/\` (Second Brain) : règles, skills, assistant.
+
+Ouvrir une session : lire \`$REL_PATH/skills/session-start/SKILL.md\`.
+
+Poser une question : « Demande à $VAULT_NAME : ... » — il cite ses sources par chemin. Sans le nommer, l'agent principal peut répondre à sa place, sans garantie de lecture seule."
+
+printf '%s\n' "$WORKSPACE_GUIDE_CONTENT" > "$WORK_ROOT_ABS/CLAUDE.md"
+printf '%s\n' "$WORKSPACE_GUIDE_CONTENT" > "$WORK_ROOT_ABS/AGENTS.md"
+
 echo "$MARKER"
