@@ -504,3 +504,4 @@ tools/package-warehouse-deliverables.ps1	DISTRIBUABLE
 tests/test-web-package-readme-matches-contents.ps1	DISTRIBUABLE
 tests/test-web-package-answers-test-questions.ps1	DISTRIBUABLE
 tests/test-assistant-description-language.ps1	DISTRIBUABLE
+tests/test-permission-window-documented.ps1	DISTRIBUABLE
