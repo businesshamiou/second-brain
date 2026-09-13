@@ -35,6 +35,63 @@ MAX_INSTRUCTIONS_CHARS = 8000
 MAX_WEB_PACKAGE_FILES = 25
 MAX_CODEX_DEFAULT_SKILLS_BUDGET = 8000
 
+# Frontmatter `description` text, by installer language (Mission 172, audit
+# defect 1) -- Python mirror of generate-assistant.ps1's own
+# $Script:AssistantSubagentDescriptions / $Script:AssistantSkillDescriptions;
+# that file's own comment carries the full reasoning (deliberate deviation
+# from this file's English-only-frontmatter convention, directive wording
+# on purpose). {0} is the safe-quoted name (str.format, same placeholder
+# convention as the i18n catalogs).
+ASSISTANT_SUBAGENT_DESCRIPTIONS = {
+    "FR": (
+        "Assistant en lecture seule pour cet espace de travail Second Brain : repond aux "
+        "questions sur ses regles, decisions, connaissances et skills, toujours en citant le "
+        "fichier source par son chemin. A invoquer systematiquement pour toute question sur "
+        "{0}, Second Brain, le Vault, la methode, une regle ou une decision -- ne reponds "
+        "jamais a sa place. N'ecrit et n'execute jamais rien."
+    ),
+    "EN": (
+        "Read-only assistant for this Second Brain workspace: answers questions about its "
+        "rules, decisions, knowledge and skills, always citing the source file by path. MUST "
+        "be invoked for any question about {0}, Second Brain, the Vault, the method, a rule "
+        "or a decision -- never answer in its place. Never writes or runs anything."
+    ),
+    "ES": (
+        "Asistente de solo lectura para este espacio de trabajo Second Brain: responde "
+        "preguntas sobre sus reglas, decisiones, conocimientos y skills, citando siempre el "
+        "archivo fuente por su ruta. SIEMPRE debe invocarse para cualquier pregunta sobre "
+        "{0}, Second Brain, el Vault, el metodo, una regla o una decision -- nunca respondas "
+        "en su lugar. Nunca escribe ni ejecuta nada."
+    ),
+}
+ASSISTANT_SKILL_DESCRIPTIONS = {
+    "FR": (
+        "Assistant en lecture seule pour cet espace de travail Second Brain : repond aux "
+        "questions sur ses regles, decisions, connaissances et skills, toujours en citant le "
+        "fichier source par son chemin. A invoquer systematiquement pour toute question sur "
+        "{0}, Second Brain, ou le fonctionnement de cet espace de travail."
+    ),
+    "EN": (
+        "Read-only assistant for this Second Brain workspace: answers questions about its "
+        "rules, decisions, knowledge and skills, always citing the source file by path. MUST "
+        "be invoked for any question about {0}, Second Brain, or how this workspace works."
+    ),
+    "ES": (
+        "Asistente de solo lectura para este espacio de trabajo Second Brain: responde "
+        "preguntas sobre sus reglas, decisiones, conocimientos y skills, citando siempre el "
+        "archivo fuente por su ruta. SIEMPRE debe invocarse para cualquier pregunta sobre "
+        "{0}, Second Brain, o el funcionamiento de este espacio de trabajo."
+    ),
+}
+
+
+def _assistant_description_template(table, language):
+    # Falls back to FR (this repository's default participant language) for
+    # an unrecognized code, same discipline as the PowerShell generator's
+    # own Get-AssistantDescriptionTemplate.
+    code = (language or "FR").upper()
+    return table.get(code, table["FR"])
+
 # Knowledge files bundled into the web package alongside INSTRUCTIONS.md
 # (Mission 171-C01 step 8, audit defects 8 and 9 -- shell/Python parity with
 # tools/generate-assistant.ps1's own $Script:WebPackageKnowledgeFiles;
@@ -338,14 +395,12 @@ def cmd_render_assistant(args):
     body = _assistant_body(clone_path, name)
     safe_name = _yaml_double_quoted_safe(name)
 
+    language = getattr(args, "language", None) or "FR"
     subagent_path = os.path.join(clone_path, ".claude", "agents", f"{slug}.md")
     os.makedirs(os.path.dirname(subagent_path), exist_ok=True)
-    subagent_description = (
-        f"Read-only assistant for this Second Brain workspace: answers questions about its "
-        f"rules, decisions, knowledge and skills, always citing the source file by path. Use "
-        f"when asked about {safe_name}, Second Brain, the Vault, or how something in this "
-        f"workspace works. Never writes or runs anything."
-    )
+    subagent_description = _assistant_description_template(
+        ASSISTANT_SUBAGENT_DESCRIPTIONS, language
+    ).format(safe_name)
     subagent_content = "\n".join([
         "---",
         f"name: {slug}",
@@ -365,11 +420,9 @@ def cmd_render_assistant(args):
 
     skill_path = os.path.join(clone_path, ".agents", "skills", slug, "SKILL.md")
     os.makedirs(os.path.dirname(skill_path), exist_ok=True)
-    skill_description = (
-        f"Read-only assistant for this Second Brain workspace: answers questions about its "
-        f"rules, decisions, knowledge and skills, always citing the source file by path. Use "
-        f"when asked about {safe_name}, Second Brain, or how something in this workspace works."
-    )
+    skill_description = _assistant_description_template(
+        ASSISTANT_SKILL_DESCRIPTIONS, language
+    ).format(safe_name)
     skill_content = "\n".join([
         "---",
         f"name: {slug}",
@@ -879,6 +932,7 @@ def build_parser():
     p = sub.add_parser("render-assistant")
     p.add_argument("clone_path")
     p.add_argument("name")
+    p.add_argument("--language", default="FR")
     p.set_defaults(func=cmd_render_assistant)
 
     p = sub.add_parser("move-assistant-trash")

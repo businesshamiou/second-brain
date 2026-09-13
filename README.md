@@ -80,6 +80,8 @@ Second Brain n'écrit rien de global : désinstaller consiste à retirer ce que 
 
 ## Questions fréquentes
 
+**Comment je demande quelque chose à mon assistant ?** Nomme-le explicitement dans ta question, par exemple `Demande à Brian : quelles sont les décisions actives sur la structure des projets ?` — Claude Code délègue alors réellement au sous-agent en lecture seule dédié, qui cite ses sources par chemin. Sans le nommer, l'agent principal de Claude Code peut répondre lui-même à ta place ; sa réponse est en général correcte, mais elle n'a pas la garantie de lecture seule que porte ton assistant dédié.
+
 **Puis-je installer Second Brain sans abonnement payant à un agent IA ?** Techniquement l'installeur ne le vérifie pas, mais rien n'est conçu ni testé pour un compte gratuit : les résultats ne sont pas garantis.
 
 **Puis-je installer depuis une archive zip téléchargée sur GitHub ?** Non, par construction : voir « Ligne d'installation » ci-dessus. Clone toujours le dépôt avec `git clone`.

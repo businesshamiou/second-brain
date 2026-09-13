@@ -71,7 +71,7 @@
 
     Usage:
         . "$PSScriptRoot\tools\generate-assistant.ps1"
-        $slug = New-AssistantForms -ClonePath $clonePath -Name $vaultName
+        $slug = New-AssistantForms -ClonePath $clonePath -Name $vaultName -Language $language
 
     Inputs: none at load time; each function documents its own.
     Outputs: defines the functions below in the caller's scope.
@@ -82,6 +82,44 @@
 # to change if either platform's documented ceiling ever changes.
 $Script:MaxInstructionsChars = 8000
 $Script:MaxWebPackageFiles = 25
+
+# Frontmatter `description` text, by installer language (Mission 172, audit
+# defect 1). Deliberate deviation from this file's own stated convention
+# ("Frontmatter description fields ... are in English on purpose") -- Mission
+# 172's step 4 explicitly requires this field in the installation's chosen
+# language and tests for it, because Claude Code reads this exact field to
+# decide whether to delegate to the subagent instead of answering itself
+# (measured at acceptance: unnamed, the primary agent answers in the user's
+# own language; a description matching that language is closer to what a
+# real query looks like). {0} is the assistant's safe-quoted name (-f
+# operator, same placeholder convention as the i18n catalogs). Wording is
+# deliberately directive ("MUST"/"toujours invoquer"/"SIEMPRE") rather than
+# descriptive, per the same step: a passive description is exactly what let
+# the primary agent answer in its place at acceptance.
+$Script:AssistantSubagentDescriptions = @{
+    FR = 'Assistant en lecture seule pour cet espace de travail Second Brain : repond aux questions sur ses regles, decisions, connaissances et skills, toujours en citant le fichier source par son chemin. A invoquer systematiquement pour toute question sur {0}, Second Brain, le Vault, la methode, une regle ou une decision -- ne reponds jamais a sa place. N''ecrit et n''execute jamais rien.'
+    EN = 'Read-only assistant for this Second Brain workspace: answers questions about its rules, decisions, knowledge and skills, always citing the source file by path. MUST be invoked for any question about {0}, Second Brain, the Vault, the method, a rule or a decision -- never answer in its place. Never writes or runs anything.'
+    ES = 'Asistente de solo lectura para este espacio de trabajo Second Brain: responde preguntas sobre sus reglas, decisiones, conocimientos y skills, citando siempre el archivo fuente por su ruta. SIEMPRE debe invocarse para cualquier pregunta sobre {0}, Second Brain, el Vault, el metodo, una regla o una decision -- nunca respondas en su lugar. Nunca escribe ni ejecuta nada.'
+}
+$Script:AssistantSkillDescriptions = @{
+    FR = 'Assistant en lecture seule pour cet espace de travail Second Brain : repond aux questions sur ses regles, decisions, connaissances et skills, toujours en citant le fichier source par son chemin. A invoquer systematiquement pour toute question sur {0}, Second Brain, ou le fonctionnement de cet espace de travail.'
+    EN = 'Read-only assistant for this Second Brain workspace: answers questions about its rules, decisions, knowledge and skills, always citing the source file by path. MUST be invoked for any question about {0}, Second Brain, or how this workspace works.'
+    ES = 'Asistente de solo lectura para este espacio de trabajo Second Brain: responde preguntas sobre sus reglas, decisiones, conocimientos y skills, citando siempre el archivo fuente por su ruta. SIEMPRE debe invocarse para cualquier pregunta sobre {0}, Second Brain, o el funcionamiento de este espacio de trabajo.'
+}
+
+function Get-AssistantDescriptionTemplate {
+    # Looks up one language's template from either table above, falling
+    # back to FR (this repository's default participant language) for an
+    # unrecognized code -- mirrors questionnaire.ps1's own Get-Catalog
+    # fallback discipline, never a throw for a bad-but-harmless input here.
+    param(
+        [Parameter(Mandatory = $true)][hashtable] $Table,
+        [Parameter(Mandatory = $true)][string] $Language
+    )
+    $code = $Language.ToString().ToUpperInvariant()
+    if ($Table.ContainsKey($code)) { return $Table[$code] }
+    return $Table['FR']
+}
 
 # Knowledge files bundled into the web package alongside INSTRUCTIONS.md
 # (Mission 171-C01 step 8, audit defects 8 and 9: the generator used to
@@ -390,18 +428,24 @@ function New-AssistantForms {
     # slug before calling this function for the new one.
     param(
         [Parameter(Mandatory = $true)][string] $ClonePath,
-        [Parameter(Mandatory = $true)][string] $Name
+        [Parameter(Mandatory = $true)][string] $Name,
+        # Installer language (FR/EN/ES), Mission 172 audit defect 1: the
+        # frontmatter `description` fields are generated in this language.
+        # Optional, defaults to FR (this repository's default participant
+        # language) so every pre-existing caller (tests, direct use) keeps
+        # working unchanged.
+        [Parameter(Mandatory = $false)][string] $Language = 'FR'
     )
     $slug = ConvertTo-AssistantSlug -Name $Name
     $body = Expand-AssistantPlaceholder -Text (Get-AssistantIdentityBody -ClonePath $ClonePath) -Name $Name
 
     $subagentPath = Join-Path $ClonePath ".claude\agents\$slug.md"
     New-Item -ItemType Directory -Force -Path (Split-Path $subagentPath -Parent) | Out-Null
-    Set-Content -Path $subagentPath -Encoding UTF8 -Value (New-ClaudeCodeSubagentContent -Name $Name -Slug $slug -Body $body)
+    Set-Content -Path $subagentPath -Encoding UTF8 -Value (New-ClaudeCodeSubagentContent -Name $Name -Slug $slug -Body $body -Language $Language)
 
     $skillPath = Join-Path $ClonePath ".agents\skills\$slug\SKILL.md"
     New-Item -ItemType Directory -Force -Path (Split-Path $skillPath -Parent) | Out-Null
-    Set-Content -Path $skillPath -Encoding UTF8 -Value (New-CodexSkillContent -Name $Name -Slug $slug -Body $body)
+    Set-Content -Path $skillPath -Encoding UTF8 -Value (New-CodexSkillContent -Name $Name -Slug $slug -Body $body -Language $Language)
 
     $webPackageDir = Join-Path $ClonePath "web-package\$slug"
     New-Item -ItemType Directory -Force -Path $webPackageDir | Out-Null
@@ -434,10 +478,12 @@ function New-ClaudeCodeSubagentContent {
     param(
         [Parameter(Mandatory = $true)][string] $Name,
         [Parameter(Mandatory = $true)][string] $Slug,
-        [Parameter(Mandatory = $true)][string] $Body
+        [Parameter(Mandatory = $true)][string] $Body,
+        [Parameter(Mandatory = $false)][string] $Language = 'FR'
     )
     $safeName = ConvertTo-YamlDoubleQuotedSafe -Text $Name
-    $description = "Read-only assistant for this Second Brain workspace: answers questions about its rules, decisions, knowledge and skills, always citing the source file by path. Use when asked about $safeName, Second Brain, the Vault, or how something in this workspace works. Never writes or runs anything."
+    $template = Get-AssistantDescriptionTemplate -Table $Script:AssistantSubagentDescriptions -Language $Language
+    $description = $template -f $safeName
     $lines = @(
         '---'
         "name: $Slug"
@@ -468,10 +514,12 @@ function New-CodexSkillContent {
     param(
         [Parameter(Mandatory = $true)][string] $Name,
         [Parameter(Mandatory = $true)][string] $Slug,
-        [Parameter(Mandatory = $true)][string] $Body
+        [Parameter(Mandatory = $true)][string] $Body,
+        [Parameter(Mandatory = $false)][string] $Language = 'FR'
     )
     $safeName = ConvertTo-YamlDoubleQuotedSafe -Text $Name
-    $description = "Read-only assistant for this Second Brain workspace: answers questions about its rules, decisions, knowledge and skills, always citing the source file by path. Use when asked about $safeName, Second Brain, or how something in this workspace works."
+    $template = Get-AssistantDescriptionTemplate -Table $Script:AssistantSkillDescriptions -Language $Language
+    $description = $template -f $safeName
     $lines = @(
         '---'
         "name: $Slug"

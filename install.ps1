@@ -657,7 +657,7 @@ try {
     if ($assistantRenamed) {
         Move-AssistantFormsToTrash -ClonePath $clonePath -OldSlug $previousAssistantSlug | Out-Null
     }
-    New-AssistantForms -ClonePath $clonePath -Name $vaultName | Out-Null
+    New-AssistantForms -ClonePath $clonePath -Name $vaultName -Language $language | Out-Null
     $carnet | Add-Member -MemberType NoteProperty -Name 'assistant' -Force -Value ([PSCustomObject]@{
         name = $vaultName
         slug = $assistantSlug

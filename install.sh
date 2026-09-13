@@ -695,7 +695,7 @@ else
   assistant_commit_message="Generate assistant forms for '$ANSWER_VAULTNAME'"
 fi
 run_or_fail "Assistant generation failed for '$ANSWER_VAULTNAME'" \
-  bash -c 'uv run --no-project "$1" render-assistant "$2" "$3" >/dev/null' _ "$HELPER" "$CLONE_PATH" "$ANSWER_VAULTNAME"
+  bash -c 'uv run --no-project "$1" render-assistant "$2" "$3" --language "$4" >/dev/null' _ "$HELPER" "$CLONE_PATH" "$ANSWER_VAULTNAME" "$ANSWER_LANGUAGE"
 ASSISTANT_NAME="$ANSWER_VAULTNAME"
 mark_step "assistantGenerated"
 save_carnet
