@@ -208,6 +208,46 @@ function Invoke-BashTool {
     return $output
 }
 
+function Invoke-QuietGit {
+    # Mission 172, audit defect 3 (same family as the index-list dump this
+    # Mission also fixed): git add/commit calls this installer makes
+    # internally (Save-ClonePendingChanges, first-project registration, the
+    # new project's own initial scaffold commit) each trigger this
+    # repository's own pre-commit guardian banner (12 lines) plus any
+    # CRLF-conversion notice -- measured at acceptance to be the dominant
+    # remaining noise once the index-list dump itself was fixed. Quiet by
+    # default; -Verbose restores it; a failure is NEVER swallowed -- its
+    # full output is always shown, since that is exactly when a person
+    # needs to see why the guardians refused.
+    #
+    # Redirects to a temp FILE (*>), never merges via 2>&1 into a captured
+    # variable or pipeline: under this script's own
+    # $ErrorActionPreference = 'Stop', merging a native command's stderr
+    # that way wraps each line as a terminating NativeCommandError (the
+    # exact trap Invoke-BashTool's own comment already documents) --
+    # writing to a file sidesteps it entirely.
+    param(
+        [Parameter(Mandatory = $true)][string[]] $ArgumentList,
+        [Parameter(Mandatory = $true)][string] $FailureMessage
+    )
+    if ($VerbosePreference -eq 'Continue') {
+        & git @ArgumentList
+        if ($LASTEXITCODE -ne 0) { throw $FailureMessage }
+        return
+    }
+    $tempFile = [System.IO.Path]::GetTempFileName()
+    try {
+        & git @ArgumentList *> $tempFile
+        if ($LASTEXITCODE -ne 0) {
+            Get-Content -Path $tempFile | ForEach-Object { Write-Output $_ }
+            throw $FailureMessage
+        }
+    }
+    finally {
+        Remove-Item -Path $tempFile -Force -ErrorAction SilentlyContinue
+    }
+}
+
 function Save-ClonePendingChanges {
     # Commits whatever this run just wrote inside the clone (USER.md, so
     # far) -- a no-op when there is nothing to commit, which is exactly
@@ -255,11 +295,11 @@ function Save-ClonePendingChanges {
     foreach ($line in $changes) {
         if ([string]::IsNullOrWhiteSpace($line)) { continue }
         $changedPath = $line.Substring(3).Trim('"')
-        & git -C $ClonePath add -- $changedPath
-        if ($LASTEXITCODE -ne 0) { throw "git add failed for '$changedPath' in $ClonePath" }
+        Invoke-QuietGit -ArgumentList @('-C', $ClonePath, 'add', '--', $changedPath) `
+            -FailureMessage "git add failed for '$changedPath' in $ClonePath"
     }
-    & git -C $ClonePath commit -q -m $CommitMessage
-    if ($LASTEXITCODE -ne 0) { throw "failed to commit ($CommitMessage) in $ClonePath (guardians refused)" }
+    Invoke-QuietGit -ArgumentList @('-C', $ClonePath, 'commit', '-q', '-m', $CommitMessage) `
+        -FailureMessage "failed to commit ($CommitMessage) in $ClonePath (guardians refused)"
 }
 
 function New-InstallerContext {
@@ -814,11 +854,11 @@ try {
                 foreach ($line in $registrationChanges) {
                     if ([string]::IsNullOrWhiteSpace($line)) { continue }
                     $changedPath = $line.Substring(3).Trim('"')
-                    & git -C $clonePath add -- $changedPath
-                    if ($LASTEXITCODE -ne 0) { throw "git add failed for '$changedPath' in $clonePath" }
+                    Invoke-QuietGit -ArgumentList @('-C', $clonePath, 'add', '--', $changedPath) `
+                        -FailureMessage "git add failed for '$changedPath' in $clonePath"
                 }
-                & git -C $clonePath commit -q -m "Register first project: $firstProjectDisplayName"
-                if ($LASTEXITCODE -ne 0) { throw "failed to commit project registration in $clonePath (guardians refused)" }
+                Invoke-QuietGit -ArgumentList @('-C', $clonePath, 'commit', '-q', '-m', "Register first project: $firstProjectDisplayName") `
+                    -FailureMessage "failed to commit project registration in $clonePath (guardians refused)"
             }
 
             Push-Location $firstProjectPath
@@ -827,11 +867,11 @@ try {
                 if ($LASTEXITCODE -ne 0) { throw "git init failed in $firstProjectPath" }
                 & git config user.name $gitUserName
                 & git config user.email $gitUserEmail
-                & git add -A
+                Invoke-QuietGit -ArgumentList @('add', '-A') -FailureMessage "git add failed in $firstProjectPath"
                 & pre-commit install *> $null
                 if ($LASTEXITCODE -ne 0) { throw "pre-commit install failed in $firstProjectPath" }
-                & git commit -q -m "Initial scaffold from project-bootstrap"
-                if ($LASTEXITCODE -ne 0) { throw "initial commit failed in $firstProjectPath (guardians refused)" }
+                Invoke-QuietGit -ArgumentList @('commit', '-q', '-m', 'Initial scaffold from project-bootstrap') `
+                    -FailureMessage "initial commit failed in $firstProjectPath (guardians refused)"
             }
             finally {
                 Pop-Location
