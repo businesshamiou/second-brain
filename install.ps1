@@ -762,7 +762,19 @@ try {
     }
     $assistantDeployResult = Publish-DeployedAssistant -Context $context -ClonePath $clonePath -Slug $assistantSlug
     if ($assistantDeployResult.ConflictCount -gt 0) {
-        Write-Output "Note: assistant link path(s) already occupied by something else, left untouched: $($assistantDeployResult.SubagentLinkPath), $($assistantDeployResult.CodexSkillLinkPath)"
+        # Mission 172, audit defect 4: readable without reading the code --
+        # names which form, at which path, and what it implies (the
+        # existing item always wins, nothing here is ever overwritten,
+        # Decision 110852) -- plus a remedy the participant can actually
+        # act on, not just a fact.
+        Write-Output "Note: your assistant's own link is already occupied by something else at $($assistantDeployResult.ConflictCount) location(s) -- left untouched, the existing file/folder always wins:"
+        if ($assistantDeployResult.SubagentStatus -eq 'Conflict') {
+            Write-Output "  - Claude Code subagent: $($assistantDeployResult.SubagentLinkPath)"
+        }
+        if ($assistantDeployResult.CodexSkillStatus -eq 'Conflict') {
+            Write-Output "  - Codex skill: $($assistantDeployResult.CodexSkillLinkPath)"
+        }
+        Write-Output "  To use this assistant there instead, remove or rename the existing item at that path yourself, then rerun the installer."
     }
     $carnet | Add-Member -MemberType NoteProperty -Name 'assistantDeployment' -Force -Value ([PSCustomObject]@{
         slug              = $assistantSlug
@@ -799,8 +811,25 @@ try {
         Write-Output "Note: combined skill description budget ($($deployResult.Budget.Total) chars) exceeds the $($deployResult.Budget.Ceiling)-character Codex ceiling -- Codex received skills/ only, Claude Code received everything (Doctrine rule 3)."
     }
     if ($deployResult.ConflictCount -gt 0) {
-        $conflictPaths = @($deployResult.LinkResults | Where-Object { $_.Status -eq 'Conflict' } | ForEach-Object { $_.LinkPath }) -join ', '
-        Write-Output "Note: $($deployResult.ConflictCount) skill link path(s) already occupied by something else, left untouched: $conflictPaths"
+        # Mission 172, audit defect 4: measured at acceptance as an
+        # unreadable, un-actionable single line ("52 skill link path(s)
+        # already occupied by something else, left untouched") merging
+        # both agents' conflicts with no names and no remedy. Readable
+        # without reading the code now: which agent, how many, which
+        # skill names, what it implies (Second Brain's own copy of that
+        # skill is simply not linked there; whatever already occupies the
+        # path is never touched, Decision 110852), and a remedy the
+        # participant can actually act on.
+        $conflicts = @($deployResult.LinkResults | Where-Object { $_.Status -eq 'Conflict' })
+        $byAgent = $conflicts | Group-Object -Property {
+            if ($_.TargetRoot -eq $context.ClaudeSkillsDir) { 'Claude Code' } else { 'Codex' }
+        }
+        Write-Output "Note: $($deployResult.ConflictCount) skill link(s) already occupied by something else -- left untouched, the existing file/folder always wins, Second Brain's own copy is simply not linked there:"
+        foreach ($group in $byAgent) {
+            $names = @($group.Group | ForEach-Object { $_.Name }) -join ', '
+            Write-Output "  - $($group.Name) ($($group.Count)): $names"
+        }
+        Write-Output "  To use Second Brain's version of one of these instead, remove or rename the existing item at that path yourself, then rerun the installer."
     }
     $carnet | Add-Member -MemberType NoteProperty -Name 'skillsDeployment' -Force -Value ([PSCustomObject]@{
         defaultSkillNames  = @($deployResult.DefaultEntries | ForEach-Object { $_.Name })
