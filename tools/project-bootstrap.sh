@@ -266,6 +266,26 @@ EOF
 # le superseded-files.txt du Vault reste unique, a sa racine. ---
 bash "$INDEXES_BUILD" "$TARGET_ABS" "$VAULT_ROOT" >/dev/null
 
+# --- .gitignore pour les liens vers l'assistant et les skills, POSE AVANT
+# de creer les liens : sans cela, le premier `git add -A` de ce projet (fait
+# par l'installateur juste apres cet appel) suit chaque jonction/lien comme
+# un dossier ordinaire et tente d'indexer tout le contenu du CLONE en tant
+# que fichiers du projet -- mesure directement : "Permission denied" en
+# ecrivant .git/objects, l'index Git de deux depots se disputant les memes
+# fichiers sur disque. Seuls les TROIS chemins que link-project cree
+# ci-dessous sont exclus (jamais tout .claude/ ou .agents/ : un participant
+# reste libre de suivre son propre .claude/settings.json dans ce projet). ---
+GITIGNORE="$TARGET_ABS/.gitignore"
+{
+  echo "# Second Brain (Mission 173, Q17) -- liens vers l'assistant et les skills"
+  echo "# de la methode, poses par tools/project-bootstrap.sh. Jamais suivis par ce"
+  echo "# depot : ce sont des jonctions/liens vers second-brain, pas le contenu de"
+  echo "# ce projet."
+  echo "/.claude/skills/"
+  echo "/.claude/agents/"
+  echo "/.agents/skills/"
+} > "$GITIGNORE"
+
 # --- Liens vers l'assistant et les skills de la methode (Mission 173,
 # Q17 : "rien dans le profil"). Poses ici, pour TOUT projet cree par ce
 # script -- au moment de l'installation comme des annees plus tard, via le
