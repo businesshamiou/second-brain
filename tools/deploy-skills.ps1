@@ -27,18 +27,16 @@
     file's only two sources are therefore skills/ and skills/external/ --
     never skills-warehouse/.
 
-    Two deployment targets:
-      - $Context.ClaudeSkillsDir (~/.claude/skills, or its -TestMode
-        redirection) -- Claude Code's own personal skills folder. Always
-        receives every method skill (skills/ and skills/external/).
-      - $Context.CodexAgentsSkillsDir (~/.agents/skills, or its -TestMode
-        redirection) -- Codex's measured official skills location (T11:
-        developers.openai.com/codex/skills.md, read 2026-09-10/11).
-        Deliberately NOT $Context.CodexSkillsDir (~/.codex/skills): that
-        property is a pre-existing, unrelated AI-tool-detection heuristic
-        (tools/questionnaire.ps1's Get-DetectedAiTools), not a documented
-        Codex skills location -- see install.ps1's own New-InstallerContext
-        header comment for the full distinction. Never confuse the two.
+    Mission 173 (Q17, "rien dans le profil") retired this file's own
+    profile-level orchestrators, Publish-DeployedSkills and
+    Publish-DeployedAssistant (Mission 171-C01, steps 4 and 6): nothing is
+    ever linked into ~/.claude or ~/.agents any more. The generic
+    primitives below (Publish-SkillLink, Publish-FileLink, the skill-entry
+    listers, the Codex budget measurement) are unchanged and still do the
+    same job -- link one thing into one target directory -- just called
+    from tools/project-bootstrap.sh now, with each PROJECT's own
+    .claude/skills, .claude/agents and .agents/skills as the target roots
+    instead of the profile.
 
     Codex budget and Doctrine rule 3 fallback (Mission 171-C01 step 4,
     T11's measured ~8000-character ceiling on Codex's own INITIAL skills
@@ -88,52 +86,26 @@
     generate-assistant.ps1 (see that file's own header comment): no
     byte-order mark needed, since no accented literal is ever typed here.
 
-    Assistant forms, profile-level (Mission 171-C01 step 6; audit Defect 3):
-    Publish-DeployedAssistant below deploys the CURRENT assistant's own two
-    linkable forms -- the Claude Code subagent
-    (<clone>/.claude/agents/<slug>.md) and the Codex skill
-    (<clone>/.agents/skills/<slug>/) -- to $Context.ClaudeAgentsDir and
-    $Context.CodexAgentsSkillsDir respectively, so the assistant is
-    reachable from a neighbouring project the same way every method skill
-    already is. The web package is never linked here: README.md's own "Ce
-    qui est installe" table already describes it as a manual paste into a
-    claude.ai/ChatGPT Project, with no profile-level location to link to.
-    Unlike a method skill's name, the assistant's slug is chosen at
-    questionnaire time and can change between two runs (ticket 06's own
-    rename handling) -- Publish-DeployedAssistant therefore takes the
-    CURRENT slug as an explicit parameter and only ever touches that one
-    assistant's links, never scanning .claude/agents/* wholesale (that
-    would reach past this one installation into whatever else a
-    participant's own profile already has under that folder).
-    Move-AssistantFormsToTrash's own rename handling only relocates the
-    OLD slug's forms INSIDE the clone (git-tracked content); the matching
-    profile-level links for that old slug would otherwise dangle, still
-    resolving to their original (now-relocated) bytes with no further
-    corrections ever reaching them again -- Remove-DeployedAssistantLinks
-    below is install.ps1's own cleanup call for exactly that case, removing
-    only the link/junction itself (never the content it pointed at, which
-    Move-AssistantFormsToTrash has already preserved under _trash/).
-
     A single generated file cannot be an NTFS junction's target: a junction
     (`New-Item -ItemType Junction`) only ever names a DIRECTORY on Windows.
-    The Codex skill form is a directory (.agents/skills/<slug>/) and reuses
-    Publish-SkillLink verbatim, the exact same primitive
-    Publish-DeployedSkills already uses. The Claude Code subagent form is a
-    single file (.claude/agents/<slug>.md) and needs its own primitive,
-    Publish-FileLink below: an NTFS hard link (`New-Item -ItemType
-    HardLink`) plays the same no-privilege, no-copy role for one file that
-    a junction plays for a directory -- unlike a symbolic link (WinError
-    1314 on this machine, the same measured constraint ticket 04/07 already
-    worked around), a hard link needs no elevation and no Developer Mode,
-    and because both directory entries then address the very same on-disk
-    data, a correction written through the source path is visible through
-    the linked path too, with no reinstall -- the same "link, never copy"
-    property this file's own header already promises for a directory.
+    A skill or the Codex form of the assistant is a directory and uses
+    Publish-SkillLink; the Claude Code subagent form of the assistant is a
+    single file (<project>/.claude/agents/<slug>.md) and needs its own
+    primitive, Publish-FileLink below: an NTFS hard link (`New-Item
+    -ItemType HardLink`) plays the same no-privilege, no-copy role for one
+    file that a junction plays for a directory -- unlike a symbolic link
+    (WinError 1314 on this machine, the same measured constraint ticket
+    04/07 already worked around), a hard link needs no elevation and no
+    Developer Mode, and because both directory entries then address the
+    very same on-disk data, a correction written through the source path
+    is visible through the linked path too, with no reinstall -- the same
+    "link, never copy" property this file's own header already promises
+    for a directory.
 
     Usage:
         . "$PSScriptRoot\tools\deploy-skills.ps1"
-        $result = Publish-DeployedSkills -Context $context -ClonePath $clonePath
-        $assistantResult = Publish-DeployedAssistant -Context $context -ClonePath $clonePath -Slug $slug
+        $status = Publish-SkillLink -LinkPath $linkPath -TargetPath $sourcePath
+        $status = Publish-FileLink -LinkPath $linkPath -TargetPath $sourcePath
 
     Inputs: none at load time; each function documents its own.
     Outputs: defines the functions below in the caller's scope.
@@ -232,9 +204,10 @@ function Measure-MethodSkillsCodexBudget {
     # retired eighth question. Both directories are unconditional method
     # skills now (Owner arbitrage, 2026-09-12), so both count toward the
     # one ceiling that gates what Codex receives. Never throws (Doctrine
-    # rule 3: "Pas d'arret") -- returns OverBudget instead, which
-    # Publish-DeployedSkills below turns into a per-target fallback: Codex
-    # drops skills/external/ when over budget, Claude Code never does.
+    # rule 3: "Pas d'arret") -- returns OverBudget instead, which the
+    # project-linking step (tools/project-bootstrap.sh, Mission 173) turns
+    # into a per-target fallback: Codex drops skills/external/ when over
+    # budget, Claude Code never does.
     param(
         [Parameter(Mandatory = $true)][psobject[]] $DefaultEntries,
         [Parameter(Mandatory = $true)][psobject[]] $ExternalEntries
@@ -342,65 +315,6 @@ function Publish-SkillLink {
     return 'Conflict'
 }
 
-function Publish-DeployedSkills {
-    # Orchestrator (Mission 171-C01, step 4): links every method skill --
-    # skills/ (default) plus skills/external/ -- into both
-    # $Context.ClaudeSkillsDir and $Context.CodexAgentsSkillsDir,
-    # unconditionally (Owner arbitrage, 2026-09-12: no questionnaire choice
-    # gates this anymore -- the retired eighth question used to gate
-    # skills/external/, and used to also offer warehouse collections,
-    # neither of which this function accepts as input any more). Doctrine
-    # rule 3: when the combined description budget exceeds the Codex
-    # ceiling, Codex receives skills/ only while Claude Code still
-    # receives skills/ plus skills/external/; below the ceiling both
-    # targets receive the same set. Warehouse collections
-    # (skills-warehouse/) are never linked here (Mission 171-C01 Context:
-    # delivered as zip packages instead, a separate mechanism).
-    param(
-        [Parameter(Mandatory = $true)][psobject] $Context,
-        [Parameter(Mandatory = $true)][string] $ClonePath
-    )
-
-    $defaultEntries = Get-DefaultSkillEntries -ClonePath $ClonePath
-    $externalEntries = Get-ExternalMethodSkillEntries -ClonePath $ClonePath
-    $budget = Measure-MethodSkillsCodexBudget -DefaultEntries $defaultEntries -ExternalEntries $externalEntries
-
-    $claudeMerge = Merge-SkillEntriesByName -EntryLists @($defaultEntries, $externalEntries)
-    $codexSourceLists = if ($budget.OverBudget) { @(, $defaultEntries) } else { @($defaultEntries, $externalEntries) }
-    $codexMerge = Merge-SkillEntriesByName -EntryLists $codexSourceLists
-
-    $targets = @(
-        [PSCustomObject]@{ TargetRoot = $Context.ClaudeSkillsDir; Entries = $claudeMerge.Entries }
-        [PSCustomObject]@{ TargetRoot = $Context.CodexAgentsSkillsDir; Entries = $codexMerge.Entries }
-    )
-
-    $linkResults = @()
-    foreach ($target in $targets) {
-        foreach ($entry in $target.Entries) {
-            $linkPath = Join-Path $target.TargetRoot $entry.Name
-            $status = Publish-SkillLink -LinkPath $linkPath -TargetPath $entry.SourcePath
-            $linkResults += [PSCustomObject]@{
-                Name       = $entry.Name
-                TargetRoot = $target.TargetRoot
-                LinkPath   = $linkPath
-                SourcePath = $entry.SourcePath
-                Status     = $status
-            }
-        }
-    }
-
-    return [PSCustomObject]@{
-        DefaultEntries  = $defaultEntries
-        ExternalEntries = $externalEntries
-        Budget          = $budget
-        FallbackApplied = $budget.OverBudget
-        ClaudeNames     = @($claudeMerge.Entries | ForEach-Object { $_.Name })
-        CodexNames      = @($codexMerge.Entries | ForEach-Object { $_.Name })
-        DuplicateNames  = @(@($claudeMerge.DuplicateNames) + @($codexMerge.DuplicateNames) | Select-Object -Unique)
-        LinkResults     = $linkResults
-        ConflictCount   = @($linkResults | Where-Object { $_.Status -eq 'Conflict' }).Count
-    }
-}
 
 function Publish-FileLink {
     # File analogue of Publish-SkillLink above (Mission 171-C01 step 6, see
@@ -462,90 +376,3 @@ function Publish-FileLink {
     return 'Conflict'
 }
 
-function Publish-DeployedAssistant {
-    # Profile-level deployment for exactly ONE assistant's own generated
-    # forms (Mission 171-C01 step 6; audit Defect 3 -- see this file's own
-    # header comment for the full rationale). $Slug must be the CURRENT
-    # assistant's slug, resolved by the caller from the name just answered
-    # this run (install.ps1 already computes $assistantSlug for the
-    # 'assistant' step) -- this function never enumerates .claude/agents/*
-    # or .agents/skills/* on its own, so a machine that has generated
-    # several assistants across several second-brain clones over time never
-    # gets all of them relinked by one call meant for only the current one.
-    #
-    # Two forms only, by construction: the Claude Code subagent (a single
-    # file, Publish-FileLink/hard link) and the Codex skill (a directory,
-    # Publish-SkillLink/junction -- the exact same primitive
-    # Publish-DeployedSkills already uses for every method skill). The web
-    # package is never linked here (no profile-level location by design).
-    param(
-        [Parameter(Mandatory = $true)][psobject] $Context,
-        [Parameter(Mandatory = $true)][string] $ClonePath,
-        [Parameter(Mandatory = $true)][string] $Slug
-    )
-
-    $subagentSource = Join-Path $ClonePath ".claude\agents\$Slug.md"
-    $subagentLink = Join-Path $Context.ClaudeAgentsDir "$Slug.md"
-    $subagentStatus = Publish-FileLink -LinkPath $subagentLink -TargetPath $subagentSource
-
-    $codexSkillSource = Join-Path $ClonePath ".agents\skills\$Slug"
-    $codexSkillLink = Join-Path $Context.CodexAgentsSkillsDir $Slug
-    $codexSkillStatus = Publish-SkillLink -LinkPath $codexSkillLink -TargetPath $codexSkillSource
-
-    return [PSCustomObject]@{
-        Slug               = $Slug
-        SubagentLinkPath   = $subagentLink
-        SubagentStatus     = $subagentStatus
-        CodexSkillLinkPath = $codexSkillLink
-        CodexSkillStatus   = $codexSkillStatus
-        ConflictCount      = @(@($subagentStatus, $codexSkillStatus) | Where-Object { $_ -eq 'Conflict' }).Count
-    }
-}
-
-function Remove-DeployedAssistantLinks {
-    # Rename cleanup (Mission 171-C01 step 6): called by install.ps1 for
-    # the OLD slug only, right before Publish-DeployedAssistant links the
-    # NEW one. Move-AssistantFormsToTrash already relocated the old slug's
-    # forms INSIDE the clone to _trash/ (Decision 110852: moved, never
-    # deleted -- the content itself stays fully readable there); the
-    # matching profile-level links for that old slug are a different
-    # concern -- left alone, they would keep resolving to their original
-    # (now-relocated) bytes forever, with no further correction ever
-    # reaching them again, silently misrepresenting themselves as "the
-    # current assistant". Removing the link/junction entry itself is not a
-    # deletion of content in Decision 110852's sense: the data it pointed
-    # at is unaffected (a hard link's target keeps existing under _trash/
-    # as long as anything still references it; a junction never held data
-    # of its own to begin with) -- only the stale profile-level pointer
-    # goes away. Never removes anything that is not this installer's own
-    # reparse point/hard link (a foreign file or directory a participant
-    # put at that exact path is left untouched, same as a Conflict
-    # elsewhere in this file). Removing a junction with `-Recurse` measured
-    # safe on this machine's own PowerShell 5.1 (build 26100): it deletes
-    # only the reparse point itself, never the real directory or its
-    # contents on the other side (a historical concern with older
-    # PowerShell releases, not reproduced here) -- `-Recurse` is required
-    # regardless, since a bare `Remove-Item` on a non-empty-looking reparse
-    # point without it errors "the directory is not empty".
-    param(
-        [Parameter(Mandatory = $true)][psobject] $Context,
-        [Parameter(Mandatory = $true)][string] $OldSlug
-    )
-    $removed = @()
-
-    $oldSubagentLink = Join-Path $Context.ClaudeAgentsDir "$OldSlug.md"
-    $subagentItem = Get-Item -LiteralPath $oldSubagentLink -Force -ErrorAction SilentlyContinue
-    if ($subagentItem -and $subagentItem.PSObject.Properties['LinkType'] -and $subagentItem.LinkType -eq 'HardLink') {
-        Remove-Item -LiteralPath $oldSubagentLink -Force
-        $removed += $oldSubagentLink
-    }
-
-    $oldSkillLink = Join-Path $Context.CodexAgentsSkillsDir $OldSlug
-    $skillLinkInfo = Get-ExistingLinkInfo -Path $oldSkillLink
-    if ($skillLinkInfo.Exists -and $skillLinkInfo.IsLink) {
-        Remove-Item -LiteralPath $oldSkillLink -Force -Recurse
-        $removed += $oldSkillLink
-    }
-
-    return $removed
-}

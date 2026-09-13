@@ -539,18 +539,19 @@ function Resolve-QuestionnaireAnswer {
 function Test-InstallComplete {
     # Update-mode gate (T06/T22: if everything is done, a relaunch switches
     # to update mode): every step install.ps1's own flow can record must be
-    # present -- 'skillsDeployed' added by ticket 07, 'assistantDeployed'
-    # added by Mission 171-C01 step 6 (a carnet from before that step never
-    # ran the new profile-level assistant deployment, so it must NOT read
-    # as "complete" until a relaunch has run it at least once), same
-    # reasoning as every other required step here -- firstProjectCreated
-    # only required when the recorded answers actually asked for a first
-    # project -- a participant who declined one (firstProject.create =
-    # false) is still "complete" without it.
+    # present. Mission 173 (Q17, "rien dans le profil") retired
+    # 'assistantDeployed' and 'skillsDeployed' (Mission 171-C01 steps 6 and
+    # 4): nothing is deployed to the profile any more, so those carnet
+    # flags no longer exist to require -- the assistant and the method
+    # skills are linked into each project instead (tools/project-
+    # bootstrap.sh). firstProjectCreated only required when the recorded
+    # answers actually asked for a first project -- a participant who
+    # declined one (firstProject.create = false) is still "complete"
+    # without it.
     param([Parameter(Mandatory = $true)][psobject] $Carnet)
     $steps = $Carnet.steps
     if ($null -eq $steps) { return $false }
-    $required = @('workspaceCreated', 'cloned', 'guardiansConfigured', 'markerWritten', 'assistantGenerated', 'assistantDeployed', 'skillsDeployed', 'profileWritten')
+    $required = @('workspaceCreated', 'cloned', 'guardiansConfigured', 'markerWritten', 'assistantGenerated', 'profileWritten')
     foreach ($name in $required) {
         if (-not $steps.$name) { return $false }
     }

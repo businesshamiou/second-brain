@@ -109,8 +109,7 @@
                           never called while this queue still has entries).
                           Never used outside tests/test-questionnaire-*.ps1.
         -StopAfterStep    Test-only. One of: prerequisites, workspace,
-                          clone, guardians, marker, assistant,
-                          assistantDeployed, skillsDeployed, firstProject,
+                          clone, guardians, marker, assistant, firstProject,
                           profile.
                           Throws a clean, named "forced stop" error right
                           after that step's own work completes and its
@@ -148,7 +147,7 @@ param(
 
     [string[]] $ScriptedAnswers,
 
-    [ValidateSet('prerequisites', 'workspace', 'clone', 'guardians', 'marker', 'assistant', 'assistantDeployed', 'skillsDeployed', 'firstProject', 'profile')]
+    [ValidateSet('prerequisites', 'workspace', 'clone', 'guardians', 'marker', 'assistant', 'firstProject', 'profile')]
     [string] $StopAfterStep
 )
 
@@ -317,42 +316,24 @@ function Save-ClonePendingChanges {
 
 function New-InstallerContext {
     # Builds the redirection context (Mission constraint: "Environnement de
-    # l'Owner intact"). Real mode reads/would-write the real profile; test
-    # mode redirects the same things (profile-rooted defaults, the skill
-    # folders, PATH) under -TestRoot.
+    # l'Owner intact"). Real mode reads the real profile; test mode redirects
+    # the same things (profile-rooted defaults, PATH) under -TestRoot.
     #
-    # CodexSkillsDir vs CodexAgentsSkillsDir (ticket 07 vigilance point):
-    # these are two DIFFERENT folders, never to be confused.
-    #   - CodexSkillsDir (.codex\skills) existed before this ticket
-    #     (tools/questionnaire.ps1's Get-DetectedAiTools/
-    #     Get-ProfileEnvironmentFacts): a heuristic probe only, asking "does
-    #     something that looks like Codex exist here" -- .codex/skills/ is
-    #     NOT a documented Codex location (T11), so nothing is ever deployed
-    #     there.
-    #   - CodexAgentsSkillsDir (.agents\skills) is Codex's own measured
-    #     official skills location (T11: developers.openai.com/codex/
-    #     skills.md, read 2026-09-10/11 -- "$HOME/.agents/skills"), already
-    #     used by tools/generate-assistant.ps1 (ticket 06) for the
-    #     assistant's own Codex skill INSIDE the clone
-    #     (<clone>/.agents/skills/<slug>/) and now used by
-    #     tools/deploy-skills.ps1 (ticket 07) as the actual link target
-    #     OUTSIDE the clone, in the profile -- exactly the property that was
-    #     missing from this context before ticket 07: without it, a
-    #     ticket-07 link function would have had no redirected path to write
-    #     to at all and could only have reached for the real profile by
-    #     hand, defeating -TestMode. Both branches below add it the same way
-    #     ClaudeSkillsDir/CodexSkillsDir already were.
+    # Mission 173 (Q17, "rien dans le profil"): ClaudeAgentsDir and
+    # CodexAgentsSkillsDir -- the profile-level WRITE targets Mission
+    # 171-C01 (steps 4 and 6) added here -- are retired. Nothing this
+    # installer does writes into the profile any more: the assistant and
+    # the method skills are linked into each PROJECT instead, at
+    # project-creation time (tools/project-bootstrap.sh), never into
+    # ~/.claude or ~/.agents.
     #
-    # ClaudeAgentsDir (Mission 171-C01 step 6; audit Defect 3): Claude
-    # Code's own measured convention for a personal, profile-level
-    # sub-agent is a flat file directly under ~/.claude/agents/<name>.md
-    # (parallel to ~/.claude/skills/<name>/ for a skill, but one file, not
-    # one directory per entry) -- this is where
-    # tools/deploy-skills.ps1's own Publish-DeployedAssistant links the
-    # CURRENT assistant's Claude Code subagent form so it resolves from any
-    # neighbouring project, not only from inside the second-brain clone
-    # itself. Both branches below add it the same way ClaudeSkillsDir
-    # already was.
+    # ClaudeSkillsDir (.claude\skills) and CodexSkillsDir (.codex\skills)
+    # both stay: pre-existing, unrelated heuristics
+    # (tools/questionnaire.ps1's Get-DetectedAiTools/
+    # Get-ProfileEnvironmentFacts) that only READ whether something that
+    # looks like Claude Code/Codex already exists on this machine -- never
+    # write targets, and .codex/skills/ was never a documented Codex
+    # location (T11) besides.
     param([switch] $TestMode, [string] $TestRoot)
 
     if ($TestMode) {
@@ -365,9 +346,7 @@ function New-InstallerContext {
             TestMode              = $true
             ProfileRoot           = $profileRoot
             ClaudeSkillsDir       = Join-Path $profileRoot '.claude\skills'
-            ClaudeAgentsDir       = Join-Path $profileRoot '.claude\agents'
             CodexSkillsDir        = Join-Path $profileRoot '.codex\skills'
-            CodexAgentsSkillsDir  = Join-Path $profileRoot '.agents\skills'
             SimulatedPathFile     = Join-Path $TestRoot 'simulated-user-path.txt'
             DefaultWorkspacePath  = Join-Path $TestRoot 'workspace'
         }
@@ -377,9 +356,7 @@ function New-InstallerContext {
         TestMode              = $false
         ProfileRoot           = $env:USERPROFILE
         ClaudeSkillsDir       = Join-Path $env:USERPROFILE '.claude\skills'
-        ClaudeAgentsDir       = Join-Path $env:USERPROFILE '.claude\agents'
         CodexSkillsDir        = Join-Path $env:USERPROFILE '.codex\skills'
-        CodexAgentsSkillsDir  = Join-Path $env:USERPROFILE '.agents\skills'
         SimulatedPathFile     = $null
         DefaultWorkspacePath  = Join-Path $env:USERPROFILE 'second-brain-workspace'
     }
@@ -742,107 +719,17 @@ try {
     Save-ClonePendingChanges -BashExe $bashExe -ClonePath $clonePath -CommitMessage $assistantCommitMessage
     Test-ForcedStop -StopAfterStep $StopAfterStep -StepName 'assistant'
 
-    # Step: deploy the assistant's own forms by link, at the profile level
-    # (Mission 171-C01 step 6; audit Defect 3). Parallel to the
-    # skillsDeployed step below, but scoped to exactly the ONE assistant
-    # just (re)generated -- never every assistant slug a machine's profile
-    # might already carry from a past install. A rename first removes the
-    # OLD slug's stale profile-level links (Remove-DeployedAssistantLinks:
-    # the link/junction only, never the content -- Move-AssistantFormsToTrash
-    # already preserved that under _trash/ above), then
-    # Publish-DeployedAssistant links the NEW slug's Claude Code subagent
-    # (a file, hard link) and Codex skill (a directory, junction -- the
-    # same Publish-SkillLink primitive skillsDeployed uses). Nothing here
-    # is git-tracked content inside the clone (the link targets live in the
-    # user's profile, same reasoning as skillsDeployed below), so this step
-    # never calls Save-ClonePendingChanges.
-    $currentStepKey = 'assistantDeployed'
-    if ($assistantRenamed) {
-        Remove-DeployedAssistantLinks -Context $context -OldSlug $previousAssistantSlug | Out-Null
-    }
-    $assistantDeployResult = Publish-DeployedAssistant -Context $context -ClonePath $clonePath -Slug $assistantSlug
-    if ($assistantDeployResult.ConflictCount -gt 0) {
-        # Mission 172, audit defect 4: readable without reading the code --
-        # names which form, at which path, and what it implies (the
-        # existing item always wins, nothing here is ever overwritten,
-        # Decision 110852) -- plus a remedy the participant can actually
-        # act on, not just a fact.
-        Write-Output "Note: your assistant's own link is already occupied by something else at $($assistantDeployResult.ConflictCount) location(s) -- left untouched, the existing file/folder always wins:"
-        if ($assistantDeployResult.SubagentStatus -eq 'Conflict') {
-            Write-Output "  - Claude Code subagent: $($assistantDeployResult.SubagentLinkPath)"
-        }
-        if ($assistantDeployResult.CodexSkillStatus -eq 'Conflict') {
-            Write-Output "  - Codex skill: $($assistantDeployResult.CodexSkillLinkPath)"
-        }
-        Write-Output "  To use this assistant there instead, remove or rename the existing item at that path yourself, then rerun the installer."
-    }
-    $carnet | Add-Member -MemberType NoteProperty -Name 'assistantDeployment' -Force -Value ([PSCustomObject]@{
-        slug              = $assistantSlug
-        subagentStatus    = $assistantDeployResult.SubagentStatus
-        codexSkillStatus  = $assistantDeployResult.CodexSkillStatus
-        conflictCount     = $assistantDeployResult.ConflictCount
-    })
-    Set-CarnetStep -Carnet $carnet -Name 'assistantDeployed'
-    Save-Carnet -Path $carnetPath -Carnet $carnet
-    Test-ForcedStop -StopAfterStep $StopAfterStep -StepName 'assistantDeployed'
-
-    # Step: deploy skills by link (ticket 07; unconditional external and
-    # combined Codex budget, Mission 171-C01 step 4). Always links every
-    # method skill -- skills/ and skills/external/ -- into both the Claude
-    # Code and Codex skills folders (unconditional, regardless of what
-    # Get-DetectedAiTools found, and regardless of any questionnaire
-    # answer: the eighth question that used to gate skills/external/ and
-    # warehouse collections is retired). Codex drops skills/external/ under
-    # Doctrine rule 3 when the combined description budget is over the
-    # ceiling; Claude Code never does (see tools/deploy-skills.ps1's own
-    # header comment). Idempotent (tools/deploy-skills.ps1's own
-    # Publish-SkillLink): a relaunch creates no new link and touches no
-    # file, the same rule every other step already follows. Nothing here
-    # is git-tracked content inside the clone -- the link targets live in
-    # the user's profile ($context.ClaudeSkillsDir /
-    # CodexAgentsSkillsDir), so unlike 'assistant' this step never calls
-    # Save-ClonePendingChanges.
-    $currentStepKey = 'skillsDeployed'
-    $deployResult = Publish-DeployedSkills -Context $context -ClonePath $clonePath
-    if ($deployResult.DuplicateNames.Count -gt 0) {
-        Write-Output "Note: duplicate skill name(s) across sources, only the first source was linked: $($deployResult.DuplicateNames -join ', ')"
-    }
-    if ($deployResult.FallbackApplied) {
-        Write-Output "Note: combined skill description budget ($($deployResult.Budget.Total) chars) exceeds the $($deployResult.Budget.Ceiling)-character Codex ceiling -- Codex received skills/ only, Claude Code received everything (Doctrine rule 3)."
-    }
-    if ($deployResult.ConflictCount -gt 0) {
-        # Mission 172, audit defect 4: measured at acceptance as an
-        # unreadable, un-actionable single line ("52 skill link path(s)
-        # already occupied by something else, left untouched") merging
-        # both agents' conflicts with no names and no remedy. Readable
-        # without reading the code now: which agent, how many, which
-        # skill names, what it implies (Second Brain's own copy of that
-        # skill is simply not linked there; whatever already occupies the
-        # path is never touched, Decision 110852), and a remedy the
-        # participant can actually act on.
-        $conflicts = @($deployResult.LinkResults | Where-Object { $_.Status -eq 'Conflict' })
-        $byAgent = $conflicts | Group-Object -Property {
-            if ($_.TargetRoot -eq $context.ClaudeSkillsDir) { 'Claude Code' } else { 'Codex' }
-        }
-        Write-Output "Note: $($deployResult.ConflictCount) skill link(s) already occupied by something else -- left untouched, the existing file/folder always wins, Second Brain's own copy is simply not linked there:"
-        foreach ($group in $byAgent) {
-            $names = @($group.Group | ForEach-Object { $_.Name }) -join ', '
-            Write-Output "  - $($group.Name) ($($group.Count)): $names"
-        }
-        Write-Output "  To use Second Brain's version of one of these instead, remove or rename the existing item at that path yourself, then rerun the installer."
-    }
-    $carnet | Add-Member -MemberType NoteProperty -Name 'skillsDeployment' -Force -Value ([PSCustomObject]@{
-        defaultSkillNames  = @($deployResult.DefaultEntries | ForEach-Object { $_.Name })
-        externalSkillNames = @($deployResult.ExternalEntries | ForEach-Object { $_.Name })
-        codexBudgetTotal   = $deployResult.Budget.Total
-        codexBudgetCeiling = $deployResult.Budget.Ceiling
-        fallbackApplied    = $deployResult.FallbackApplied
-        duplicateNames     = $deployResult.DuplicateNames
-        conflictCount      = $deployResult.ConflictCount
-    })
-    Set-CarnetStep -Carnet $carnet -Name 'skillsDeployed'
-    Save-Carnet -Path $carnetPath -Carnet $carnet
-    Test-ForcedStop -StopAfterStep $StopAfterStep -StepName 'skillsDeployed'
+    # Mission 173 (Q17, "rien dans le profil"): the 'assistantDeployed' and
+    # 'skillsDeployed' steps that used to live here (Mission 171-C01, steps
+    # 6 and 4) linked the assistant and the method skills into the user's
+    # PROFILE (~/.claude/agents, ~/.claude/skills, ~/.agents/skills) so they
+    # were reachable from any neighbouring project. Both steps, their
+    # conflict-note code (Mission 172, audit defect 4 -- now moot, nothing
+    # writes to a shared profile location any more so there is nothing left
+    # to conflict over) and their carnet fields are retired outright: the
+    # assistant and the method skills are instead linked into each PROJECT
+    # itself at project-creation time (tools/project-bootstrap.sh, Mission
+    # 173 step 4), never into the profile.
 
     # First-project confirmation (T06 complement 2's final question) plus
     # its own step, first-project. Nested (create/name/displayName), so

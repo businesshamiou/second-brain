@@ -197,8 +197,7 @@ def cmd_load_carnet(args):
     steps = data.get("steps") or {}
     for step in (
         "workspaceCreated", "cloned", "guardiansConfigured", "markerWritten",
-        "assistantGenerated", "assistantDeployed", "skillsDeployed",
-        "firstProjectCreated", "profileWritten",
+        "assistantGenerated", "firstProjectCreated", "profileWritten",
     ):
         out.append(f"STEP_{step.upper()}={shq('true' if steps.get(step) else '')}")
     asst = data.get("assistant") or {}
@@ -688,46 +687,16 @@ def _publish_skill_link(link_path, target_path):
     return "Created"
 
 
-def cmd_deploy_skills(args):
-    # Unconditional deployment (Mission 171-C01 step 4): no --collections
-    # input any more (the retired eighth question used to supply it) --
-    # skills/ and skills/external/ are always the two sources. Codex drops
-    # skills/external/ under Doctrine rule 3 when the combined description
-    # budget is over the ceiling; Claude Code never does.
-    clone_path = args.clone_path
-    default_entries, external_entries = _method_skill_entries(clone_path)
-    total, _breakdown = _codex_budget(default_entries, external_entries)
-    over_budget = total > MAX_CODEX_DEFAULT_SKILLS_BUDGET
-
-    claude_entries, claude_duplicates = _merge_skill_entries([default_entries, external_entries])
-    codex_source_lists = [default_entries] if over_budget else [default_entries, external_entries]
-    codex_entries, codex_duplicates = _merge_skill_entries(codex_source_lists)
-
-    conflict_count = 0
-    for target_root, entries in (
-        (args.claude_skills_dir, claude_entries),
-        (args.codex_agents_skills_dir, codex_entries),
-    ):
-        for name, source_path in entries:
-            link_path = os.path.join(target_root, name)
-            status = _publish_skill_link(link_path, source_path)
-            if status == "Conflict":
-                conflict_count += 1
-                print(f"CONFLICT {link_path}")
-
-    for name in sorted(set(claude_duplicates + codex_duplicates)):
-        print(f"DUPLICATE {name}")
-    print(f"DEFAULT_COUNT {len(default_entries)}")
-    print(f"EXTERNAL_COUNT {len(external_entries)}")
-    print(f"BUDGET {total} {MAX_CODEX_DEFAULT_SKILLS_BUDGET}")
-    print(f"FALLBACK {'1' if over_budget else '0'}")
-    print(f"CONFLICT_COUNT {conflict_count}")
-    return 0
-
-
-# --- Assistant deployment by link, profile-level (Mission 171-C01 step 6;
-# audit Defect 3 -- see tools/deploy-skills.ps1's own header comment for the
-# full rationale, this file mirrors it exactly for install.sh's own parity) -
+# Mission 173 (Q17, "rien dans le profil") retired this file's own
+# profile-level orchestrators, cmd_deploy_skills, cmd_deploy_assistant and
+# cmd_remove_assistant_links (Mission 171-C01, steps 4 and 6): nothing is
+# ever linked into ~/.claude or ~/.agents any more. The generic primitives
+# below (_publish_skill_link, _publish_file_link, the skill-entry helpers,
+# the Codex budget measurement) are unchanged and still do the same job --
+# link one thing into one target directory -- just called from
+# tools/project-bootstrap.sh now, with each PROJECT's own .claude/skills,
+# .claude/agents and .agents/skills as the target roots instead of the
+# profile.
 
 def _create_windows_hardlink(link_path, target_path):
     # Unlike the junction case above (_create_windows_junction), Python's
@@ -766,70 +735,6 @@ def _publish_file_link(link_path, target_path):
     return "Created"
 
 
-def cmd_deploy_assistant(args):
-    # Scoped to exactly the ONE assistant slug the caller passes (install.sh
-    # already resolved $ASSISTANT_SLUG for the 'assistant' step) -- never a
-    # scan of every .claude/agents/*.md or .agents/skills/* entry, which
-    # would reach past this one installation into whatever else a
-    # participant's own profile already has under those folders. Two forms
-    # only: the Claude Code subagent (a file, _publish_file_link/hard link)
-    # and the Codex skill (a directory, _publish_skill_link/junction -- the
-    # same primitive cmd_deploy_skills above already uses). The web package
-    # is never linked here (no profile-level location by design).
-    clone_path = args.clone_path
-    slug = args.slug
-
-    subagent_source = os.path.join(clone_path, ".claude", "agents", f"{slug}.md")
-    subagent_link = os.path.join(args.claude_agents_dir, f"{slug}.md")
-    subagent_status = _publish_file_link(subagent_link, subagent_source)
-    if subagent_status == "Conflict":
-        print(f"CONFLICT {subagent_link}")
-
-    skill_source = os.path.join(clone_path, ".agents", "skills", slug)
-    skill_link = os.path.join(args.codex_agents_skills_dir, slug)
-    skill_status = _publish_skill_link(skill_link, skill_source)
-    if skill_status == "Conflict":
-        print(f"CONFLICT {skill_link}")
-
-    print(f"SUBAGENT_STATUS {subagent_status}")
-    print(f"CODEX_SKILL_STATUS {skill_status}")
-    return 0
-
-
-def cmd_remove_assistant_links(args):
-    # Rename cleanup (Mission 171-C01 step 6), called for the OLD slug only,
-    # right before cmd_deploy_assistant links the NEW one -- see
-    # tools/deploy-skills.ps1's own Remove-DeployedAssistantLinks for the
-    # full rationale (moved-not-deleted content under _trash/, stale
-    # profile-level pointer removed on its own). Removes only this
-    # installer's own reparse point (the Codex skill junction) or hard link
-    # (the Claude Code subagent) -- a foreign file or directory a
-    # participant put at that exact path is left untouched.
-    old_slug = args.old_slug
-    removed = []
-
-    old_subagent_link = os.path.join(args.claude_agents_dir, f"{old_slug}.md")
-    if os.path.lexists(old_subagent_link) and not _is_reparse_point(old_subagent_link):
-        try:
-            still_hardlinked = os.stat(old_subagent_link).st_nlink > 1
-        except OSError:
-            still_hardlinked = False
-        if still_hardlinked:
-            os.remove(old_subagent_link)
-            removed.append(old_subagent_link)
-
-    old_skill_link = os.path.join(args.codex_agents_skills_dir, old_slug)
-    if os.path.lexists(old_skill_link) and _is_reparse_point(old_skill_link):
-        if _is_windows_platform():
-            os.rmdir(old_skill_link)
-        else:
-            os.remove(old_skill_link)
-        removed.append(old_skill_link)
-
-    print("moved" if removed else "none")
-    for path in removed:
-        print(f"REMOVED {path}")
-    return 0
 
 
 # --- USER.md profile (ticket 05 parity) ------------------------------------
@@ -950,25 +855,6 @@ def build_parser():
     p.add_argument("clone_path")
     p.add_argument("old_slug")
     p.set_defaults(func=cmd_move_assistant_trash)
-
-    p = sub.add_parser("deploy-skills")
-    p.add_argument("clone_path")
-    p.add_argument("claude_skills_dir")
-    p.add_argument("codex_agents_skills_dir")
-    p.set_defaults(func=cmd_deploy_skills)
-
-    p = sub.add_parser("deploy-assistant")
-    p.add_argument("clone_path")
-    p.add_argument("claude_agents_dir")
-    p.add_argument("codex_agents_skills_dir")
-    p.add_argument("slug")
-    p.set_defaults(func=cmd_deploy_assistant)
-
-    p = sub.add_parser("remove-assistant-links")
-    p.add_argument("claude_agents_dir")
-    p.add_argument("codex_agents_skills_dir")
-    p.add_argument("old_slug")
-    p.set_defaults(func=cmd_remove_assistant_links)
 
     p = sub.add_parser("write-user-profile")
     p.add_argument("path")

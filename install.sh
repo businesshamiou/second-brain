@@ -40,9 +40,8 @@
 #                    dequeued in the exact order a real person would type
 #                    them, in place of a real terminal read.
 # --stop-after-step  Test-only. One of: prerequisites, workspace, clone,
-#                    guardians, marker, assistant, assistantDeployed,
-#                    skillsDeployed, firstProject, profile. Stops right
-#                    after that step's own carnet flag is saved (resume
+#                    guardians, marker, assistant, firstProject, profile.
+#                    Stops right after that step's own carnet flag is saved (resume
 #                    testing).
 # --verbose          Restores the full per-index detail build-indexes.sh
 #                    used to always print (Mission 172, audit defect 3: a
@@ -456,18 +455,20 @@ if [ "$TEST_MODE" = "1" ]; then
   fi
   CTX_PROFILE_ROOT="$TEST_ROOT/profile"
   mkdir -p "$CTX_PROFILE_ROOT"
+  # Mission 173 (Q17, "rien dans le profil"): CTX_CLAUDE_AGENTS_DIR and
+  # CTX_CODEX_AGENTS_SKILLS_DIR (the profile-level WRITE targets Mission
+  # 171-C01 parity added here) are retired -- nothing writes into the
+  # profile any more. CTX_CLAUDE_SKILLS_DIR and CTX_CODEX_SKILLS_DIR stay:
+  # pre-existing, unrelated heuristics that only READ whether something
+  # that looks like Claude Code/Codex already exists on this machine.
   CTX_CLAUDE_SKILLS_DIR="$CTX_PROFILE_ROOT/.claude/skills"
-  CTX_CLAUDE_AGENTS_DIR="$CTX_PROFILE_ROOT/.claude/agents"
   CTX_CODEX_SKILLS_DIR="$CTX_PROFILE_ROOT/.codex/skills"
-  CTX_CODEX_AGENTS_SKILLS_DIR="$CTX_PROFILE_ROOT/.agents/skills"
   CTX_SIMULATED_PATH_FILE="$TEST_ROOT/simulated-user-path.txt"
   CTX_DEFAULT_WORKSPACE_PATH="$TEST_ROOT/workspace"
 else
   CTX_PROFILE_ROOT="$HOME"
   CTX_CLAUDE_SKILLS_DIR="$HOME/.claude/skills"
-  CTX_CLAUDE_AGENTS_DIR="$HOME/.claude/agents"
   CTX_CODEX_SKILLS_DIR="$HOME/.codex/skills"
-  CTX_CODEX_AGENTS_SKILLS_DIR="$HOME/.agents/skills"
   CTX_SIMULATED_PATH_FILE="$HOME/.profile"
   CTX_DEFAULT_WORKSPACE_PATH="$HOME/second-brain-workspace"
 fi
@@ -621,7 +622,7 @@ CARNET_PATH="$CLONE_PATH/.install/state.json"
 eval "$(PYRUN load-carnet "$CARNET_PATH" | grep -v '^ANSWER_')"
 PREV_ASSISTANT_SLUG="${PREV_ASSISTANT_SLUG:-}"
 STEPS_DONE=""
-for step in workspaceCreated cloned guardiansConfigured markerWritten assistantGenerated assistantDeployed skillsDeployed firstProjectCreated profileWritten; do
+for step in workspaceCreated cloned guardiansConfigured markerWritten assistantGenerated firstProjectCreated profileWritten; do
   upper="$(printf '%s' "$step" | tr '[:lower:]' '[:upper:]')"
   varname="STEP_$upper"
   [ "${!varname:-}" = "true" ] && mark_step "$step"
@@ -718,35 +719,14 @@ save_carnet
 save_clone_pending_changes "$assistant_commit_message"
 check_forced_stop "assistant"
 
-# --- Step: deploy the assistant's own forms by link, at the profile level
-# (Mission 171-C01 step 6 parity; audit Defect 3) -- see install.ps1's own
-# comment at the same step for the full rationale. Scoped to exactly the
-# ONE assistant slug just (re)generated. On a rename, the OLD slug's stale
-# profile-level links are removed first (the link only, never the content,
-# which move-assistant-trash already preserved under _trash/ above). -----
-CURRENT_STEP="assistantDeployed"
-if [ -n "$PREV_ASSISTANT_SLUG" ] && [ "$PREV_ASSISTANT_SLUG" != "$ASSISTANT_SLUG" ]; then
-  PYRUN remove-assistant-links "$CTX_CLAUDE_AGENTS_DIR" "$CTX_CODEX_AGENTS_SKILLS_DIR" "$PREV_ASSISTANT_SLUG" >/dev/null \
-    || fail "Removing stale profile-level assistant links for '$PREV_ASSISTANT_SLUG' failed"
-fi
-assistant_deploy_output="$(PYRUN deploy-assistant "$CLONE_PATH" "$CTX_CLAUDE_AGENTS_DIR" "$CTX_CODEX_AGENTS_SKILLS_DIR" "$ASSISTANT_SLUG")" \
-  || fail "Assistant deployment failed (a link could not be created -- see the error above)"
-echo "$assistant_deploy_output" | grep '^CONFLICT ' | sed 's/^CONFLICT /Note: an assistant link path was already occupied by something else, left untouched: /' || true
-mark_step "assistantDeployed"
-save_carnet
-check_forced_stop "assistantDeployed"
-
-# --- Step: deploy skills by link (ticket 07 parity; unconditional external
-# and combined Codex budget, Mission 171-C01 step 4) -------------------------
-CURRENT_STEP="skillsDeployed"
-deploy_output="$(PYRUN deploy-skills "$CLONE_PATH" "$CTX_CLAUDE_SKILLS_DIR" "$CTX_CODEX_AGENTS_SKILLS_DIR")" \
-  || fail "Skill deployment failed (a link could not be created -- see the error above)"
-echo "$deploy_output" | grep '^DUPLICATE ' | sed 's/^DUPLICATE /Note: duplicate skill name across sources, only the first source was linked: /' || true
-echo "$deploy_output" | grep '^FALLBACK 1' >/dev/null && echo "Note: combined skill description budget exceeds the Codex ceiling -- Codex received skills/ only, Claude Code received everything (Doctrine rule 3)."
-echo "$deploy_output" | grep '^CONFLICT ' | sed 's/^CONFLICT /Note: a skill link path was already occupied by something else, left untouched: /' || true
-mark_step "skillsDeployed"
-save_carnet
-check_forced_stop "skillsDeployed"
+# Mission 173 (Q17, "rien dans le profil"): the "assistantDeployed" and
+# "skillsDeployed" steps that used to live here (Mission 171-C01, steps 6
+# and 4 parity) linked the assistant and the method skills into the user's
+# PROFILE. Both steps, their PYRUN subcommands (deploy-assistant,
+# deploy-skills, remove-assistant-links) and their conflict-note output
+# are retired outright: the assistant and the method skills are instead
+# linked into each PROJECT itself at project-creation time
+# (tools/project-bootstrap.sh, Mission 173 step 4), never into the profile.
 
 # --- First-project confirmation + step (T06 complement 2's final question) -
 NEEDS_FIRST_PROJECT_ASK=0

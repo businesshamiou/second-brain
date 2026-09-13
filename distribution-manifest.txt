@@ -423,9 +423,7 @@ tests/test-questionnaire-network-failure.ps1	DISTRIBUABLE
 tests/test-questionnaire-resume.ps1	DISTRIBUABLE
 tests/test-questionnaire-update-mode.ps1	DISTRIBUABLE
 tests/test-assistant-generation.ps1	DISTRIBUABLE
-tests/test-assistant-deployment.ps1	DISTRIBUABLE
 tests/test-assistant-tool-call-cap.ps1	DISTRIBUABLE
-tests/test-skills-deployment.ps1	DISTRIBUABLE
 tests/run-mechanical-acceptance.ps1	DISTRIBUABLE
 tests/test-guardian-secret-refusal.sh	DISTRIBUABLE
 tests/test-guardian-offline-commit.sh	DISTRIBUABLE
@@ -507,5 +505,5 @@ tests/test-assistant-description-language.ps1	DISTRIBUABLE
 tests/test-permission-window-documented.ps1	DISTRIBUABLE
 tests/test-install-log-line-count.ps1	DISTRIBUABLE
 tests/test-project-structure-standard-conformity.ps1	DISTRIBUABLE
-tests/test-skill-conflict-message.ps1	DISTRIBUABLE
 tests/test-web-package-knowledge-file-front-matter.ps1	DISTRIBUABLE
+tests/test-install-no-profile-writes.ps1	DISTRIBUABLE
