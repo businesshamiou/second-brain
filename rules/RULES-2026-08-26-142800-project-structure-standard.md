@@ -61,5 +61,6 @@ Aucun sous-dossier, aucun champ, aucun mécanisme n'est créé par anticipation 
 
 ## Liens
 
+- `see also` — [Versionnement des Missions et outputs générés](./RULES-2026-08-17-211522-mission-versioning-and-generated-output.md) (§8, précision Mission 172 : sa clause d'héritage ne dispense pas du squelette de référence ci-dessus)
 - `amends` — [Decision — Project Registry V1](../decisions/DECISION-2026-08-19-115306-project-registry-v1.md)
 - `source` — Décision — Consolidation du 2026-08-25 soir (historique de l'atelier, non distribué) (hors Vault)

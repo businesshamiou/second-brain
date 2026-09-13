@@ -90,7 +90,9 @@ Project rules
 Mission / task instructions
 ```
 
-Un projet hérite de cette doctrine et documente uniquement ses spécialisations ou exceptions autorisées. L’héritage porte sur le comportement; il ne force pas la création de `missions/`, `generated/` ou d’autres dossiers sans besoin réel.
+Un projet hérite de cette doctrine et documente uniquement ses spécialisations ou exceptions autorisées. L’héritage porte sur le comportement; il ne force pas la création de dossiers sans besoin réel au-delà du squelette de référence.
+
+Précision (Mission 172, audit défaut 8) : cette clause ne contredit pas le [Standard de structure de projet](./RULES-2026-08-26-142800-project-structure-standard.md), postérieur et plus spécifique — son §2 mandate `missions/` dans le squelette de référence de **tout** projet créé après son adoption, sans exception. « Sans besoin réel » vise les dossiers **hors** de ce squelette (par exemple `generated/`, qui reste une landing zone créée au besoin, §7 ci-dessus) — jamais `missions/`, dont le besoin est déjà établi par le standard lui-même dès la naissance du projet.
 
 ## 9. Consommation active
 
@@ -109,6 +111,7 @@ Toute Mission commite son propre fichier et régénère les index générés en 
 
 ## Liens
 
+- `see also` — [Standard de structure de projet](./RULES-2026-08-26-142800-project-structure-standard.md) (§8, précision Mission 172 : le squelette de référence mandate `missions/` sans exception, plus spécifique que la présente clause d'héritage)
 - `amended by` — [Decision : taxonomie PIV, langue système anglaise, charte des rôles, fin des PROMPT, §4 prompts alignés](../decisions/DECISION-2026-08-23-220049-piv-taxonomy-and-english-system-language.md)
 - `amended by` — [Décision — Un fichier de Mission est gelé dès l'émission de son snippet](../decisions/DECISION-2026-08-30-013217-mission-frozen-at-snippet-emission.md)
 - `source` — [Decision — Arbitrages doctrinaux du 2026-08-25](../decisions/DECISION-2026-08-25-131034-doctrinal-arbitrations-2026-08-25.md)
