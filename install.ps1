@@ -221,11 +221,19 @@ function Invoke-QuietGit {
     # needs to see why the guardians refused.
     #
     # Redirects to a temp FILE (*>), never merges via 2>&1 into a captured
-    # variable or pipeline: under this script's own
-    # $ErrorActionPreference = 'Stop', merging a native command's stderr
-    # that way wraps each line as a terminating NativeCommandError (the
-    # exact trap Invoke-BashTool's own comment already documents) --
-    # writing to a file sidesteps it entirely.
+    # variable or pipeline meant for further processing -- same trap
+    # Invoke-BashTool's own comment documents. Measured directly: under
+    # this script's $ErrorActionPreference = 'Stop', ANY redirection of a
+    # native command's stderr through a PowerShell stream operator (2>,
+    # *>, 2>&1 alike) still wraps each line as a NativeCommandError and
+    # terminates immediately -- a plain git-add CRLF notice, exit code 0,
+    # was observed aborting the whole install this way. Flipping
+    # $ErrorActionPreference to 'Continue' only around this one call
+    # (restored in `finally`, even on an early return or throw) turns that
+    # wrap into a non-terminating error that still lands in the redirected
+    # file instead of the console, which is all this needs: the file is
+    # only ever read back when $LASTEXITCODE itself says the command
+    # failed.
     param(
         [Parameter(Mandatory = $true)][string[]] $ArgumentList,
         [Parameter(Mandatory = $true)][string] $FailureMessage
@@ -236,14 +244,19 @@ function Invoke-QuietGit {
         return
     }
     $tempFile = [System.IO.Path]::GetTempFileName()
+    $previousEap = $ErrorActionPreference
     try {
+        $ErrorActionPreference = 'Continue'
         & git @ArgumentList *> $tempFile
-        if ($LASTEXITCODE -ne 0) {
+        $exitCode = $LASTEXITCODE
+        $ErrorActionPreference = $previousEap
+        if ($exitCode -ne 0) {
             Get-Content -Path $tempFile | ForEach-Object { Write-Output $_ }
             throw $FailureMessage
         }
     }
     finally {
+        $ErrorActionPreference = $previousEap
         Remove-Item -Path $tempFile -Force -ErrorAction SilentlyContinue
     }
 }
