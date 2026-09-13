@@ -52,11 +52,20 @@ function Assert-True {
 }
 
 function Test-LinkResolvesTo {
+    # Resolve-Path does NOT dereference a junction or a hard link -- it
+    # returns the LINK's own path unchanged (measured directly while
+    # writing this test). A junction's real target lives on Get-Item's own
+    # .Target property; a hard link is not a reparse point at all
+    # (LinkType 'HardLink', same file data under two paths) -- checked via
+    # .Target too (a hard link's own .Target lists every other path
+    # hard-linked to the same data, same technique
+    # tools/deploy-skills.ps1's own Publish-FileLink already uses).
     param([string] $LinkPath, [string] $ExpectedTargetPath)
-    if (-not (Test-Path $LinkPath)) { return $false }
-    $resolvedLink = (Resolve-Path -LiteralPath $LinkPath).ProviderPath.TrimEnd('\', '/')
+    if (-not (Test-Path -LiteralPath $LinkPath)) { return $false }
+    $item = Get-Item -LiteralPath $LinkPath -Force
     $resolvedTarget = (Resolve-Path -LiteralPath $ExpectedTargetPath).ProviderPath.TrimEnd('\', '/')
-    return ($resolvedLink -ieq $resolvedTarget)
+    $linkedTargets = @($item.Target) | ForEach-Object { $_.TrimEnd('\', '/') }
+    return ($linkedTargets -icontains $resolvedTarget)
 }
 
 $TestRoot = Join-Path $env:TEMP ("sb-projectlinks-" + [Guid]::NewGuid().ToString('N'))
@@ -114,7 +123,7 @@ try {
     $helperScript = Join-Path $RepoRoot 'tools\sb_installer_helper.py'
     $secondRunOutput = & uv run --no-project $helperScript link-project $clonePath $projectPath
     Assert-True ($LASTEXITCODE -eq 0) "second link-project run exits 0"
-    Assert-True (($secondRunOutput -join "`n") -notmatch 'CONFLICT') "second run reports no conflict against its own, already-correct links"
+    Assert-True (-not ($secondRunOutput -match '^CONFLICT ')) "second run reports no conflict against its own, already-correct links (CONFLICT_COUNT alone would false-positive-match a bare 'CONFLICT' substring check)"
     Assert-True (($secondRunOutput -join "`n") -match "ASSISTANT_SLUG $slug") "second run still resolves the same assistant slug"
     $claudeSkillsAfterRerun = @(Get-ChildItem -Path (Join-Path $projectPath '.claude\skills') -ErrorAction SilentlyContinue)
     Assert-True ($claudeSkillsAfterRerun.Count -eq $methodSkillNames.Count) "no duplicate skill link after a second run ($($claudeSkillsAfterRerun.Count) entries, expected $($methodSkillNames.Count))"

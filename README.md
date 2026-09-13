@@ -55,13 +55,13 @@ Dans les trois cas, l'installeur crée ton espace de travail, y clone `second-br
 | Composant | Emplacement | Portée |
 |---|---|---|
 | Le dépôt `second-brain` lui-même (règles, skills fabriqués, warehouse, outils) | dossier choisi par toi à la question 3, dans ton espace de travail | ce dépôt uniquement |
-| Skills de la méthode, toujours déployés (`skills/` et `skills/external/`) | liens dans ton dossier de skills Claude Code et dans celui de Codex (Codex reçoit `skills/` seul si le budget de description dépasse le plafond mesuré) | ton profil utilisateur |
-| L'assistant (par défaut « Brian ») | sous-agent Claude Code, skill Codex, et un paquet web à téléverser toi-même dans un Projet claude.ai ou ChatGPT | ton profil utilisateur, plus un geste manuel pour le paquet web |
+| Skills de la méthode, toujours déployés (`skills/` et `skills/external/`) | liens dans `.claude/skills/` et `.agents/skills/` de **chaque projet**, posés à sa création (Codex reçoit `skills/` seul si le budget de description dépasse le plafond mesuré) | ce projet uniquement |
+| L'assistant (par défaut « Brian ») | sous-agent Claude Code et skill Codex liés dans `.claude/agents/` et `.agents/skills/` de **chaque projet**, plus un paquet web à téléverser toi-même dans un Projet claude.ai ou ChatGPT | ce projet uniquement, plus un geste manuel pour le paquet web |
 | Git, Python et `pre-commit`, si absents de ton poste | ton profil utilisateur uniquement (jamais un emplacement machine, jamais avec élévation) | ton profil utilisateur |
 | Ta fiche `USER.md`, ton premier projet éventuel | dans `second-brain` (`USER.md`) et à côté de lui dans l'espace de travail (le projet) | ton espace de travail |
 | Le carnet d'installation | `.install/state.json`, à la racine de ton clone, jamais suivi par Git | ton clone local |
 
-Rien n'est installé à un emplacement machine (registre système, dossier partagé), et rien ne demande de droits administrateur.
+Rien n'est installé à un emplacement machine (registre système, dossier partagé), rien ne demande de droits administrateur, et rien n'est posé dans ton profil (les dossiers *.claude*, *.agents* ou *.codex* de ton compte) : l'assistant et les skills de la méthode vivent uniquement dans le clone `second-brain` et dans les projets qui les lient — supprimer un projet ou l'espace de travail entier suffit à tout retirer, sans geste de nettoyage séparé. Seul un projet non listé ici perd ces liens ; recrée-le avec le skill `first-install`/`project-bootstrap` pour les obtenir.
 
 ## Reprise et mise à jour
 
@@ -71,12 +71,11 @@ Relancer l'installateur sur un poste déjà installé bascule en **mode mise à 
 
 ## Désinstallation
 
-Second Brain n'écrit rien de global : désinstaller consiste à retirer ce que l'installeur a créé dans ton propre profil, puis à supprimer le dépôt lui-même. Aucun script dédié n'existe encore pour cette Mission ; voici les gestes manuels, dans l'ordre :
+Depuis la Mission 173 (rien dans le profil), désinstaller Second Brain consiste à **supprimer le dossier de ton espace de travail — rien d'autre**. Le clone `second-brain`, l'assistant, les skills de la méthode : tout vit à l'intérieur de ce dossier ou dans des liens que tes projets y font pointer ; rien n'est écrit ailleurs sur ton poste.
 
-1. **Retire les liens de skills** : supprime le dossier ou les liens créés sous `~/.claude/skills/` et `~/.agents/skills/` qui pointent vers ton clone de `second-brain` (les skills d'autres sources, s'il y en a, restent intacts).
-2. **Retire l'assistant** : supprime le lien (jonction ou lien direct) `~/.claude/agents/<nom-de-ton-assistant>.md` et le dossier du même nom sous `~/.agents/skills/`, tous deux créés par l'installeur au niveau du profil et pointant vers ton clone de `second-brain`.
-3. **Retire les outils installés pour toi, si tu ne veux plus les garder** : Git portable et `uv` (avec `pre-commit`) vivent dans le sous-dossier local caché de ton profil (Windows : `%USERPROFILE%\.local\`) ; supprime ce dossier, puis retire les entrées correspondantes de la variable `Path` de ton compte (Windows : Paramètres → Variables d'environnement).
-4. **Supprime le dépôt** : le dossier `second-brain` cloné dans ton espace de travail (et le fichier `VAULT-ROOT.md` à la racine de cet espace, si tu abandonnes l'espace de travail entier).
+Si tu veux aussi retirer les outils installés pour toi (Git portable et `uv`, avec `pre-commit`, si tu ne veux plus les garder) : ils vivent dans le sous-dossier local caché de ton profil (Windows : `%USERPROFILE%\.local\`), en dehors de l'espace de travail — supprime ce dossier, puis retire les entrées correspondantes de la variable `Path` de ton compte (Windows : Paramètres → Variables d'environnement).
+
+**Installation antérieure à la Mission 173 ?** Si tu as installé Second Brain avant cette Mission, une version plus ancienne peut avoir posé des liens dans ton profil (*.claude/agents/*, *.claude/skills/*, *.agents/skills/*, dans ton compte). Le script `tools/remove-profile-links.ps1` (dans ton clone) les liste et les retire sur confirmation, sans jamais toucher au contenu qu'ils pointaient — lance-le, lis ce qu'il propose, puis confirme.
 
 ## Questions fréquentes
 
@@ -88,7 +87,7 @@ Second Brain n'écrit rien de global : désinstaller consiste à retirer ce que 
 
 **Puis-je installer depuis une archive zip téléchargée sur GitHub ?** Non, par construction : voir « Ligne d'installation » ci-dessus. Clone toujours le dépôt avec `git clone`.
 
-**Qu'est-ce que le warehouse, et est-ce que j'en ai besoin ?** `skills-warehouse/` est une bibliothèque de skills tiers déjà vérifiés (licence, portabilité). L'installeur n'en déploie aucune collection : seuls les skills de la méthode (`skills/` et `skills/external/`) sont liés dans ton profil ; ton assistant t'explique comment ajouter une collection du warehouse plus tard.
+**Qu'est-ce que le warehouse, et est-ce que j'en ai besoin ?** `skills-warehouse/` est une bibliothèque de skills tiers déjà vérifiés (licence, portabilité). L'installeur n'en déploie aucune collection : seuls les skills de la méthode (`skills/` et `skills/external/`) sont liés dans tes projets ; ton assistant t'explique comment ajouter une collection du warehouse plus tard.
 
 **« Vault » et « Second Brain », c'est la même chose ?** Oui : « Vault » est le nom interne, utilisé dans les règles et les outils ; « Second Brain » est le nom que tu vois. Voir [CONTEXT.md](./CONTEXT.md).
 
