@@ -29,6 +29,14 @@
     ("Journal d'installation nominale : sous 40 lignes") the way an actual
     installation looks, not the way a narrower unit test would.
 
+    Extended for Mission 173 step 7 (Q17): the installer now also prints
+    one named "Step: <name> -- OK" line per real step, in the Mission's
+    own order (prerequisites, workspace, clone, guardians, workspace
+    CLAUDE.md/AGENTS.md, assistant, first project, project links) --
+    checked here too, plus that build_indexes.py's own one-line summary
+    (kept by Mission 172) is now ALSO silent by default, not just its
+    per-file detail.
+
     -TestMode throughout: nothing this test does can reach the real profile
     (PATH, ~/.claude, ~/.codex).
 
@@ -90,6 +98,31 @@ try {
     Assert-True ($total -le $LineCap) "nominal install log is $LineCap lines or fewer (measured: $total)"
     Assert-True (-not ($stderrLines -match '\\index\.md$')) "no bare 'X\index.md' line (the old unconditional per-file dump) appears in stderr"
     Assert-True (-not ($stderrLines -match '\(vivant, N=')) "no '(vivant, N=...)' per-index line (the old unconditional dump) appears in stderr"
+    Assert-True (-not ($stderrLines -match '^build_indexes\.py:')) "no build_indexes.py summary line either (Mission 173 step 7: silent by default, full stop)"
+
+    Write-Output ""
+    Write-Output "=== Mission 173 step 7: one named line per real step, in order ==="
+    $allLines = $stdoutLines + $stderrLines
+    $stepNames = @(
+        'Prerequisites', 'Workspace', 'Clone', 'Guardians',
+        'Workspace CLAUDE.md/AGENTS.md', 'Assistant', 'First project', 'Project links'
+    )
+    $stepLineIndexes = @()
+    foreach ($name in $stepNames) {
+        $pattern = "^Step: $([regex]::Escape($name)) -- OK$"
+        $matchIndex = -1
+        for ($i = 0; $i -lt $allLines.Count; $i++) {
+            if ($allLines[$i] -match $pattern) { $matchIndex = $i; break }
+        }
+        Assert-True ($matchIndex -ge 0) "journal names step '$name' with its result"
+        $stepLineIndexes += $matchIndex
+    }
+    $isSorted = $true
+    for ($i = 1; $i -lt $stepLineIndexes.Count; $i++) {
+        if ($stepLineIndexes[$i] -lt $stepLineIndexes[$i - 1]) { $isSorted = $false }
+    }
+    Assert-True $isSorted "the 8 named steps appear in the Mission's own order"
+    Assert-True (@($allLines -match 'Installation complete').Count -gt 0) "the verdict line still appears, after every named step"
 }
 finally {
     if (-not $KeepTemp) {

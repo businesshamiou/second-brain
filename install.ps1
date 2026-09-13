@@ -185,6 +185,17 @@ function ConvertTo-PosixPath {
     return ($Path -replace '\\', '/')
 }
 
+function Write-StepLine {
+    # Mission 173 step 7 (Q17): one line per real installer step, in
+    # order, with its result -- the journal's own spine. Deliberately not
+    # numbered ("Step N/8"): 'firstProject' and 'projectLinks' are
+    # skipped entirely when the participant declines a first project, and
+    # a fixed denominator would then either lie about the total or need
+    # its own conditional logic for no real benefit over a plain list.
+    param([string] $Name)
+    Write-Output "Step: $Name -- OK"
+}
+
 function Invoke-BashTool {
     # Runs a Vault-native bash tool (tools/*.sh) and fails closed on a
     # non-zero exit code. Stdout is returned as an array of lines; stderr is
@@ -449,6 +460,7 @@ try {
     $context = New-InstallerContext -TestMode:$TestMode -TestRoot $TestRoot
     Assure-Prerequisites -Context $context -AddPersistentPathEntry ${function:Add-InstallerPathEntry} | Out-Null
     $bashExe = Resolve-BashExe
+    Write-StepLine -Name 'Prerequisites'
     Test-ForcedStop -StopAfterStep $StopAfterStep -StepName 'prerequisites'
 
     if (-not (Test-Path $Source)) {
@@ -607,13 +619,17 @@ try {
     New-Item -ItemType Directory -Force -Path $workspacePath | Out-Null
     Set-CarnetStep -Carnet $carnet -Name 'workspaceCreated'
     $currentStepKey = 'workspace'
+    Write-StepLine -Name 'Workspace'
     Test-ForcedStop -StopAfterStep $StopAfterStep -StepName 'workspace'
 
     # Step: clone second-brain from the local source (T23 -- never a URL,
     # never the network; `git clone` of a local path uses hardlinks only).
+    # -q (Mission 173 step 7): "Cloning into '...'... done." is exactly the
+    # kind of noise this step retires -- the Write-StepLine below is this
+    # step's own, single, named result line instead.
     $currentStepKey = 'clone'
     if (-not (Test-Path (Join-Path $clonePath '.git'))) {
-        & git -c core.longpaths=true clone -- $Source $clonePath
+        & git -c core.longpaths=true clone -q -- $Source $clonePath
         if ($LASTEXITCODE -ne 0) { throw "git clone failed (source: $Source, dest: $clonePath)" }
         & git -C $clonePath config core.longpaths true
         & git -C $clonePath config user.name $gitUserName
@@ -625,6 +641,7 @@ try {
     # which language/assistant name/workspace path become durable, so they
     # are never re-asked again.
     Save-Carnet -Path $carnetPath -Carnet $carnet
+    Write-StepLine -Name 'Clone'
     Test-ForcedStop -StopAfterStep $StopAfterStep -StepName 'clone'
 
     # Questions 4-8 (T06 complement 2): asked one at a time, each saved to
@@ -677,9 +694,11 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "git config core.hooksPath failed in $clonePath" }
     Set-CarnetStep -Carnet $carnet -Name 'guardiansConfigured'
     Save-Carnet -Path $carnetPath -Carnet $carnet
+    Write-StepLine -Name 'Guardians'
     Test-ForcedStop -StopAfterStep $StopAfterStep -StepName 'guardians'
 
-    # Step: workspace marker.
+    # Step: workspace marker (VAULT-ROOT.md, plus its own CLAUDE.md/AGENTS.md,
+    # Mission 173 step 5).
     $currentStepKey = 'marker'
     if (-not (Test-Path $markerPath)) {
         $writeMarkerScript = Join-Path $clonePath 'tools\write-marker.sh'
@@ -688,6 +707,7 @@ try {
     }
     Set-CarnetStep -Carnet $carnet -Name 'markerWritten'
     Save-Carnet -Path $carnetPath -Carnet $carnet
+    Write-StepLine -Name 'Workspace CLAUDE.md/AGENTS.md'
     Test-ForcedStop -StopAfterStep $StopAfterStep -StepName 'marker'
 
     # Step: assistant identity forms (ticket 06). Regenerated every run now
@@ -717,6 +737,7 @@ try {
         "Generate assistant forms for '$vaultName'"
     }
     Save-ClonePendingChanges -BashExe $bashExe -ClonePath $clonePath -CommitMessage $assistantCommitMessage
+    Write-StepLine -Name 'Assistant'
     Test-ForcedStop -StopAfterStep $StopAfterStep -StepName 'assistant'
 
     # Mission 173 (Q17, "rien dans le profil"): the 'assistantDeployed' and
@@ -782,7 +803,9 @@ try {
             # caller and simply passes through unprinted.
             $bootstrapOutput = Invoke-BashTool -BashExe $bashExe -ScriptPath $bootstrapScript `
                 -ScriptArgs @((ConvertTo-PosixPath $firstProjectPath), $firstProjectDisplayName)
+            Write-StepLine -Name 'First project'
             $bootstrapOutput | Where-Object { $_ -match '^(Note:|  - |  To use)' } | ForEach-Object { Write-Output $_ }
+            Write-StepLine -Name 'Project links'
 
             $registrationChanges = & git -C $clonePath status --porcelain
             if ($registrationChanges) {

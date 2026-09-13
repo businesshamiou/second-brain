@@ -445,6 +445,14 @@ run_or_fail() {
   fi
 }
 
+step_line() {
+  # Mission 173 step 7 (Q17): one line per real installer step, in order,
+  # with its result -- mirrors install.ps1's own Write-StepLine. Not
+  # numbered ("Step N/8"): firstProject/projectLinks are skipped entirely
+  # when the participant declines a first project.
+  echo "Step: $1 -- OK"
+}
+
 # --- Context (Mission constraint: Owner's / CI runner's real environment
 # intact) ------------------------------------------------------------------
 
@@ -508,6 +516,7 @@ ANSWER_GIT_USERNAME=""; ANSWER_GIT_USEREMAIL=""
 ASSISTANT_NAME=""; ASSISTANT_SLUG=""; PREV_ASSISTANT_SLUG=""
 
 run_or_fail "Failed to ensure prerequisites (Git, uv, pre-commit)" ensure_prerequisites
+step_line "Prerequisites"
 check_forced_stop "prerequisites"
 
 if [ ! -e "$SOURCE" ]; then
@@ -632,13 +641,14 @@ done
 mkdir -p "$WORKSPACE_PATH" || fail "Could not create workspace directory: $WORKSPACE_PATH"
 mark_step "workspaceCreated"
 CURRENT_STEP="workspace"
+step_line "Workspace"
 check_forced_stop "workspace"
 
 # --- Step: clone second-brain from the local source (T23 -- never a URL) --
 CURRENT_STEP="clone"
 if [ ! -d "$CLONE_PATH/.git" ]; then
   run_or_fail "git clone failed (source: $SOURCE, dest: $CLONE_PATH)" \
-    git -c core.longpaths=true clone -- "$SOURCE" "$CLONE_PATH"
+    git -c core.longpaths=true clone -q -- "$SOURCE" "$CLONE_PATH"
   # core.longpaths is a one-off flag on the clone command itself, never
   # carried into the resulting repository's own local config -- every
   # later `git add`/`git status`/`git commit` inside $CLONE_PATH needs it
@@ -652,6 +662,7 @@ if [ ! -d "$CLONE_PATH/.git" ]; then
 fi
 mark_step "cloned"
 save_carnet
+step_line "Clone"
 check_forced_stop "clone"
 
 # --- Questions 4-7 (T06 complement 2; eighth question retired, Mission
@@ -691,6 +702,7 @@ run_or_fail "git config core.hooksPath failed in $CLONE_PATH" \
   git -C "$CLONE_PATH" config core.hooksPath .githooks
 mark_step "guardiansConfigured"
 save_carnet
+step_line "Guardians"
 check_forced_stop "guardians"
 
 # --- Step: workspace marker -------------------------------------------------
@@ -700,6 +712,7 @@ if [ ! -f "$MARKER_PATH" ]; then
 fi
 mark_step "markerWritten"
 save_carnet
+step_line "Workspace CLAUDE.md/AGENTS.md"
 check_forced_stop "marker"
 
 # --- Step: assistant identity forms (ticket 06 parity) ---------------------
@@ -717,6 +730,7 @@ ASSISTANT_NAME="$ANSWER_VAULTNAME"
 mark_step "assistantGenerated"
 save_carnet
 save_clone_pending_changes "$assistant_commit_message"
+step_line "Assistant"
 check_forced_stop "assistant"
 
 # Mission 173 (Q17, "rien dans le profil"): the "assistantDeployed" and
@@ -764,6 +778,8 @@ if [ "$ANSWER_FP_CREATE" = "true" ]; then
   if [ ! -e "$FIRST_PROJECT_PATH" ]; then
     run_or_fail "project-bootstrap.sh failed" \
       "$CLONE_PATH/tools/project-bootstrap.sh" "$FIRST_PROJECT_PATH" "$FIRST_PROJECT_DISPLAY_NAME"
+    step_line "First project"
+    step_line "Project links"
 
     # No build-indexes.sh here, unlike save_clone_pending_changes -- same
     # as install.ps1's own firstProject step, which never regenerates

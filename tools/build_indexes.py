@@ -475,9 +475,13 @@ def main(argv):
             live_count += 1
             emit("%s (vivant, N=%d)\n" % (index_path, n))
 
-    if not verbose:
+    # Mission 173 step 7 (Q17): silent by default, full stop -- even the
+    # one-line summary Mission 172 kept is noise once the installer prints
+    # its own named step-per-line journal; -v/--verbose still restores
+    # every per-file line AND this summary, unchanged.
+    if verbose:
         sys.stderr.write(
-            "build_indexes.py: %d index(es) regenerated (%d archived) across %d root(s) -- rerun with -v for detail\n"
+            "build_indexes.py: %d index(es) regenerated (%d archived) across %d root(s)\n"
             % (live_count, archive_count, len(argv))
         )
 
