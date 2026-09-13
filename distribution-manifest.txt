@@ -496,3 +496,4 @@ tests/test-third-party-licenses.sh	DISTRIBUABLE
 tools/generate-third-party-licenses.sh	DISTRIBUABLE
 tools/acceptance-wizard.sh	DISTRIBUABLE
 tests/test-acceptance-wizard-functions.sh	DISTRIBUABLE
+tools/package-warehouse-deliverables.ps1	DISTRIBUABLE
