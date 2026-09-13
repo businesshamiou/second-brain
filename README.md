@@ -74,7 +74,7 @@ Relancer l'installateur sur un poste déjà installé bascule en **mode mise à 
 Second Brain n'écrit rien de global : désinstaller consiste à retirer ce que l'installeur a créé dans ton propre profil, puis à supprimer le dépôt lui-même. Aucun script dédié n'existe encore pour cette Mission ; voici les gestes manuels, dans l'ordre :
 
 1. **Retire les liens de skills** : supprime le dossier ou les liens créés sous `~/.claude/skills/` et `~/.agents/skills/` qui pointent vers ton clone de `second-brain` (les skills d'autres sources, s'il y en a, restent intacts).
-2. **Retire l'assistant** : supprime `~/.claude/agents/<nom-de-ton-assistant>.md`, et le dossier du même nom sous `~/.agents/skills/` s'il existe.
+2. **Retire l'assistant** : supprime le lien (jonction ou lien direct) `~/.claude/agents/<nom-de-ton-assistant>.md` et le dossier du même nom sous `~/.agents/skills/`, tous deux créés par l'installeur au niveau du profil et pointant vers ton clone de `second-brain`.
 3. **Retire les outils installés pour toi, si tu ne veux plus les garder** : Git portable et `uv` (avec `pre-commit`) vivent dans le sous-dossier local caché de ton profil (Windows : `%USERPROFILE%\.local\`) ; supprime ce dossier, puis retire les entrées correspondantes de la variable `Path` de ton compte (Windows : Paramètres → Variables d'environnement).
 4. **Supprime le dépôt** : le dossier `second-brain` cloné dans ton espace de travail (et le fichier `VAULT-ROOT.md` à la racine de cet espace, si tu abandonnes l'espace de travail entier).
 

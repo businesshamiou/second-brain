@@ -40,9 +40,10 @@
 #                    dequeued in the exact order a real person would type
 #                    them, in place of a real terminal read.
 # --stop-after-step  Test-only. One of: prerequisites, workspace, clone,
-#                    guardians, marker, assistant, skillsDeployed,
-#                    firstProject, profile. Stops right after that step's
-#                    own carnet flag is saved (resume testing).
+#                    guardians, marker, assistant, assistantDeployed,
+#                    skillsDeployed, firstProject, profile. Stops right
+#                    after that step's own carnet flag is saved (resume
+#                    testing).
 #
 # Outputs: exit code 0 and a one-line verdict on stdout on success; exit
 # code 1 and a verdict naming the step, the cause and the remedy
@@ -440,6 +441,7 @@ if [ "$TEST_MODE" = "1" ]; then
   CTX_PROFILE_ROOT="$TEST_ROOT/profile"
   mkdir -p "$CTX_PROFILE_ROOT"
   CTX_CLAUDE_SKILLS_DIR="$CTX_PROFILE_ROOT/.claude/skills"
+  CTX_CLAUDE_AGENTS_DIR="$CTX_PROFILE_ROOT/.claude/agents"
   CTX_CODEX_SKILLS_DIR="$CTX_PROFILE_ROOT/.codex/skills"
   CTX_CODEX_AGENTS_SKILLS_DIR="$CTX_PROFILE_ROOT/.agents/skills"
   CTX_SIMULATED_PATH_FILE="$TEST_ROOT/simulated-user-path.txt"
@@ -447,6 +449,7 @@ if [ "$TEST_MODE" = "1" ]; then
 else
   CTX_PROFILE_ROOT="$HOME"
   CTX_CLAUDE_SKILLS_DIR="$HOME/.claude/skills"
+  CTX_CLAUDE_AGENTS_DIR="$HOME/.claude/agents"
   CTX_CODEX_SKILLS_DIR="$HOME/.codex/skills"
   CTX_CODEX_AGENTS_SKILLS_DIR="$HOME/.agents/skills"
   CTX_SIMULATED_PATH_FILE="$HOME/.profile"
@@ -541,7 +544,7 @@ CATALOG_FILE="$I18N_DIR/catalog.$(printf '%s' "$ANSWER_LANGUAGE" | tr '[:upper:]
 FORCE_REASK=0
 if [ "$INTERACTIVE" = "1" ] && [ "$HAS_PRIOR_CARNET_AT_DEFAULT" = "1" ] && [ "$STEP_WORKSPACECREATED" = "true" ] && \
    [ "$STEP_CLONED" = "true" ] && [ "$STEP_GUARDIANSCONFIGURED" = "true" ] && [ "$STEP_MARKERWRITTEN" = "true" ] && \
-   [ "$STEP_ASSISTANTGENERATED" = "true" ] && [ "$STEP_SKILLSDEPLOYED" = "true" ] && [ "$STEP_PROFILEWRITTEN" = "true" ] && \
+   [ "$STEP_ASSISTANTGENERATED" = "true" ] && [ "$STEP_ASSISTANTDEPLOYED" = "true" ] && [ "$STEP_SKILLSDEPLOYED" = "true" ] && [ "$STEP_PROFILEWRITTEN" = "true" ] && \
    { [ "$ANSWER_FP_CREATE" = "false" ] || [ "$STEP_FIRSTPROJECTCREATED" = "true" ]; }; then
   # --- Update mode (T06/T22): install at the default workspace already
   # complete. Show recorded answers, ask if anything changed. ---
@@ -602,7 +605,7 @@ CARNET_PATH="$CLONE_PATH/.install/state.json"
 eval "$(PYRUN load-carnet "$CARNET_PATH" | grep -v '^ANSWER_')"
 PREV_ASSISTANT_SLUG="${PREV_ASSISTANT_SLUG:-}"
 STEPS_DONE=""
-for step in workspaceCreated cloned guardiansConfigured markerWritten assistantGenerated skillsDeployed firstProjectCreated profileWritten; do
+for step in workspaceCreated cloned guardiansConfigured markerWritten assistantGenerated assistantDeployed skillsDeployed firstProjectCreated profileWritten; do
   upper="$(printf '%s' "$step" | tr '[:lower:]' '[:upper:]')"
   varname="STEP_$upper"
   [ "${!varname:-}" = "true" ] && mark_step "$step"
@@ -698,6 +701,24 @@ mark_step "assistantGenerated"
 save_carnet
 save_clone_pending_changes "$assistant_commit_message"
 check_forced_stop "assistant"
+
+# --- Step: deploy the assistant's own forms by link, at the profile level
+# (Mission 171-C01 step 6 parity; audit Defect 3) -- see install.ps1's own
+# comment at the same step for the full rationale. Scoped to exactly the
+# ONE assistant slug just (re)generated. On a rename, the OLD slug's stale
+# profile-level links are removed first (the link only, never the content,
+# which move-assistant-trash already preserved under _trash/ above). -----
+CURRENT_STEP="assistantDeployed"
+if [ -n "$PREV_ASSISTANT_SLUG" ] && [ "$PREV_ASSISTANT_SLUG" != "$ASSISTANT_SLUG" ]; then
+  PYRUN remove-assistant-links "$CTX_CLAUDE_AGENTS_DIR" "$CTX_CODEX_AGENTS_SKILLS_DIR" "$PREV_ASSISTANT_SLUG" >/dev/null \
+    || fail "Removing stale profile-level assistant links for '$PREV_ASSISTANT_SLUG' failed"
+fi
+assistant_deploy_output="$(PYRUN deploy-assistant "$CLONE_PATH" "$CTX_CLAUDE_AGENTS_DIR" "$CTX_CODEX_AGENTS_SKILLS_DIR" "$ASSISTANT_SLUG")" \
+  || fail "Assistant deployment failed (a link could not be created -- see the error above)"
+echo "$assistant_deploy_output" | grep '^CONFLICT ' | sed 's/^CONFLICT /Note: an assistant link path was already occupied by something else, left untouched: /' || true
+mark_step "assistantDeployed"
+save_carnet
+check_forced_stop "assistantDeployed"
 
 # --- Step: deploy skills by link (ticket 07 parity; unconditional external
 # and combined Codex budget, Mission 171-C01 step 4) -------------------------

@@ -43,6 +43,7 @@
   "step.name.guardians": "guardians",
   "step.name.marker": "marker",
   "step.name.assistant": "assistant",
+  "step.name.assistantDeployed": "assistant deployment",
   "step.name.skillsDeployed": "skills",
   "step.name.firstProject": "first project",
   "step.name.profile": "profile",

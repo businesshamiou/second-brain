@@ -88,9 +88,52 @@
     generate-assistant.ps1 (see that file's own header comment): no
     byte-order mark needed, since no accented literal is ever typed here.
 
+    Assistant forms, profile-level (Mission 171-C01 step 6; audit Defect 3):
+    Publish-DeployedAssistant below deploys the CURRENT assistant's own two
+    linkable forms -- the Claude Code subagent
+    (<clone>/.claude/agents/<slug>.md) and the Codex skill
+    (<clone>/.agents/skills/<slug>/) -- to $Context.ClaudeAgentsDir and
+    $Context.CodexAgentsSkillsDir respectively, so the assistant is
+    reachable from a neighbouring project the same way every method skill
+    already is. The web package is never linked here: README.md's own "Ce
+    qui est installe" table already describes it as a manual paste into a
+    claude.ai/ChatGPT Project, with no profile-level location to link to.
+    Unlike a method skill's name, the assistant's slug is chosen at
+    questionnaire time and can change between two runs (ticket 06's own
+    rename handling) -- Publish-DeployedAssistant therefore takes the
+    CURRENT slug as an explicit parameter and only ever touches that one
+    assistant's links, never scanning .claude/agents/* wholesale (that
+    would reach past this one installation into whatever else a
+    participant's own profile already has under that folder).
+    Move-AssistantFormsToTrash's own rename handling only relocates the
+    OLD slug's forms INSIDE the clone (git-tracked content); the matching
+    profile-level links for that old slug would otherwise dangle, still
+    resolving to their original (now-relocated) bytes with no further
+    corrections ever reaching them again -- Remove-DeployedAssistantLinks
+    below is install.ps1's own cleanup call for exactly that case, removing
+    only the link/junction itself (never the content it pointed at, which
+    Move-AssistantFormsToTrash has already preserved under _trash/).
+
+    A single generated file cannot be an NTFS junction's target: a junction
+    (`New-Item -ItemType Junction`) only ever names a DIRECTORY on Windows.
+    The Codex skill form is a directory (.agents/skills/<slug>/) and reuses
+    Publish-SkillLink verbatim, the exact same primitive
+    Publish-DeployedSkills already uses. The Claude Code subagent form is a
+    single file (.claude/agents/<slug>.md) and needs its own primitive,
+    Publish-FileLink below: an NTFS hard link (`New-Item -ItemType
+    HardLink`) plays the same no-privilege, no-copy role for one file that
+    a junction plays for a directory -- unlike a symbolic link (WinError
+    1314 on this machine, the same measured constraint ticket 04/07 already
+    worked around), a hard link needs no elevation and no Developer Mode,
+    and because both directory entries then address the very same on-disk
+    data, a correction written through the source path is visible through
+    the linked path too, with no reinstall -- the same "link, never copy"
+    property this file's own header already promises for a directory.
+
     Usage:
         . "$PSScriptRoot\tools\deploy-skills.ps1"
         $result = Publish-DeployedSkills -Context $context -ClonePath $clonePath
+        $assistantResult = Publish-DeployedAssistant -Context $context -ClonePath $clonePath -Slug $slug
 
     Inputs: none at load time; each function documents its own.
     Outputs: defines the functions below in the caller's scope.
@@ -357,4 +400,152 @@ function Publish-DeployedSkills {
         LinkResults     = $linkResults
         ConflictCount   = @($linkResults | Where-Object { $_.Status -eq 'Conflict' }).Count
     }
+}
+
+function Publish-FileLink {
+    # File analogue of Publish-SkillLink above (Mission 171-C01 step 6, see
+    # this file's own header comment): a junction cannot target a single
+    # file, so this uses an NTFS hard link on Windows instead -- no
+    # elevation, no Developer Mode, same no-privilege guarantee, and both
+    # directory entries end up addressing the very same on-disk data (a
+    # correction through the source path is visible through the link
+    # immediately, never a stale copy). Same three-state idempotency
+    # contract as Publish-SkillLink: Created / AlreadyLinked / Conflict,
+    # never overwriting or deleting whatever is already at $LinkPath.
+    #
+    # A hard link is NOT a reparse point on Windows (measured directly:
+    # unlike a junction or a symbolic link, its FileAttributes carry no
+    # ReparsePoint bit), so Get-ExistingLinkInfo's own IsLink test -- built
+    # for junctions/symlinks -- never fires for one; a plain Get-Item on a
+    # hard-linked file instead exposes a `LinkType` of 'HardLink' and a
+    # `Target` listing every OTHER path hard-linked to the same data
+    # (measured directly on this machine's own Windows PowerShell 5.1
+    # while building this ticket). That is what this function checks
+    # instead of Get-ExistingLinkInfo.
+    param(
+        [Parameter(Mandatory = $true)][string] $LinkPath,
+        [Parameter(Mandatory = $true)][string] $TargetPath
+    )
+    $resolvedTarget = (Resolve-Path -LiteralPath $TargetPath).ProviderPath
+    $existingItem = Get-Item -LiteralPath $LinkPath -Force -ErrorAction SilentlyContinue
+
+    if ($null -eq $existingItem) {
+        $parent = Split-Path $LinkPath -Parent
+        New-Item -ItemType Directory -Force -Path $parent | Out-Null
+        if (Test-IsWindowsPlatform) {
+            New-Item -ItemType HardLink -Path $LinkPath -Target $resolvedTarget | Out-Null
+        }
+        else {
+            New-Item -ItemType SymbolicLink -Path $LinkPath -Target $resolvedTarget | Out-Null
+        }
+        return 'Created'
+    }
+
+    if (Test-IsWindowsPlatform) {
+        if ($existingItem.PSObject.Properties['LinkType'] -and $existingItem.LinkType -eq 'HardLink') {
+            $linkedTargets = @($existingItem.Target) | ForEach-Object { $_.TrimEnd('\', '/') }
+            if ($linkedTargets -icontains $resolvedTarget.TrimEnd('\', '/')) {
+                return 'AlreadyLinked'
+            }
+        }
+    }
+    else {
+        $isReparse = (($existingItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0)
+        if ($isReparse) {
+            $existingTarget = @($existingItem.Target) | Select-Object -First 1
+            if ($existingTarget -and ($existingTarget.TrimEnd('/') -ieq $resolvedTarget.TrimEnd('/'))) {
+                return 'AlreadyLinked'
+            }
+        }
+    }
+
+    return 'Conflict'
+}
+
+function Publish-DeployedAssistant {
+    # Profile-level deployment for exactly ONE assistant's own generated
+    # forms (Mission 171-C01 step 6; audit Defect 3 -- see this file's own
+    # header comment for the full rationale). $Slug must be the CURRENT
+    # assistant's slug, resolved by the caller from the name just answered
+    # this run (install.ps1 already computes $assistantSlug for the
+    # 'assistant' step) -- this function never enumerates .claude/agents/*
+    # or .agents/skills/* on its own, so a machine that has generated
+    # several assistants across several second-brain clones over time never
+    # gets all of them relinked by one call meant for only the current one.
+    #
+    # Two forms only, by construction: the Claude Code subagent (a single
+    # file, Publish-FileLink/hard link) and the Codex skill (a directory,
+    # Publish-SkillLink/junction -- the exact same primitive
+    # Publish-DeployedSkills already uses for every method skill). The web
+    # package is never linked here (no profile-level location by design).
+    param(
+        [Parameter(Mandatory = $true)][psobject] $Context,
+        [Parameter(Mandatory = $true)][string] $ClonePath,
+        [Parameter(Mandatory = $true)][string] $Slug
+    )
+
+    $subagentSource = Join-Path $ClonePath ".claude\agents\$Slug.md"
+    $subagentLink = Join-Path $Context.ClaudeAgentsDir "$Slug.md"
+    $subagentStatus = Publish-FileLink -LinkPath $subagentLink -TargetPath $subagentSource
+
+    $codexSkillSource = Join-Path $ClonePath ".agents\skills\$Slug"
+    $codexSkillLink = Join-Path $Context.CodexAgentsSkillsDir $Slug
+    $codexSkillStatus = Publish-SkillLink -LinkPath $codexSkillLink -TargetPath $codexSkillSource
+
+    return [PSCustomObject]@{
+        Slug               = $Slug
+        SubagentLinkPath   = $subagentLink
+        SubagentStatus     = $subagentStatus
+        CodexSkillLinkPath = $codexSkillLink
+        CodexSkillStatus   = $codexSkillStatus
+        ConflictCount      = @(@($subagentStatus, $codexSkillStatus) | Where-Object { $_ -eq 'Conflict' }).Count
+    }
+}
+
+function Remove-DeployedAssistantLinks {
+    # Rename cleanup (Mission 171-C01 step 6): called by install.ps1 for
+    # the OLD slug only, right before Publish-DeployedAssistant links the
+    # NEW one. Move-AssistantFormsToTrash already relocated the old slug's
+    # forms INSIDE the clone to _trash/ (Decision 110852: moved, never
+    # deleted -- the content itself stays fully readable there); the
+    # matching profile-level links for that old slug are a different
+    # concern -- left alone, they would keep resolving to their original
+    # (now-relocated) bytes forever, with no further correction ever
+    # reaching them again, silently misrepresenting themselves as "the
+    # current assistant". Removing the link/junction entry itself is not a
+    # deletion of content in Decision 110852's sense: the data it pointed
+    # at is unaffected (a hard link's target keeps existing under _trash/
+    # as long as anything still references it; a junction never held data
+    # of its own to begin with) -- only the stale profile-level pointer
+    # goes away. Never removes anything that is not this installer's own
+    # reparse point/hard link (a foreign file or directory a participant
+    # put at that exact path is left untouched, same as a Conflict
+    # elsewhere in this file). Removing a junction with `-Recurse` measured
+    # safe on this machine's own PowerShell 5.1 (build 26100): it deletes
+    # only the reparse point itself, never the real directory or its
+    # contents on the other side (a historical concern with older
+    # PowerShell releases, not reproduced here) -- `-Recurse` is required
+    # regardless, since a bare `Remove-Item` on a non-empty-looking reparse
+    # point without it errors "the directory is not empty".
+    param(
+        [Parameter(Mandatory = $true)][psobject] $Context,
+        [Parameter(Mandatory = $true)][string] $OldSlug
+    )
+    $removed = @()
+
+    $oldSubagentLink = Join-Path $Context.ClaudeAgentsDir "$OldSlug.md"
+    $subagentItem = Get-Item -LiteralPath $oldSubagentLink -Force -ErrorAction SilentlyContinue
+    if ($subagentItem -and $subagentItem.PSObject.Properties['LinkType'] -and $subagentItem.LinkType -eq 'HardLink') {
+        Remove-Item -LiteralPath $oldSubagentLink -Force
+        $removed += $oldSubagentLink
+    }
+
+    $oldSkillLink = Join-Path $Context.CodexAgentsSkillsDir $OldSlug
+    $skillLinkInfo = Get-ExistingLinkInfo -Path $oldSkillLink
+    if ($skillLinkInfo.Exists -and $skillLinkInfo.IsLink) {
+        Remove-Item -LiteralPath $oldSkillLink -Force -Recurse
+        $removed += $oldSkillLink
+    }
+
+    return $removed
 }

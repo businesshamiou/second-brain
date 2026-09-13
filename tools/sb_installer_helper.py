@@ -90,7 +90,8 @@ def cmd_load_carnet(args):
     steps = data.get("steps") or {}
     for step in (
         "workspaceCreated", "cloned", "guardiansConfigured", "markerWritten",
-        "assistantGenerated", "skillsDeployed", "firstProjectCreated", "profileWritten",
+        "assistantGenerated", "assistantDeployed", "skillsDeployed",
+        "firstProjectCreated", "profileWritten",
     ):
         out.append(f"STEP_{step.upper()}={shq('true' if steps.get(step) else '')}")
     asst = data.get("assistant") or {}
@@ -535,6 +536,113 @@ def cmd_deploy_skills(args):
     return 0
 
 
+# --- Assistant deployment by link, profile-level (Mission 171-C01 step 6;
+# audit Defect 3 -- see tools/deploy-skills.ps1's own header comment for the
+# full rationale, this file mirrors it exactly for install.sh's own parity) -
+
+def _create_windows_hardlink(link_path, target_path):
+    # Unlike the junction case above (_create_windows_junction), Python's
+    # own os.link() calls CreateHardLinkW directly -- no subprocess/mklink
+    # needed. Measured directly on this machine: no elevation, no
+    # Developer Mode, and afterwards os.path.samefile(link_path,
+    # target_path) is True -- both directory entries address the very same
+    # on-disk data, so a correction through the source path is visible
+    # through the link immediately (never a stale copy). A junction cannot
+    # play this role here: it only ever targets a DIRECTORY on Windows, and
+    # the assistant's Claude Code subagent form is a single file.
+    os.link(target_path, link_path)
+
+
+def _publish_file_link(link_path, target_path):
+    # File analogue of _publish_skill_link above. Idempotency check uses
+    # os.path.samefile() rather than _is_reparse_point(): a hard link is
+    # NOT a reparse point on Windows (measured directly, same finding as
+    # tools/deploy-skills.ps1's own Publish-FileLink), so the reparse-point
+    # test that correctly detects a junction/symlink never fires for one --
+    # samefile() instead compares the two paths' own (device, inode/file
+    # index) pair, True exactly when they are the same hard-linked file.
+    resolved_target = os.path.realpath(target_path)
+    if os.path.lexists(link_path):
+        try:
+            if os.path.samefile(link_path, resolved_target):
+                return "AlreadyLinked"
+        except OSError:
+            pass
+        return "Conflict"
+    os.makedirs(os.path.dirname(link_path), exist_ok=True)
+    if _is_windows_platform():
+        _create_windows_hardlink(link_path, resolved_target)
+    else:
+        os.symlink(resolved_target, link_path)
+    return "Created"
+
+
+def cmd_deploy_assistant(args):
+    # Scoped to exactly the ONE assistant slug the caller passes (install.sh
+    # already resolved $ASSISTANT_SLUG for the 'assistant' step) -- never a
+    # scan of every .claude/agents/*.md or .agents/skills/* entry, which
+    # would reach past this one installation into whatever else a
+    # participant's own profile already has under those folders. Two forms
+    # only: the Claude Code subagent (a file, _publish_file_link/hard link)
+    # and the Codex skill (a directory, _publish_skill_link/junction -- the
+    # same primitive cmd_deploy_skills above already uses). The web package
+    # is never linked here (no profile-level location by design).
+    clone_path = args.clone_path
+    slug = args.slug
+
+    subagent_source = os.path.join(clone_path, ".claude", "agents", f"{slug}.md")
+    subagent_link = os.path.join(args.claude_agents_dir, f"{slug}.md")
+    subagent_status = _publish_file_link(subagent_link, subagent_source)
+    if subagent_status == "Conflict":
+        print(f"CONFLICT {subagent_link}")
+
+    skill_source = os.path.join(clone_path, ".agents", "skills", slug)
+    skill_link = os.path.join(args.codex_agents_skills_dir, slug)
+    skill_status = _publish_skill_link(skill_link, skill_source)
+    if skill_status == "Conflict":
+        print(f"CONFLICT {skill_link}")
+
+    print(f"SUBAGENT_STATUS {subagent_status}")
+    print(f"CODEX_SKILL_STATUS {skill_status}")
+    return 0
+
+
+def cmd_remove_assistant_links(args):
+    # Rename cleanup (Mission 171-C01 step 6), called for the OLD slug only,
+    # right before cmd_deploy_assistant links the NEW one -- see
+    # tools/deploy-skills.ps1's own Remove-DeployedAssistantLinks for the
+    # full rationale (moved-not-deleted content under _trash/, stale
+    # profile-level pointer removed on its own). Removes only this
+    # installer's own reparse point (the Codex skill junction) or hard link
+    # (the Claude Code subagent) -- a foreign file or directory a
+    # participant put at that exact path is left untouched.
+    old_slug = args.old_slug
+    removed = []
+
+    old_subagent_link = os.path.join(args.claude_agents_dir, f"{old_slug}.md")
+    if os.path.lexists(old_subagent_link) and not _is_reparse_point(old_subagent_link):
+        try:
+            still_hardlinked = os.stat(old_subagent_link).st_nlink > 1
+        except OSError:
+            still_hardlinked = False
+        if still_hardlinked:
+            os.remove(old_subagent_link)
+            removed.append(old_subagent_link)
+
+    old_skill_link = os.path.join(args.codex_agents_skills_dir, old_slug)
+    if os.path.lexists(old_skill_link) and _is_reparse_point(old_skill_link):
+        if _is_windows_platform():
+            os.rmdir(old_skill_link)
+        else:
+            os.remove(old_skill_link)
+        removed.append(old_skill_link)
+
+    print("moved" if removed else "none")
+    for path in removed:
+        print(f"REMOVED {path}")
+    return 0
+
+
 # --- USER.md profile (ticket 05 parity) ------------------------------------
 
 def cmd_write_user_profile(args):
@@ -658,6 +766,19 @@ def build_parser():
     p.add_argument("claude_skills_dir")
     p.add_argument("codex_agents_skills_dir")
     p.set_defaults(func=cmd_deploy_skills)
+
+    p = sub.add_parser("deploy-assistant")
+    p.add_argument("clone_path")
+    p.add_argument("claude_agents_dir")
+    p.add_argument("codex_agents_skills_dir")
+    p.add_argument("slug")
+    p.set_defaults(func=cmd_deploy_assistant)
+
+    p = sub.add_parser("remove-assistant-links")
+    p.add_argument("claude_agents_dir")
+    p.add_argument("codex_agents_skills_dir")
+    p.add_argument("old_slug")
+    p.set_defaults(func=cmd_remove_assistant_links)
 
     p = sub.add_parser("write-user-profile")
     p.add_argument("path")
