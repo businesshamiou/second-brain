@@ -31,15 +31,22 @@
       - a web package, web-package/<slug>/ (INSTRUCTIONS.md -- the text a
         person pastes into a claude.ai or ChatGPT Project's custom
         instructions field, always under $Script:MaxInstructionsChars --
-        and README.md, a short usage note in English so this generator
-        stays ASCII-only), capped at $Script:MaxWebPackageFiles files. That
-        cap is 25 (ChatGPT Plus/Pro Projects, DECLARED, T19) -- Anthropic's
-        own claude.ai Projects documentation
-        (support.claude.com/en/articles/8241126-upload-files-to-claude,
-        read via WebFetch 2026-09-11) states file count is "Unlimited" for
-        Projects (only a 200k-token aggregate window and a 30MB-per-file
-        size cap apply), so there is no lower real Claude-side ceiling to
-        clamp to; 25 stands.
+        plus the knowledge files in $Script:WebPackageKnowledgeFiles, copied
+        verbatim from documents this repository already carries, and
+        README.md, a short usage note in English so this generator stays
+        ASCII-only, describing exactly what the folder holds), capped at
+        $Script:MaxWebPackageFiles files. That cap is 25 (ChatGPT Plus/Pro
+        Projects, DECLARED, T19) -- Anthropic's own claude.ai Projects
+        documentation (support.claude.com/en/articles/8241126-upload-files-
+        to-claude, read via WebFetch 2026-09-11) states file count is
+        "Unlimited" for Projects (only a 200k-token aggregate window and a
+        30MB-per-file size cap apply), so there is no lower real
+        Claude-side ceiling to clamp to; 25 stands as the technical ceiling.
+        The package this generator actually produces (Mission 171-C01 step
+        8, audit defects 8 and 9) stays far below that ceiling on purpose:
+        INSTRUCTIONS.md, README.md and three knowledge files, five files
+        total -- see $Script:WebPackageKnowledgeFiles's own comment for why
+        those three and not more.
 
     This file itself stays ASCII-only, like install.ps1 and
     prerequisites.ps1 (never questionnaire.ps1's own reasoning: no French
@@ -73,6 +80,71 @@
 # to change if either platform's documented ceiling ever changes.
 $Script:MaxInstructionsChars = 8000
 $Script:MaxWebPackageFiles = 25
+
+# Knowledge files bundled into the web package alongside INSTRUCTIONS.md
+# (Mission 171-C01 step 8, audit defects 8 and 9: the generator used to
+# write only INSTRUCTIONS.md and README.md -- no knowledge at all -- so a
+# Project built from this package knew nothing beyond the pasted
+# instructions). Chosen from documents this repository already carries,
+# never invented for this package, each picked because it is the kind of
+# thing user story 23 (spec) says the web package needs to be useful
+# without Claude Code's or Codex's own file access:
+#   - CONTEXT.md is this repository's own validated product glossary (T18)
+#     -- the vocabulary both the instructions and every other generated
+#     form already assume;
+#   - the project/Second-Brain boundary rule is the single rule the spec
+#     (user story 29), this repository's own README FAQ, and CONTEXT.md's
+#     own glossary note all point back to as the one participants most need
+#     answered ("where does this belong, second-brain or my project?");
+#   - this repository's own README.md is the project overview the
+#     assistant needs to answer "what is Second Brain / what did the
+#     installer set up" without inventing an answer.
+# assistant/ASSISTANT.md's own body was considered and rejected as a fourth
+# entry: it is already INSTRUCTIONS.md's entire content once expanded, so
+# uploading it again as a knowledge file would duplicate what the Project's
+# own instructions field already carries, not add anything.
+#
+# These three files are copied verbatim (Get-WebPackageKnowledgeFileContent
+# below), never rewritten or name-substituted: two of them (CONTEXT.md's own
+# "Assistant" glossary entry, this repository's own README) mention "Brian"
+# exactly the way assistant/ASSISTANT.md's own excluded preamble does --
+# as the documented system default, a true statement about Second Brain
+# regardless of what name this installation chose. Rewriting that sentence
+# to the chosen name would make it read as a false claim about the
+# system's own documented default; leaving it be is why
+# tests/test-assistant-generation.ps1 scopes its own "no generated form
+# contains 'Brian'" scan to the three personalized identity files (the
+# subagent, the Codex skill, INSTRUCTIONS.md) rather than the whole
+# web-package tree -- these three copied documents are reference material,
+# not identity text, the same distinction this file's own header comment
+# already draws for ASSISTANT.md's preamble.
+#
+# Three knowledge files plus INSTRUCTIONS.md plus README.md is five files
+# total in the finished package -- far under $Script:MaxWebPackageFiles
+# (25, the measured platform ceiling above) and landing, unplanned, on the
+# same number the Owner set early in grilling, before the platform ceiling
+# above was ever measured (playbook journal, Manche 1, tickets T13-T16 and
+# T19-T21: "Brian web = Projet, paquet de 5 fichiers au plus", DECIDED).
+# That earlier figure is not re-derived here -- it is simply honoured as
+# the more conservative of the two: fewer, load-bearing files a person
+# uploads by hand beats maximizing toward the technical ceiling.
+$Script:WebPackageKnowledgeFiles = @(
+    @{
+        SourcePath = 'CONTEXT.md'
+        FileName   = 'GLOSSARY.md'
+        Purpose    = "the product glossary (validated terms this assistant's own instructions and this package both use)"
+    },
+    @{
+        SourcePath = 'rules\RULES-2026-09-11-190000-project-second-brain-boundary.md'
+        FileName   = 'PROJECT-BOUNDARY.md'
+        Purpose    = 'the rule deciding whether something belongs in Second Brain itself or in one of your projects'
+    },
+    @{
+        SourcePath = 'README.md'
+        FileName   = 'OVERVIEW.md'
+        Purpose    = "this repository's own README: what Second Brain is, how it installs, and what is installed, and where"
+    }
+)
 
 function ConvertTo-AssistantSlug {
     # Lowercase, no accents, no spaces (T07 complement: "un identifiant de
@@ -138,6 +210,69 @@ function Get-AssistantIdentityBody {
     $bodyStart = $startIndex + $startMarker.Length
     $body = $raw.Substring($bodyStart, $endIndex - $bodyStart)
     return $body.Trim() + "`n"
+}
+
+function Get-WebPackageKnowledgeFileContent {
+    # Reads one knowledge-file source (UTF8, same BOM-less-source reasoning
+    # as Get-AssistantIdentityBody), then prepares it for the web package:
+    # the words are never rewritten or name-substituted (see
+    # $Script:WebPackageKnowledgeFiles's own comment for why: two of these
+    # sources mention "Brian" as Second Brain's documented default, a true
+    # statement regardless of the name this installation chose) -- but the
+    # source's own '## Liens' section and every OTHER relative Markdown
+    # link in its body are stripped, because both are correct only from
+    # the source's OWN location in this repository, never from
+    # web-package/<slug>/, always two levels below the clone root.
+    # Measured directly: the first version of this function copied these
+    # files unchanged, and the very first end-to-end test run against that
+    # version failed tools/check-links.sh and
+    # tools/check-obsolescence-guardrail.py on exactly these now-dangling
+    # links (e.g. CONTEXT.md's own './README.md' resolves from the clone
+    # root, not from two directories below it). Flattening a relative link
+    # to its plain text, rather than recomputing its new relative path, is
+    # deliberate, not a shortcut: once this file leaves the repository for
+    # a claude.ai or ChatGPT Project upload, a Markdown link to a sibling
+    # document that was never itself uploaded resolves to nothing on
+    # either platform anyway -- an unclickable but guardian-correct '[text]
+    # (../../rules/...)' is not meaningfully better than plain text once it
+    # can never be clicked in the first place. A fresh, single '## Liens'
+    # entry is appended afterward, pointing back at this exact source with
+    # the '../../' depth every other generated form already uses for
+    # assistant/ASSISTANT.md (this repository's own convention, not
+    # invented here). Absolute links (http/https/mailto) and in-page
+    # anchors (#...) are left untouched -- those still work wherever this
+    # content ends up. A missing source fails the whole generation loudly
+    # (thrown, not skipped) -- same fail-closed posture as
+    # Get-AssistantIdentityBody's own missing-source check, because a
+    # silently thinner package is exactly the defect (8) this ticket
+    # exists to close.
+    param(
+        [Parameter(Mandatory = $true)][string] $ClonePath,
+        [Parameter(Mandatory = $true)][string] $SourceRelativePath
+    )
+    $sourcePath = Join-Path $ClonePath $SourceRelativePath
+    if (-not (Test-Path $sourcePath)) {
+        throw "Web package knowledge file source not found: $sourcePath"
+    }
+    $raw = (Get-Content -Raw -Path $sourcePath -Encoding UTF8) -replace "`r`n", "`n"
+
+    $liensMarker = "`n## Liens"
+    $liensIndex = $raw.IndexOf($liensMarker)
+    $body = if ($liensIndex -ge 0) { $raw.Substring(0, $liensIndex) } else { $raw }
+    $body = $body.TrimEnd()
+    $body = [regex]::Replace($body, '\[([^\]]+)\]\((?!https?://|mailto:|#)[^)]+\)', '$1')
+
+    $sourceLink = $SourceRelativePath.Replace('\', '/')
+    $liensLine = '- `see also` -- [' + $sourceLink + '](../../' + $sourceLink + ')'
+    $lines = @(
+        $body
+        ''
+        '## Liens'
+        ''
+        $liensLine
+        ''
+    )
+    return ($lines -join "`n")
 }
 
 function Expand-AssistantPlaceholder {
@@ -210,6 +345,12 @@ function New-AssistantForms {
         throw "Generated web package instructions for '$Name' are $($instructionsText.Length) characters, over the $($Script:MaxInstructionsChars)-character ceiling (ticket 06 criterion 4)."
     }
     Set-Content -Path (Join-Path $webPackageDir 'INSTRUCTIONS.md') -Encoding UTF8 -Value $instructionsText
+
+    foreach ($knowledgeFile in $Script:WebPackageKnowledgeFiles) {
+        $content = Get-WebPackageKnowledgeFileContent -ClonePath $ClonePath -SourceRelativePath $knowledgeFile.SourcePath
+        Set-Content -Path (Join-Path $webPackageDir $knowledgeFile.FileName) -Encoding UTF8 -Value $content
+    }
+
     Set-Content -Path (Join-Path $webPackageDir 'README.md') -Encoding UTF8 -Value (New-WebPackageReadme -Name $Name -Slug $slug)
 
     $packageFileCount = @(Get-ChildItem -Path $webPackageDir -File).Count
@@ -308,18 +449,43 @@ function New-WebPackageReadme {
     # English on purpose (this file's own header comment: keeps
     # generate-assistant.ps1 ASCII-only, no byte-order mark needed) -- a
     # short technical usage note, not the assistant's own voice.
+    #
+    # Rewritten for Mission 171-C01 step 8 (audit defects 8 and 9): this
+    # README now names every file New-AssistantForms actually writes into
+    # this folder, generated from the same $Script:WebPackageKnowledgeFiles
+    # list New-AssistantForms itself copies from -- so the two can never
+    # drift apart, the same reasoning Get-AssistantGeneratedPaths already
+    # applies to the rename path list. The earlier text ("nothing else
+    # needs uploading") was accurate only while this package held two
+    # files; it directly contradicted acceptance scenario S8's old wording
+    # in tools/acceptance-wizard.sh, which described a chat-Skills zip
+    # upload gesture that belongs to the warehouse deliverables (step 5),
+    # not this Project package (defect 9, fixed in that file, this same
+    # step). tests/test-web-package-readme-matches-contents.ps1 (this
+    # step's own explicitly required test) checks this file's list against
+    # the folder's real contents, in both directions.
     param(
         [Parameter(Mandatory = $true)][string] $Name,
         [Parameter(Mandatory = $true)][string] $Slug
     )
+    $knowledgeLines = @()
+    foreach ($k in $Script:WebPackageKnowledgeFiles) {
+        $knowledgeLines += "- ``$($k.FileName)`` -- $($k.Purpose)."
+    }
     $lines = @(
         "# $Name -- web package"
         ''
-        "Generated by tools/generate-assistant.ps1 from assistant/ASSISTANT.md (Mission 168, ticket 06). To use $Name in a claude.ai or ChatGPT Project:"
+        "Generated by tools/generate-assistant.ps1 (or tools/sb_installer_helper.py on macOS/Linux) from assistant/ASSISTANT.md and this repository's own documents (Mission 171-C01). This is a claude.ai or ChatGPT **Project** package -- custom instructions plus a few project-knowledge files -- not a Skill package: nothing in this folder is a zip meant to be uploaded so it can trigger on its own."
+        ''
+        "To use $Name in a claude.ai or ChatGPT Project:"
         ''
         '1. Create a Project (requires a paid plan -- Claude Pro or above, or ChatGPT Plus or above; this package is not designed or tested against free-tier accounts).'
-        '2. Paste the contents of INSTRUCTIONS.md into the Project''s custom instructions field.'
-        "3. That is the whole package for now -- $Name's identity lives entirely in those instructions; nothing else needs uploading."
+        "2. Paste the contents of ``INSTRUCTIONS.md`` into the Project's custom instructions field. Do not upload INSTRUCTIONS.md itself as a file -- it belongs in that field."
+        "3. Upload each of these files to the Project's knowledge (or files) section:"
+        ''
+        $knowledgeLines
+        ''
+        "This README ($($Script:WebPackageKnowledgeFiles.Count + 2) files total in this folder) is for your own reference and never needs uploading itself."
         ''
         '## Liens'
         ''

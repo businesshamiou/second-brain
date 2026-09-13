@@ -87,10 +87,30 @@ function Test-GeneratedForm {
     }
 }
 
+# Web-package knowledge-file sources (Mission 171-C01 step 8): both throwaway
+# clones below need these too now, not just assistant/ASSISTANT.md --
+# New-AssistantForms and render-assistant both fail loudly on a missing
+# knowledge-file source (by design, see Get-WebPackageKnowledgeFileContent's
+# own comment), and this test's clones only ever carried the identity
+# source. Read from $Script:WebPackageKnowledgeFiles itself (populated by
+# dot-sourcing generate-assistant.ps1 below) so this list can never drift
+# out of sync with the generator's own.
+. (Join-Path $RepoRoot 'tools\generate-assistant.ps1')
+function Copy-ToolCapTestClone {
+    param([Parameter(Mandatory = $true)][string] $TestRoot)
+    New-Item -ItemType Directory -Force -Path (Join-Path $TestRoot 'assistant') | Out-Null
+    Copy-Item -Path (Join-Path $RepoRoot 'assistant\ASSISTANT.md') -Destination (Join-Path $TestRoot 'assistant\ASSISTANT.md') -Force
+    foreach ($knowledgeFile in $Script:WebPackageKnowledgeFiles) {
+        $src = Join-Path $RepoRoot $knowledgeFile.SourcePath
+        $dst = Join-Path $TestRoot $knowledgeFile.SourcePath
+        New-Item -ItemType Directory -Force -Path (Split-Path $dst -Parent) | Out-Null
+        Copy-Item -Path $src -Destination $dst -Force
+    }
+}
+
 # --- 1. PowerShell generator (tools/generate-assistant.ps1) ----------------
 $TestRootPs1 = Join-Path $env:TEMP ("sb-toolcap-ps1-" + [Guid]::NewGuid().ToString('N'))
-New-Item -ItemType Directory -Force -Path (Join-Path $TestRootPs1 'assistant') | Out-Null
-Copy-Item -Path (Join-Path $RepoRoot 'assistant\ASSISTANT.md') -Destination (Join-Path $TestRootPs1 'assistant\ASSISTANT.md') -Force
+Copy-ToolCapTestClone -TestRoot $TestRootPs1
 Write-Output ""
 Write-Output "TestRoot (PowerShell generator): $TestRootPs1"
 
@@ -112,8 +132,7 @@ catch {
 
 # --- 2. Python mirror (tools/sb_installer_helper.py render-assistant) ------
 $TestRootPy = Join-Path $env:TEMP ("sb-toolcap-py-" + [Guid]::NewGuid().ToString('N'))
-New-Item -ItemType Directory -Force -Path (Join-Path $TestRootPy 'assistant') | Out-Null
-Copy-Item -Path (Join-Path $RepoRoot 'assistant\ASSISTANT.md') -Destination (Join-Path $TestRootPy 'assistant\ASSISTANT.md') -Force
+Copy-ToolCapTestClone -TestRoot $TestRootPy
 Write-Output ""
 Write-Output "TestRoot (Python mirror): $TestRootPy"
 

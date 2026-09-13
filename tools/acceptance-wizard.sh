@@ -204,6 +204,16 @@ finish() {
 # their own screen, does. Every stage records "yes"/"no" plus an optional
 # note; a "no" is written down and the wizard moves on to the next stage --
 # it never stops (ticket 11, criterion 2).
+#
+# S8's own text (Mission 171-C01 step 8, audit defect 9): corrected from an
+# earlier draft that described uploading warehouse Skill zips so they
+# "trigger" -- that gesture belongs to the warehouse deliverables (step 5,
+# skills-warehouse/deliverables/), a Skills upload, never tested anywhere
+# else in this file either. S8 now describes the actual gesture
+# tools/generate-assistant.ps1's own web-package/<slug>/ produces: a
+# claude.ai/ChatGPT Project, its instructions pasted, its knowledge files
+# uploaded -- matching that folder's own README.md (also rewritten this
+# step) rather than contradicting it.
 # ──────────────────────────────────────────────────────────────────────────
 
 TOTAL_STAGES=4
@@ -426,11 +436,20 @@ main() {
   note "     it yourself or with your main agent instead."
   record_scenario "S7" "$ASSISTANT_NAME answers correctly, cites sources, refuses to write"
 
-  stage "S8 -- Web skills"
-  step "Open the web skills package folder (produced by the installer) and"
-  step "upload two of its zip files into a claude.ai Project, one at a time."
-  note "Expected: both skills appear in the Project and trigger when used."
-  record_scenario "S8" "Web skills upload and trigger"
+  stage "S8 -- Web package (claude.ai or ChatGPT Project)"
+  step "Open the web package folder for $ASSISTANT_NAME"
+  step "(web-package/<slug>/, produced by the installer) and read its"
+  step "README.md."
+  step "Create (or open) a Project in claude.ai or ChatGPT."
+  step "Paste the contents of INSTRUCTIONS.md into the Project's custom"
+  step "instructions field (never upload INSTRUCTIONS.md itself as a file)."
+  step "Upload every other file the folder's README.md lists to the"
+  step "Project's knowledge (or files) section, one at a time."
+  note "Expected: the folder holds exactly what its own README.md"
+  note "announces (nothing missing, nothing extra); once uploaded, the"
+  note "Project answers the S7 test questions the same way $ASSISTANT_NAME"
+  note "already did."
+  record_scenario "S8" "Web package (Project instructions + knowledge files) matches its README and installs cleanly"
 
   stage "S9 -- No Git, no admin rights"
   step "On a standard (non-administrator) Windows profile with no Git on"

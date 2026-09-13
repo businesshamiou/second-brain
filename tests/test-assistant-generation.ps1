@@ -158,10 +158,33 @@ try {
         Assert-True ($fileCount -le 25) "web package has at most 25 files (has $fileCount)"
     }
 
+    # Scoped to the personalized identity files only (subagent, Codex
+    # skill, INSTRUCTIONS.md) -- never the whole web-package tree (Mission
+    # 171-C01 step 8): that tree now also holds knowledge files copied
+    # verbatim from this repository (CONTEXT.md, the project/Second-Brain
+    # boundary rule, README.md), two of which legitimately mention "Brian"
+    # as Second Brain's own documented default value, exactly the way
+    # assistant/ASSISTANT.md's own excluded preamble does -- see
+    # generate-assistant.ps1's $Script:WebPackageKnowledgeFiles comment.
+    # Scanning those copied reference documents for "Brian" would fail on
+    # correct, unmodified repository content, not on a real regression.
     $brianHits = Get-FilesContaining -Root (Join-Path $clonePath2 '.claude\agents') -Needle 'Brian'
     $brianHits += Get-FilesContaining -Root (Join-Path $clonePath2 '.agents\skills') -Needle 'Brian'
-    $brianHits += Get-FilesContaining -Root (Join-Path $clonePath2 'web-package') -Needle 'Brian'
-    Assert-True ($brianHits.Count -eq 0) "no generated form contains 'Brian' when installed as 'Ibrahim' (criterion 6): $($brianHits -join ', ')"
+    if (Test-Path $webInstructionsPath) {
+        if ((Get-Content -Raw -Path $webInstructionsPath -Encoding UTF8).Contains('Brian')) {
+            $brianHits += $webInstructionsPath
+        }
+    }
+    Assert-True ($brianHits.Count -eq 0) "no personalized identity file (subagent, Codex skill, INSTRUCTIONS.md) contains 'Brian' when installed as 'Ibrahim' (criterion 6): $($brianHits -join ', ')"
+
+    # The web package's copied knowledge files (defect 8) are present and
+    # not corrupted: proof New-AssistantForms actually writes them, not
+    # just INSTRUCTIONS.md and README.md as before this step.
+    $knowledgeFileNames = @('GLOSSARY.md', 'PROJECT-BOUNDARY.md', 'OVERVIEW.md')
+    foreach ($knowledgeFileName in $knowledgeFileNames) {
+        $knowledgeFilePath = Join-Path $webPackageDir $knowledgeFileName
+        Assert-True (Test-Path $knowledgeFilePath) "web package knowledge file generated: $knowledgeFileName (defect 8)"
+    }
 }
 catch {
     Write-Output "  FAIL - unhandled error (scenario 2): $($_.Exception.Message)"

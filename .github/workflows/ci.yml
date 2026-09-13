@@ -73,6 +73,10 @@ jobs:
         shell: powershell
         run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-assistant-generation.ps1
 
+      - name: Secondary -- web package README matches its own contents
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-web-package-readme-matches-contents.ps1
+
       - name: Secondary -- catalog key parity (fr/en/es)
         shell: powershell
         run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-catalog-key-parity.ps1
@@ -196,6 +200,7 @@ jobs:
           pwsh -NoProfile -File tests/test-questionnaire-resume.ps1
           pwsh -NoProfile -File tests/test-questionnaire-network-failure.ps1
           pwsh -NoProfile -File tests/test-assistant-generation.ps1
+          pwsh -NoProfile -File tests/test-web-package-readme-matches-contents.ps1
           pwsh -NoProfile -File tests/test-catalog-key-parity.ps1
           pwsh -NoProfile -File tests/test-questionnaire-update-mode.ps1
           pwsh -NoProfile -File tests/test-skills-deployment.ps1
