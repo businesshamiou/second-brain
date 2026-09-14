@@ -27,14 +27,14 @@
 
     Question 1, "Comment j'ouvre une session ?" -- assistant/ASSISTANT.md
     says the answer cites the session-start skill and its reading list.
-    Checked in the generated HOW-TO.md: both source paths are named, and a
+    Checked in the generated METHOD.md: both source paths are named, and a
     verbatim, distinctive passage from each source is present (proof the
     actual skill content made it into the package, not just its path).
 
     Question 2, "Qu'est-ce qu'une Mission et ou je l'ecris ?" --
     assistant/ASSISTANT.md says the answer cites the Mission template and
     the project operating model, in the project, never in the Vault.
-    Checked in the generated HOW-TO.md: both source paths are named, the
+    Checked in the generated METHOD.md: both source paths are named, the
     exact Mission path convention from the versioning rule is present
     (the concrete answer to "where"), and the operating model's own
     "Vault vs projet" heading is present (the concrete answer to "never in
@@ -90,37 +90,37 @@ try {
     $slug = New-AssistantForms -ClonePath $TestClone -Name 'Testy'
     $webDir = Join-Path $TestClone "web-package\$slug"
     $instructionsPath = Join-Path $webDir 'INSTRUCTIONS.md'
-    $howToPath = Join-Path $webDir 'HOW-TO.md'
+    $methodPath = Join-Path $webDir 'METHOD.md'
 
     Assert-True (Test-Path $instructionsPath) "INSTRUCTIONS.md is generated"
-    Assert-True (Test-Path $howToPath) "HOW-TO.md is generated"
+    Assert-True (Test-Path $methodPath) "METHOD.md is generated"
 
     $instructionsText = if (Test-Path $instructionsPath) { Get-Content -Raw -Path $instructionsPath -Encoding UTF8 } else { '' }
-    $howToText = if (Test-Path $howToPath) { Get-Content -Raw -Path $howToPath -Encoding UTF8 } else { '' }
+    $methodText = if (Test-Path $methodPath) { Get-Content -Raw -Path $methodPath -Encoding UTF8 } else { '' }
 
     Write-Output ""
     Write-Output "--- Question 1: 'Comment j'ouvre une session ?' ---"
-    Assert-True $howToText.Contains('skills/session-start/SKILL.md') "HOW-TO.md names the source path skills/session-start/SKILL.md"
-    Assert-True $howToText.Contains('skills/session-start/reading-list.md') "HOW-TO.md names the source path skills/session-start/reading-list.md"
+    Assert-True $methodText.Contains('skills/session-start/SKILL.md') "METHOD.md names the source path skills/session-start/SKILL.md"
+    Assert-True $methodText.Contains('skills/session-start/reading-list.md') "METHOD.md names the source path skills/session-start/reading-list.md"
     # Distinctive, ASCII-only, verbatim passage from skills/session-start/SKILL.md
     # itself (the instruction to open the reading list) -- proof the actual
     # skill content is in the package, not just its path.
-    Assert-True $howToText.Contains('reading-list.md') "HOW-TO.md carries a verbatim passage naming reading-list.md (from SKILL.md's own step 2)"
+    Assert-True $methodText.Contains('reading-list.md') "METHOD.md carries a verbatim passage naming reading-list.md (from SKILL.md's own step 2)"
     # Distinctive, ASCII-only, verbatim words from the skill's own verdict
     # step (step 4: READY / NOT-READY).
-    Assert-True $howToText.Contains('NOT-READY') "HOW-TO.md carries a verbatim passage from SKILL.md's own verdict step ('NOT-READY')"
+    Assert-True $methodText.Contains('NOT-READY') "METHOD.md carries a verbatim passage from SKILL.md's own verdict step ('NOT-READY')"
 
     Write-Output ""
     Write-Output "--- Question 2: 'Qu'est-ce qu'une Mission et ou je l'ecris ?' ---"
-    Assert-True $howToText.Contains('templates/mission-template.md') "HOW-TO.md names the source path templates/mission-template.md"
-    Assert-True $howToText.Contains('knowledge/BRIEF-2026-08-17-211522-project-operating-model-v2.md') "HOW-TO.md names the source path of the project operating model brief"
-    Assert-True $howToText.Contains('rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md') "HOW-TO.md names the source path of the Mission versioning rule"
+    Assert-True $methodText.Contains('templates/mission-template.md') "METHOD.md names the source path templates/mission-template.md"
+    Assert-True $methodText.Contains('knowledge/BRIEF-2026-08-17-211522-project-operating-model-v2.md') "METHOD.md names the source path of the project operating model brief"
+    Assert-True $methodText.Contains('rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md') "METHOD.md names the source path of the Mission versioning rule"
     # The exact path convention (the concrete answer to "where do I write a
     # Mission"), verbatim from the versioning rule, section 1.
-    Assert-True $howToText.Contains('<projet>/missions/MISSION-YYYY-MM-DD-HHMMSS-NNN-description.md') "HOW-TO.md carries the exact Mission path convention verbatim"
+    Assert-True $methodText.Contains('<projet>/missions/MISSION-YYYY-MM-DD-HHMMSS-NNN-description.md') "METHOD.md carries the exact Mission path convention verbatim"
     # The operating model's own heading answering "in the project, never in
     # the Vault" (BRIEF-...-v2.md, section 1).
-    Assert-True $howToText.Contains('Vault vs projet') "HOW-TO.md carries the project operating model's own 'Vault vs projet' section"
+    Assert-True $methodText.Contains('Vault vs projet') "METHOD.md carries the project operating model's own 'Vault vs projet' section"
 
     Write-Output ""
     Write-Output "--- Question 3: 'Cree-moi un fichier de test.' (already conformant -- no regression) ---"

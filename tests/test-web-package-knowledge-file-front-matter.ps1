@@ -9,7 +9,7 @@
 
         powershell -NoProfile -ExecutionPolicy Bypass -File tests\test-web-package-knowledge-file-front-matter.ps1
 
-    Mission 172 step 3 introduced HOW-TO.md, condensing multiple sources
+    Mission 172 step 3 introduced METHOD.md, condensing multiple sources
     (some carrying their own YAML front matter, e.g.
     skills/session-start/SKILL.md) into one file, separated by a '---'
     divider placed before EACH section including the first. That made the
@@ -24,7 +24,7 @@
     which happened to assert on the file's own first line.
 
     Runs BOTH generators (PowerShell and the Python mirror) against a
-    minimal clone carrying every real source HOW-TO.md needs, and checks
+    minimal clone carrying every real source METHOD.md needs, and checks
     the produced file's first line directly, plus a full re-run of the
     real guardian against it as the actual authority on whether it
     parses (never a hand-rolled reimplementation of its parser here).
@@ -54,7 +54,7 @@ Write-Output "TestRoot: $TestRoot"
 
 # Every source path any multi-source $Script:WebPackageKnowledgeFiles entry
 # needs, read from that list itself (never hand-typed) so this test never
-# drifts out of sync with which sources HOW-TO.md actually condenses.
+# drifts out of sync with which sources METHOD.md actually condenses.
 $sourceFiles = @('assistant\ASSISTANT.md') + @($Script:WebPackageKnowledgeFiles | ForEach-Object { $_.SourcePaths })
 function New-MinimalClone {
     param([Parameter(Mandatory = $true)][string] $ClonePath)
@@ -72,10 +72,10 @@ try {
     $clonePs1 = Join-Path $TestRoot 'ps1'
     New-MinimalClone -ClonePath $clonePs1
     $slugPs1 = New-AssistantForms -ClonePath $clonePs1 -Name 'Testfm'
-    $howToPs1 = Join-Path $clonePs1 "web-package\$slugPs1\HOW-TO.md"
-    $firstLinePs1 = (Get-Content -Path $howToPs1 -TotalCount 1 -Encoding UTF8)
-    Assert-True (Test-Path $howToPs1) "HOW-TO.md is generated (PowerShell)"
-    Assert-True ($firstLinePs1.Trim() -ne '---') "HOW-TO.md's first line is not a bare '---' (PowerShell): '$firstLinePs1'"
+    $methodPs1 = Join-Path $clonePs1 "web-package\$slugPs1\METHOD.md"
+    $firstLinePs1 = (Get-Content -Path $methodPs1 -TotalCount 1 -Encoding UTF8)
+    Assert-True (Test-Path $methodPs1) "METHOD.md is generated (PowerShell)"
+    Assert-True ($firstLinePs1.Trim() -ne '---') "METHOD.md's first line is not a bare '---' (PowerShell): '$firstLinePs1'"
 
     Write-Output ""
     Write-Output "=== Python mirror ==="
@@ -83,17 +83,17 @@ try {
     New-MinimalClone -ClonePath $clonePy
     $helperScript = Join-Path $RepoRoot 'tools\sb_installer_helper.py'
     & uv run --no-project $helperScript render-assistant $clonePy 'Testfm' --language FR *> $null
-    $howToPy = Join-Path $clonePy 'web-package\testfm\HOW-TO.md'
-    $firstLinePy = (Get-Content -Path $howToPy -TotalCount 1 -Encoding UTF8)
-    Assert-True (Test-Path $howToPy) "HOW-TO.md is generated (Python)"
-    Assert-True ($firstLinePy.Trim() -ne '---') "HOW-TO.md's first line is not a bare '---' (Python): '$firstLinePy'"
+    $methodPy = Join-Path $clonePy 'web-package\testfm\METHOD.md'
+    $firstLinePy = (Get-Content -Path $methodPy -TotalCount 1 -Encoding UTF8)
+    Assert-True (Test-Path $methodPy) "METHOD.md is generated (Python)"
+    Assert-True ($firstLinePy.Trim() -ne '---') "METHOD.md's first line is not a bare '---' (Python): '$firstLinePy'"
 
     Write-Output ""
-    Write-Output "=== The real guardian raises no front-matter violation on HOW-TO.md ==="
+    Write-Output "=== The real guardian raises no front-matter violation on METHOD.md ==="
     # Not a full clean-guardian-pass assertion: this minimal clone is
     # missing files sources like CONTEXT.md link to (an unrelated R3
     # broken-link violation this test's own minimal fixture would cause,
-    # not a real defect), so only the exact 'FM ... HOW-TO.md' violation
+    # not a real defect), so only the exact 'FM ... METHOD.md' violation
     # this Mission's regression produced is checked for, not the guardian's
     # overall exit code. Redirected to a FILE, never merged via 2>&1: under
     # this script's own $ErrorActionPreference = 'Stop', merging a native
@@ -116,7 +116,7 @@ try {
             Pop-Location
         }
         $guardianOutput = Get-Content -Raw -Path $guardianLogFile -ErrorAction SilentlyContinue
-        Assert-True (-not ($guardianOutput -match 'HOW-TO\.md[^\n]*front-matter illisible')) "$($pair.Label) clone's HOW-TO.md triggers no 'front-matter illisible' violation"
+        Assert-True (-not ($guardianOutput -match 'METHOD.md[^\n]*front-matter illisible')) "$($pair.Label) clone's METHOD.md triggers no 'front-matter illisible' violation"
     }
 }
 finally {

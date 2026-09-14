@@ -180,7 +180,7 @@ try {
     # The web package's copied knowledge files (defect 8) are present and
     # not corrupted: proof New-AssistantForms actually writes them, not
     # just INSTRUCTIONS.md and README.md as before this step.
-    $knowledgeFileNames = @('GLOSSARY.md', 'PROJECT-BOUNDARY.md', 'HOW-TO.md')
+    $knowledgeFileNames = @('GLOSSARY.md', 'PROJECT-BOUNDARY.md', 'METHOD.md')
     foreach ($knowledgeFileName in $knowledgeFileNames) {
         $knowledgeFilePath = Join-Path $webPackageDir $knowledgeFileName
         Assert-True (Test-Path $knowledgeFilePath) "web package knowledge file generated: $knowledgeFileName (defect 8)"

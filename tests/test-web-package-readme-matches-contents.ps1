@@ -21,7 +21,7 @@
     (Mission 172: CONTEXT.md and the project/Second-Brain boundary rule,
     one source each, plus the session-start skill, its reading list, the
     Mission template, the project operating model brief and the Mission
-    versioning rule -- the five sources HOW-TO.md condenses) -- copied from
+    versioning rule -- the five sources METHOD.md condenses) -- copied from
     the real repository, never invented, so this test exercises the same
     content the real installer would.
 

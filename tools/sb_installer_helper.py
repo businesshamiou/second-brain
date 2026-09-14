@@ -111,7 +111,7 @@ def _assistant_description_template(table, language):
 # three knowledge files, DECIDED -- see the PowerShell generator's own
 # comment): of the original three knowledge files it is the only one that
 # answered none of the three test questions, so dropping it costs no
-# answer to any of those three while making room for HOW-TO.md, which
+# answer to any of those three while making room for METHOD.md, which
 # condenses five sources by theme (Doctrine rule 2: condense rather than
 # drop content) rather than adding a file per source.
 WEB_PACKAGE_KNOWLEDGE_FILES = (
@@ -133,7 +133,7 @@ WEB_PACKAGE_KNOWLEDGE_FILES = (
             os.path.join("knowledge", "BRIEF-2026-08-17-211522-project-operating-model-v2.md"),
             os.path.join("rules", "RULES-2026-08-17-211522-mission-versioning-and-generated-output.md"),
         ),
-        "HOW-TO.md",
+        "METHOD.md",
         "how to open a session (skills/session-start/SKILL.md, skills/session-start/reading-list.md) and what a "
         "Mission is and where to write one (templates/mission-template.md, "
         "knowledge/BRIEF-2026-08-17-211522-project-operating-model-v2.md, "
@@ -347,7 +347,7 @@ def _web_package_knowledge_file_content(clone_path, source_relative_paths):
     A single source produces exactly the output this function always
     produced (GLOSSARY.md and PROJECT-BOUNDARY.md are unaffected by
     Mission 172): the flattened body, then one '## Liens' entry pointing
-    back at it. More than one source (HOW-TO.md, Mission 172) condenses
+    back at it. More than one source (METHOD.md, Mission 172) condenses
     them into one file by theme: each source's flattened body kept in
     full, separated by a rule and a heading naming its own source path, so
     a reader can always tell which paragraph came from which file; the

@@ -152,7 +152,7 @@ function Get-AssistantDescriptionTemplate {
 #     (user story 29), this repository's own README FAQ, and CONTEXT.md's
 #     own glossary note all point back to as the one participants most need
 #     answered ("where does this belong, second-brain or my project?");
-#   - HOW-TO.md answers the two remaining test questions, condensed from
+#   - METHOD.md answers the two remaining test questions, condensed from
 #     five sources by theme rather than shrunk word by word: the
 #     session-start skill and its reading list answer "how do I open a
 #     session" (skills/session-start/SKILL.md,
@@ -223,7 +223,7 @@ $Script:WebPackageKnowledgeFiles = @(
             'knowledge\BRIEF-2026-08-17-211522-project-operating-model-v2.md',
             'rules\RULES-2026-08-17-211522-mission-versioning-and-generated-output.md'
         )
-        FileName    = 'HOW-TO.md'
+        FileName    = 'METHOD.md'
         Purpose     = 'how to open a session (skills/session-start/SKILL.md, skills/session-start/reading-list.md) and what a Mission is and where to write one (templates/mission-template.md, knowledge/BRIEF-2026-08-17-211522-project-operating-model-v2.md, rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md) -- condensed by theme, each source named where its section begins'
     }
 )
@@ -322,7 +322,7 @@ function Get-WebPackageKnowledgeFileContent {
     # A single source produces exactly the output this function always
     # produced (byte for byte -- GLOSSARY.md and PROJECT-BOUNDARY.md are
     # unaffected by Mission 172): the flattened body, then one '## Liens'
-    # entry pointing back at it. More than one source (HOW-TO.md, Mission
+    # entry pointing back at it. More than one source (METHOD.md, Mission
     # 172) condenses them into one file BY THEME (Doctrine rule 2: condense
     # rather than drop content, and never hand-write substantial prose
     # disconnected from the sources) -- each source's flattened body kept
