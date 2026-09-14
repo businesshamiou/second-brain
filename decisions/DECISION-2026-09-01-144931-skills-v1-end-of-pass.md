@@ -73,7 +73,7 @@ La péremption par sources fond la recommandation du Pilot avec les règles d'or
 
 ## Artefacts liés
 
-- Source : `../handoffs/HANDOFF-2026-09-01-004859-session-close-skills-rework-library-pending-106.md` (§3, arbitrages des deux tiers)
+- Source : `../handoffs/HANDOFF-2026-09-01-004859-session-close-skills-rework-library-pending-106.md` (supprimé) (§3, arbitrages des deux tiers)
 - Source : `../knowledge-notes/KNOWLEDGE-NOTE-2026-09-01-110501-skills-library-v3-catalog.md` (mesure du skill `research`, entrée `to-questionnaire`)
 - Source : `../knowledge-notes/KNOWLEDGE-NOTE-2026-08-30-211552-mnemosyne-retrieval-vs-vault-reel.md` (câbler l'existant plutôt qu'outiller)
 - Exécution : Mission à venir (réciproque sur 232341, spec `session-start`)

@@ -67,7 +67,7 @@ La levée du format « l'Owner construit seul » supprime par ailleurs le risque
 ## Artefacts liés
 
 - Source externe étudiée (à déposer) : étude de cas du tutoriel WordPress externe, `../knowledge-notes/`
-- Ordre de travail amendé : `../handoffs/HANDOFF-2026-08-25-145859-pilot-session-close-purge-anglicization-content-plan.md`
+- Ordre de travail amendé : `../handoffs/HANDOFF-2026-08-25-145859-pilot-session-close-purge-anglicization-content-plan.md` (supprimé)
 
 ## Liens
 

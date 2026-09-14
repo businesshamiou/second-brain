@@ -121,7 +121,7 @@ Cinq occurrences en une journée du patron « une règle survit à l'abandon de 
 - Rapport de l'audit 057 : `../reports/REPORT-2026-08-25-214618-057-executor-stale-rule-survivorship-audit.md`
 - Pivot du cas d'usage : `./DECISION-2026-08-25-205728-workshop-case-study-pivot-wordpress.md`
 - Position d'ouverture libérée : `./DECISION-2026-08-25-213150-session-opening-directory-freed.md`
-- Handoff des cinq questions (2026-08-24) : `../handoffs/HANDOFF-2026-08-24-115651-pilot-session-close-graphify-eradication-and-tree-question.md`
+- Handoff des cinq questions (2026-08-24) : `../handoffs/HANDOFF-2026-08-24-115651-pilot-session-close-graphify-eradication-and-tree-question.md` (supprimé)
 - Audits externes servant de sources (à verser en knowledge-notes, chantier en file) : audit du dévoilement progressif de la base YouTube ; audit des contraintes de rôles du système aîné (2026-08-26-030356).
 
 ## Liens

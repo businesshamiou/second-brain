@@ -54,7 +54,7 @@ Premier usage réel dans la présente Mission (022) : le runbook V1 est créé, 
 
 - Proposal source : (historique de l'atelier, non distribué)
 - Mission qui grave cette Decision : (historique de l'atelier, non distribué)
-- Runbook institué : `../knowledge/runbook-vault-setup.md`
+- Runbook institué : `../_trash/runbook-vault-setup.md` (retiré de la distribution, conservé à titre historique)
 
 ## Liens
 
