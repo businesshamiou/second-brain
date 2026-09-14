@@ -84,10 +84,10 @@ Cette architecture évite la confusion entre connaissance et arbitrage, entre é
 - Architecture parente : [Vault central et projets frères](./DECISION-2026-08-17-003000-vault-central-architecture.md)
 - Règles générales : [règles de conduite](../rules/RULES-2026-08-17-005717-vault-operating-rules.md)
 - Cycle applicable : [cycle de contexte V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
-- Modèle opératoire : [concept et modèle opératoire](../knowledge/BRIEF-2026-08-17-003000-vault-concept-operating-model.md)
+- Modèle opératoire : [concept et modèle opératoire](../_trash/BRIEF-2026-08-17-003000-vault-concept-operating-model.md) (retiré de la distribution, conservé à titre historique)
 - Preuves : [vérification et preuves](../knowledge/verification-and-evidence.md)
 
 ## Liens
 
 - `see also` — [Vault central et projets frères](./DECISION-2026-08-17-003000-vault-central-architecture.md)
-- `see also` — [Vault — concept pédagogique et modèle opératoire](../knowledge/BRIEF-2026-08-17-003000-vault-concept-operating-model.md)
+- `see also` — [Vault — concept pédagogique et modèle opératoire](../_trash/BRIEF-2026-08-17-003000-vault-concept-operating-model.md) (retiré de la distribution, conservé à titre historique)

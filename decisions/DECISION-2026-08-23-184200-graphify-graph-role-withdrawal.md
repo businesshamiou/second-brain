@@ -42,7 +42,7 @@ Hors périmètre de la Mission qui grave cette Decision (035) — à planifier p
 3. Archiver ou retirer `graphify-out/` (supprimé, Mission 040) (déjà non versionné) une fois la décision exécutée.
 4. Retirer `.env`/`.env.example` (`GEMINI_API_KEY`) si plus aucun usage ne le requiert.
 5. Retirer le rappel automatique « MANDATORY: run graphify... » injecté à chaque appel Bash/Read/Grep — observé et explicitement ignoré dans toutes les fenêtres de mesure du lot B (rapports 032 §8, 033 §6, 034 §6).
-6. Mettre à jour `knowledge/runbook-vault-setup.md` §4 (retirer ou requalifier la section Graphify, ajouter l'entrée d'historique du retrait en §9 — obligation déjà inscrite dans le runbook lui-même).
+6. Mettre à jour `_trash/runbook-vault-setup.md` §4 (retirer ou requalifier la section Graphify, ajouter l'entrée d'historique du retrait en §9 — obligation déjà inscrite dans le runbook lui-même ; runbook retiré de la distribution depuis, Mission 175).
 7. Revoir la mention de Graphify dans `DECISION-2026-08-19-115306-project-registry-v1.md` (D5 : l'index et les fiches du Registry entraient dans le corpus actif Graphify) — devient sans objet.
 8. Vérifier qu'aucun skill de première installation (arbitrage 7 des sept arbitrages) n'installe Graphify comme composant du graphe distribué.
 

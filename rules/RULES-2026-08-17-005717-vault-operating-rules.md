@@ -38,7 +38,7 @@ Les projets externes conservent leur contexte métier, leurs objectifs, leur ét
 
 ## 5. Capitalisation depuis les projets
 
-Une leçon découverte dans un projet peut être proposée au Vault uniquement si elle est généralisable. Son intégration exige une validation humaine préalable, conformément au [modèle opératoire](../knowledge/BRIEF-2026-08-17-003000-vault-concept-operating-model.md).
+Une leçon découverte dans un projet peut être proposée au Vault uniquement si elle est généralisable. Son intégration exige une validation humaine préalable, conformément au [modèle opératoire](../_trash/BRIEF-2026-08-17-003000-vault-concept-operating-model.md) (retiré de la distribution, conservé à titre historique).
 
 ## 6. Git
 

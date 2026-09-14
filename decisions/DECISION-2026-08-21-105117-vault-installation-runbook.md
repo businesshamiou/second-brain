@@ -19,7 +19,7 @@ Le Vault et son outillage (Git, hooks, Graphify, clé Gemini, serveur MCP « wor
 
 Cette décision reprend, sans ajout de fond, les points de la proposal (historique de l'atelier, non distribué) qu'elle grave :
 
-**D1.** Un fichier [`vault/knowledge/runbook-vault-setup.md`](../knowledge/runbook-vault-setup.md) : mode d'emploi ordonné pour installer et vérifier le Vault et son outillage. Sections fixes : prérequis · dépôts et branches · Git (hooks, `core.hooksPath`, attributs) · Graphify (version, installation, `.env.example`, commandes d'usage, régénération du rapport, sauvegardes) · serveur MCP « workshops » (configuration, sans valeur sensible) · rôles et sessions (Pilot, Executor, où ouvrir la session) · vérification de bon fonctionnement (commandes et résultats attendus) · historique des changements.
+**D1.** Un fichier [`vault/_trash/runbook-vault-setup.md`](../_trash/runbook-vault-setup.md) (retiré de la distribution depuis, conservé à titre historique) : mode d'emploi ordonné pour installer et vérifier le Vault et son outillage. Sections fixes : prérequis · dépôts et branches · Git (hooks, `core.hooksPath`, attributs) · Graphify (version, installation, `.env.example`, commandes d'usage, régénération du rapport, sauvegardes) · serveur MCP « workshops » (configuration, sans valeur sensible) · rôles et sessions (Pilot, Executor, où ouvrir la session) · vérification de bon fonctionnement (commandes et résultats attendus) · historique des changements.
 
 **D2.** Chaque ligne est qualifiée `VERIFIED` (mesurée au moment de l'écriture, commande à l'appui) ou `DECLARED` (reprise d'un document). Une ligne `DECLARED` devient `VERIFIED` quand une Mission la mesure.
 
@@ -58,4 +58,4 @@ Premier usage réel dans la présente Mission (022) : le runbook V1 est créé, 
 
 ## Liens
 
-- `see also` — [Runbook d'installation du Vault — V1](../knowledge/runbook-vault-setup.md)
+- `see also` — [Runbook d'installation du Vault — V1](../_trash/runbook-vault-setup.md) (retiré de la distribution, conservé à titre historique)

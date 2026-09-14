@@ -67,9 +67,13 @@ os.chdir(REPO_ROOT)
 # ".codex" deja presents -- emplacement officiel des skills et sous-agents
 # Codex (T11), un dossier machine-lu par un outil tiers, jamais un contenu
 # du corpus documentaire indexe par ce script.
+# "_trash" ajoute (Mission 175, etape 7) : corbeille du produit, contenu
+# retire de la distribution et fige (Decision 110852) -- jamais navigue par
+# l'ordre de recherche par index (assistant/ASSISTANT.md), donc jamais
+# indexe, meme motif que "state".
 PRUNE_NAMES = set(
     ".git .githooks .claude .codex .agents graphify-out tools patterns "
-    "node_modules state .venv venv __pycache__ skills-warehouse".split()
+    "node_modules state .venv venv __pycache__ skills-warehouse _trash".split()
 )
 
 # Mission 140 : index.md et ses archives figees ne s'indexent jamais eux-memes

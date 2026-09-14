@@ -7,6 +7,8 @@
 .githooks/pre-push	DISTRIBUABLE
 .gitignore	DISTRIBUABLE
 .pre-commit-hooks.yaml	DISTRIBUABLE
+_trash/BRIEF-2026-08-17-003000-vault-concept-operating-model.md	INTERNE
+_trash/runbook-vault-setup.md	INTERNE
 AGENTS.md	DISTRIBUABLE
 distribution-manifest.txt	DISTRIBUABLE
 CLAUDE.md	DISTRIBUABLE
@@ -70,12 +72,10 @@ i18n/catalog.en.json	DISTRIBUABLE
 i18n/catalog.es.json	DISTRIBUABLE
 i18n/catalog.fr.json	DISTRIBUABLE
 index.md	DISTRIBUABLE
-knowledge/BRIEF-2026-08-17-003000-vault-concept-operating-model.md	DISTRIBUABLE
 knowledge/BRIEF-2026-08-17-140100-project-operating-model.md	DISTRIBUABLE
 knowledge/BRIEF-2026-08-17-211522-project-operating-model-v2.md	DISTRIBUABLE
 knowledge/corpus-layering.md	DISTRIBUABLE
 knowledge/index.md	DISTRIBUABLE
-knowledge/runbook-vault-setup.md	DISTRIBUABLE
 knowledge/verification-and-evidence.md	DISTRIBUABLE
 projects/PROJECT-REGISTRY.md	DISTRIBUABLE
 projects/index.md	DISTRIBUABLE

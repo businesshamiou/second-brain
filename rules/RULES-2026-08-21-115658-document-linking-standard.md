@@ -102,6 +102,6 @@ Cette note applique le [Standard de liens entre documents](../rules/RULES-2026-0
 
 - `applies` — [Règles de conduite du Vault, §8](./RULES-2026-08-17-005717-vault-operating-rules.md)
 - `source` — Proposal : standard de liens (historique de l'atelier, non distribué) (hors Vault)
-- `see also` — [Runbook d'installation du Vault](../knowledge/runbook-vault-setup.md)
+- `see also` — [Runbook d'installation du Vault](../_trash/runbook-vault-setup.md) (retiré de la distribution, conservé à titre historique)
 - `amended by` — [Décision — Bornage du standard de liens au corpus](../decisions/DECISION-2026-08-28-203627-link-section-requirement-scoped-to-corpus.md)
 - `amended by` — Décision — Liens sortants vers un autre dépôt (historique de l'atelier, non distribué) (hors Vault)

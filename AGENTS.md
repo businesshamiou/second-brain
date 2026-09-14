@@ -22,7 +22,7 @@ Before any action: determine your role. Read [the role charter](./rules/RULES-20
 - Toute amélioration transversale issue d’un projet doit être validée avant son intégration au Vault.
 - Ne pas introduire dans le Vault les prompts, présentations, storyboards, supports ou outils dont le seul rôle est de fabriquer le workshop.
 - Tout rapport d'exécution de l'Executor est un fichier dans le dossier `reports/` du projet en cours (Decision du 2026-08-21) ; en chat, deux lignes : chemin du rapport et ligne « gates ».
-- L'installation du Vault est décrite dans [le runbook](./knowledge/runbook-vault-setup.md) ; toute Mission qui installe, configure, met à jour ou retire un composant le met à jour dans le même commit.
+- L'ancien runbook d'installation du Vault est retiré de la distribution ; conservé, non supprimé, dans [`_trash/`](./_trash/runbook-vault-setup.md), à titre historique seulement — plus d'obligation de mise à jour.
 - Tout document porte une section `## Liens` conforme au [standard de liens](./rules/RULES-2026-08-21-115658-document-linking-standard.md) ; le contrôle `tools/check-links.sh` tourne au pre-commit.
 - Toute délégation à l'Executor suit la [règle du relais entre rôles par mini-prompts](./rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md) : mini-prompt à l'aller, bloc `RELAY` en fin de rapport au retour.
 - Pour tout travail dans `skills-warehouse/` : lire d'abord [`skills-warehouse/AGENTS.md`](./skills-warehouse/AGENTS.md) — ce sous-dossier suit ses propres conventions, distinctes de celles ci-dessus (T02, Mission 168). Codex le charge automatiquement quand il est lancé dans ce sous-dossier ou plus bas ; cette ligne route Codex lancé à la racine et tout autre agent vers la même source.

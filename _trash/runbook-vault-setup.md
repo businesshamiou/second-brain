@@ -9,7 +9,7 @@ status: active
 
 # RUNBOOK D'INSTALLATION DU VAULT — V1
 
-Mode d'emploi ordonné pour installer et vérifier le Vault et son outillage. Complète le [README](../README.md) (pourquoi/quoi) par le comment. Chaque ligne de fait porte `[VERIFIED]` (mesurée par l'Executor au moment de l'écriture, commande à l'appui) ou `[DECLARED — source]` (reprise d'un document cité). Une ligne `DECLARED` devient `VERIFIED` quand une Mission ultérieure la mesure. Voir les [deux principes de vérification](./verification-and-evidence.md) : *measure, don't copy*.
+Mode d'emploi ordonné pour installer et vérifier le Vault et son outillage. Complète le [README](../README.md) (pourquoi/quoi) par le comment. Chaque ligne de fait porte `[VERIFIED]` (mesurée par l'Executor au moment de l'écriture, commande à l'appui) ou `[DECLARED — source]` (reprise d'un document cité). Une ligne `DECLARED` devient `VERIFIED` quand une Mission ultérieure la mesure. Voir les [deux principes de vérification](../knowledge/verification-and-evidence.md) : *measure, don't copy*.
 
 **Obligation de mise à jour** : toute Mission qui installe, met à jour, configure ou retire un composant met ce runbook à jour **dans le même commit** ([Decision](../decisions/DECISION-2026-08-21-105117-vault-installation-runbook.md)). Le rapport d'exécution de cette Mission porte une section « Impact sur l'installation ».
 
