@@ -68,8 +68,38 @@ function Test-LinkResolvesTo {
     return ($linkedTargets -icontains $resolvedTarget)
 }
 
+# GetLongPathName (Mission 177 step 2, third CI cause): on the GitHub
+# Windows runner, $env:TEMP itself resolves through an 8.3 short-name
+# segment ("C:\Users\RUNNER~1\...", measured directly in run 34895686688's
+# own log) -- never on this machine, same shape as the two prior Windows-
+# only causes in this Mission's own commit history. Resolve-Path preserves
+# a short segment unchanged (measured directly), but the installer's own
+# junction/hardlink creation (tools/sb_installer_helper.py,
+# os.path.realpath()) canonicalizes its target to the long form before
+# writing it into the reparse point / hard link -- so every
+# Test-LinkResolvesTo comparison below compared a short-form Resolve-Path
+# against a long-form .Target and failed on a string mismatch alone, never
+# a real linking defect (reproduced: forcing $env:TEMP to a short form
+# locally reproduces the exact 4 failures byte-for-byte; the links
+# themselves were always correct). Canonicalizing $TestRoot once, up front,
+# keeps every path derived from it (Join-Path) in the same long form the
+# installer's own realpath() will produce.
+Add-Type -Namespace Sb177 -Name PathNative -MemberDefinition @'
+[DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+public static extern uint GetLongPathName(string lpszShortPath, System.Text.StringBuilder lpszLongPath, uint cchBuffer);
+'@
+
+function Get-LongPath {
+    param([string] $Path)
+    $sb = New-Object System.Text.StringBuilder 1024
+    $len = [Sb177.PathNative]::GetLongPathName($Path, $sb, $sb.Capacity)
+    if ($len -gt 0 -and $len -lt $sb.Capacity) { return $sb.ToString(0, $len) }
+    return $Path
+}
+
 $TestRoot = Join-Path $env:TEMP ("sb-projectlinks-" + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Force -Path $TestRoot | Out-Null
+$TestRoot = Get-LongPath -Path $TestRoot
 Write-Output ""
 Write-Output "TestRoot: $TestRoot"
 
