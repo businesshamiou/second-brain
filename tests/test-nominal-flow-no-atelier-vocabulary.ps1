@@ -181,6 +181,20 @@ try {
     $installOutput = (Get-Content -Path $stdoutPath -ErrorAction SilentlyContinue) + (Get-Content -Path $stderrPath -ErrorAction SilentlyContinue) | Out-String
     Add-PhaseOutput -Phase 'install.ps1 (fresh install)' -Text $installOutput
 
+    # On a runner with no uv preinstalled (every GitHub-hosted Windows
+    # runner), install.ps1 above bootstraps uv under its own -TestRoot
+    # profile, but as a genuine separate process (Start-Process, needed to
+    # capture nested bash.exe console text) -- so that $env:Path update dies
+    # with it. Reproduced locally by hiding uv from PATH: this script's own
+    # later bash/git calls then fail with "exec: uv: not found" at guardians
+    # `vault-check-indexes-fresh`/`vault-check-index-weight`, matching CI.
+    # Fixed by reusing the profile bin install.ps1 already made, on this
+    # process's own PATH.
+    $testProfileUvBin = Join-Path $TestRoot 'profile\.local\bin'
+    if (Test-Path $testProfileUvBin) {
+        $env:Path = "$testProfileUvBin;$env:Path"
+    }
+
     Write-Output ""
     Write-Output "=== 2. Session opening: tools/session-preflight.sh in the fresh clone ==="
     $bashExe = Resolve-BashExe
