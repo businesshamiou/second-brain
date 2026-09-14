@@ -7,8 +7,8 @@
 # Le refus est la position par defaut.
 #
 # Fichiers controles, dans l'arbre STAGE (jamais le worktree) : tout
-# index.md, tout index-archive-*.md, et workshop-production/missions/
-# MISSION-INDEX.md. Un seul appel Git, jamais un par fichier.
+# index.md, tout index-archive-*.md, et missions/MISSION-INDEX.md. Un seul
+# appel Git, jamais un par fichier.
 
 import re
 import subprocess
@@ -16,7 +16,16 @@ import sys
 
 WEIGHT_CAP = 8000  # DECISION-2026-09-05-124647 point 3
 LINE_CAP = 300  # DECISION-2026-09-02-191407
-MISSION_INDEX_PATH = "workshop-production/missions/MISSION-INDEX.md"
+# Chemin relatif a la racine du DEPOT COURANT (celui qui commite), pas un
+# chemin d'atelier en dur : meme defaut, meme correction que
+# tools/check_indexes_fresh.py (Mission 175, etape 2) -- residu non traite
+# alors dans ce fichier jumeau, trouve par la Mission 177. Sans ce
+# changement, la butee de 300 caracteres par ligne ne se declenchait jamais
+# sur un projet reel (missions/MISSION-INDEX.md, pas
+# workshop-production/missions/MISSION-INDEX.md). Aucun dossier missions/ a
+# la racine de second-brain lui-meme : la severite ne change pour aucun
+# contenu reel de ce depot.
+MISSION_INDEX_PATH = "missions/MISSION-INDEX.md"
 
 # Non retroactif, meme discipline que la butee existante de
 # check_indexes_fresh.py : seules les lignes de Mission au-dela de cette

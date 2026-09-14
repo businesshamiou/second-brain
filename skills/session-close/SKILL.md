@@ -3,7 +3,7 @@ name: session-close
 description: "Close a work session: inventory holes, refuse to close while any remain, then produce the handoff and capture (Pilot) or the closing commit (Executor). Use when the Owner says wrap, close, or asks to end the session. Triggers on: « wrap », « on ferme », « clôture », « clos la session », « close »."
 license: "MIT"
 metadata:
-  vault-implements: "(historique de l'atelier, non distribué), vault/decisions/DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md, vault/rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md"
+  vault-implements: "(historique de l'atelier, non distribué), decisions/DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md, rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md"
   vault-validated: "2026-09-08T00:40:13-04:00"
 ---
 

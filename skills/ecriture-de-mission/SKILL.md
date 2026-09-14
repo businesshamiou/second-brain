@@ -3,7 +3,7 @@ name: ecriture-de-mission
 description: "Draft a Vault Mission file and its Executor mini-prompt from the template, with measured links, a mandatory Context section, and a cross-check of Validations against Gates. Use when the Pilot needs to write, review, or fix a Mission. Triggers on: « écris la Mission », « rédige la Mission », « write the Mission »."
 license: "MIT"
 metadata:
-  vault-implements: "(historique de l'atelier, non distribué), vault/rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md, vault/rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md, vault/decisions/DECISION-2026-08-29-212009-evidence-status-and-stop-control.md"
+  vault-implements: "(historique de l'atelier, non distribué), rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md, rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md, decisions/DECISION-2026-08-29-212009-evidence-status-and-stop-control.md"
   vault-validated: "2026-09-08T00:40:13-04:00"
 ---
 

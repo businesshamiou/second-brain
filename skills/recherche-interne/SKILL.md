@@ -3,7 +3,7 @@ name: recherche-interne
 description: "Search the Vault and the project corpus by discipline: indexes and description fields first, then exact grep or glob, and never assert a path that was not measured. Use when looking for a document, a rule, a decision, a term, or when asked where something lives. Triggers on: « où est », « trouve », « cherche dans le Vault », « quel fichier », « where is »."
 license: "MIT"
 metadata:
-  vault-implements: "(historique de l'atelier, non distribué), vault/decisions/DECISION-2026-08-29-212009-evidence-status-and-stop-control.md, (historique de l'atelier, non distribué)"
+  vault-implements: "(historique de l'atelier, non distribué), decisions/DECISION-2026-08-29-212009-evidence-status-and-stop-control.md, (historique de l'atelier, non distribué)"
   vault-validated: "2026-09-07T20:31:20-04:00"
 ---
 

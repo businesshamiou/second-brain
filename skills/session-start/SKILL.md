@@ -3,7 +3,7 @@ name: session-start
 description: "Open a work session: read the state files in order (Pilot: digest, handoff, Git refs; Executor: also repo and guardian state), and announce role and readiness. Use at the start of any session, or when asked to (re)open, resume, or check readiness. Triggers on: « nouvelle session », « nouvelle session pilote », « ouvre la session », « ouverture », « open the session »."
 license: "MIT"
 metadata:
-  vault-implements: "(historique de l'atelier, non distribué), (historique de l'atelier, non distribué), vault/rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md"
+  vault-implements: "(historique de l'atelier, non distribué), (historique de l'atelier, non distribué), rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md"
   vault-validated: "2026-09-07T21:32:10-04:00"
 ---
 
