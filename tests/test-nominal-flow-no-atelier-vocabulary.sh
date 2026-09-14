@@ -43,22 +43,39 @@ assert_true() {
   fi
 }
 
+# Mission 176: the three P4 (privacy) patterns are never written a second
+# time into a tracked file -- tools/check-private-patterns.sh's own
+# PLAIN_PATTERNS array is the sole source that already catalogs them
+# (already exempted from its own sweep by pathspec). Derived here at
+# runtime instead of duplicated as a literal; a missing source or an empty
+# derived list fails loudly (exit 1) rather than silently running this
+# sweep blind. The atelier words, the "Mission NNN" citation, and the
+# Mission 174 defect strings below are NOT P4 (rule 2) -- they stay literal.
+GUARDIAN_SCRIPT="$REPO_ROOT/tools/check-private-patterns.sh"
+if [ ! -f "$GUARDIAN_SCRIPT" ]; then
+  echo "FATAL: cannot derive P4 patterns -- guardian script not found: $GUARDIAN_SCRIPT" >&2
+  exit 1
+fi
+mapfile -t PRIVATE_PATTERNS < <(sed -n '/^PLAIN_PATTERNS=(/,/^)/p' "$GUARDIAN_SCRIPT" | grep -oE '"[^"]+"' | tr -d '"')
+if [ "${#PRIVATE_PATTERNS[@]}" -eq 0 ]; then
+  echo "FATAL: derived P4 pattern list is empty -- PLAIN_PATTERNS not found or empty in $GUARDIAN_SCRIPT" >&2
+  exit 1
+fi
+
 # Same list as the PowerShell version -- rule 2's own vocabulary, a bare
 # "Mission NNN" citation in displayed output, and the exact defect strings
-# this Mission's steps 3/4 removed.
+# this Mission's steps 3/4 removed, plus the derived P4 patterns above.
 FORBIDDEN_PATTERNS=(
   'workshop-build'
   'workshop-production'
-  'aios-production'
   '\bworkshops\b'
-  'glintbloom'
   '\bLegacy\b'
-  'WIN-AE600DJQCF6'
   'businesshamiou'
   'Mission [0-9]{2,3}(-C[0-9]+)?'
   'depot frere introuvable'
   'Pre-vol agregateur vault'
   'AVERTI \(hors depot'
+  "${PRIVATE_PATTERNS[@]}"
 )
 
 TEST_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/sb-noatelier-XXXXXX")"
@@ -115,18 +132,35 @@ assert_true "$([ "$COMMIT_EXIT" = "0" ]; echo $?)" "trial commit passes all proj
 echo "--- captured output: trial commit in the first project ---"
 printf '%s\n' "$COMMIT_OUTPUT"
 
+# Reusable so the same detection logic backs both the real sweep (step 4)
+# and the negative case (step 5, Mission 176 rule 4: a green suite that
+# detects nothing is worse than the defect it fixed).
+sweep_forbidden_patterns() {
+  local text="$1"
+  SWEEP_ANY_MATCH=0
+  for pattern in "${FORBIDDEN_PATTERNS[@]}"; do
+    local hits
+    hits="$(printf '%s\n' "$text" | grep -inE -- "$pattern" || true)"
+    if [ -n "$hits" ]; then
+      SWEEP_ANY_MATCH=1
+      echo "  FAIL - forbidden pattern '$pattern' found:"
+      printf '%s\n' "$hits" | sed 's/^/      /'
+    fi
+  done
+}
+
 echo ""
 echo "=== 4. Forbidden-vocabulary sweep across all three phases ==="
-ANY_MATCH=0
-for pattern in "${FORBIDDEN_PATTERNS[@]}"; do
-  HITS="$(grep -inE -- "$pattern" "$ALL_OUTPUT_FILE" || true)"
-  if [ -n "$HITS" ]; then
-    ANY_MATCH=1
-    echo "  FAIL - forbidden pattern '$pattern' found:"
-    printf '%s\n' "$HITS" | sed 's/^/      /'
-  fi
-done
-assert_true "$ANY_MATCH" "no atelier name/word, Mission-number citation, or removed defect string appears anywhere in the nominal flow"
+sweep_forbidden_patterns "$(cat "$ALL_OUTPUT_FILE")"
+assert_true "$SWEEP_ANY_MATCH" "no atelier name/word, Mission-number citation, or removed defect string appears anywhere in the nominal flow"
+
+echo ""
+echo "=== 5. Negative case: the sweep still detects a P4 pattern when present ==="
+# Built at runtime from the derived array (never a literal P4 string in this
+# tracked file) and fed only to the in-memory sweep, never written to disk.
+SYNTHETIC_LEAK="some diagnostic line mentions ${PRIVATE_PATTERNS[0]} in passing"
+sweep_forbidden_patterns "$SYNTHETIC_LEAK"
+assert_true "$([ "$SWEEP_ANY_MATCH" = "1" ]; echo $?)" "sweep detects a fabricated P4 pattern (${PRIVATE_PATTERNS[0]}) built at runtime, never written to disk"
 
 rm -rf -- "$TEST_ROOT"
 echo ""

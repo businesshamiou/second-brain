@@ -31,10 +31,12 @@
     All three phases' output is concatenated and checked against two
     things:
       (a) every name/word of Mission 174's own Doctrine rule 2 (the
-          Owner's atelier: workshop-build, workshop-production,
-          aios-production, the bare word "workshops", glintbloom, Legacy,
-          this machine's or account's name) and a bare "Mission NNN"
-          citation in a displayed message;
+          Owner's atelier -- repository names, machine/account identifiers,
+          a legacy-project codename, all of it catalogued once by
+          tools/check-private-patterns.sh's own PLAIN_PATTERNS and derived
+          from there at runtime, Mission 176, rather than repeated here as
+          a second literal copy) and a bare "Mission NNN" citation in a
+          displayed message;
       (b) the exact defect strings step 3/4 of this Mission removed
           (regression guard on the specific fixes, not just the general
           vocabulary list).
@@ -64,20 +66,44 @@ function Assert-True {
     else { Write-Output "  FAIL - $Message"; $failures.Add($Message) | Out-Null }
 }
 
-# Rule 2's own list, plus "Mission NNN" as a displayed-message pattern.
-# Real machine/account identifiers (rule 2: "noms de machine ou de compte")
-# checked the same way check-private-patterns.sh does: exact strings, not
-# guessed from environment variables (a participant's own machine name
-# would trivially differ; this list is THIS repository's own known,
-# already-catalogued leak class, per tools/check-private-patterns.sh).
+# Mission 176: the three P4 (privacy) patterns are never written a second
+# time into a tracked file -- tools/check-private-patterns.sh's own
+# PLAIN_PATTERNS array is the sole source that already catalogs them
+# (already exempted from its own sweep by pathspec). Derived here at
+# runtime instead of duplicated as a literal; a missing source or an empty
+# derived list fails loudly (throw) rather than silently running this
+# sweep blind.
+function Get-GuardianPrivatePatterns {
+    param([string] $RepoRoot)
+    $guardianPath = Join-Path $RepoRoot 'tools\check-private-patterns.sh'
+    if (-not (Test-Path -LiteralPath $guardianPath)) {
+        throw "Cannot derive P4 patterns -- guardian script not found: $guardianPath"
+    }
+    $text = Get-Content -Raw -LiteralPath $guardianPath
+    $block = [regex]::Match($text, '(?s)PLAIN_PATTERNS=\((.*?)\)')
+    if (-not $block.Success) {
+        throw "Cannot derive P4 patterns -- PLAIN_PATTERNS array not found in $guardianPath"
+    }
+    $patterns = [regex]::Matches($block.Groups[1].Value, '"([^"]+)"') | ForEach-Object { $_.Groups[1].Value }
+    if (-not $patterns -or @($patterns).Count -eq 0) {
+        throw "Cannot derive P4 patterns -- PLAIN_PATTERNS array is empty in $guardianPath"
+    }
+    return @($patterns)
+}
+$PrivatePatterns = Get-GuardianPrivatePatterns -RepoRoot $RepoRoot
+
+# Rule 2's own list, plus "Mission NNN" as a displayed-message pattern, plus
+# the derived P4 patterns above. Real machine/account identifiers (rule 2:
+# "noms de machine ou de compte") checked the same way
+# check-private-patterns.sh does: exact strings, not guessed from
+# environment variables (a participant's own machine name would trivially
+# differ; this list is THIS repository's own known, already-catalogued leak
+# class, per tools/check-private-patterns.sh).
 $ForbiddenPatterns = @(
     'workshop-build',
     'workshop-production',
-    'aios-production',
     '\bworkshops\b',
-    'glintbloom',
     '\bLegacy\b',
-    'WIN-AE600DJQCF6',
     'businesshamiou',
     'Mission [0-9]{2,3}(-C[0-9]+)?',
     # Exact defect strings this Mission's steps 3/4 removed -- regression
@@ -85,7 +111,31 @@ $ForbiddenPatterns = @(
     'depot frere introuvable',
     'Pre-vol agregateur vault',
     'AVERTI \(hors depot'
-)
+) + $PrivatePatterns
+
+# Reusable so the same detection logic backs both the real sweep (step 4)
+# and the negative case (step 5). No Write-Output inside: a function's
+# return value in PowerShell is EVERY unsuppressed pipeline write, not just
+# its `return` expression -- printing here would silently turn the boolean
+# callers expect into a System.Object[] (measured: this exact trap, on the
+# first version of this function). Purely a detector; callers print.
+function Test-ForbiddenPatterns {
+    param([string[]] $Patterns, [string] $Text)
+    $hitReports = @()
+    foreach ($pattern in $Patterns) {
+        $hits = @($Text -split "`n" | Select-String -Pattern $pattern)
+        if ($hits.Count -gt 0) {
+            $hitReports += [PSCustomObject]@{
+                Pattern = $pattern
+                Lines   = @($hits | ForEach-Object { $_.Line.Trim() })
+            }
+        }
+    }
+    return [PSCustomObject]@{
+        AnyMatch = ($hitReports.Count -gt 0)
+        Hits     = $hitReports
+    }
+}
 
 $TestRoot = Join-Path $env:TEMP ("sb-noatelier-" + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Force -Path $TestRoot | Out-Null
@@ -155,17 +205,26 @@ try {
     Write-Output ""
     Write-Output "=== 4. Forbidden-vocabulary sweep across all three phases ==="
     $combined = ($AllPhaseOutput -join "`n")
-    $anyMatch = $false
-    foreach ($pattern in $ForbiddenPatterns) {
-        $hits = $combined -split "`n" | Select-String -Pattern $pattern
-        if ($hits) {
-            $anyMatch = $true
-            Write-Output "  FAIL - forbidden pattern '$pattern' found:"
-            foreach ($h in $hits) { Write-Output "      $($h.Line.Trim())" }
-            $failures.Add("forbidden pattern '$pattern' found in nominal flow output") | Out-Null
-        }
+    $sweepResult = Test-ForbiddenPatterns -Patterns $ForbiddenPatterns -Text $combined
+    foreach ($r in $sweepResult.Hits) {
+        Write-Output "  FAIL - forbidden pattern '$($r.Pattern)' found:"
+        foreach ($line in $r.Lines) { Write-Output "      $line" }
+        $failures.Add("forbidden pattern '$($r.Pattern)' found in nominal flow output") | Out-Null
     }
-    Assert-True (-not $anyMatch) "no atelier name/word, Mission-number citation, or removed defect string appears anywhere in the nominal flow"
+    Assert-True (-not $sweepResult.AnyMatch) "no atelier name/word, Mission-number citation, or removed defect string appears anywhere in the nominal flow"
+
+    Write-Output ""
+    Write-Output "=== 5. Negative case: the sweep still detects a P4 pattern when present ==="
+    # Built at runtime from the derived array (never a literal P4 string in
+    # this tracked file) and fed only to the in-memory sweep, never written
+    # to disk (Mission 176 rule 4: a green suite that detects nothing is
+    # worse than the defect it fixed).
+    $syntheticLeak = "some diagnostic line mentions $($PrivatePatterns[0]) in passing"
+    $negativeResult = Test-ForbiddenPatterns -Patterns $ForbiddenPatterns -Text $syntheticLeak
+    foreach ($r in $negativeResult.Hits) {
+        Write-Output "  detected (expected) - pattern '$($r.Pattern)' matched $($r.Lines.Count) line(s)"
+    }
+    Assert-True $negativeResult.AnyMatch "sweep detects a fabricated P4 pattern ($($PrivatePatterns[0])) built at runtime, never written to disk"
 }
 catch {
     Write-Output "  FAIL - unhandled error: $($_.Exception.Message)"
