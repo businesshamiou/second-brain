@@ -89,8 +89,17 @@ def is_pruned_dir(d):
 
 
 # --- Bloc Bash l.78-79 : butee MISSION-INDEX.md -----------------------------
+# Chemin relatif a la racine du DEPOT COURANT (celui qui commite -- un projet
+# cree par tools/project-bootstrap.sh, dont le registre vit a la racine de
+# son propre dossier missions/, jamais sous un sous-dossier d'atelier :
+# "workshop-production/" etait un chemin d'atelier laisse en dur (Mission
+# 174, audit ; Mission 175, etape 2), sans effet sur un projet reel puisque
+# ce sous-dossier n'y existe jamais -- la butee ne se declenchait donc
+# jamais hors de l'atelier de l'Owner. Mesure au meme rapport : ce depot
+# (second-brain) lui-meme ne porte aucun dossier missions/ a sa racine, donc
+# ce changement ne modifie la severite d'aucun contenu reel de ce depot.
 MISSION_INDEX_LINE_CAP_BASELINE = 122
-MISSION_INDEX_PATH = "workshop-production/missions/MISSION-INDEX.md"
+MISSION_INDEX_PATH = "missions/MISSION-INDEX.md"
 
 FAIL = 0
 

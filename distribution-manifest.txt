@@ -398,6 +398,7 @@ templates/current-state-template.md	DISTRIBUABLE
 templates/decision-template.md	DISTRIBUABLE
 templates/handoff-template.md	DISTRIBUABLE
 templates/index.md	DISTRIBUABLE
+templates/mission-index-template.md	DISTRIBUABLE
 templates/mission-template.md	DISTRIBUABLE
 templates/pilot-contract-template.md	DISTRIBUABLE
 templates/project-registry-template.md	DISTRIBUABLE

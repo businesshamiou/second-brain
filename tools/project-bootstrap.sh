@@ -58,12 +58,13 @@ PROJECTS_DIR="$VAULT_ROOT/projects"
 REGISTRY="$PROJECTS_DIR/PROJECT-REGISTRY.md"
 STANDARD_RULE="$VAULT_ROOT/rules/RULES-2026-08-26-142800-project-structure-standard.md"
 HELPER="$VAULT_ROOT/tools/sb_installer_helper.py"
+MISSION_INDEX_TEMPLATE="$VAULT_ROOT/templates/mission-index-template.md"
 
 PYRUN() {
   uv run --no-project "$HELPER" "$@"
 }
 
-for DEP in "$CONFORMITY_CHECK" "$INDEXES_BUILD" "$JOURNAL_APPEND" "$STANDARD_RULE" "$HELPER"; do
+for DEP in "$CONFORMITY_CHECK" "$INDEXES_BUILD" "$JOURNAL_APPEND" "$STANDARD_RULE" "$HELPER" "$MISSION_INDEX_TEMPLATE"; do
   if [ ! -e "$DEP" ]; then
     echo "REFUS : dependance introuvable : $DEP" >&2
     exit 1
@@ -131,6 +132,15 @@ PROJECT_REL="$(realpath --relative-to="$WORKSPACE_ROOT" "$TARGET_ABS")"
 REL_STANDARD="$(realpath --relative-to="$TARGET_ABS" "$STANDARD_RULE")"
 REL_VAULT="$(realpath --relative-to="$TARGET_ABS" "$VAULT_ROOT")"
 VAULT_HEAD="$(git -C "$VAULT_ROOT" rev-parse HEAD 2>/dev/null || echo inconnu)"
+
+# --- Registre de Missions du projet (Mission 175, etape 2) : le squelette
+# promet "missions/ = Missions ET leurs rapports" (standard S2) mais ne
+# deposait jamais le registre lui-meme -- un projet cree restait sans
+# MISSION-INDEX.md tant qu'aucune Mission n'etait ecrite a la main. Copie
+# verbatim (front matter, en-tetes, ## Liens), jamais une chaine en dur ici,
+# meme motif que le registre du Vault plus haut. build-indexes.sh (plus bas)
+# indexe ce fichier des qu'il existe sur disque, avant tout premier commit.
+cp "$MISSION_INDEX_TEMPLATE" "$TARGET_ABS/missions/MISSION-INDEX.md"
 
 cat > "$TARGET_ABS/README.md" <<EOF
 ---
