@@ -38,6 +38,9 @@ STATE_DIR="$PROJECT_ROOT/state"
 JOURNAL="$STATE_DIR/journal.md"
 STATE_FILE="$STATE_DIR/STATE.md"
 CONTRACT_TEMPLATE="$VAULT_ROOT/templates/pilot-contract-template.md"
+STANDARD_RULE="$VAULT_ROOT/rules/RULES-2026-08-26-142800-project-structure-standard.md"
+REL_STANDARD="$(realpath --relative-to="$STATE_DIR" "$STANDARD_RULE" 2>/dev/null)"
+[ -z "$REL_STANDARD" ] && REL_STANDARD="$STANDARD_RULE"
 
 # --- 0. Contrat du Pilot, recopie depuis le gabarit, jamais redige ici ---
 # Plafond arbitre : exactement sept lignes (Mission 029). Echec explicite,
@@ -275,5 +278,5 @@ GEN_REL="$(realpath --relative-to="$STATE_DIR" "$SCRIPT_DIR/build-state.sh")"
   echo ""
   echo "## Liens"
   echo ""
-  echo "- \`prescribed by\` — [Lot A — journal, fiche d'état, index générés, recherche par contenu et fichier marqueur](../missions/MISSION-2026-08-23-122712-027-state-journal-indexes-search-and-marker.md)"
+  echo "- \`prescribed by\` — [Standard de structure de projet]($REL_STANDARD) (hors Vault)"
 } > "$STATE_FILE"

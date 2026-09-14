@@ -59,12 +59,14 @@ REGISTRY="$PROJECTS_DIR/PROJECT-REGISTRY.md"
 STANDARD_RULE="$VAULT_ROOT/rules/RULES-2026-08-26-142800-project-structure-standard.md"
 HELPER="$VAULT_ROOT/tools/sb_installer_helper.py"
 MISSION_INDEX_TEMPLATE="$VAULT_ROOT/templates/mission-index-template.md"
+BUILD_STATE="$VAULT_ROOT/tools/build-state.sh"
+BUILD_DIGEST="$VAULT_ROOT/tools/build-digest.sh"
 
 PYRUN() {
   uv run --no-project "$HELPER" "$@"
 }
 
-for DEP in "$CONFORMITY_CHECK" "$INDEXES_BUILD" "$JOURNAL_APPEND" "$STANDARD_RULE" "$HELPER" "$MISSION_INDEX_TEMPLATE"; do
+for DEP in "$CONFORMITY_CHECK" "$INDEXES_BUILD" "$JOURNAL_APPEND" "$STANDARD_RULE" "$HELPER" "$MISSION_INDEX_TEMPLATE" "$BUILD_STATE" "$BUILD_DIGEST"; do
   if [ ! -e "$DEP" ]; then
     echo "REFUS : dependance introuvable : $DEP" >&2
     exit 1
@@ -303,6 +305,18 @@ EOF
 # PROJECTS_DIR seul : projects/ n'est pas une racine de balayage a elle seule,
 # le superseded-files.txt du Vault reste unique, a sa racine. ---
 bash "$INDEXES_BUILD" "$TARGET_ABS" "$VAULT_ROOT" >/dev/null
+
+# --- Fiche d'etat et digest du projet (Mission 175, etape 3) : le standard
+# de structure promet "state/ = journal + fiche generee" mais le squelette
+# ne deposait que l'amorce de journal -- ni STATE.md ni DIGEST.md n'existaient
+# avant la premiere Mission, laissant une ouverture de session sans rien a
+# lire. Les deux outils prennent deja un dossier-projet generique en argument
+# (aucun chemin d'atelier en dur) : appeles ici tels quels, jamais copies a
+# la main. Apres la regeneration des index ci-dessus, pour que "Documents
+# recents" (STATE.md) et l'index frais soient coherents des la premiere
+# lecture. ---
+bash "$BUILD_STATE" "$TARGET_ABS" >/dev/null
+bash "$BUILD_DIGEST" "$TARGET_ABS" >/dev/null
 
 # --- .gitignore pour les liens vers l'assistant et les skills, POSE AVANT
 # de creer les liens : sans cela, le premier `git add -A` de ce projet (fait
