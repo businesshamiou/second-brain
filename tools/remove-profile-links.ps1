@@ -22,6 +22,16 @@
     installed from elsewhere is left untouched, same discipline the
     retired Publish-SkillLink/Publish-FileLink always followed.
 
+    Also lists a DEAD junction (Mission 175, step 8): one whose stored
+    target no longer exists at all -- the clone it once pointed at was
+    itself moved or deleted before this script ran, so it can never match
+    the -WorkspacePath given here. Reported only when its target text still
+    names a "second-brain" path segment, the one fixed clone folder name
+    this whole mechanism ever used -- never a broader guess that could
+    catch some unrelated tool's own broken link sharing this profile
+    folder. A hard link has no such state (it IS the file, not a pointer)
+    so this applies to junctions only.
+
     -WhatIf (the built-in common parameter) lists without prompting or
     removing anything -- the safe default a first run should use. Without
     -WhatIf, each removal is asked individually (-Confirm's own per-item
@@ -78,6 +88,32 @@ function Test-PointsInsideClone {
     return ($normalizedTarget -ieq $normalizedClone) -or ($normalizedTarget -ilike "$normalizedClone\*") -or ($normalizedTarget -ilike "$normalizedClone/*")
 }
 
+function Test-TargetMissing {
+    # A junction/symlink whose stored target no longer resolves at all --
+    # the given $WorkspacePath's own clone moved or was deleted before this
+    # script ran, so Test-PointsInsideClone (a string match against THAT
+    # clone) never fires for it (Mission 175, etape 8).
+    param([string] $TargetPath)
+    if ([string]::IsNullOrWhiteSpace($TargetPath)) { return $true }
+    return -not (Test-Path -LiteralPath $TargetPath)
+}
+
+function Test-NamesSecondBrainClone {
+    # A dead target can only be judged by the text it still carries, never
+    # by resolving it (it does not resolve, by definition) -- accepted only
+    # when one of its path segments is literally "second-brain", the one
+    # fixed clone folder name every install.sh/install.ps1 and this same
+    # script's own $clonePath ever use. Anything looser would risk offering
+    # to remove some OTHER tool's own broken link in this shared profile
+    # folder (.claude/skills, .claude/agents, .agents/skills) -- the same
+    # foreign-link discipline Test-PointsInsideClone already follows for
+    # links that DO still resolve.
+    param([string] $TargetPath)
+    if ([string]::IsNullOrWhiteSpace($TargetPath)) { return $false }
+    $segments = $TargetPath -split '[\\/]'
+    return (@($segments | Where-Object { $_ -ieq 'second-brain' })).Count -gt 0
+}
+
 function Get-ProfileLinkCandidates {
     # Mirrors exactly what the retired Publish-SkillLink/Publish-FileLink
     # (Mission 171-C01) used to write: a junction per skill directory
@@ -104,11 +140,32 @@ function Get-ProfileLinkCandidates {
             foreach ($t in $targets) {
                 if (Test-PointsInsideClone -TargetPath $t -ClonePath $ClonePath) { $pointsInside = $true; break }
             }
-            if (-not $pointsInside) { continue }
-            $found += [PSCustomObject]@{
-                Path   = $item.FullName
-                Kind   = if ($isHardLink) { 'HardLink' } else { 'Junction' }
-                Target = ($targets -join '; ')
+            if ($pointsInside) {
+                $found += [PSCustomObject]@{
+                    Path   = $item.FullName
+                    Kind   = if ($isHardLink) { 'HardLink' } else { 'Junction' }
+                    Target = ($targets -join '; ')
+                }
+                continue
+            }
+            # Dead-link path (Mission 175, etape 8): a reparse point never
+            # resolves nothing at all -- it just points at a directory that
+            # no longer exists (a hard link has no such state: it IS a file,
+            # not a pointer, so $isReparsePoint alone gates this branch).
+            # Reported only when EVERY stored target is both missing and
+            # still names a second-brain clone segment: a link that is only
+            # partly dead, or that never named second-brain, is left to the
+            # two checks above (or to a foreign tool, untouched either way).
+            if (-not $isReparsePoint) { continue }
+            $allDeadAndNamed = ($targets.Count -gt 0) -and `
+                (@($targets | Where-Object { Test-TargetMissing -TargetPath $_ })).Count -eq $targets.Count -and `
+                (@($targets | Where-Object { Test-NamesSecondBrainClone -TargetPath $_ })).Count -eq $targets.Count
+            if ($allDeadAndNamed) {
+                $found += [PSCustomObject]@{
+                    Path   = $item.FullName
+                    Kind   = 'DeadJunction'
+                    Target = ($targets -join '; ')
+                }
             }
         }
     }

@@ -70,6 +70,16 @@ try {
     New-Item -ItemType Directory -Force -Path $foreignSource | Out-Null
     Set-Content -Path (Join-Path $foreignSource 'SKILL.md') -Value "# not from second-brain`n" -Encoding UTF8
 
+    # A DEAD junction (Mission 175, step 8): its own old clone ("old-workspace")
+    # is deleted below, so its target text is the only thing left naming it --
+    # built under a SEPARATE workspace from $workspacePath (the one this test
+    # passes as -WorkspacePath) specifically so Test-PointsInsideClone can
+    # never match it: only the new dead-link path should catch this one.
+    $deadCloneWorkspace = Join-Path $TestRoot 'old-workspace'
+    $deadSkillSource = Join-Path $deadCloneWorkspace 'second-brain\skills\dead-skill'
+    New-Item -ItemType Directory -Force -Path $deadSkillSource | Out-Null
+    Set-Content -Path (Join-Path $deadSkillSource 'SKILL.md') -Value "# dead skill`n" -Encoding UTF8
+
     $fakeProfile = Join-Path $TestRoot 'fake-profile'
     $claudeSkillsDir = Join-Path $fakeProfile '.claude\skills'
     $claudeAgentsDir = Join-Path $fakeProfile '.claude\agents'
@@ -80,11 +90,17 @@ try {
     $assistantLinkPath = Join-Path $claudeAgentsDir 'fake-assistant.md'
     $codexSkillLinkPath = Join-Path $codexSkillsDir 'fake-assistant'
     $foreignLinkPath = Join-Path $claudeSkillsDir 'unrelated-hand-made-skill'
+    $deadLinkPath = Join-Path $claudeSkillsDir 'dead-skill'
 
     New-Item -ItemType Junction -Path $skillLinkPath -Target (Resolve-Path $skillSource) | Out-Null
     New-Item -ItemType HardLink -Path $assistantLinkPath -Target (Resolve-Path $assistantSource) | Out-Null
     New-Item -ItemType Junction -Path $codexSkillLinkPath -Target (Resolve-Path $codexSkillSource) | Out-Null
     New-Item -ItemType Junction -Path $foreignLinkPath -Target (Resolve-Path $foreignSource) | Out-Null
+    New-Item -ItemType Junction -Path $deadLinkPath -Target (Resolve-Path $deadSkillSource) | Out-Null
+
+    # Kill it now: the junction $deadLinkPath survives (a separate filesystem
+    # object, in the profile), only what it points at is gone.
+    Remove-Item -Recurse -Force -Path $deadCloneWorkspace
 
     $scriptPath = Join-Path $RepoRoot 'tools\remove-profile-links.ps1'
 
@@ -96,11 +112,14 @@ try {
     Assert-True (($listOutput -join "`n") -match [regex]::Escape($assistantLinkPath)) "lists the fake assistant hard link"
     Assert-True (($listOutput -join "`n") -match [regex]::Escape($codexSkillLinkPath)) "lists the fake Codex skill junction"
     Assert-True (-not (($listOutput -join "`n") -match [regex]::Escape($foreignLinkPath))) "does NOT list the foreign junction (points outside the clone)"
+    Assert-True (($listOutput -join "`n") -match [regex]::Escape($deadLinkPath)) "lists the dead junction (target deleted, names a second-brain segment)"
+    Assert-True (($listOutput -join "`n") -match 'DeadJunction') "labels the dead junction distinctly (Kind = DeadJunction)"
     Assert-True (($listOutput -join "`n") -match 'Listing only') "says it only listed, nothing removed"
     Assert-True (Test-Path $skillLinkPath) "fake skill link still exists after list-only run"
     Assert-True (Test-Path $assistantLinkPath) "fake assistant link still exists after list-only run"
     Assert-True (Test-Path $codexSkillLinkPath) "fake Codex skill link still exists after list-only run"
     Assert-True (Test-Path $foreignLinkPath) "foreign link still exists after list-only run (never touched)"
+    Assert-True ((Get-Item -LiteralPath $deadLinkPath -Force -ErrorAction SilentlyContinue) -ne $null) "dead junction itself still exists after list-only run (only its target is gone)"
 
     Write-Output ""
     Write-Output "=== 2. -Remove -Confirm:`$false: real links gone, foreign link and every target intact ==="
@@ -110,6 +129,7 @@ try {
     Assert-True (-not (Test-Path $assistantLinkPath)) "fake assistant link removed"
     Assert-True (-not (Test-Path $codexSkillLinkPath)) "fake Codex skill link removed"
     Assert-True (Test-Path $foreignLinkPath) "foreign junction left untouched"
+    Assert-True ((Get-Item -LiteralPath $deadLinkPath -Force -ErrorAction SilentlyContinue) -eq $null) "dead junction removed"
 
     Write-Output ""
     Write-Output "=== 3. Targets untouched -- the one rule this script must never break ==="
