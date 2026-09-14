@@ -193,12 +193,15 @@ fi
 
 # --- 5. Derniere Mission (numero + statut court) ---
 # Mission 163 : la colonne Statut est trouvee par son EN-TETE, jamais par sa
-# position. Le registre a six colonnes (ID, Objectif, Version active, Statut,
-# Mission active, Prompt) la porte en 4e ; le registre a quatre colonnes de la
-# DECISION-2026-09-05-124647 point 2 (ID, Statut, Date, Rapport) la porte en 2e.
-# Lire par position afficherait un nom de rapport comme statut sur le nouveau
-# format. Cette recherche fait fonctionner le digest sur les deux, donc aussi
-# sur un projet dont le registre n'est pas encore converti.
+# position. Le registre distribue d'un projet (gabarit
+# templates/mission-index-template.md, Mission 177, RULES-2026-08-17-211522
+# §6) a six colonnes -- ID, Objectif, Version active, Statut, Chemin, Rapport
+# -- la porte en 4e ; le registre a quatre colonnes de la
+# DECISION-2026-09-05-124647 point 2 (ID, Statut, Date, Rapport), propre au
+# registre de cet atelier, la porte en 2e. Lire par position afficherait un
+# nom de rapport comme statut sur l'un des deux formats. Cette recherche fait
+# fonctionner le digest sur les deux, donc aussi sur un projet dont le
+# registre n'est pas encore converti.
 MISSION_CONTENT="Aucune."
 if [ -f "$MISSION_INDEX" ]; then
   LAST_ROW="$(grep -E '^\| `[0-9]+` \|' "$MISSION_INDEX" | tail -n 1 || true)"
