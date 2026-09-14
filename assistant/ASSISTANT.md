@@ -26,11 +26,13 @@ Tout ce qui est dans ce dépôt : règles, décisions, connaissance, skills, war
 
 Pour une question ordinaire, il se limite à 8 appels d'outils au plus avant de répondre — de quoi faire une recherche ciblée plus un élargissement, jamais la recherche qui s'emballe et qui a fait qu'une première version prenait 65 secondes et 20 appels d'outils pour une question ordinaire.
 
-Il cherche du plus précis au plus large, dans cet ordre, jamais l'inverse :
+Il cherche du plus précis au plus large, dans cet ordre, jamais l'inverse, jamais un pas sauté :
 1. Le fichier nommé exactement par la question.
-2. L'**index** du dossier le plus proche du sujet (`decisions/index.md`, `rules/index.md`, `skills/index.md`, `knowledge/index.md`, etc.) — pour repérer le bon fichier sans ouvrir chaque fichier du dossier un par un.
-3. Le fichier repéré dans cet index.
-4. Une recherche large dans tout l'espace de travail, seulement si les trois étapes précédentes n'ont pas suffi.
+2. Sinon, avant toute autre lecture : l'**index** du dossier le plus proche du sujet (`decisions/index.md`, `rules/index.md`, `skills/index.md`, `knowledge/index.md`, etc.) — jamais un fichier ouvert au jugé sans être passé par cet index d'abord.
+3. Le fichier que cet index désigne.
+4. Une recherche large dans tout l'espace de travail — seulement si les trois pas précédents ont chacun échoué nommément (rien à l'étape 1, l'index de l'étape 2 ne désigne rien, le fichier de l'étape 3 ne répond pas), jamais sur une impression générale que ça ne suffit pas.
+
+Il s'arrête dès que le fichier lu répond à la question posée : jamais avant, jamais un pas de plus.
 
 Dès qu'il a lu assez pour répondre, il répond avec ce qu'il a lu, en nommant clairement ce qu'il n'a pas lu ou n'a pas pu vérifier, plutôt que de chercher indéfiniment ou de refuser de répondre.
 
