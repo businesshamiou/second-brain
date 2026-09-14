@@ -50,5 +50,13 @@
 
   "cause.networkUnreachable": "Red inaccesible durante la descarga de una herramienta requerida.",
   "remedy.networkUnreachable": "Verifica tu conexión a internet y vuelve a ejecutar la línea de instalación.",
-  "remedy.generic": "Revisa el error anterior; una vez corregida la causa, vuelve a ejecutar la línea de instalación para continuar."
+  "remedy.generic": "Revisa el error anterior; una vez corregida la causa, vuelve a ejecutar la línea de instalación para continuar.",
+
+  "projectBootstrap.linkConflicts.header": "Nota: {0} enlace(s) ya ocupado(s) por otra cosa en este proyecto -- se han dejado tal cual, el archivo o carpeta existente siempre prevalece:",
+  "projectBootstrap.linkConflicts.skillLabel": "  - skill: {0}",
+  "projectBootstrap.linkConflicts.assistantLabel": "  - asistente: {0}",
+  "projectBootstrap.linkConflicts.howToOverride": "  Para usar en su lugar la versión de Second Brain, elimina o renombra tú mismo el elemento existente en esa ruta y vuelve a ejecutar.",
+  "projectBootstrap.codexBudgetFallback": "Nota: el presupuesto combinado de las descripciones de skills supera el límite de Codex en este proyecto -- Codex solo recibió skills/, Claude Code recibió todo (Doctrina, regla 3).",
+  "projectBootstrap.assistantSlugMissing": "Nota: no se encontró ningún identificador de asistente en el carnet de este clon -- los skills se enlazaron a este proyecto, el asistente no (HIPÓTESIS: nunca se generó, o un carnet anterior a esta función).",
+  "projectBootstrap.externalImportApproval": "Nota: la primera vez que abras este proyecto en Claude Code, pedirá una aprobación única (una importación externa) porque los enlaces de asistente/skills anteriores apuntan fuera de la carpeta de este proyecto -- responde que sí, solo concede acceso de lectura a second-brain (consulta las FAQ del README)."
 }

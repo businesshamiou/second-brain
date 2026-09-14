@@ -790,18 +790,27 @@ if [ "$ANSWER_FP_CREATE" = "true" ]; then
   if [ ! -e "$FIRST_PROJECT_PATH" ]; then
     # Captured via $(...), not run_or_fail: project-bootstrap.sh's own
     # stdout (the fiche path it prints for its other caller, plus its
-    # "Note: ..." lines about skill/assistant links) would otherwise
-    # inherit straight through into install.sh's own stdout -- exactly
-    # what VERDICT1="$(bash install.sh ...)" captures (ticket 05
+    # catalog-driven notes about skill/assistant links, Mission 177) would
+    # otherwise inherit straight through into install.sh's own stdout --
+    # exactly what VERDICT1="$(bash install.sh ...)" captures (ticket 05
     # criterion 7, tests/test-install-e2e.sh: silent mode must be one
-    # line). Only the matching "Note:" lines are relayed, and on stderr
-    # like step_line, so they still reach a real console without joining
-    # that capture; the fiche path is unneeded here and dropped, mirroring
-    # install.ps1's own $bootstrapOutput handling.
-    BOOTSTRAP_OUTPUT="$("$CLONE_PATH/tools/project-bootstrap.sh" "$FIRST_PROJECT_PATH" "$FIRST_PROJECT_DISPLAY_NAME")" \
+    # line). Every line but the last is relayed, on stderr like step_line
+    # so it still reaches a real console without joining that capture; the
+    # fiche path is always the last line, unneeded here, dropped by
+    # position rather than by an English prefix (Mission 177 -- a
+    # prefix-based filter cannot survive the message being translated),
+    # mirroring install.ps1's own $bootstrapOutput handling.
+    BOOTSTRAP_OUTPUT="$("$CLONE_PATH/tools/project-bootstrap.sh" "$FIRST_PROJECT_PATH" "$FIRST_PROJECT_DISPLAY_NAME" "$ANSWER_LANGUAGE")" \
       || fail "project-bootstrap.sh failed"
     step_line "First project"
-    printf '%s\n' "$BOOTSTRAP_OUTPUT" | grep -E '^(Note:|  - |  To use)' >&2 || true
+    # Relais de tout sauf la derniere ligne (le chemin de la fiche, toujours
+    # imprime en dernier, jamais destine au participant) -- pas un filtre
+    # par prefixe anglais ("Note:", "  - ", "  To use") : depuis que
+    # project-bootstrap.sh parle par les catalogues i18n/ (Mission 177,
+    # etape 5), ce prefixe change de langue ("Remarque :", "Nota:") et un
+    # filtre fige sur l'anglais aurait avale les notes traduites en
+    # silence -- exactement le defaut que cette etape corrige.
+    printf '%s\n' "$BOOTSTRAP_OUTPUT" | head -n -1 >&2 || true
     step_line "Project links"
 
     # No build-indexes.sh here, unlike save_clone_pending_changes -- same

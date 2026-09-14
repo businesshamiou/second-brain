@@ -50,5 +50,13 @@
 
   "cause.networkUnreachable": "Réseau inaccessible pendant le téléchargement d'un outil requis.",
   "remedy.networkUnreachable": "Vérifie ta connexion internet, puis relance la ligne d'installation.",
-  "remedy.generic": "Relis le message ci-dessus ; une fois la cause corrigée, relance la ligne d'installation pour reprendre."
+  "remedy.generic": "Relis le message ci-dessus ; une fois la cause corrigée, relance la ligne d'installation pour reprendre.",
+
+  "projectBootstrap.linkConflicts.header": "Remarque : {0} lien(s) déjà occupé(s) par autre chose dans ce projet -- laissé(s) tel quel, le fichier ou dossier existant l'emporte toujours :",
+  "projectBootstrap.linkConflicts.skillLabel": "  - skill : {0}",
+  "projectBootstrap.linkConflicts.assistantLabel": "  - assistant : {0}",
+  "projectBootstrap.linkConflicts.howToOverride": "  Pour utiliser la version de Second Brain à la place, retire ou renomme toi-même l'élément existant à ce chemin, puis relance.",
+  "projectBootstrap.codexBudgetFallback": "Remarque : le budget combiné des descriptions de skills dépasse le plafond de Codex pour ce projet -- Codex n'a reçu que skills/, Claude Code a reçu l'ensemble (Doctrine, règle 3).",
+  "projectBootstrap.assistantSlugMissing": "Remarque : aucun identifiant d'assistant trouvé dans le carnet de ce clone -- les skills ont été liés à ce projet, pas l'assistant (HYPOTHÈSE : jamais généré, ou un carnet antérieur à cette fonctionnalité).",
+  "projectBootstrap.externalImportApproval": "Remarque : la première fois que tu ouvres ce projet dans Claude Code, il demandera une approbation ponctuelle (un import externe) parce que les liens assistant/skills ci-dessus pointent hors du dossier de ce projet -- réponds oui, cela n'accorde qu'un accès en lecture à second-brain (voir la FAQ du README)."
 }

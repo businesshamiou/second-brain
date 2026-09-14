@@ -803,18 +803,26 @@ try {
             # Mission 173 step 4 (Q17): project-bootstrap.sh now also links
             # the assistant and the method skills into the new project's own
             # folders (tools/sb_installer_helper.py's link-project) and
-            # prints "Note: ..." lines about it (conflicts, Codex budget
-            # fallback) -- captured and relayed here instead of discarded,
-            # the fiche path itself (also on stdout) is not needed by this
-            # caller and simply passes through unprinted.
+            # prints catalog-driven notes about it (conflicts, Codex budget
+            # fallback, Mission 177) -- captured and relayed here instead of
+            # discarded, the fiche path itself (also on stdout, always the
+            # last line) is not needed by this caller and dropped by
+            # position.
             $bootstrapOutput = Invoke-BashTool -BashExe $bashExe -ScriptPath $bootstrapScript `
-                -ScriptArgs @((ConvertTo-PosixPath $firstProjectPath), $firstProjectDisplayName)
+                -ScriptArgs @((ConvertTo-PosixPath $firstProjectPath), $firstProjectDisplayName, $language)
             Write-StepLine -Name 'First project'
             # Write-Host, not Write-Output -- same reason as Write-StepLine
             # above: these notes must reach the console without joining the
             # PowerShell success stream that ticket 05's silent-mode
-            # assertion (tests/test-install-e2e.ps1) captures.
-            $bootstrapOutput | Where-Object { $_ -match '^(Note:|  - |  To use)' } | ForEach-Object { Write-Host $_ }
+            # assertion (tests/test-install-e2e.ps1) captures. Every line
+            # but the last (the fiche path), never a match on an English
+            # prefix ("Note:", "  - ", "  To use") -- since
+            # project-bootstrap.sh speaks through i18n/ catalogs (Mission
+            # 177 step 5), that prefix changes with the language
+            # ("Remarque :", "Nota:") and a prefix fixed on English would
+            # have swallowed the translated notes in silence, exactly the
+            # defect this step fixes.
+            $bootstrapOutput | Select-Object -SkipLast 1 | ForEach-Object { Write-Host $_ }
             Write-StepLine -Name 'Project links'
 
             $registrationChanges = & git -C $clonePath status --porcelain

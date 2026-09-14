@@ -5,20 +5,35 @@
 # ligne de registre. Refuse si la cible existe deja : l'organisation du
 # workspace est libre (232341 S1.6), ce script ne presume rien.
 #
-# usage: project-bootstrap.sh <chemin-cible> <display_name>
+# usage: project-bootstrap.sh <chemin-cible> <display_name> [langue FR|EN|ES]
+#
+# Langue (Mission 177, etape 5) : troisieme parametre optionnel, defaut EN
+# -- retrocompatible avec tout appelant qui ne le fournit pas encore (tests
+# existants compris, qui attendent alors les messages "Note: ..." en
+# anglais). install.sh/install.ps1 passent la langue choisie au
+# questionnaire ; sans ce parametre, les messages destines au participant
+# de ce script restaient codes en dur en anglais, y compris au milieu d'une
+# installation francaise ou espagnole (defaut mesure a l'acceptation Owner
+# du 2026-09-14).
 
 set -u
 
 TARGET="${1:-}"
 DISPLAY_NAME="${2:-}"
+LANGUAGE="${3:-EN}"
 
 if [ -z "$TARGET" ] || [ -z "$DISPLAY_NAME" ]; then
-  echo "usage: project-bootstrap.sh <chemin-cible> <display_name>" >&2
+  echo "usage: project-bootstrap.sh <chemin-cible> <display_name> [langue FR|EN|ES]" >&2
   exit 1
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 VAULT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+I18N_DIR="$VAULT_ROOT/i18n"
+CATALOG_FILE="$I18N_DIR/catalog.$(printf '%s' "$LANGUAGE" | tr '[:upper:]' '[:lower:]').json"
+if [ ! -e "$CATALOG_FILE" ]; then
+  CATALOG_FILE="$I18N_DIR/catalog.en.json"
+fi
 
 # --- Validation du chemin cible (Mission 171-C01, etape 3 : defaut de
 # meme famille que install.sh/install.ps1 -- validation de chemin absente).
@@ -66,7 +81,13 @@ PYRUN() {
   uv run --no-project "$HELPER" "$@"
 }
 
-for DEP in "$CONFORMITY_CHECK" "$INDEXES_BUILD" "$JOURNAL_APPEND" "$STANDARD_RULE" "$HELPER" "$MISSION_INDEX_TEMPLATE" "$BUILD_STATE" "$BUILD_DIGEST"; do
+# CATALOG <cle> [args...] : message destine au participant, jamais ecrit en
+# dur (Mission 177, etape 5, contrainte "messages par les catalogues i18n/").
+CATALOG() {
+  PYRUN format-catalog "$CATALOG_FILE" "$@"
+}
+
+for DEP in "$CONFORMITY_CHECK" "$INDEXES_BUILD" "$JOURNAL_APPEND" "$STANDARD_RULE" "$HELPER" "$MISSION_INDEX_TEMPLATE" "$BUILD_STATE" "$BUILD_DIGEST" "$CATALOG_FILE"; do
   if [ ! -e "$DEP" ]; then
     echo "REFUS : dependance introuvable : $DEP" >&2
     exit 1
@@ -355,20 +376,31 @@ CLAUDE_CONFLICTS="$(printf '%s\n' "$LINK_OUTPUT" | grep '^CONFLICT SKILL ' | sed
 ASSISTANT_CONFLICTS="$(printf '%s\n' "$LINK_OUTPUT" | grep '^CONFLICT ASSISTANT ' | sed 's/^CONFLICT ASSISTANT //')"
 CONFLICT_COUNT="$(printf '%s\n' "$LINK_OUTPUT" | grep '^CONFLICT_COUNT ' | sed 's/^CONFLICT_COUNT //')"
 if [ -n "$CONFLICT_COUNT" ] && [ "$CONFLICT_COUNT" != "0" ]; then
-  echo "Note: $CONFLICT_COUNT link(s) already occupied by something else in this project -- left untouched, the existing file/folder always wins:"
-  [ -n "$CLAUDE_CONFLICTS" ] && printf '%s\n' "$CLAUDE_CONFLICTS" | while IFS= read -r p; do [ -n "$p" ] && echo "  - skill: $p"; done
-  [ -n "$ASSISTANT_CONFLICTS" ] && printf '%s\n' "$ASSISTANT_CONFLICTS" | while IFS= read -r p; do [ -n "$p" ] && echo "  - assistant: $p"; done
-  echo "  To use Second Brain's version of one of these instead, remove or rename the existing item at that path yourself, then rerun."
+  CATALOG "projectBootstrap.linkConflicts.header" "$CONFLICT_COUNT"
+  if [ -n "$CLAUDE_CONFLICTS" ]; then
+    printf '%s\n' "$CLAUDE_CONFLICTS" | while IFS= read -r p; do
+      [ -n "$p" ] && CATALOG "projectBootstrap.linkConflicts.skillLabel" "$p"
+    done
+  fi
+  if [ -n "$ASSISTANT_CONFLICTS" ]; then
+    printf '%s\n' "$ASSISTANT_CONFLICTS" | while IFS= read -r p; do
+      [ -n "$p" ] && CATALOG "projectBootstrap.linkConflicts.assistantLabel" "$p"
+    done
+  fi
+  CATALOG "projectBootstrap.linkConflicts.howToOverride"
 fi
 printf '%s\n' "$LINK_OUTPUT" | grep '^FALLBACK 1' >/dev/null \
-  && echo "Note: combined skill description budget exceeds the Codex ceiling in this project -- Codex received skills/ only, Claude Code received everything (Doctrine rule 3)."
+  && CATALOG "projectBootstrap.codexBudgetFallback"
 printf '%s\n' "$LINK_OUTPUT" | grep '^ASSISTANT_SLUG_MISSING' >/dev/null \
-  && echo "Note: no assistant slug found in this clone's own carnet -- skills were linked into this project, the assistant was not (HYPOTHESIS: never generated, or a carnet from before Mission 168 ticket 06)."
+  && CATALOG "projectBootstrap.assistantSlugMissing"
 
 # --- Annonce de l'approbation d'import externe (Mission 173, Q17, etape 6).
 # Meme annonce que le README/INSTALL.md : la creation de projet est le
 # geste qui pose les liens sortant du dossier de travail, donc l'endroit le
-# plus utile pour prevenir avant que Claude Code ne pose la question. ---
-echo "Note: the first time you open this project in Claude Code, it will ask for a one-time approval (an external import) because the assistant/skills links above point outside this project's folder -- answer yes, it only grants read access to second-brain (see the README's FAQ)."
+# plus utile pour prevenir avant que Claude Code ne pose la question.
+# Par le catalogue i18n/, jamais code en dur en anglais (Mission 177,
+# etape 5 : ce message s'affichait en anglais au milieu d'une installation
+# francaise, mesure a l'acceptation Owner du 2026-09-14). ---
+CATALOG "projectBootstrap.externalImportApproval"
 
 echo "$FICHE"

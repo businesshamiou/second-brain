@@ -50,5 +50,13 @@
 
   "cause.networkUnreachable": "Network unreachable while downloading a required tool.",
   "remedy.networkUnreachable": "Check your internet connection, then run the installer line again.",
-  "remedy.generic": "Review the error above; once it is fixed, run the installer line again to resume."
+  "remedy.generic": "Review the error above; once it is fixed, run the installer line again to resume.",
+
+  "projectBootstrap.linkConflicts.header": "Note: {0} link(s) already occupied by something else in this project -- left untouched, the existing file/folder always wins:",
+  "projectBootstrap.linkConflicts.skillLabel": "  - skill: {0}",
+  "projectBootstrap.linkConflicts.assistantLabel": "  - assistant: {0}",
+  "projectBootstrap.linkConflicts.howToOverride": "  To use Second Brain's version of one of these instead, remove or rename the existing item at that path yourself, then rerun.",
+  "projectBootstrap.codexBudgetFallback": "Note: combined skill description budget exceeds the Codex ceiling in this project -- Codex received skills/ only, Claude Code received everything (Doctrine rule 3).",
+  "projectBootstrap.assistantSlugMissing": "Note: no assistant slug found in this clone's own carnet -- skills were linked into this project, the assistant was not (HYPOTHESIS: never generated, or a carnet older than this feature).",
+  "projectBootstrap.externalImportApproval": "Note: the first time you open this project in Claude Code, it will ask for a one-time approval (an external import) because the assistant/skills links above point outside this project's folder -- answer yes, it only grants read access to second-brain (see the README's FAQ)."
 }
