@@ -27,6 +27,10 @@ Les Pages Suspendues est un club de lecture fictif d'une dizaine de membres, qui
 | Matière | [knowledge/](./knowledge/) | des notes prises après une rencontre |
 | Passation | [handoffs/](./handoffs/) | passer l'animation d'un mois à l'autre |
 
+## Écriture
+
+Dans un vrai projet, `CLAUDE.md` et `AGENTS.md` (posés par `tools/project-bootstrap.sh`, absents de cet exemple documentaire) portent la même règle : tout changement part d'une Mission écrite dans `missions/`, l'assistant du projet est en lecture seule, et l'agent qui ouvre le projet n'écrit rien de sa propre initiative en dehors de ce cadre.
+
 ## Liens
 
 - `see also` — [Standard de structure de projet](../../rules/RULES-2026-08-26-142800-project-structure-standard.md)

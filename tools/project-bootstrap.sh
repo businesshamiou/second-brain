@@ -180,6 +180,10 @@ But : à compléter.
 
 Rédiger en français ; identifiants machine en anglais.
 
+## Écriture
+
+Tout changement produit dans ce projet part d'une Mission écrite dans \`missions/\`. L'assistant du projet est en lecture seule : il ne dépose jamais de fichier. L'agent qui ouvre ce projet n'écrit rien de sa propre initiative en dehors de ce cadre.
+
 ## Méthode
 
 @$REL_VAULT/CLAUDE.md
