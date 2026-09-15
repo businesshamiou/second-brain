@@ -413,6 +413,7 @@ tests/test-catalog-key-parity.ps1	DISTRIBUABLE
 tests/test-check-links-code-block-scope.sh	DISTRIBUABLE
 tests/test-check-links-cross-repo.sh	DISTRIBUABLE
 tests/test-check-no-slash-agents.sh	DISTRIBUABLE
+tests/test-exec-bit-bare-scripts.sh	DISTRIBUABLE
 tests/test-link-graph-drone-view-empty-status-field.sh	DISTRIBUABLE
 tests/test-install-e2e.ps1	DISTRIBUABLE
 tests/test-install-e2e.sh	DISTRIBUABLE
@@ -435,6 +436,7 @@ tools/build-state.sh	DISTRIBUABLE
 tools/build_indexes.py	DISTRIBUABLE
 tools/check-asserted-paths.sh	DISTRIBUABLE
 tools/check-distribution-manifest.sh	DISTRIBUABLE
+tools/check-exec-bit-bare-scripts.sh	DISTRIBUABLE
 tools/check-obsolescence-guardrail.py	DISTRIBUABLE
 tools/check-index-weight.sh	DISTRIBUABLE
 tools/check-indexes-fresh.sh	DISTRIBUABLE

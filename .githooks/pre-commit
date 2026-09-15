@@ -81,6 +81,7 @@ add_guardian "liens"            "bash_guardian \"$VAULT_ROOT/tools/check-links.s
 add_guardian "chemins-affirmes" "bash_guardian \"$VAULT_ROOT/tools/check-asserted-paths.sh\"" "preflight"
 add_guardian "manifeste"        "bash_guardian \"$VAULT_ROOT/tools/check-distribution-manifest.sh\"" "preflight"
 add_guardian "sans-agents"      "bash_guardian \"$VAULT_ROOT/tools/check-no-slash-agents.sh\"" "preflight"
+add_guardian "bit-execution"    "bash_guardian \"$VAULT_ROOT/tools/check-exec-bit-bare-scripts.sh\"" "preflight"
 
 declare -A VERDICT
 declare -A OUTPUT
