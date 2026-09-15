@@ -109,6 +109,17 @@ assert_true "$([ "$INSTALL_EXIT" = "0" ]; echo $?)" "install.sh exits 0"
 echo "--- captured output: install.sh (fresh install) ---"
 printf '%s\n' "$INSTALL_OUTPUT"
 
+# Same fix as tests/test-install-e2e.sh, same reason: install.sh above
+# bootstraps uv under its own --test-root profile inside a genuine child
+# process (`bash install.sh` in a `$(...)` command substitution), so that
+# PATH update dies with it on a runner with no uv preinstalled. Step 3
+# below (trial commit) then fails with "exec: uv: not found" at guardians
+# `vault-check-indexes-fresh`/`vault-check-index-weight` -- same mechanism
+# already fixed on the Windows/PowerShell mirror of this exact test
+# (tests/test-nominal-flow-no-atelier-vocabulary.ps1, Start-Process).
+TEST_PROFILE_UV_BIN="$TEST_ROOT/profile/.local/bin"
+[ -d "$TEST_PROFILE_UV_BIN" ] && PATH="$TEST_PROFILE_UV_BIN:$PATH"
+
 echo ""
 echo "=== 2. Session opening: tools/session-preflight.sh in the fresh clone ==="
 PREFLIGHT_OUTPUT="$(cd "$CLONE_PATH" && bash tools/session-preflight.sh 2>&1)"

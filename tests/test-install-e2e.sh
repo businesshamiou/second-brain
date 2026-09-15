@@ -91,6 +91,20 @@ LINE_COUNT="$(printf '%s\n' "$VERDICT1" | wc -l)"
 case "$VERDICT1" in *"first name"*|*"assistant"*|*"workspace live"*|*"Question"*) r=1 ;; *) r=0 ;; esac
 assert_true "$r" "silent mode output contains no question-prompt text"
 
+# On a runner with no uv preinstalled (every GitHub-hosted Ubuntu runner),
+# install.sh above bootstraps uv under its own --test-root profile, but as
+# a genuine child process (`bash install.sh` in a `$(...)` command
+# substitution) -- so that PATH update dies with it, exactly the same
+# shape already fixed on the Windows/PowerShell side of this Mission
+# (tests/test-nominal-flow-no-atelier-vocabulary.ps1, Start-Process). This
+# script's own later trial commit (step 5) then fails with "exec: uv: not
+# found" at guardians `vault-check-indexes-fresh`/`vault-check-index-weight`
+# (measured, CI run 34922227006, job Ubuntu -- install.sh, full suite).
+# Fixed by reusing the profile bin install.sh already made, on this
+# process's own PATH.
+TEST_PROFILE_UV_BIN="$TEST_ROOT/profile/.local/bin"
+[ -d "$TEST_PROFILE_UV_BIN" ] && PATH="$TEST_PROFILE_UV_BIN:$PATH"
+
 echo ""
 echo "=== 4. Workspace conformity tool: tools/session-preflight.sh -> READY ==="
 PREFLIGHT_OUTPUT="$(cd "$CLONE_PATH" && bash tools/session-preflight.sh)"
