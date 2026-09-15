@@ -17,6 +17,7 @@ Index généré automatiquement. Ne pas éditer à la main : régénérer via `t
 - `CONTEXT` · active · Second Brain — glossaire · `CONTEXT.md`
 - `INSTALL` · active · Installer Second Brain · `INSTALL.md`
 - `README` · active · Second Brain · `README.md`
+- `RELEASE-NOTES` · active · Notes de publication · `RELEASE-NOTES.md`
 - `THIRD-PARTY-LICENSES` · active · Licences tierces — skills adoptés · `THIRD-PARTY-LICENSES.md`
 - `USER` · template · Fiche utilisateur — squelette · `USER.md`
 

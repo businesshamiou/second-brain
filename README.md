@@ -69,6 +69,8 @@ Si l'installation s'interrompt (fermeture accidentelle, panne réseau pendant la
 
 Relancer l'installateur sur un poste déjà installé bascule en **mode mise à jour** : tes réponses actuelles s'affichent, une question te demande si quelque chose a changé, et `USER.md` est réécrit proprement avec sa nouvelle date si tu confirmes un changement.
 
+**Ce mode ne touche jamais le code.** Cette version s'installe telle quelle, et aucun mécanisme ne rapatrie une version plus récente dans une installation existante : pour l'obtenir, réinstalle depuis le dépôt publié (dans un nouveau dossier, ou dans celui-ci après en avoir sauvegardé ton `USER.md` et tes projets).
+
 ## Désinstallation
 
 Depuis la Mission 173 (rien dans le profil), désinstaller Second Brain consiste à **supprimer le dossier de ton espace de travail — rien d'autre**. Le clone `second-brain`, l'assistant, les skills de la méthode : tout vit à l'intérieur de ce dossier ou dans des liens que tes projets y font pointer ; rien n'est écrit ailleurs sur ton poste.
@@ -113,6 +115,7 @@ Second Brain est distribué sous licence MIT — voir [LICENSE](./LICENSE). Les 
 ## Liens
 
 - `see also` — [Guide d'installation](./INSTALL.md)
+- `see also` — [Notes de publication](./RELEASE-NOTES.md)
 - `see also` — [Glossaire du produit](./CONTEXT.md)
 - `see also` — [Règle de frontière entre un projet et Second Brain](./rules/RULES-2026-09-11-190000-project-second-brain-boundary.md)
 - `see also` — [Licences tierces](./THIRD-PARTY-LICENSES.md)

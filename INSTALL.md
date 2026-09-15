@@ -49,7 +49,7 @@ Dans l'ordre :
 
 **Première ouverture d'un projet.** La première fois que tu ouvres un projet dans Claude Code, il détecte que les liens vers l'assistant et les skills sortent du dossier de travail (import externe) et demande une approbation, une fois par projet. Réponds oui : voir la question « Pourquoi Claude Code me demande une approbation » dans les questions fréquentes du [README](./README.md).
 
-Chaque étape est notée dans un carnet (`.install/state.json`, à la racine de ton clone, jamais suivi par Git) : une interruption reprend à l'étape manquante, sans reposer les questions déjà répondues. Relancer l'installeur sur un poste déjà installé bascule en mode mise à jour (réponses actuelles affichées, confirmation de tout changement, `USER.md` réécrit).
+Chaque étape est notée dans un carnet (`.install/state.json`, à la racine de ton clone, jamais suivi par Git) : une interruption reprend à l'étape manquante, sans reposer les questions déjà répondues. Relancer l'installeur sur un poste déjà installé bascule en mode mise à jour (réponses actuelles affichées, confirmation de tout changement, `USER.md` réécrit) — ce mode ne touche jamais le code ; voir [« Reprise et mise à jour » du README](./README.md#reprise-et-mise-à-jour) pour ce que cette version promet et ne promet pas.
 
 ## Licence
 
@@ -58,6 +58,7 @@ Second Brain, y compris les skills fabriqués par ce dépôt, est distribué sou
 ## Liens
 
 - `see also` — [README](./README.md)
+- `see also` — [Notes de publication](./RELEASE-NOTES.md)
 - `see also` — [Glossaire du produit](./CONTEXT.md)
 - `see also` — [Licence MIT](./LICENSE)
 - `see also` — [Licences tierces](./THIRD-PARTY-LICENSES.md)
