@@ -1,0 +1,3 @@
+# Runtime pointer
+
+Read [README.md](README.md), [THIN_REPOSITORY_STANDARD.md](THIN_REPOSITORY_STANDARD.md), [COLLECTIONS_STANDARD.md](COLLECTIONS_STANDARD.md), [INGESTION_STANDARD.md](INGESTION_STANDARD.md), [PORTABILITY_STANDARD.md](PORTABILITY_STANDARD.md), [PRODUCTION_STANDARD.md](PRODUCTION_STANDARD.md), and [AGENTS.md](AGENTS.md). These shared documents are the only policy; this file defines no runtime-specific workflow.

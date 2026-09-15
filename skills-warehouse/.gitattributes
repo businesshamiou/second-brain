@@ -1,0 +1,3 @@
+# Delivery releases are checksum-governed artifacts. Preserve every byte,
+# including line endings in their reports and manifests.
+deliverables/** -text

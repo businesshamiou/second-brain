@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash tools/session-start-role.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

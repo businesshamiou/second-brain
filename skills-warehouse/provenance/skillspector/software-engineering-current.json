@@ -1,0 +1,594 @@
+{
+  "schema_version": "1",
+  "status": "OPEN",
+  "tool": {
+    "tool": "SkillSpector",
+    "upstream": "https://github.com/NVIDIA/SkillSpector",
+    "commit": "704bc9544260c2f41222dc0f92982521709496ab",
+    "version": "2.11.1",
+    "license": "Apache-2.0",
+    "scan_mode": "static",
+    "invocation": "skillspector scan <target> --no-llm --format json --output <temporary-report>"
+  },
+  "mode": "static-no-llm",
+  "skills": [
+    {
+      "name": "ask-matt",
+      "path": "skill-collections/software-engineering/skills/ask-matt",
+      "tree_sha256": "fbaff6fc78b49afeeff60959ff9400c2e271c8530962662a72429ca7902289f8",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 25,
+      "severity": "MEDIUM",
+      "max_issue_severity": "HIGH",
+      "recommendation": "CAUTION",
+      "analysis_complete": false,
+      "coverage_percent": 100.0,
+      "findings": [
+        {
+          "id": "AE1",
+          "severity": "HIGH",
+          "file": "SKILL.md",
+          "line": 15,
+          "finding": "SKILL.md (partial)",
+          "fingerprint": "3759e6a4effbd89fa5b6fc80754a6923d55bc99fda186e8e597107f2cd346b04"
+        }
+      ]
+    },
+    {
+      "name": "code-review",
+      "path": "skill-collections/software-engineering/skills/code-review",
+      "tree_sha256": "90c2c849911cb4111adb377a2bac511c6dd837a9d7f1b1c5ee91a5f070d8cb76",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 0,
+      "severity": "LOW",
+      "max_issue_severity": "NONE",
+      "recommendation": "CAUTION",
+      "analysis_complete": false,
+      "coverage_percent": 100.0,
+      "findings": []
+    },
+    {
+      "name": "codebase-design",
+      "path": "skill-collections/software-engineering/skills/codebase-design",
+      "tree_sha256": "c6738bef32b972e9e0fc47db23804a86242e9a10ce507d019b68768e02ae1acc",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 0,
+      "severity": "LOW",
+      "max_issue_severity": "NONE",
+      "recommendation": "SAFE",
+      "analysis_complete": true,
+      "coverage_percent": 100.0,
+      "findings": []
+    },
+    {
+      "name": "diagnosing-bugs",
+      "path": "skill-collections/software-engineering/skills/diagnosing-bugs",
+      "tree_sha256": "8fe8b69d1d39a9986adc872611f99e506003a2acff3d179ae11aade4ab8e4258",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 27,
+      "severity": "MEDIUM",
+      "max_issue_severity": "HIGH",
+      "recommendation": "CAUTION",
+      "analysis_complete": false,
+      "coverage_percent": 100.0,
+      "findings": [
+        {
+          "id": "P6",
+          "severity": "HIGH",
+          "file": "scripts/hitl-loop.template.sh",
+          "line": 10,
+          "finding": "show instruction",
+          "fingerprint": "58f8a51bca70aeabbb60a53582a78222a10262e9d9bf749609a7cbe055c22812"
+        }
+      ]
+    },
+    {
+      "name": "domain-modeling",
+      "path": "skill-collections/software-engineering/skills/domain-modeling",
+      "tree_sha256": "f7861b7c3dc4bea320cab1cbea5f4306dfcad8ef07b4a96b0aeaa10491c3b2ad",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 0,
+      "severity": "LOW",
+      "max_issue_severity": "NONE",
+      "recommendation": "CAUTION",
+      "analysis_complete": false,
+      "coverage_percent": 100.0,
+      "findings": []
+    },
+    {
+      "name": "git-guardrails-claude-code",
+      "path": "skill-collections/software-engineering/skills/git-guardrails-claude-code",
+      "tree_sha256": "0aecf7d4b20feba5a2c230a53c9a6ce239e4eef730e87767c603e950a484c1d1",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 62,
+      "severity": "HIGH",
+      "max_issue_severity": "HIGH",
+      "recommendation": "DO_NOT_INSTALL",
+      "analysis_complete": false,
+      "coverage_percent": 100.0,
+      "findings": [
+        {
+          "id": "AS1",
+          "severity": "HIGH",
+          "file": "SKILL.md",
+          "line": 28,
+          "finding": "~/.claude/settings.json",
+          "fingerprint": "5a1df888db5d4ec0b5b9acca20cfc27be4af48718ceb134b7edd155d53abdf2c"
+        },
+        {
+          "id": "AS1",
+          "severity": "HIGH",
+          "file": "SKILL.md",
+          "line": 65,
+          "finding": "~/.claude/settings.json",
+          "fingerprint": "5a1df888db5d4ec0b5b9acca20cfc27be4af48718ceb134b7edd155d53abdf2c"
+        },
+        {
+          "id": "TM1",
+          "severity": "HIGH",
+          "file": "SKILL.md",
+          "line": 17,
+          "finding": "git reset --hard",
+          "fingerprint": "f21f5124192a6ca491d13034d2b1dcaae69642decbd659201773b11a2bc5c2a5"
+        },
+        {
+          "id": "TM1",
+          "severity": "HIGH",
+          "file": "scripts/block-dangerous-git.sh",
+          "line": 8,
+          "finding": "git reset --hard",
+          "fingerprint": "f21f5124192a6ca491d13034d2b1dcaae69642decbd659201773b11a2bc5c2a5"
+        }
+      ]
+    },
+    {
+      "name": "grill-me",
+      "path": "skill-collections/software-engineering/skills/grill-me",
+      "tree_sha256": "72ee843b94caa78b5b536aa6d79c6e91790c4e444a616039b55114f8aa2871e3",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 0,
+      "severity": "LOW",
+      "max_issue_severity": "NONE",
+      "recommendation": "CAUTION",
+      "analysis_complete": false,
+      "coverage_percent": 100.0,
+      "findings": []
+    },
+    {
+      "name": "grill-with-docs",
+      "path": "skill-collections/software-engineering/skills/grill-with-docs",
+      "tree_sha256": "44b7f1324a2a88aa2e071bd0838d4d11faf11b514db032c67800ee24b20412d7",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 0,
+      "severity": "LOW",
+      "max_issue_severity": "NONE",
+      "recommendation": "SAFE",
+      "analysis_complete": true,
+      "coverage_percent": 100.0,
+      "findings": []
+    },
+    {
+      "name": "grilling",
+      "path": "skill-collections/software-engineering/skills/grilling",
+      "tree_sha256": "d96724ad6b0f9c11024791dc9d69c852ad7c8bace7d3b9226209975b5e4c593a",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 0,
+      "severity": "LOW",
+      "max_issue_severity": "NONE",
+      "recommendation": "SAFE",
+      "analysis_complete": true,
+      "coverage_percent": 100.0,
+      "findings": []
+    },
+    {
+      "name": "handoff",
+      "path": "skill-collections/software-engineering/skills/handoff",
+      "tree_sha256": "f93dbff737f69decdb3c3ac7d5b151238d3d74a4492a821d3aa7e98e9e8b58f9",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 0,
+      "severity": "LOW",
+      "max_issue_severity": "NONE",
+      "recommendation": "SAFE",
+      "analysis_complete": true,
+      "coverage_percent": 100.0,
+      "findings": []
+    },
+    {
+      "name": "implement",
+      "path": "skill-collections/software-engineering/skills/implement",
+      "tree_sha256": "24518436a9d0ba1b30e33d54d050fa8996c9e20a419e82b69f9613e1e1ce9e13",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 0,
+      "severity": "LOW",
+      "max_issue_severity": "NONE",
+      "recommendation": "SAFE",
+      "analysis_complete": true,
+      "coverage_percent": 100.0,
+      "findings": []
+    },
+    {
+      "name": "improve-codebase-architecture",
+      "path": "skill-collections/software-engineering/skills/improve-codebase-architecture",
+      "tree_sha256": "09d2fbcade9e776c1293ac87f112c149d50a09502818881b7f93cfc8d27c2682",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 37,
+      "severity": "MEDIUM",
+      "max_issue_severity": "HIGH",
+      "recommendation": "CAUTION",
+      "analysis_complete": false,
+      "coverage_percent": 100.0,
+      "findings": [
+        {
+          "id": "AE1",
+          "severity": "HIGH",
+          "file": "SKILL.md",
+          "line": 17,
+          "finding": "SKILL.md (partial)",
+          "fingerprint": "3759e6a4effbd89fa5b6fc80754a6923d55bc99fda186e8e597107f2cd346b04"
+        },
+        {
+          "id": "AE1",
+          "severity": "HIGH",
+          "file": "SKILL.md",
+          "line": 68,
+          "finding": "SKILL.md (partial)",
+          "fingerprint": "3759e6a4effbd89fa5b6fc80754a6923d55bc99fda186e8e597107f2cd346b04"
+        }
+      ]
+    },
+    {
+      "name": "migrate-to-shoehorn",
+      "path": "skill-collections/software-engineering/skills/migrate-to-shoehorn",
+      "tree_sha256": "9c50dff13e1075f5d50a388780e68c873857169a96dc2f99182a1deb40980aca",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 0,
+      "severity": "LOW",
+      "max_issue_severity": "NONE",
+      "recommendation": "CAUTION",
+      "analysis_complete": false,
+      "coverage_percent": 100.0,
+      "findings": []
+    },
+    {
+      "name": "prototype",
+      "path": "skill-collections/software-engineering/skills/prototype",
+      "tree_sha256": "9b1f3375e1ae0942977424915043e31ebde8c4d90fc0eac65c32116726d079db",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 0,
+      "severity": "LOW",
+      "max_issue_severity": "NONE",
+      "recommendation": "SAFE",
+      "analysis_complete": true,
+      "coverage_percent": 100.0,
+      "findings": []
+    },
+    {
+      "name": "research",
+      "path": "skill-collections/software-engineering/skills/research",
+      "tree_sha256": "7e6f1dda0b98f71bf2e33933fe8d58ce2b726631ebd7fbdf6fdfd8285f152129",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 0,
+      "severity": "LOW",
+      "max_issue_severity": "NONE",
+      "recommendation": "SAFE",
+      "analysis_complete": true,
+      "coverage_percent": 100.0,
+      "findings": []
+    },
+    {
+      "name": "resolving-merge-conflicts",
+      "path": "skill-collections/software-engineering/skills/resolving-merge-conflicts",
+      "tree_sha256": "01c79be987f927bbedaf5c944c1281001aeec6eb3fb42853aca004350ba09f23",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 0,
+      "severity": "LOW",
+      "max_issue_severity": "NONE",
+      "recommendation": "CAUTION",
+      "analysis_complete": false,
+      "coverage_percent": 100.0,
+      "findings": []
+    },
+    {
+      "name": "scaffold-exercises",
+      "path": "skill-collections/software-engineering/skills/scaffold-exercises",
+      "tree_sha256": "1aaca0e5b73c5f06fdfdc0770fa4cdae003aa2e816cc7d71ca7524d3226b97ad",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 0,
+      "severity": "LOW",
+      "max_issue_severity": "NONE",
+      "recommendation": "CAUTION",
+      "analysis_complete": false,
+      "coverage_percent": 100.0,
+      "findings": []
+    },
+    {
+      "name": "setup-matt-pocock-skills",
+      "path": "skill-collections/software-engineering/skills/setup-matt-pocock-skills",
+      "tree_sha256": "c52efbbbf724a08b6fca4cc71f3762788659597bff9ba23dc06a4d9c4c8fb570",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 32,
+      "severity": "MEDIUM",
+      "max_issue_severity": "HIGH",
+      "recommendation": "CAUTION",
+      "analysis_complete": false,
+      "coverage_percent": 85.7,
+      "findings": [
+        {
+          "id": "AE1",
+          "severity": "HIGH",
+          "file": "SKILL.md",
+          "line": 109,
+          "finding": "issue-tracker-github.md (partial)",
+          "fingerprint": "c6c38a3870b5aae42439ca639501841dbeb6ef3dfcac628960d17dd447501d5c"
+        },
+        {
+          "id": "EA2",
+          "severity": "MEDIUM",
+          "file": "SKILL.md",
+          "line": 63,
+          "finding": "without asking",
+          "fingerprint": "8dc77d3dce9ba1f2672e813265a1b1a0c8594866ef38a4e978bf4f4451795465"
+        }
+      ]
+    },
+    {
+      "name": "setup-pre-commit",
+      "path": "skill-collections/software-engineering/skills/setup-pre-commit",
+      "tree_sha256": "cb591881e1d792a95574ed35186c5f57ef4ca2a87593132a80d0375b4fc35468",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 12,
+      "severity": "LOW",
+      "max_issue_severity": "MEDIUM",
+      "recommendation": "CAUTION",
+      "analysis_complete": false,
+      "coverage_percent": 100.0,
+      "findings": [
+        {
+          "id": "RP1",
+          "severity": "MEDIUM",
+          "file": "SKILL.md",
+          "line": 36,
+          "finding": null,
+          "fingerprint": "d21683db97c3acd92938c9c7d8d4f5bb17c88f4c709f68948dc6b7b15cdcf69b"
+        },
+        {
+          "id": "RP1",
+          "severity": "MEDIUM",
+          "file": "SKILL.md",
+          "line": 46,
+          "finding": null,
+          "fingerprint": "c4fb3cf9d4d6ba0e7c9ba14d0cafec733e7ae1e1705ea0f7e8cf46370e8346e1"
+        },
+        {
+          "id": "RP1",
+          "severity": "MEDIUM",
+          "file": "SKILL.md",
+          "line": 83,
+          "finding": null,
+          "fingerprint": "c4fb3cf9d4d6ba0e7c9ba14d0cafec733e7ae1e1705ea0f7e8cf46370e8346e1"
+        }
+      ]
+    },
+    {
+      "name": "tdd",
+      "path": "skill-collections/software-engineering/skills/tdd",
+      "tree_sha256": "56e0e4e125da851cbf09ec06717394b9718739deb5e05c45953c4e40099c885e",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 25,
+      "severity": "MEDIUM",
+      "max_issue_severity": "HIGH",
+      "recommendation": "CAUTION",
+      "analysis_complete": false,
+      "coverage_percent": 100.0,
+      "findings": [
+        {
+          "id": "AE1",
+          "severity": "HIGH",
+          "file": "SKILL.md",
+          "line": 30,
+          "finding": "SKILL.md (partial)",
+          "fingerprint": "3759e6a4effbd89fa5b6fc80754a6923d55bc99fda186e8e597107f2cd346b04"
+        }
+      ]
+    },
+    {
+      "name": "teach",
+      "path": "skill-collections/software-engineering/skills/teach",
+      "tree_sha256": "0caca43f4d031aeb00af1498e1d683e9377561eed69bf0b4cd32ff30444c344d",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 0,
+      "severity": "LOW",
+      "max_issue_severity": "NONE",
+      "recommendation": "CAUTION",
+      "analysis_complete": false,
+      "coverage_percent": 100.0,
+      "findings": []
+    },
+    {
+      "name": "to-questionnaire",
+      "path": "skill-collections/software-engineering/skills/to-questionnaire",
+      "tree_sha256": "f1a6370fc6384f99fb32cf43402f8f1957098c3045f266e4c6b981fdcc1c7ff6",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 17,
+      "severity": "LOW",
+      "max_issue_severity": "HIGH",
+      "recommendation": "SAFE",
+      "analysis_complete": true,
+      "coverage_percent": 100.0,
+      "findings": [
+        {
+          "id": "AR1",
+          "severity": "HIGH",
+          "file": "SKILL.md",
+          "line": 13,
+          "finding": "always answer",
+          "fingerprint": "b4404d69f30b43064cedf6b7a3bc0f82006c7ad3e8bc125c4f8dc6a681444289"
+        }
+      ]
+    },
+    {
+      "name": "to-spec",
+      "path": "skill-collections/software-engineering/skills/to-spec",
+      "tree_sha256": "2b527e05336e8b21ed822dce624088eb62431d975423db8855a0d2b33dc40197",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 0,
+      "severity": "LOW",
+      "max_issue_severity": "NONE",
+      "recommendation": "CAUTION",
+      "analysis_complete": false,
+      "coverage_percent": 100.0,
+      "findings": []
+    },
+    {
+      "name": "to-tickets",
+      "path": "skill-collections/software-engineering/skills/to-tickets",
+      "tree_sha256": "153204eca3e089de51d94c6b23380b9a621c0d3d7e147643ecbf6714d2fe1d98",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 17,
+      "severity": "LOW",
+      "max_issue_severity": "HIGH",
+      "recommendation": "CAUTION",
+      "analysis_complete": false,
+      "coverage_percent": 100.0,
+      "findings": [
+        {
+          "id": "TM2",
+          "severity": "HIGH",
+          "file": "SKILL.md",
+          "line": 44,
+          "finding": "First expand: add the new form beside the old so nothing breaks. Then migrate the call sites over in batches sized by blast radius (per package, per directory), each batch its own ticket blocked by th",
+          "fingerprint": "1ead48911d2b3c7b725c74a8d0315f6b0f3793cf35a3e30c71b07df21abf3eab"
+        }
+      ]
+    },
+    {
+      "name": "triage",
+      "path": "skill-collections/software-engineering/skills/triage",
+      "tree_sha256": "daba2087ff7a13aa5db06dc479f340e6b556f1f26b3c9379f1961a02e44d1975",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 25,
+      "severity": "MEDIUM",
+      "max_issue_severity": "HIGH",
+      "recommendation": "CAUTION",
+      "analysis_complete": false,
+      "coverage_percent": 100.0,
+      "findings": [
+        {
+          "id": "AE1",
+          "severity": "HIGH",
+          "file": "SKILL.md",
+          "line": 80,
+          "finding": "SKILL.md (partial)",
+          "fingerprint": "3759e6a4effbd89fa5b6fc80754a6923d55bc99fda186e8e597107f2cd346b04"
+        }
+      ]
+    },
+    {
+      "name": "wait-what",
+      "path": "skill-collections/software-engineering/skills/wait-what",
+      "tree_sha256": "ed59253b2c45c70a6d240f533109c365c0870fe9e6619241570eb4f793902c14",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 0,
+      "severity": "LOW",
+      "max_issue_severity": "NONE",
+      "recommendation": "CAUTION",
+      "analysis_complete": false,
+      "coverage_percent": 100.0,
+      "findings": []
+    },
+    {
+      "name": "wayfinder",
+      "path": "skill-collections/software-engineering/skills/wayfinder",
+      "tree_sha256": "a5eef69b485d3c775e40906563135e9a3e312bd8ba79bd97fcf68a6dedec63ef",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 37,
+      "severity": "MEDIUM",
+      "max_issue_severity": "HIGH",
+      "recommendation": "CAUTION",
+      "analysis_complete": false,
+      "coverage_percent": 100.0,
+      "findings": [
+        {
+          "id": "AE1",
+          "severity": "HIGH",
+          "file": "SKILL.md",
+          "line": 83,
+          "finding": "SKILL.md (partial)",
+          "fingerprint": "3759e6a4effbd89fa5b6fc80754a6923d55bc99fda186e8e597107f2cd346b04"
+        },
+        {
+          "id": "AE1",
+          "severity": "HIGH",
+          "file": "SKILL.md",
+          "line": 128,
+          "finding": "SKILL.md (partial)",
+          "fingerprint": "3759e6a4effbd89fa5b6fc80754a6923d55bc99fda186e8e597107f2cd346b04"
+        }
+      ]
+    },
+    {
+      "name": "wizard",
+      "path": "skill-collections/software-engineering/skills/wizard",
+      "tree_sha256": "d05f5c129318111c6b34fdd643ced7869870f6e37a5fe825b8c5a8259ec2b024",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 19,
+      "severity": "LOW",
+      "max_issue_severity": "HIGH",
+      "recommendation": "CAUTION",
+      "analysis_complete": false,
+      "coverage_percent": 100.0,
+      "findings": [
+        {
+          "id": "PE3",
+          "severity": "HIGH",
+          "file": "template.sh",
+          "line": 98,
+          "finding": ".env ",
+          "fingerprint": "66ef81c27c03406fd9935e5fc86fc4126d7150c15b8d076fdc528d05cea7c7bf"
+        }
+      ]
+    },
+    {
+      "name": "writing-for-agents",
+      "path": "skill-collections/software-engineering/skills/writing-for-agents",
+      "tree_sha256": "1f0b429c88a1bbe4fe08778b113b8dfc6a5bbd53913344d175c760ea575a1087",
+      "status": "OPEN",
+      "returncode": 1,
+      "risk_score": 0,
+      "severity": "LOW",
+      "max_issue_severity": "NONE",
+      "recommendation": "CAUTION",
+      "analysis_complete": false,
+      "coverage_percent": 100.0,
+      "findings": []
+    }
+  ]
+}

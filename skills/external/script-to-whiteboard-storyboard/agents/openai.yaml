@@ -1,0 +1,4 @@
+interface:
+  display_name: "Script to Whiteboard Storyboard"
+  short_description: "Turn scripts into consistent whiteboard visual flows"
+  default_prompt: "Use $script-to-whiteboard-storyboard to turn this script into a consistent whiteboard image storyboard."

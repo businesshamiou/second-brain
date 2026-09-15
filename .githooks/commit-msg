@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Refuse un message de commit annoncant un contournement.
+
+set -u
+
+MSG_FILE="$1"
+VAULT_ROOT="$(git rev-parse --show-toplevel)"
+PATTERNS_FILE="$VAULT_ROOT/rules/patterns/bypass-patterns.txt"
+
+if [ ! -f "$MSG_FILE" ]; then
+  echo "REFUS : message de commit introuvable." >&2
+  exit 1
+fi
+
+if [ ! -f "$PATTERNS_FILE" ]; then
+  echo "REFUS : fichier de motifs introuvable : $PATTERNS_FILE" >&2
+  exit 1
+fi
+
+MSG="$(cat "$MSG_FILE")"
+
+while IFS= read -r pattern; do
+  case "$pattern" in
+    ''|'#'*) continue ;;
+  esac
+  if printf '%s\n' "$MSG" | grep -qiE -- "$pattern"; then
+    echo "REFUS : motif de contournement dans le message de commit." >&2
+    echo "  motif : $pattern" >&2
+    echo "Reformule le message. Un commit se decrit par ce qu il fait." >&2
+    exit 1
+  fi
+done < "$PATTERNS_FILE"
+
+exit 0

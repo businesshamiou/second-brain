@@ -1,0 +1,17 @@
+{
+  "schema_version": "1",
+  "purpose": "Immutable external archive for material intentionally removed from the thin Git repository.",
+  "release": {"repository":"https://github.com/businesshamiou/skills-warehouse","tag":"legacy-archive-2026-09-02","url":"https://github.com/businesshamiou/skills-warehouse/releases/tag/legacy-archive-2026-09-02","visibility":"private"},
+  "assets": [
+    {"name":"legacy-skills-and-records-2026-09-02.zip","sha256":"3e462c2f7f0919769b2ce3427a8267dea2ccc80c2ca2d06e7ff787938dff186c","bytes":6806719,"url":"https://github.com/user-attachments/files/31722796/legacy-skills-and-records-2026-09-02.zip"},
+    {"name":"legacy-dist-root-2026-09-02.zip","sha256":"953dde93d0f4063cd09e08995492cc1e6fed62e943b495daeae077961e437000","bytes":6762779,"url":"https://github.com/user-attachments/files/31722799/legacy-dist-root-2026-09-02.zip"},
+    {"name":"legacy-dist-2026-09-01-conformance-2026-09-02.zip","sha256":"686158babd133523c14dae64a1d52b0c908da549ca4f8979f003190bb1acd177","bytes":13448454,"url":"https://github.com/user-attachments/files/31722801/legacy-dist-2026-09-01-conformance-2026-09-02.zip"},
+    {"name":"legacy-dist-2026-09-01-vault-package-2026-09-02.zip","sha256":"b8afa65dbfd5c1ff85dd9100c363c65f0e3229c7242ec092a0977191f8bc2470","bytes":6722658,"url":"https://github.com/user-attachments/files/31722804/legacy-dist-2026-09-01-vault-package-2026-09-02.zip"},
+    {"name":"legacy-dist-chat-zips-2026-09-02.zip","sha256":"6d3cde958a8c6da02630044d98d97edff8905c986508a581806f3c380e674c45","bytes":6714910,"url":"https://github.com/user-attachments/files/31722809/legacy-dist-chat-zips-2026-09-02.zip"},
+    {"name":"legacy-dist-individual-2026-09-02.zip","sha256":"67392b3d94fadb7a23848802e121678fab8227e6c1c6ba5bf65c3defa0e14936","bytes":6713148,"url":"https://github.com/user-attachments/files/31722810/legacy-dist-individual-2026-09-02.zip"},
+    {"name":"source-snapshots-2026-09-02.zip","sha256":"4b86c91ff4c627f118c23c5905159c101c13917b5d2312e8b4e512e5ac02ca40","bytes":6806392,"url":"https://github.com/user-attachments/files/31722812/source-snapshots-2026-09-02.zip"},
+    {"name":"software-engineering-delivery-2026-09-02.zip","sha256":"9a38e06bfd51260ee51263d1553c9b4128f27cb774317dce9e4aad3396519a2b","bytes":234974,"url":"https://github.com/user-attachments/files/31722814/software-engineering-delivery-2026-09-02.zip"},
+    {"name":"web-design-delivery-2026-09-02.zip","sha256":"86338450db641889509668e8440767977332eec29130396420278b86a36d9b37","bytes":156891,"url":"https://github.com/user-attachments/files/31722815/web-design-delivery-2026-09-02.zip"},
+    {"name":"visual-content-delivery-2026-09-02.zip","sha256":"289c8ec1f44df471c8ade1cf3e9086a3424db8d8c66e4708ab09b32651fa9acc","bytes":13057445,"url":"https://github.com/user-attachments/files/31722816/visual-content-delivery-2026-09-02.zip"}
+  ]
+}

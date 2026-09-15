@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "pinnedAt": "2026-09-11T12:30:00-04:00",
+  "git": {
+    "version": "2.55.0.5",
+    "releaseTag": "v2.55.0.windows.5",
+    "asset": "PortableGit-2.55.0.5-64-bit.7z.exe",
+    "url": "https://github.com/git-for-windows/git/releases/download/v2.55.0.windows.5/PortableGit-2.55.0.5-64-bit.7z.exe",
+    "sha256": "5AA8A20F6E9ABB2C755F0E73C91C687701A46B309AD84A0CA6509380FA4AE290",
+    "linux64": {
+      "_comment": "Unofficial community static build (Mission 168, ticket 08) -- unlike Windows, upstream Git publishes no official portable/static Linux distribution (measured, WebSearch 2026-09-11: only third-party projects such as darkvertex/static-git or EXALAB/git-static exist). Named as a Class A finding for the Owner in the ticket 08 report: this source is not official, only independently downloaded and SHA-256-verified by the Executor.",
+      "version": "2.55.0",
+      "releaseTag": "2.55.0",
+      "asset": "git-binaries.linux-64bit.tar.gz",
+      "url": "https://github.com/darkvertex/static-git/releases/download/2.55.0/git-binaries.linux-64bit.tar.gz",
+      "sha256": "8c34e40809b9ec271db4b344953f73c9c3a2c3de022be308d567adeee6eb770e"
+    }
+  },
+  "uv": {
+    "version": "0.12.13",
+    "installScriptUrl": "https://astral.sh/uv/0.12.13/install.ps1",
+    "installScriptSha256": "6A749FE05B2617EDE62127832D6F4C37E7B406740C7BC0DC62FE77F5E5EBDB20",
+    "installScriptUrlUnix": "https://astral.sh/uv/0.12.13/install.sh",
+    "installScriptShaUnix": "e7265962d703f3ca66b3e90fae8fcdc6d4e4b587027e9479ccc29b25c3f68d4e"
+  },
+  "preCommit": {
+    "version": "4.6.2"
+  }
+}

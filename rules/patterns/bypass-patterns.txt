@@ -1,0 +1,12 @@
+# Motifs de contournement interdits dans un message de commit.
+# Un motif par ligne, syntaxe grep -E, insensible a la casse.
+
+--no-verify
+--force
+skip[- ]?hook
+bypass
+contourne
+temporaire
+provisoire
+quick ?fix
+wip

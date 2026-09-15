@@ -1,0 +1,9 @@
+{
+  "tool": "SkillSpector",
+  "upstream": "https://github.com/NVIDIA/SkillSpector",
+  "commit": "704bc9544260c2f41222dc0f92982521709496ab",
+  "version": "2.11.1",
+  "license": "Apache-2.0",
+  "scan_mode": "static",
+  "invocation": "skillspector scan <target> --no-llm --format json --output <temporary-report>"
+}
