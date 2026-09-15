@@ -8,12 +8,13 @@
 # exclusion, not a content-based exception, so a real leak elsewhere is
 # never masked).
 #
-# Also covers the reason `--tree-only` exists: this repo's own history
-# already carries "aios-production" (a real pre-ticket-10 leak in commits
-# 9d67391/39bfda0, ticket 01 before ticket 02's cleanup) -- immutable, not
-# fixable by rewriting the checker. `--tree-only` must ignore history so CI
-# can stay green on clean new content; full mode (no flag) must still catch
-# it, so the signal is not silently lost.
+# Also covers the reason `--tree-only` exists: a real leak once committed is
+# immutable history, not fixable by rewriting the checker -- this repo's own
+# history carried one from ticket 01 to ticket 02's cleanup (commits
+# 9d67391/39bfda0), until Mission 178 reduced it to a single fresh commit.
+# `--tree-only` must ignore history so CI can stay green on clean new
+# content; full mode (no flag) must still catch a real leak, so the signal
+# is not silently lost.
 #
 # Cases:
 #   1. self-exclusion -- a sandbox containing only a copy of the checker
@@ -27,9 +28,17 @@
 #   4. history-vs-tree-only -- a forbidden pattern committed once then
 #      removed: --tree-only passes (current tree clean), full mode (no
 #      flag) still refuses (history is immutable).
+#   5. self-exclusion-full-mode (Mission 178) -- the same sandbox as case 1,
+#      checked in FULL mode (no flag): a real bug found while squashing
+#      second-brain's own history to a single commit -- the history search
+#      lacked the same path exclusion the tree search already had, so the
+#      very commit that adds this checker (and its test) always failed full
+#      mode on its own source lines, never on anyone else's leak. This case
+#      pins the fix: full mode must also pass on a tree containing only the
+#      checker.
 #
 # usage: tests/test-check-private-patterns.sh
-# sortie : "PASS: 4/4 cas conformes" (exit 0) ou "FAIL: <n> cas non
+# sortie : "PASS: 5/5 cas conformes" (exit 0) ou "FAIL: <n> cas non
 # conformes" (exit 1), meme convention que test-check-links-cross-repo.sh.
 
 set -u
@@ -131,8 +140,22 @@ else
   FAILURES=$((FAILURES + 1))
 fi
 
+# --- 5. self-exclusion in FULL mode (Mission 178) ----------------------------
+REPO_5="$(make_repo "$TMP/case-5")"
+mkdir -p "$REPO_5/tests"
+cp "$SCRIPT_DIR/test-check-private-patterns.sh" "$REPO_5/tests/test-check-private-patterns.sh"
+commit_all "$REPO_5" "checker and its test only"
+OUT_5="$(cd "$REPO_5" && bash tools/check-private-patterns.sh 2>&1)"; RC_5=$?
+if [ "$RC_5" -eq 0 ]; then
+  echo "ok [5-self-exclusion-full-mode]: mode complet passe sur un arbre/historique ne contenant que le checker et son test"
+else
+  echo "FAIL [5-self-exclusion-full-mode]: exit=$RC_5, sortie:" >&2
+  printf '%s\n' "$OUT_5" >&2
+  FAILURES=$((FAILURES + 1))
+fi
+
 if [ "$FAILURES" -eq 0 ]; then
-  echo "PASS: 4/4 cas conformes"
+  echo "PASS: 5/5 cas conformes"
   exit 0
 else
   echo "FAIL: $FAILURES cas non conformes"

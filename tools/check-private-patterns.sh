@@ -12,20 +12,26 @@
 #   (par defaut)   scanne l'arbre suivi ET l'historique complet (--all).
 #   --tree-only    scanne seulement l'arbre suivi, jamais l'historique.
 #
-# Motif du mode --tree-only (trouve en revue de code, ticket 10) : ce depot a
-# ete construit un commit par ticket (Decision 233451), et son tout premier
-# commit (9d67391, ticket 01) contenait bel et bien "aios-production" dans
-# tests/standalone.sh avant que le ticket 02 (39bfda0) ne le retire -- un
-# historique Git est immuable, donc le mode complet continuera pour toujours
-# a refuser sur ce fait deja connu, meme si l'arbre courant est propre. Ce
-# n'est pas un defaut de ce script : c'est une fuite de vie privee reelle,
-# deja committee, qui ne se resout que par une reecriture d'historique --
-# geste structurant reserve a l'Owner, jamais pris par un Executor de sa
-# propre initiative (voir le rapport du ticket 10, trouvaille de classe A).
-# La CI (qui doit rester capable de reussir sur du contenu neuf propre)
-# invoque donc --tree-only comme gardien bloquant ; le mode complet reste
-# disponible ici, execute a part en continue-on-error, informationnel, pour
-# ne pas perdre le signal en attendant l'arbitrage Owner.
+# Motif du mode --tree-only (trouve en revue de code, ticket 10) : un
+# historique Git est immuable, donc un motif prive une fois committe dans un
+# fichier quelconque continue pour toujours a faire refuser le mode complet,
+# meme si l'arbre courant est propre -- seule une reecriture d'historique (ou
+# une republication depuis zero) l'efface, geste structurant reserve a
+# l'Owner, jamais pris par un Executor de sa propre initiative. La CI (qui
+# doit rester capable de reussir sur du contenu neuf propre) invoque donc
+# --tree-only comme gardien bloquant ; le mode complet reste disponible ici
+# pour mesurer l'historique separement.
+#
+# Exclusion (Mission 178, meme cause que le self-exclusion du mode arbre,
+# trouve en relisant ce script apres reduction d'historique) : la recherche
+# d'historique n'appliquait PAS EXCLUDE_PATHSPECS, contrairement a la
+# recherche d'arbre -- ce script et son test nomment les quatre motifs en
+# clair, donc tout commit qui les ajoute (y compris le tout premier commit
+# d'un historique par ailleurs propre) faisait refuser le mode complet sur
+# ses propres lignes, jamais sur la fuite de quelqu'un d'autre. Corrige en
+# passant les memes exclusions de chemin aux deux recherches d'historique
+# ci-dessous ; une vraie fuite ailleurs dans l'historique reste detectee
+# (cas 2, 4 et 5 de tests/test-check-private-patterns.sh).
 #
 # Shell portable : aucune dependance a Python, aucune dependance a `grep -P`
 # (PCRE) -- le cas "hamio" substring de "businesshamiou" (compte GitHub public
@@ -97,7 +103,7 @@ check_plain() {
   if [ "$TREE_ONLY" -eq 1 ]; then
     return
   fi
-  hist_hits="$(git -C "$REPO_ROOT" log -p --all -i -S"$pattern" --pretty=format:'commit %H' 2>/dev/null | grep -i -- "$pattern" || true)"
+  hist_hits="$(git -C "$REPO_ROOT" log -p --all -i -S"$pattern" --pretty=format:'commit %H' -- . "${EXCLUDE_PATHSPECS[@]}" 2>/dev/null | grep -i -- "$pattern" || true)"
   if [ -n "$hist_hits" ]; then
     echo "REFUS : motif prive '$pattern' dans l'historique :" >&2
     printf '%s\n' "$hist_hits" | head -20 >&2
@@ -118,7 +124,7 @@ if [ -n "$tree_hamio" ]; then
   FAIL=1
 fi
 if [ "$TREE_ONLY" -eq 0 ]; then
-  hist_hamio="$(git -C "$REPO_ROOT" log -p --all -i -S"hamio" --pretty=format:'commit %H' 2>/dev/null | grep -i -- "hamio" | grep -vi -- "businesshamiou" || true)"
+  hist_hamio="$(git -C "$REPO_ROOT" log -p --all -i -S"hamio" --pretty=format:'commit %H' -- . "${EXCLUDE_PATHSPECS[@]}" 2>/dev/null | grep -i -- "hamio" | grep -vi -- "businesshamiou" || true)"
   if [ -n "$hist_hamio" ]; then
     echo "REFUS : motif prive 'hamio' (hors businesshamiou) dans l'historique :" >&2
     printf '%s\n' "$hist_hamio" | head -20 >&2
