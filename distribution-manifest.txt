@@ -522,3 +522,4 @@ tools/resolve-sibling-repo.sh	DISTRIBUABLE
 tests/test-sibling-repo-declaration.sh	DISTRIBUABLE
 tests/test-nominal-flow-no-atelier-vocabulary.ps1	DISTRIBUABLE
 tests/test-nominal-flow-no-atelier-vocabulary.sh	DISTRIBUABLE
+tests/test-distribution-manifest-no-heredoc-hang.sh	DISTRIBUABLE

@@ -42,7 +42,8 @@ TAB="$(printf '\t')"
 
 TRACKED_FILE="$(mktemp)"
 MANIFEST_PATHS_FILE="$(mktemp)"
-trap 'rm -f "$TRACKED_FILE" "$MANIFEST_PATHS_FILE"' EXIT
+FM_DIST_FILE="$(mktemp)"
+trap 'rm -f "$TRACKED_FILE" "$MANIFEST_PATHS_FILE" "$FM_DIST_FILE"' EXIT
 
 # `skills-warehouse/` hors perimetre (Mission 168, arbitrage Owner
 # 2026-09-11, option c) : sous-arbre adopte tel quel (T24), jamais soumis au
@@ -94,21 +95,23 @@ while IFS= read -r p; do
 $p"
 done < <(cut -f1 "$MANIFEST")
 
-FM_DIST_TABLE="$(printf '%s\n' "$EXISTING_PATHS" | sed "s#^#$VAULT_ROOT/#" | tr '\n' '\0' | xargs -0 awk '
+# The table goes through a temp file, never a here-document: its size is
+# (install path length + file path) x ~500 lines, and Git Bash's bash 5.3
+# deadlocks for good on a here-document between 65537 and ~65690 bytes --
+# reached by an install path of about 71 characters.
+printf '%s\n' "$EXISTING_PATHS" | sed "s#^#$VAULT_ROOT/#" | tr '\n' '\0' | xargs -0 awk '
   FNR==1 { distv="" }
   FNR<=20 && distv=="" && $0 ~ /^distributable:[[:space:]]*(true|false)[[:space:]]*$/ {
     v=$0; sub(/^distributable:[[:space:]]*/,"",v); gsub(/[[:space:]]+$/,"",v); distv=v
   }
   ENDFILE { print FILENAME "\t" distv }
-' 2>/dev/null)"
+' > "$FM_DIST_FILE" 2>/dev/null
 
 declare -A FM_DIST=()
 while IFS="$TAB" read -r fpath fdist; do
   [ -z "$fpath" ] && continue
   FM_DIST["${fpath#"$VAULT_ROOT"/}"]="$fdist"
-done <<EOF_FMDIST
-$FM_DIST_TABLE
-EOF_FMDIST
+done < "$FM_DIST_FILE"
 
 # --- 1. fichier suivi absent du manifeste ---
 MISSING_FROM_MANIFEST="$(comm -23 "$TRACKED_FILE" "$MANIFEST_PATHS_FILE")"
