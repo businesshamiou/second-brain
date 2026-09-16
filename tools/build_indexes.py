@@ -84,10 +84,13 @@ ARCHIVE_PREFIX = "index-archive-"
 # retire de la distribution et fige (Decision 110852) -- jamais navigue par
 # l'ordre de recherche par index (assistant/ASSISTANT.md), donc jamais
 # indexe, meme motif que "state".
+# "web-package" ajoute (Mission 183-C01) : paquet genere pour un Projet web,
+# dont le README annonce chaque fichier a televerser ; un index.md genere
+# ici y etait un fichier de trop, annonce nulle part (rapport 182).
 PRUNE_NAMES = {
     ".git", ".githooks", ".claude", ".codex", ".agents", "graphify-out",
     "tools", "patterns", "node_modules", "state", ".venv", "venv",
-    "__pycache__", "skills-warehouse", "_trash",
+    "__pycache__", "skills-warehouse", "_trash", "web-package",
 }
 
 ARCHIVE_RE = re.compile(r"^index-archive-.+\.md$")

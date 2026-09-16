@@ -10,6 +10,8 @@
 _trash/BRIEF-2026-08-17-003000-vault-concept-operating-model.md	INTERNE
 _trash/runbook-vault-setup.md	INTERNE
 AGENTS.md	DISTRIBUABLE
+bootstrap.ps1	DISTRIBUABLE
+bootstrap.sh	DISTRIBUABLE
 distribution-manifest.txt	DISTRIBUABLE
 CLAUDE.md	DISTRIBUABLE
 README.md	DISTRIBUABLE
@@ -421,6 +423,7 @@ tests/test-participant-shell-portability.sh	DISTRIBUABLE
 tests/test-link-graph-drone-view-empty-status-field.sh	DISTRIBUABLE
 tests/test-install-e2e.ps1	DISTRIBUABLE
 tests/test-install-e2e.sh	DISTRIBUABLE
+tests/test-bootstrap-no-git.ps1	DISTRIBUABLE
 tests/test-install-workspace-path-validation.ps1	DISTRIBUABLE
 tests/test-install-workspace-path-validation.sh	DISTRIBUABLE
 tests/test-project-bootstrap-path-validation.sh	DISTRIBUABLE

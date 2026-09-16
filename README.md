@@ -25,28 +25,27 @@ Le glossaire complet des termes du produit vit dans [CONTEXT.md](./CONTEXT.md).
 - Python et `pre-commit` : mêmes conditions que Git, installés au besoin par l'installeur (gestionnaire `uv`), jamais de façon globale ni élevée.
 - Windows, macOS ou Linux. L'installeur PowerShell (`install.ps1`) et l'installeur shell (`install.sh`) posent les mêmes questions, écrivent le même carnet et produisent le même verdict.
 
-_Remarque honnête (à corriger par une Mission future, hors périmètre de ce ticket) : la toute première étape ci-dessous — récupérer ce dépôt — utilise `git clone`, donc Git doit déjà être présent sur ta machine pour cette étape précise ; l'installation automatique de Git ne prend le relais qu'une fois le dépôt déjà cloné._
-
 ## Ligne d'installation
 
-**Windows (PowerShell) :**
+**Windows (PowerShell, compte standard suffisant) :**
 
 ```powershell
-git clone https://github.com/businesshamiou/second-brain.git $env:TEMP\second-brain-install
-& "$env:TEMP\second-brain-install\install.ps1" -Source "$env:TEMP\second-brain-install"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.1/bootstrap.ps1)))"
 ```
 
 **macOS / Linux (Terminal) :**
 
 ```bash
-git clone https://github.com/businesshamiou/second-brain.git /tmp/second-brain-install && bash /tmp/second-brain-install/install.sh --source /tmp/second-brain-install
+curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.1/bootstrap.sh | bash
 ```
+
+Rien n'est à installer avant : le script d'amorçage pose Git dans ton profil s'il manque, récupère ce dépôt, puis lance l'installeur (détail dans [INSTALL.md](./INSTALL.md)).
 
 **Depuis Claude Code ou Codex**, ouvre une session dans un dossier quelconque et lance `/first-install` : l'agent pose les mêmes questions dans son propre chat, écrit le fichier de réponses, puis appelle le même installeur.
 
 Dans les trois cas, l'installeur crée ton espace de travail, y clone `second-brain` à sa place définitive, pose le marqueur `VAULT-ROOT.md`, et te pose sept questions courtes (langue, nom de l'assistant, emplacement de l'espace de travail, prénom, activité, façon de travailler avec l'IA, ce qui compte pour toi) avant de te proposer un premier projet.
 
-**L'installation par archive (zip) reste refusée.** Second Brain se publie par étiquette de version (« tag ») sur un dépôt Git, jamais accompagné d'une archive : les gardiens de ce dépôt (contrôle de secrets, de liens, de fraîcheur des index) exigent un dépôt Git réel (`git rev-parse` doit répondre) pour s'exécuter, et un dossier extrait d'une archive n'en est pas un — ni les gardiens ni `/first-install` n'y fonctionnent correctement. Clone toujours avec `git clone`.
+**L'installation par archive (zip) reste refusée.** Second Brain se publie par étiquette de version (« tag ») sur un dépôt Git, jamais accompagné d'une archive : les gardiens de ce dépôt (contrôle de secrets, de liens, de fraîcheur des index) exigent un dépôt Git réel (`git rev-parse` doit répondre) pour s'exécuter, et un dossier extrait d'une archive n'en est pas un — ni les gardiens ni `/first-install` n'y fonctionnent correctement. La ligne ci-dessus récupère toujours un vrai dépôt.
 
 **Remarque Windows :** PowerShell ne sait pas exécuter un script `.sh` directement — c'est le cas, par exemple, de l'assistant d'acceptation `tools/acceptance-wizard.sh`. Lance-le depuis **Git Bash** (installé avec Git, disponible dans le menu Démarrer), ou passe par `acceptance.ps1`, à la racine de ce dépôt, qui retrouve Bash tout seul et lui délègue l'exécution.
 

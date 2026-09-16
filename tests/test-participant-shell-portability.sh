@@ -11,7 +11,7 @@
 # construct from the list below, on every platform, before a Mac ever sees
 # it.
 #
-# Participant's path (tracked files): install.sh, everything under
+# Participant's path (tracked files): install.sh, bootstrap.sh, everything under
 # .githooks/, tools/*.sh, and shell files under skills/ -- except
 # skills/external/, a provenance boundary of third-party material copied
 # verbatim (its findings are recorded in the Mission 181 report, not
@@ -195,7 +195,7 @@ while IFS= read -r rel; do
   [ -z "$rel" ] && continue
   case "$rel" in
     skills/external/*) continue ;;
-    install.sh|.githooks/*|tools/*.sh) FILES+=("$REPO_ROOT/$rel") ;;
+    install.sh|bootstrap.sh|.githooks/*|tools/*.sh) FILES+=("$REPO_ROOT/$rel") ;;
     skills/*)
       case "$rel" in
         *.sh) FILES+=("$REPO_ROOT/$rel") ;;
@@ -204,7 +204,7 @@ while IFS= read -r rel; do
       ;;
   esac
 done <<EOF_FILES
-$(git -C "$REPO_ROOT" ls-files -- install.sh .githooks tools skills)
+$(git -C "$REPO_ROOT" ls-files -- install.sh bootstrap.sh .githooks tools skills)
 EOF_FILES
 
 if [ "${#FILES[@]}" -lt 30 ]; then

@@ -71,9 +71,12 @@ os.chdir(REPO_ROOT)
 # retire de la distribution et fige (Decision 110852) -- jamais navigue par
 # l'ordre de recherche par index (assistant/ASSISTANT.md), donc jamais
 # indexe, meme motif que "state".
+# "web-package" ajoute (Mission 183-C01), meme liste que
+# tools/build_indexes.py : paquet genere pour un Projet web, jamais indexe.
 PRUNE_NAMES = set(
     ".git .githooks .claude .codex .agents graphify-out tools patterns "
-    "node_modules state .venv venv __pycache__ skills-warehouse _trash".split()
+    "node_modules state .venv venv __pycache__ skills-warehouse _trash "
+    "web-package".split()
 )
 
 # Mission 140 : index.md et ses archives figees ne s'indexent jamais eux-memes

@@ -432,6 +432,26 @@ function Get-AssistantGeneratedPaths {
     )
 }
 
+function Set-Utf8NoBomContent {
+    # Writes $Value plus a trailing newline as UTF-8 WITHOUT a byte-order
+    # mark (Mission 183-C01). Windows PowerShell 5.1's
+    # `Set-Content -Encoding UTF8` always prepends EF BB BF; Codex then
+    # refuses the generated skill ("missing YAML frontmatter delimited by
+    # ---") because its front matter no longer starts at byte 0. Claude
+    # Code tolerates the mark, which is why only a real Codex call saw it.
+    # Same bytes as tools/sb_installer_helper.py writes on macOS/Linux,
+    # apart from the line ending, which .gitattributes normalizes.
+    param(
+        [Parameter(Mandatory = $true)][string] $Path,
+        [Parameter(Mandatory = $true)][AllowEmptyString()][string] $Value
+    )
+    # .NET resolves a relative path against the process directory, not the
+    # PowerShell location: resolve it the way Set-Content would.
+    $fullPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path)
+    $encoding = New-Object System.Text.UTF8Encoding($false)
+    [System.IO.File]::WriteAllText($fullPath, $Value + "`r`n", $encoding)
+}
+
 function New-AssistantForms {
     # Orchestrator: (re)writes all three forms for $Name under $ClonePath.
     # Idempotent -- called with the same name and the same identity source
@@ -456,11 +476,11 @@ function New-AssistantForms {
 
     $subagentPath = Join-Path $ClonePath ".claude\agents\$slug.md"
     New-Item -ItemType Directory -Force -Path (Split-Path $subagentPath -Parent) | Out-Null
-    Set-Content -Path $subagentPath -Encoding UTF8 -Value (New-ClaudeCodeSubagentContent -Name $Name -Slug $slug -Body $body -Language $Language)
+    Set-Utf8NoBomContent -Path $subagentPath -Value (New-ClaudeCodeSubagentContent -Name $Name -Slug $slug -Body $body -Language $Language)
 
     $skillPath = Join-Path $ClonePath ".agents\skills\$slug\SKILL.md"
     New-Item -ItemType Directory -Force -Path (Split-Path $skillPath -Parent) | Out-Null
-    Set-Content -Path $skillPath -Encoding UTF8 -Value (New-CodexSkillContent -Name $Name -Slug $slug -Body $body -Language $Language)
+    Set-Utf8NoBomContent -Path $skillPath -Value (New-CodexSkillContent -Name $Name -Slug $slug -Body $body -Language $Language)
 
     $webPackageDir = Join-Path $ClonePath "web-package\$slug"
     New-Item -ItemType Directory -Force -Path $webPackageDir | Out-Null
@@ -468,14 +488,14 @@ function New-AssistantForms {
     if ($instructionsText.Length -gt $Script:MaxInstructionsChars) {
         throw "Generated web package instructions for '$Name' are $($instructionsText.Length) characters, over the $($Script:MaxInstructionsChars)-character ceiling (ticket 06 criterion 4)."
     }
-    Set-Content -Path (Join-Path $webPackageDir 'INSTRUCTIONS.md') -Encoding UTF8 -Value $instructionsText
+    Set-Utf8NoBomContent -Path (Join-Path $webPackageDir 'INSTRUCTIONS.md') -Value $instructionsText
 
     foreach ($knowledgeFile in $Script:WebPackageKnowledgeFiles) {
         $content = Get-WebPackageKnowledgeFileContent -ClonePath $ClonePath -SourceRelativePaths $knowledgeFile.SourcePaths
-        Set-Content -Path (Join-Path $webPackageDir $knowledgeFile.FileName) -Encoding UTF8 -Value $content
+        Set-Utf8NoBomContent -Path (Join-Path $webPackageDir $knowledgeFile.FileName) -Value $content
     }
 
-    Set-Content -Path (Join-Path $webPackageDir 'README.md') -Encoding UTF8 -Value (New-WebPackageReadme -Name $Name -Slug $slug)
+    Set-Utf8NoBomContent -Path (Join-Path $webPackageDir 'README.md') -Value (New-WebPackageReadme -Name $Name -Slug $slug)
 
     $packageFileCount = @(Get-ChildItem -Path $webPackageDir -File).Count
     if ($packageFileCount -gt $Script:MaxWebPackageFiles) {

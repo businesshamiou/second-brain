@@ -13,28 +13,28 @@ Ce dépôt contient Second Brain : une mémoire durable et un système opératoi
 ## 1. Prérequis
 
 - L'abonnement payant ci-dessus.
-- Git. S'il est déjà sur ton poste, il est réutilisé tel quel. Sinon, l'installeur le récupère lui-même dans ton profil utilisateur, sans droits administrateur — sauf pour l'étape 2 ci-dessous, qui a besoin d'un `git` déjà présent pour récupérer le dépôt en premier lieu.
-- Python et `pre-commit` : mêmes conditions que Git, gérés par `uv` si absents.
+- Rien d'autre à installer à la main. Git, Python et `pre-commit` sont réutilisés s'ils sont déjà sur ton poste ; sinon, la ligne ci-dessous les pose elle-même dans ton profil utilisateur, sans droits administrateur. Sur macOS, Git vient avec les outils en ligne de commande d'Apple : s'ils manquent, Apple propose de les installer, puis tu relances la même ligne.
 - Windows (PowerShell 5.1 ou plus), macOS ou Linux (Bash).
 
 ## 2. Ligne d'installation
 
-**Windows (PowerShell) :**
+**Windows (PowerShell, compte standard suffisant) :**
 
 ```powershell
-git clone https://github.com/businesshamiou/second-brain.git $env:TEMP\second-brain-install
-& "$env:TEMP\second-brain-install\install.ps1" -Source "$env:TEMP\second-brain-install"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.1/bootstrap.ps1)))"
 ```
 
 **macOS / Linux (Terminal) :**
 
 ```bash
-git clone https://github.com/businesshamiou/second-brain.git /tmp/second-brain-install && bash /tmp/second-brain-install/install.sh --source /tmp/second-brain-install
+curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.1/bootstrap.sh | bash
 ```
+
+La ligne télécharge un script d'amorçage (`bootstrap.ps1` ou `bootstrap.sh`, à la racine de ce dépôt) qui n'exige rien d'installé : il pose Git dans ton profil si besoin, vérifie son empreinte, récupère le dépôt à la version indiquée, puis lance l'installeur (`install.ps1` ou `install.sh`). Aucune invite d'élévation, aucune écriture hors de ton profil.
 
 **Depuis Claude Code ou Codex** (poste déjà équipé, ou clone existant à examiner) : ouvre une session dans n'importe quel dossier et lance `/first-install`. L'agent pose les mêmes questions dans son propre chat, écrit un fichier de réponses, puis appelle le même installeur — comportement identique à un participant qui répond en direct dans le terminal.
 
-**Ne pas extraire une archive.** Second Brain se publie par étiquette de version (« tag ») sur le dépôt Git, jamais par une archive zip qui l'accompagnerait. Les gardiens de ce dépôt (contrôle de secrets, de liens, de fraîcheur des index — `.githooks/pre-commit`) et le script d'installation exigent un dépôt Git réel (`git rev-parse --show-toplevel` doit répondre) : sans `.git`, ils refusent explicitement plutôt que de s'exécuter à moitié. Un dossier extrait d'une archive n'est pas un dépôt Git et ne peut exécuter ni les gardiens ni `/first-install` correctement — clone toujours avec `git clone`.
+**Ne pas extraire une archive.** Second Brain se publie par étiquette de version (« tag ») sur le dépôt Git, jamais par une archive zip qui l'accompagnerait. Les gardiens de ce dépôt (contrôle de secrets, de liens, de fraîcheur des index — `.githooks/pre-commit`) et le script d'installation exigent un dépôt Git réel (`git rev-parse --show-toplevel` doit répondre) : sans `.git`, ils refusent explicitement plutôt que de s'exécuter à moitié. Un dossier extrait d'une archive n'est pas un dépôt Git et ne peut exécuter ni les gardiens ni `/first-install` correctement — la ligne ci-dessus récupère toujours un vrai dépôt.
 
 ## 3. Ce que fait l'installeur
 

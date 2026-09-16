@@ -38,6 +38,13 @@
     regex `` `([A-Za-z0-9._-]+\.md)` `` is sufficient and never matches the
     prose around it.
 
+    Mission 183-C01: the indexes are regenerated over the test clone right
+    after generation, exactly as the installer does -- without that step
+    this test never saw the index.md the real installer left in the
+    package (Mission 182: 5 announced, 6 present). The README's own file
+    count is checked too, and no generated form may start with a UTF-8
+    byte-order mark (Codex refuses such a SKILL.md).
+
     Rerun with:
         powershell -NoProfile -ExecutionPolicy Bypass -File tests\test-web-package-readme-matches-contents.ps1
 
@@ -86,6 +93,15 @@ try {
 
     $slug = New-AssistantForms -ClonePath $TestClone -Name 'Testy'
     $webDir = Join-Path $TestClone "web-package\$slug"
+
+    # Mission 183-C01: regenerate the indexes exactly as the installer does
+    # right after generating the forms (install.ps1 runs the clone's own
+    # tools/build-indexes.sh -> build_indexes.py over the clone root).
+    # Without this step the test never saw the index.md the real installer
+    # left inside web-package/<slug>/ -- the "5 announced, 6 present"
+    # defect measured by Mission 182.
+    & uv run --no-project (Join-Path $RepoRoot 'tools\build_indexes.py') $TestClone *> (Join-Path $TestRoot 'build-indexes.log')
+    Assert-True ($LASTEXITCODE -eq 0) "index regeneration over the test clone succeeded, as in the installer (exit $LASTEXITCODE)"
     $readmePath = Join-Path $webDir 'README.md'
     Assert-True (Test-Path $readmePath) "generated web package has a README.md"
 
@@ -104,6 +120,25 @@ try {
 
     $unannounced = @($actualFiles | Where-Object { $announced -notcontains $_ })
     Assert-True ($unannounced.Count -eq 0) "every file on disk is announced in the README (unannounced: $($unannounced -join ', '))"
+
+    # The README states its own folder's file count ("This README (N files
+    # total in this folder)"): it must match the folder, README included.
+    $allCount = @(Get-ChildItem -Path $webDir -File).Count
+    $statedMatch = [regex]::Match($readmeText, '\((\d+) files total in this folder\)')
+    Assert-True ($statedMatch.Success -and [int]$statedMatch.Groups[1].Value -eq $allCount) "the README's stated file count matches the folder (stated: $($statedMatch.Groups[1].Value), present: $allCount)"
+
+    # Mission 183-C01: no generated file starts with a UTF-8 byte-order mark
+    # (Codex refuses a SKILL.md whose front matter does not start at byte 0).
+    $formFiles = @(Get-ChildItem -Path $webDir -File | ForEach-Object { $_.FullName }) + @(
+        (Join-Path $TestClone ".claude\agents\$slug.md"),
+        (Join-Path $TestClone ".agents\skills\$slug\SKILL.md"))
+    $withBom = @($formFiles | Where-Object {
+        $bytes = [System.IO.File]::ReadAllBytes($_)
+        $bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF
+    } | ForEach-Object { Split-Path $_ -Leaf })
+    Assert-True ($withBom.Count -eq 0) "no generated form starts with a UTF-8 byte-order mark (with one: $($withBom -join ', '))"
+    $skillHead = [System.Text.Encoding]::UTF8.GetString([System.IO.File]::ReadAllBytes((Join-Path $TestClone ".agents\skills\$slug\SKILL.md")), 0, 3)
+    Assert-True ($skillHead -eq '---') "the Codex SKILL.md front matter starts at byte 0 (first bytes: '$skillHead')"
 
     # Not this test's main point, but cheap to check here since the package
     # already exists: none of the flattened knowledge files leaves a
