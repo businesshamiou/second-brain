@@ -24,6 +24,12 @@ BUILD_ROOT="$SIBLING_ROOT"
 STAMP="$VAULT_ROOT/.claude/.preflight_stamp.json"
 CHARTER="$VAULT_ROOT/rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md"
 
+# Les deux tableaux s'expansent plus bas sous la forme gardee
+# ${TABLEAU[@]+"${TABLEAU[@]}"} : sous `set -u`, le bash 3.2 livre par Apple
+# traite l'expansion d'un tableau VIDE comme une variable non liee et s'arrete
+# (corrige dans bash 4.4, donc invisible sous Linux et Git Bash). Le chemin
+# nominal -- aucun defaut a signaler -- est justement celui ou les deux
+# tableaux sont vides : macOS echouait donc quand tout allait bien.
 ISSUES=()
 WARNINGS=()
 
@@ -119,7 +125,7 @@ mkdir -p "$(dirname "$STAMP")"
   printf '  "ready": %s,\n' "$READY_JSON"
   printf '  "issues": ['
   FIRST=1
-  for ISSUE in "${ISSUES[@]}"; do
+  for ISSUE in ${ISSUES[@]+"${ISSUES[@]}"}; do
     ESCAPED="${ISSUE//\\/\\\\}"
     ESCAPED="${ESCAPED//\"/\\\"}"
     if [ "$FIRST" -eq 0 ]; then printf ','; fi
@@ -129,7 +135,7 @@ mkdir -p "$(dirname "$STAMP")"
   printf '],\n'
   printf '  "warnings": ['
   FIRST=1
-  for WARNING in "${WARNINGS[@]}"; do
+  for WARNING in ${WARNINGS[@]+"${WARNINGS[@]}"}; do
     ESCAPED="${WARNING//\\/\\\\}"
     ESCAPED="${ESCAPED//\"/\\\"}"
     if [ "$FIRST" -eq 0 ]; then printf ','; fi
@@ -141,7 +147,7 @@ mkdir -p "$(dirname "$STAMP")"
 } > "$STAMP"
 
 # --- Sortie ---
-for WARNING in "${WARNINGS[@]}"; do
+for WARNING in ${WARNINGS[@]+"${WARNINGS[@]}"}; do
   echo "  - warning: $WARNING" >&2
 done
 
@@ -150,7 +156,7 @@ if [ "$N" -eq 0 ]; then
   exit 0
 else
   echo "NOT-READY: $N issue(s)"
-  for ISSUE in "${ISSUES[@]}"; do
+  for ISSUE in ${ISSUES[@]+"${ISSUES[@]}"}; do
     echo "  - $ISSUE" >&2
   done
   exit 1

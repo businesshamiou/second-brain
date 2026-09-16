@@ -83,13 +83,32 @@ add_guardian "manifeste"        "bash_guardian \"$VAULT_ROOT/tools/check-distrib
 add_guardian "sans-agents"      "bash_guardian \"$VAULT_ROOT/tools/check-no-slash-agents.sh\"" "preflight"
 add_guardian "bit-execution"    "bash_guardian \"$VAULT_ROOT/tools/check-exec-bit-bare-scripts.sh\"" "preflight"
 
-declare -A VERDICT
-declare -A OUTPUT
+# Verdicts et sorties en tableaux indices, partageant l'indice de G_NAME
+# plutot qu'en tableaux associatifs : ceux-ci n'existent qu'a partir de bash
+# 4.0, et macOS livre le bash 3.2 (Mission 180). Meme ordre, memes valeurs.
+declare -a G_VERDICT=()
+declare -a G_OUTPUT=()
 FAIL_COUNT=0
+
+index_of() {
+  # Indice du gardien nomme $1, ou -1. Dix entrees : un balayage suffit.
+  local needle="$1" i=0
+  while [ "$i" -lt "${#G_NAME[@]}" ]; do
+    if [ "${G_NAME[$i]}" = "$needle" ]; then
+      printf '%s' "$i"
+      return 0
+    fi
+    i=$((i + 1))
+  done
+  printf '%s' "-1"
+}
 
 blocked() {
   # Vrai si la dependance $1 a echoue ou a ete elle-meme sautee (transitif).
-  local v="${VERDICT[$1]:-}"
+  local idx
+  idx="$(index_of "$1")"
+  [ "$idx" -ge 0 ] || return 1
+  local v="${G_VERDICT[$idx]:-}"
   [ "$v" = "FAIL" ] || [[ "$v" == SKIPPED* ]]
 }
 
@@ -98,32 +117,32 @@ for i in "${!G_NAME[@]}"; do
   dep="${G_DEP[$i]}"
 
   if [ -n "$dep" ] && blocked "$dep"; then
-    VERDICT["$name"]="SKIPPED (blocked by $dep)"
-    OUTPUT["$name"]=""
+    G_VERDICT[$i]="SKIPPED (blocked by $dep)"
+    G_OUTPUT[$i]=""
     continue
   fi
 
   out="$(eval "${G_CMD[$i]}" 2>&1)"
   code=$?
-  OUTPUT["$name"]="$out"
+  G_OUTPUT[$i]="$out"
   if [ "$code" -eq 0 ]; then
-    VERDICT["$name"]="PASS"
+    G_VERDICT[$i]="PASS"
   else
-    VERDICT["$name"]="FAIL"
+    G_VERDICT[$i]="FAIL"
     FAIL_COUNT=$((FAIL_COUNT + 1))
   fi
 done
 
 echo "=== Guardian suite ==="
-for name in "${G_NAME[@]}"; do
-  printf '%-18s %s\n' "$name" "${VERDICT[$name]}"
+for i in "${!G_NAME[@]}"; do
+  printf '%-18s %s\n' "${G_NAME[$i]}" "${G_VERDICT[$i]}"
 done
 echo "---"
-for name in "${G_NAME[@]}"; do
-  case "${VERDICT[$name]}" in
+for i in "${!G_NAME[@]}"; do
+  case "${G_VERDICT[$i]}" in
     FAIL)
-      echo "--- $name (FAIL) ---"
-      echo "${OUTPUT[$name]}"
+      echo "--- ${G_NAME[$i]} (FAIL) ---"
+      echo "${G_OUTPUT[$i]}"
       ;;
   esac
 done
