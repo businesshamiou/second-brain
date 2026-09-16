@@ -19,6 +19,11 @@ Version de preuve : tout ce qui servait à accepter Second Brain devient rejouab
   - le wizard humain de la v0.1.0 est retiré (conservé dans `_trash/`).
 - **Le paquet web contient exactement ce que son README annonce.** Un `index.md` en trop disparaît, et le compte de fichiers du README redevient exact.
 - **L'assistant se charge dans Codex.** Sous Windows, les formes générées portaient une marque d'ordre des octets (BOM), qui empêchait Codex de lire le skill.
+- **macOS et Linux tels qu'ils sont livrés.** Depuis la v0.1.0 :
+  - les gardiens tournent réellement au commit (les hooks n'étaient pas exécutables) ;
+  - les outils fonctionnent avec le bash 3.2 et les outils BSD d'Apple, que la CI exerce désormais sur macOS à chaque poussée ;
+  - un chemin contenant `&` ou une barre oblique inverse n'échappe plus à deux gardiens ;
+  - le mode test de l'installeur Unix n'écrit plus dans ton profil réel.
 
 **Ce que cette version ne promet pas.**
 
