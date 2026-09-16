@@ -36,7 +36,7 @@
     Inputs: none.
     Outputs: defines the Get-EnvironmentFingerprint function in the
     caller's scope. Returns an object { PathValue; PathHash; ClaudeSkills;
-    ClaudeAgents; CodexSkills; CodexAgentsSkills }.
+    ClaudeAgents; CodexSkills; CodexAgentsSkills; LocalBin }.
 #>
 
 function Get-EnvironmentFingerprint {
@@ -51,6 +51,10 @@ function Get-EnvironmentFingerprint {
     $claudeAgents = @(Get-ChildItem "$env:USERPROFILE\.claude\agents" -Name -ErrorAction SilentlyContinue | Sort-Object)
     $codexSkills = @(Get-ChildItem "$env:USERPROFILE\.codex\skills" -Name -ErrorAction SilentlyContinue | Sort-Object)
     $codexAgentsSkills = @(Get-ChildItem "$env:USERPROFILE\.agents\skills" -Name -ErrorAction SilentlyContinue | Sort-Object)
+    # uv's default tool executable folder (Mission 181, parity with
+    # environment-fingerprint.sh): an unredirected test-mode install writes
+    # pre-commit here.
+    $localBin = @(Get-ChildItem "$env:USERPROFILE\.local\bin" -Name -ErrorAction SilentlyContinue | Sort-Object)
     return [PSCustomObject]@{
         PathValue         = $pathValue
         PathHash          = $pathHash
@@ -58,5 +62,6 @@ function Get-EnvironmentFingerprint {
         ClaudeAgents      = $claudeAgents
         CodexSkills       = $codexSkills
         CodexAgentsSkills = $codexAgentsSkills
+        LocalBin          = $localBin
     }
 }

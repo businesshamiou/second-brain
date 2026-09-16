@@ -469,6 +469,13 @@ if [ "$TEST_MODE" = "1" ]; then
   fi
   CTX_PROFILE_ROOT="$TEST_ROOT/profile"
   mkdir -p "$CTX_PROFILE_ROOT"
+  # tools/prerequisites.sh redirects uv's tool, cache and Python folders
+  # under the test profile only when CTX_TEST_MODE is 1 -- its documented
+  # contract with this caller. It was never set: every Unix test run
+  # installed pre-commit into the runner's real ~/.local/bin, hidden
+  # because that folder happened to be on the runner's PATH (Mission 181,
+  # caught once the macOS job ran with a new Mac's PATH).
+  CTX_TEST_MODE=1
   # Mission 173 (Q17, "rien dans le profil"): CTX_CLAUDE_AGENTS_DIR and
   # CTX_CODEX_AGENTS_SKILLS_DIR (the profile-level WRITE targets Mission
   # 171-C01 parity added here) are retired -- nothing writes into the
@@ -480,6 +487,7 @@ if [ "$TEST_MODE" = "1" ]; then
   CTX_SIMULATED_PATH_FILE="$TEST_ROOT/simulated-user-path.txt"
   CTX_DEFAULT_WORKSPACE_PATH="$TEST_ROOT/workspace"
 else
+  CTX_TEST_MODE=0
   CTX_PROFILE_ROOT="$HOME"
   CTX_CLAUDE_SKILLS_DIR="$HOME/.claude/skills"
   CTX_CODEX_SKILLS_DIR="$HOME/.codex/skills"

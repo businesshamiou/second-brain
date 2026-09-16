@@ -79,6 +79,7 @@ Write-Output "  .claude/skills entries: $($before.ClaudeSkills.Count)"
 Write-Output "  .claude/agents entries: $($before.ClaudeAgents.Count)"
 Write-Output "  .codex/skills entries: $($before.CodexSkills.Count)"
 Write-Output "  .agents/skills entries: $($before.CodexAgentsSkills.Count)"
+Write-Output "  .local/bin entries: $($before.LocalBin.Count)"
 
 $TestRoot = Join-Path $env:TEMP ("sb-e2e-" + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Force -Path $TestRoot | Out-Null
@@ -182,11 +183,15 @@ Write-Output "  .claude/skills entries: $($after.ClaudeSkills.Count)"
 Write-Output "  .claude/agents entries: $($after.ClaudeAgents.Count)"
 Write-Output "  .codex/skills entries: $($after.CodexSkills.Count)"
 Write-Output "  .agents/skills entries: $($after.CodexAgentsSkills.Count)"
+Write-Output "  .local/bin entries: $($after.LocalBin.Count)"
 Assert-True ($after.PathHash -eq $before.PathHash) "real user PATH is byte-identical before/after"
 Assert-True (@(Compare-Object $before.ClaudeSkills $after.ClaudeSkills).Count -eq 0) "real ~/.claude/skills listing is identical before/after"
 Assert-True (@(Compare-Object $before.ClaudeAgents $after.ClaudeAgents).Count -eq 0) "real ~/.claude/agents listing is identical before/after"
 Assert-True (@(Compare-Object $before.CodexSkills $after.CodexSkills).Count -eq 0) "real ~/.codex/skills listing is identical before/after"
 Assert-True (@(Compare-Object $before.CodexAgentsSkills $after.CodexAgentsSkills).Count -eq 0) "real ~/.agents/skills listing is identical before/after"
+# Mission 181, parity with tests/test-install-e2e.sh: uv's default tool
+# executable folder, where an unredirected test-mode install would write.
+Assert-True (@(Compare-Object $before.LocalBin $after.LocalBin).Count -eq 0) "real ~/.local/bin listing is identical before/after"
 
 if (-not $KeepTemp) {
     # Not Remove-Item: it silently leaves debris behind under the same

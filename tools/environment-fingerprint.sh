@@ -12,10 +12,10 @@
 # install.sh must both agree on it.
 #
 # usage: environment_fingerprint <path-persistence-file>
-# Prints four lines: PATH_FILE_HASH=... (sha256 of the file, or "none" if it
-# does not exist), CLAUDE_SKILLS=..., CODEX_SKILLS=..., CODEX_AGENTS_SKILLS=...
-# -- the last three are each a sorted, comma-joined listing of that skills
-# folder's entries (plain text, not encoded).
+# Prints six lines: PATH_FILE_HASH=... (sha256 of the file, or "none" if it
+# does not exist), CLAUDE_SKILLS=..., CODEX_SKILLS=..., CODEX_AGENTS_SKILLS=...,
+# LOCAL_BIN=..., UV_TOOLS=... -- the last five are each a sorted,
+# comma-joined listing of that folder's entries (plain text, not encoded).
 
 set -u
 
@@ -37,8 +37,16 @@ environment_fingerprint() {
   claude_skills="$(ls -1 "$HOME/.claude/skills" 2>/dev/null | sort | tr '\n' ',')"
   codex_skills="$(ls -1 "$HOME/.codex/skills" 2>/dev/null | sort | tr '\n' ',')"
   codex_agents_skills="$(ls -1 "$HOME/.agents/skills" 2>/dev/null | sort | tr '\n' ',')"
+  # uv's own write targets (Mission 181): its tool executables and its tool
+  # environments. A test-mode install that is not redirected writes here --
+  # it did, unseen, until this fingerprint looked.
+  local local_bin uv_tools
+  local_bin="$(ls -1 "$HOME/.local/bin" 2>/dev/null | sort | tr '\n' ',')"
+  uv_tools="$(ls -1 "${XDG_DATA_HOME:-$HOME/.local/share}/uv/tools" 2>/dev/null | sort | tr '\n' ',')"
   echo "PATH_FILE_HASH=$path_hash"
   echo "CLAUDE_SKILLS=$claude_skills"
   echo "CODEX_SKILLS=$codex_skills"
   echo "CODEX_AGENTS_SKILLS=$codex_agents_skills"
+  echo "LOCAL_BIN=$local_bin"
+  echo "UV_TOOLS=$uv_tools"
 }

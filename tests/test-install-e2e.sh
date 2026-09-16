@@ -146,7 +146,7 @@ echo ""
 echo "=== 7. Real-environment fingerprint (after) ==="
 AFTER="$(environment_fingerprint "$HOME/.profile")"
 echo "$AFTER" | sed 's/^/  /'
-[ "$BEFORE" = "$AFTER" ]; assert_true "$?" "real environment fingerprint (PATH file, skill folders) is identical before/after"
+[ "$BEFORE" = "$AFTER" ]; assert_true "$?" "real environment fingerprint (PATH file, skill folders, uv tool folders) is identical before/after"
 
 if [ "$KEEP_TEMP" = "0" ]; then
   rm -rf -- "$TEST_ROOT"
