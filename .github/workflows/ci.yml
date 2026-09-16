@@ -3,9 +3,9 @@ name: Second Brain CI
 # Mission 168, ticket 10. Windows and Ubuntu replay the installer on every
 # push, chaining the main test (answers file, second pass at empty
 # porcelain -- both asserted inside the same script) with the offline
-# guardian suite and the secondary tests built by tickets 03-09. macOS only
-# runs on manual dispatch (T04: minutes on a private repo cost x10 there,
-# free once the repo is public -- Owner call, not automated every push).
+# guardian suite and the secondary tests built by tickets 03-09. macOS runs
+# on every push too: its minutes were billed x10 while the repository was
+# private, and they are free now that it is public.
 # A separate job plays the real, published install line from GitHub: the
 # repository is public, so every job here runs on GitHub-hosted runners on
 # each push.
@@ -211,8 +211,7 @@ jobs:
           pwsh -NoProfile -File tests/test-prerequisites-e2e.ps1
 
   macos:
-    name: macOS -- install.sh, manual trigger only
-    if: github.event_name == 'workflow_dispatch'
+    name: macOS -- install.sh, full suite
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
