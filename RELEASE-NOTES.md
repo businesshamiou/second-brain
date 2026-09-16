@@ -6,6 +6,32 @@ status: active
 
 # NOTES DE PUBLICATION
 
+## v0.1.1
+
+Version de preuve : tout ce qui servait à accepter Second Brain devient rejouable, sans geste humain.
+
+**Ce que cette version apporte.**
+
+- **Une ligne d'installation qui n'exige rien d'installé.** Elle télécharge un script d'amorçage (`bootstrap.ps1`, `bootstrap.sh`). Celui-ci pose Git dans ton profil s'il manque, en vérifiant son empreinte, puis récupère le dépôt et lance l'installeur. La ligne de la v0.1.0 commençait par `git clone` : un poste sans Git ne pouvait pas démarrer. Rien ne demande de droits administrateur.
+- **Une acceptation entièrement mécanique.** `tests/run-mechanical-acceptance.ps1` rend onze lignes datées (S1 à S10 et T21) :
+  - l'assistant (S7) et le paquet web (S8) sont interrogés sur les trois questions de `assistant/ASSISTANT.md`, trois fois chacune, par deux fournisseurs ;
+  - S9 installe la ligne publiée sous un compte Windows standard, sans Git, avec un témoin qui prouve qu'aucune élévation n'est possible ;
+  - le wizard humain de la v0.1.0 est retiré (conservé dans `_trash/`).
+- **Le paquet web contient exactement ce que son README annonce.** Un `index.md` en trop disparaît, et le compte de fichiers du README redevient exact.
+- **L'assistant se charge dans Codex.** Sous Windows, les formes générées portaient une marque d'ordre des octets (BOM), qui empêchait Codex de lire le skill.
+
+**Ce que cette version ne promet pas.**
+
+- Toujours aucun mécanisme de mise à jour : une installation v0.1.0 ne devient pas v0.1.1 d'elle-même. Réinstalle depuis la ligne publiée si tu veux cette version.
+- S7 et S8 appellent un modèle : dans la CI publique, sans clé de fournisseur, ces deux lignes sont notées `SKIP`, jamais réussies par défaut.
+- S8 prouve le contenu du paquet et les réponses obtenues par équivalence ; il ne prouve pas le geste de téléversement dans l'interface web.
+
+**Ce qui reste à faire de ton côté.**
+
+- Coller la ligne d'installation.
+- Sous macOS, accepter l'installation des outils en ligne de commande d'Apple si elle est proposée.
+- Dans un Projet claude.ai ou ChatGPT, coller le fichier d'instructions du paquet web et téléverser les fichiers que son README liste.
+
 ## v0.1.0
 
 Première version publiée : un historique neuf, sans aucun ancêtre de l'historique de développement, et aucun motif privé ni dans l'arbre ni dans l'historique (vérifié par `tools/check-private-patterns.sh` en mode complet).

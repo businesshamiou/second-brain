@@ -8,7 +8,9 @@ name: Second Brain CI
 # private, and they are free now that it is public.
 # A separate job plays the real, published install line from GitHub: the
 # repository is public, so every job here runs on GitHub-hosted runners on
-# each push.
+# each push. Since Mission 183-C01 a fifth job writes the acceptance report
+# itself (eleven lines, S9 under a standard account) and keeps it as an
+# artifact.
 
 on:
   push:
@@ -73,6 +75,19 @@ jobs:
       - name: Main -- guardians read paths holding & or a backslash intact
         shell: bash
         run: bash tests/test-guardian-path-special-chars.sh
+
+      # Mission 183-C01: the S7/S8 oracles, proven with stub providers -- no
+      # model call, so it runs everywhere, on every push.
+      - name: Main -- acceptance harness oracles each know how to fail
+        shell: bash
+        run: bash tests/test-acceptance-harness-oracles.sh
+
+      # Mission 183-C01: the published bootstrap installs from a PATH with no
+      # Git and no uv (same account; the standard-account half is S9 in the
+      # acceptance job).
+      - name: Main -- bootstrap installs with no Git on PATH (test mode)
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-bootstrap-no-git.ps1
 
       - name: Main install test -- answers file, second pass at empty porcelain
         shell: powershell
@@ -196,6 +211,11 @@ jobs:
       # longer does (the backslash half runs where a name can hold one).
       - name: Main -- guardians read paths holding & or a backslash intact
         run: bash tests/test-guardian-path-special-chars.sh
+
+      # Mission 183-C01: the S7/S8 oracles, proven with stub providers -- no
+      # model call, so it runs everywhere, on every push.
+      - name: Main -- acceptance harness oracles each know how to fail
+        run: bash tests/test-acceptance-harness-oracles.sh
 
       - name: Main install test -- answers file, second pass at empty porcelain
         run: bash tests/test-install-e2e.sh
@@ -335,6 +355,11 @@ jobs:
       - name: Main -- guardians read paths holding & or a backslash intact
         run: bash tests/test-guardian-path-special-chars.sh
 
+      # Mission 183-C01: the S7/S8 oracles, proven with stub providers -- no
+      # model call, so it runs everywhere, on every push.
+      - name: Main -- acceptance harness oracles each know how to fail
+        run: bash tests/test-acceptance-harness-oracles.sh
+
       - name: Main install test -- answers file, second pass at empty porcelain
         run: bash tests/test-install-e2e.sh
 
@@ -357,16 +382,81 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # This job is the only one that reads the repository over the network
-      # instead of the checkout: it clones the public URL a participant
-      # would use, then runs the installer from that clone, in test mode,
-      # never against the runner's own profile. It waits on the two jobs
-      # above (needs:), so a tree that fails them never reaches this check.
-      - name: Clone the published repository (real GitHub line, INSTALL.md)
-        run: git clone https://github.com/businesshamiou/second-brain.git "$RUNNER_TEMP/second-brain-smoke"
+      # instead of the checkout: it plays the published bootstrap line
+      # (INSTALL.md, Mission 183-C01) straight from GitHub, pinned to the
+      # commit under test, in test mode, never against the runner's own
+      # profile. It waits on the two jobs above (needs:), so a tree that
+      # fails them never reaches this check. The sample answers file is
+      # fetched the same way, since nothing is cloned before the line runs.
+      - name: Fetch the sample answers file from GitHub (nothing is cloned yet)
+        run: curl -fsSL -o "$RUNNER_TEMP/answers.json" "https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/tests/fixtures/install-answers.sample.json"
 
-      - name: Run the real installer line against the freshly cloned copy (test mode, never this runner's own profile)
+      - name: Run the published bootstrap line, pinned to this commit (test mode, never this runner's own profile)
         run: |
-          bash "$RUNNER_TEMP/second-brain-smoke/install.sh" \
-            --source "$RUNNER_TEMP/second-brain-smoke" \
-            --answers-file "$RUNNER_TEMP/second-brain-smoke/tests/fixtures/install-answers.sample.json" \
+          RAW="https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}"
+          curl -fsSL "$RAW/bootstrap.sh" | bash -s -- \
+            --ref "${{ github.sha }}" --raw-base "$RAW" \
+            --answers-file "$RUNNER_TEMP/answers.json" \
             --test-mode --test-root "$RUNNER_TEMP/second-brain-smoke-testroot"
+
+  acceptance-windows:
+    name: Windows -- acceptance, 11 lines, S9 under a standard account
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Mission 183-C01, Decision 142112: the acceptance of a commit is the
+      # dated report of tests/run-mechanical-acceptance.ps1. On this
+      # throwaway runner S9 is played for real: a standard local account,
+      # no Git on its PATH, the published bootstrap line pinned to this
+      # commit, and a negative control (an administrator-only write must be
+      # refused under that account). -RequireS9 makes anything but PASS
+      # fail this job. S7 and S8 call a model: without provider credentials
+      # they are reported SKIP, never PASS. The credentials are optional
+      # repository secrets; when present, the provider CLIs are installed
+      # here and the two lines are played for real.
+      - name: Provider CLIs for S7/S8 (only when their secrets exist)
+        shell: powershell
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if ($env:ANTHROPIC_API_KEY) { npm install -g @anthropic-ai/claude-code }
+          if ($env:OPENAI_API_KEY) { npm install -g @openai/codex }
+          Write-Output "claude CLI: $([bool](Get-Command claude -ErrorAction SilentlyContinue)); codex CLI: $([bool](Get-Command codex -ErrorAction SilentlyContinue))"
+
+      - name: Acceptance report (S1-S10, T21), S9 required
+        shell: powershell
+        env:
+          SB_DISPOSABLE_MACHINE: '1'
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
+            $uvBin = Join-Path $env:RUNNER_TEMP "uv-bin"
+            New-Item -ItemType Directory -Path $uvBin -Force | Out-Null
+            $env:UV_UNMANAGED_INSTALL = $uvBin
+            $env:UV_NO_MODIFY_PATH = '1'
+            $env:UV_SYSTEM_CERTS = '1'
+            $scriptPath = Join-Path $env:RUNNER_TEMP "install-uv.ps1"
+            Invoke-WebRequest -Uri "https://astral.sh/uv/0.12.13/install.ps1" -OutFile $scriptPath -UseBasicParsing
+            $hash = (Get-FileHash -Algorithm SHA256 -Path $scriptPath).Hash
+            if ($hash -ne "6A749FE05B2617EDE62127832D6F4C37E7B406740C7BC0DC62FE77F5E5EBDB20") {
+              throw "uv install script hash mismatch: $hash"
+            }
+            & powershell -NoProfile -ExecutionPolicy Bypass -File $scriptPath
+            $env:Path = "$uvBin;$env:Path"
+          }
+          $report = Join-Path $env:RUNNER_TEMP "second-brain-acceptance-${{ github.sha }}.md"
+          powershell -NoProfile -ExecutionPolicy Bypass -File tests/run-mechanical-acceptance.ps1 -Out $report -RequireS9
+          $code = $LASTEXITCODE
+          Get-Content $report
+          exit $code
+
+      - name: Keep the acceptance report as an artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: second-brain-acceptance-${{ github.sha }}
+          path: ${{ runner.temp }}/second-brain-acceptance-${{ github.sha }}.md
+          if-no-files-found: error

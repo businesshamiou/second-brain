@@ -47,7 +47,7 @@ Dans les trois cas, l'installeur crée ton espace de travail, y clone `second-br
 
 **L'installation par archive (zip) reste refusée.** Second Brain se publie par étiquette de version (« tag ») sur un dépôt Git, jamais accompagné d'une archive : les gardiens de ce dépôt (contrôle de secrets, de liens, de fraîcheur des index) exigent un dépôt Git réel (`git rev-parse` doit répondre) pour s'exécuter, et un dossier extrait d'une archive n'en est pas un — ni les gardiens ni `/first-install` n'y fonctionnent correctement. La ligne ci-dessus récupère toujours un vrai dépôt.
 
-**Remarque Windows :** PowerShell ne sait pas exécuter un script `.sh` directement — c'est le cas, par exemple, de l'assistant d'acceptation `tools/acceptance-wizard.sh`. Lance-le depuis **Git Bash** (installé avec Git, disponible dans le menu Démarrer), ou passe par `acceptance.ps1`, à la racine de ce dépôt, qui retrouve Bash tout seul et lui délègue l'exécution.
+**Acceptation :** aucune étape ne demande de geste humain. `tests/run-mechanical-acceptance.ps1` (PowerShell) rejoue les onze scénarios d'acceptation (S1 à S10 et T21) et écrit leur rapport daté à côté du dépôt ; les scripts `.sh` qu'il appelle passent par le Bash livré avec Git, qu'il retrouve tout seul.
 
 ## Ce qui est installé, et où
 

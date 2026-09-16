@@ -9,6 +9,9 @@
 .pre-commit-hooks.yaml	DISTRIBUABLE
 _trash/BRIEF-2026-08-17-003000-vault-concept-operating-model.md	INTERNE
 _trash/runbook-vault-setup.md	INTERNE
+_trash/acceptance-wizard-retired.md	INTERNE
+_trash/acceptance-wizard.sh	INTERNE
+_trash/acceptance.ps1	INTERNE
 AGENTS.md	DISTRIBUABLE
 bootstrap.ps1	DISTRIBUABLE
 bootstrap.sh	DISTRIBUABLE
@@ -19,7 +22,6 @@ INSTALL.md	DISTRIBUABLE
 RELEASE-NOTES.md	DISTRIBUABLE
 install.ps1	DISTRIBUABLE
 install.sh	DISTRIBUABLE
-acceptance.ps1	DISTRIBUABLE
 LICENSE	DISTRIBUABLE
 USER.md	DISTRIBUABLE
 assistant/ASSISTANT.md	DISTRIBUABLE
@@ -424,6 +426,8 @@ tests/test-link-graph-drone-view-empty-status-field.sh	DISTRIBUABLE
 tests/test-install-e2e.ps1	DISTRIBUABLE
 tests/test-install-e2e.sh	DISTRIBUABLE
 tests/test-bootstrap-no-git.ps1	DISTRIBUABLE
+tests/test-install-standard-user.ps1	DISTRIBUABLE
+tests/test-acceptance-harness-oracles.sh	DISTRIBUABLE
 tests/test-install-workspace-path-validation.ps1	DISTRIBUABLE
 tests/test-install-workspace-path-validation.sh	DISTRIBUABLE
 tests/test-project-bootstrap-path-validation.sh	DISTRIBUABLE
@@ -507,7 +511,6 @@ templates/example-project-book-club/rules/index.md	DISTRIBUABLE
 templates/example-project-book-club/state/journal.md	DISTRIBUABLE
 tests/test-third-party-licenses.sh	DISTRIBUABLE
 tools/generate-third-party-licenses.sh	DISTRIBUABLE
-tools/acceptance-wizard.sh	DISTRIBUABLE
 tests/test-acceptance-wizard-functions.sh	DISTRIBUABLE
 tools/package-warehouse-deliverables.ps1	DISTRIBUABLE
 tests/test-web-package-readme-matches-contents.ps1	DISTRIBUABLE
@@ -526,6 +529,7 @@ tests/test-external-import-approval-announced.ps1	DISTRIBUABLE
 tests/test-remove-profile-links.ps1	DISTRIBUABLE
 tools/relpath.sh	DISTRIBUABLE
 tools/kvmap.sh	DISTRIBUABLE
+tools/acceptance-harness.sh	DISTRIBUABLE
 tools/resolve-sibling-repo.sh	DISTRIBUABLE
 tests/test-sibling-repo-declaration.sh	DISTRIBUABLE
 tests/test-nominal-flow-no-atelier-vocabulary.ps1	DISTRIBUABLE

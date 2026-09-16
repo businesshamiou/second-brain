@@ -118,7 +118,12 @@ fi
 
 if [ ! -d "$TARGET/.git" ]; then
   [ -e "$TARGET" ] && stop "$TARGET exists but is not a Git repository; move it aside and run the line again."
-  "$GIT_BIN" clone --quiet --branch "$REF" "$REPO_URL" "$TARGET" || stop "git clone of $REPO_URL at $REF failed."
+  # --no-checkout, then checkout: --ref may be a branch, a tag or a commit
+  # id (CI plays the exact commit under test), which `clone --branch`
+  # does not accept.
+  "$GIT_BIN" clone --quiet --no-checkout "$REPO_URL" "$TARGET" || stop "git clone of $REPO_URL failed."
+  "$GIT_BIN" -C "$TARGET" -c advice.detachedHead=false checkout --quiet "$REF" \
+    || stop "$REF could not be checked out from $REPO_URL."
 fi
 
 set -- --source "$TARGET"

@@ -128,11 +128,18 @@ try {
         if (Test-Path -LiteralPath $Target) {
             Stop-Bootstrap "$Target exists but is not a Git repository; move it aside and run the line again."
         }
-        & $gitExe -c core.longpaths=true clone --quiet --branch $Ref $RepoUrl $Target
+        # --no-checkout, then checkout: -Ref may be a branch, a tag or a
+        # commit id (CI plays the exact commit under test), which
+        # `clone --branch` does not accept.
+        & $gitExe -c core.longpaths=true clone --quiet --no-checkout $RepoUrl $Target
         if ($LASTEXITCODE -ne 0) {
-            Stop-Bootstrap "git clone of $RepoUrl at $Ref failed (exit $LASTEXITCODE)."
+            Stop-Bootstrap "git clone of $RepoUrl failed (exit $LASTEXITCODE)."
         }
         & $gitExe -C $Target config core.longpaths true
+        & $gitExe -C $Target -c advice.detachedHead=false checkout --quiet $Ref
+        if ($LASTEXITCODE -ne 0) {
+            Stop-Bootstrap "$Ref could not be checked out from $RepoUrl (exit $LASTEXITCODE)."
+        }
     }
 
     # --- 4. the installer, from the clone ---

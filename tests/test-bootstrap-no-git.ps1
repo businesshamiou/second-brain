@@ -80,8 +80,12 @@ exit `$LASTEXITCODE
 
     Write-Output ""
     Write-Output "=== Bootstrap with no Git and no uv on PATH ==="
+    # Native stderr (uv's progress lines) must not turn into a terminating
+    # error under 'Stop': collect it as text, judge by exit code and output.
+    $ErrorActionPreference = 'Continue'
     $output = & powershell -NoProfile -ExecutionPolicy Bypass -File $childPath 2>&1 | ForEach-Object { "$_" }
     $rc = $LASTEXITCODE
+    $ErrorActionPreference = 'Stop'
     $output | Select-Object -Last 12 | ForEach-Object { Write-Output "    $_" }
 
     Assert-True (@($output) -contains 'CONTROL: no git.exe on PATH') "control: the child PATH holds no git.exe before the bootstrap runs"
@@ -93,8 +97,16 @@ exit `$LASTEXITCODE
     Assert-True (Test-Path $gitExe) "Git sits in the test profile ($gitExe)"
     Assert-True (Test-Path (Join-Path $profileRoot '.local\bin\uv.exe')) "uv sits in the test profile"
     Assert-True (Test-Path (Join-Path $profileRoot '.local\bin\pre-commit.exe')) "pre-commit sits in the test profile"
-    $python = @(Get-ChildItem -Path $profileRoot -Recurse -Filter 'python.exe' -ErrorAction SilentlyContinue | Select-Object -First 1)
-    Assert-True ($python.Count -eq 1) "a Python interpreter sits in the test profile ($(if ($python.Count) { $python[0].FullName }))"
+    # The guardians' environment lives in the test profile; its base
+    # interpreter is either one uv installed there, or one this machine
+    # already had and uv reused read-only (detect-and-reuse, same rule as
+    # Git and uv). Both are named, never confused: only the first proves an
+    # install into the profile (Mission 183-C01 -- a venv python.exe alone
+    # proved neither).
+    $venvCfg = @(Get-ChildItem -Path $profileRoot -Recurse -Filter 'pyvenv.cfg' -ErrorAction SilentlyContinue | Select-Object -First 1)
+    $pythonHome = if ($venvCfg.Count) { ((Get-Content $venvCfg[0].FullName | Where-Object { $_ -like 'home*' } | Select-Object -First 1) -replace '^home\s*=\s*', '').Trim() } else { '' }
+    $pythonOrigin = if ($pythonHome -and $pythonHome.StartsWith($profileRoot, [System.StringComparison]::OrdinalIgnoreCase)) { 'installed in the test profile' } elseif ($pythonHome) { 'reused from this machine' } else { 'none' }
+    Assert-True ($pythonHome -and (Test-Path (Join-Path $pythonHome 'python.exe'))) "the guardians' Python environment has a working base interpreter ($pythonOrigin : $pythonHome)"
 
     $simulatedPath = Join-Path $TestRoot 'simulated-user-path.txt'
     $persisted = if (Test-Path $simulatedPath) { @(Get-Content $simulatedPath) } else { @() }
