@@ -416,6 +416,7 @@ tests/test-check-links-cross-repo.sh	DISTRIBUABLE
 tests/test-check-no-slash-agents.sh	DISTRIBUABLE
 tests/test-exec-bit-bare-scripts.sh	DISTRIBUABLE
 tests/test-githooks-run-on-commit.sh	DISTRIBUABLE
+tests/test-participant-shell-portability.sh	DISTRIBUABLE
 tests/test-link-graph-drone-view-empty-status-field.sh	DISTRIBUABLE
 tests/test-install-e2e.ps1	DISTRIBUABLE
 tests/test-install-e2e.sh	DISTRIBUABLE
@@ -520,6 +521,7 @@ tests/test-distributed-documents-no-atelier-vocabulary.sh	DISTRIBUABLE
 tests/test-external-import-approval-announced.ps1	DISTRIBUABLE
 tests/test-remove-profile-links.ps1	DISTRIBUABLE
 tools/relpath.sh	DISTRIBUABLE
+tools/kvmap.sh	DISTRIBUABLE
 tools/resolve-sibling-repo.sh	DISTRIBUABLE
 tests/test-sibling-repo-declaration.sh	DISTRIBUABLE
 tests/test-nominal-flow-no-atelier-vocabulary.ps1	DISTRIBUABLE

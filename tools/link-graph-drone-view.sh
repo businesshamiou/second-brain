@@ -45,6 +45,7 @@ VAULT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 WORKSPACE_ROOT="$(cd "$VAULT_ROOT/.." && pwd)"
 . "$SCRIPT_DIR/resolve-sibling-repo.sh"
 . "$SCRIPT_DIR/relpath.sh"
+. "$SCRIPT_DIR/kvmap.sh"
 resolve_declared_sibling "$WORKSPACE_ROOT"
 WORKSHOP_BUILD_ROOT="$SIBLING_ROOT"
 WORKSHOP_SUBDIR="${LINK_GRAPH_WORKSHOP_SUBDIR:-workshop-production}"
@@ -68,13 +69,15 @@ ALL_FILES="$(printf '%s\n%s\n' "$VAULT_FILES" "$WORKSHOP_FILES")"
 TOTAL_DOCS="$(printf '%s\n' "$ALL_FILES" | grep -c .)"
 
 # --- 2. Extraction en un seul passage awk : front-matter + section Liens ---
+# Noms de fichiers passes par `xargs -0` : `xargs -d` est une option GNU que
+# le xargs d'Apple refuse (Mission 181).
 # Sortie taggee, une ligne par enregistrement, separateur \001 (voir note de
 # correction Mission 043 ci-dessus — jamais une tabulation, qui se fusionne a
 # la lecture bash des qu'un champ est vide) :
 #   FM<SOH>path<SOH>type<SOH>status<SOH>title
 #   SUP<SOH>path<SOH>raw-basename-cible
 #   LINK<SOH>path<SOH>linktype<SOH>target-raw
-EXTRACT="$(printf '%s\n' "$ALL_FILES" | grep . | xargs -d '\n' awk '
+EXTRACT="$(printf '%s\n' "$ALL_FILES" | grep . | tr '\n' '\0' | xargs -0 awk '
   FNR == 1 {
     infm = 0; insup = 0; inliens = 0
     ftype = ""; fstatus = ""; ftitle = ""
@@ -150,8 +153,9 @@ EXTRACT="$(printf '%s\n' "$ALL_FILES" | grep . | xargs -d '\n' awk '
 ' 2>&1)"
 
 # --- 3. Chargement en memoire bash ---
-declare -A DOC_TYPE DOC_STATUS DOC_TITLE
-declare -A INDEGREE
+# Cartes DOC_TYPE, DOC_STATUS, DOC_TITLE, INDEGREE, DIST, SEEN_PAIR,
+# BASENAME_TO_PATH et ACTIVE_TOUCH portees par tools/kvmap.sh : `declare -A`
+# n'existe pas dans le bash 3.2 livre par Apple (Mission 181).
 declare -a EDGE_SRC EDGE_TYPE EDGE_TGT EDGE_RAW
 declare -a SUP_SRC SUP_TGT_BASENAME
 UNRESOLVED=0
@@ -162,9 +166,9 @@ FORM_COLON=0
 while IFS=$'\001' read -r tag a b c d e; do
   case "$tag" in
     FM)
-      DOC_TYPE["$a"]="$b"
-      DOC_STATUS["$a"]="$c"
-      DOC_TITLE["$a"]="$d"
+      kv_set DOC_TYPE "$a" "$b"
+      kv_set DOC_STATUS "$a" "$c"
+      kv_set DOC_TITLE "$a" "$d"
       ;;
     SUP)
       SUP_SRC+=("$a")
@@ -191,7 +195,8 @@ while IFS=$'\001' read -r tag a b c d e; do
         EDGE_SRC+=("$a"); EDGE_TYPE+=("$linktype"); EDGE_TGT+=(""); EDGE_RAW+=("$raw")
       else
         EDGE_SRC+=("$a"); EDGE_TYPE+=("$linktype"); EDGE_TGT+=("$resolved"); EDGE_RAW+=("$raw")
-        INDEGREE["$resolved"]=$(( ${INDEGREE["$resolved"]:-0} + 1 ))
+        kv_get INDEGREE "$resolved"
+        kv_set INDEGREE "$resolved" $(( ${KV_VALUE:-0} + 1 ))
       fi
       ;;
   esac
@@ -228,9 +233,12 @@ echo ""
 
 # --- Mesure 1 : noyau, top 15 par liens entrants ---
 echo "=== MESURE 1 — NOYAU (top 15 par liens entrants) ==="
-printf '%s\n' "${!INDEGREE[@]}" | while IFS= read -r p; do
+kv_keys INDEGREE
+for p in ${KV_KEYS[@]+"${KV_KEYS[@]}"}; do
   [ -z "$p" ] && continue
-  printf '%d\t%s\t%s\n' "${INDEGREE[$p]}" "$p" "${DOC_TYPE[$p]:-(inconnu)}"
+  kv_get INDEGREE "$p"; deg="$KV_VALUE"
+  kv_get DOC_TYPE "$p"; typ="${KV_VALUE:-(inconnu)}"
+  printf '%d\t%s\t%s\n' "$deg" "$p" "$typ"
 done | sort -t$'\t' -k1,1nr | head -15 | nl -ba -w2 -s'. '
 echo ""
 
@@ -242,9 +250,9 @@ ORPHAN_ACTIVE_LIST=""
 ORPHAN_OTHER_LIST=""
 while IFS= read -r p; do
   [ -z "$p" ] && continue
-  if [ -z "${INDEGREE[$p]:-}" ]; then
+  if ! kv_get INDEGREE "$p" || [ -z "$KV_VALUE" ]; then
     ORPHAN_TOTAL=$((ORPHAN_TOTAL + 1))
-    st="${DOC_STATUS[$p]:-}"
+    kv_get DOC_STATUS "$p"; st="$KV_VALUE"
     st_lc="$(printf '%s' "$st" | tr '[:upper:]' '[:lower:]')"
     if [ "$st_lc" = "active" ]; then
       ORPHAN_ACTIVE=$((ORPHAN_ACTIVE + 1))
@@ -266,9 +274,8 @@ echo ""
 
 # --- Mesure 3 : portee, BFS oriente depuis STATE.md ---
 echo "=== MESURE 3 — PORTEE depuis ${STATE_FILE:-<aucun depot voisin declare>} ==="
-declare -A DIST
 if [ -n "$STATE_FILE" ] && [ -f "$STATE_FILE" ]; then
-  DIST["$STATE_FILE"]=0
+  kv_set DIST "$STATE_FILE" 0
   FRONTIER="$STATE_FILE"
   D=0
   while [ -n "$FRONTIER" ]; do
@@ -279,8 +286,8 @@ if [ -n "$STATE_FILE" ] && [ -f "$STATE_FILE" ]; then
       for i in "${!EDGE_SRC[@]}"; do
         if [ "${EDGE_SRC[$i]}" = "$node" ] && [ -n "${EDGE_TGT[$i]}" ]; then
           tgt="${EDGE_TGT[$i]}"
-          if [ -z "${DIST[$tgt]+x}" ]; then
-            DIST["$tgt"]=$D
+          if ! kv_has DIST "$tgt"; then
+            kv_set DIST "$tgt" "$D"
             NEXT="$NEXT$tgt"$'\n'
           fi
         fi
@@ -296,8 +303,10 @@ fi
 
 for k in 1 2 3; do
   cnt=0
-  for p in "${!DIST[@]}"; do
-    [ "${DIST[$p]}" = "$k" ] && cnt=$((cnt + 1))
+  kv_keys DIST
+  for p in ${KV_KEYS[@]+"${KV_KEYS[@]}"}; do
+    kv_get DIST "$p"
+    [ "$KV_VALUE" = "$k" ] && cnt=$((cnt + 1))
   done
   echo "documents a $k saut(s) : $cnt"
 done
@@ -307,9 +316,9 @@ UNREACHABLE_TOTAL=0
 UNREACHABLE_ACTIVE=0
 while IFS= read -r p; do
   [ -z "$p" ] && continue
-  if [ -z "${DIST[$p]+x}" ]; then
+  if ! kv_has DIST "$p"; then
     UNREACHABLE_TOTAL=$((UNREACHABLE_TOTAL + 1))
-    st="${DOC_STATUS[$p]:-}"
+    kv_get DOC_STATUS "$p"; st="$KV_VALUE"
     st_lc="$(printf '%s' "$st" | tr '[:upper:]' '[:lower:]')"
     mark=""
     if [ "$st_lc" = "active" ]; then
@@ -326,7 +335,6 @@ echo ""
 
 # --- Mesure 4 : reciprocite des relations de remplacement ---
 echo "=== MESURE 4 — RECIPROCITE DES REMPLACEMENTS ==="
-declare -A SEEN_PAIR
 INCOMPLETE=0
 CHECKED=0
 
@@ -369,8 +377,8 @@ check_pair() {
   # $1 = source (remplacant), $2 = cible (remplace)
   local src="$1" tgt="$2" key
   key="$src|$tgt"
-  [ -n "${SEEN_PAIR[$key]:-}" ] && return
-  SEEN_PAIR["$key"]=1
+  kv_has SEEN_PAIR "$key" && return
+  kv_set SEEN_PAIR "$key" 1
   CHECKED=$((CHECKED + 1))
   local found=0
   for i in "${!EDGE_SRC[@]}"; do
@@ -383,7 +391,8 @@ check_pair() {
     INCOMPLETE=$((INCOMPLETE + 1))
     echo "INCOMPLET : $src (remplace) -> $tgt (remplace) : ligne \`superseded by\` manquante dans $tgt"
   fi
-  local st="${DOC_STATUS[$tgt]:-}"
+  local st
+  kv_get DOC_STATUS "$tgt"; st="$KV_VALUE"
   local st_lc
   st_lc="$(printf '%s' "$st" | tr '[:upper:]' '[:lower:]')"
   if [ "$st_lc" = "active" ]; then
@@ -408,10 +417,9 @@ check_pair() {
 }
 
 # (a) via front-matter supersedes : basename -> chercher le chemin absolu dans le corpus
-declare -A BASENAME_TO_PATH
 while IFS= read -r p; do
   [ -z "$p" ] && continue
-  BASENAME_TO_PATH["$(basename "$p")"]="$p"
+  kv_set BASENAME_TO_PATH "$(basename "$p")" "$p"
 done <<DOCS_EOF3
 $ALL_FILES
 DOCS_EOF3
@@ -419,7 +427,7 @@ DOCS_EOF3
 for i in "${!SUP_SRC[@]}"; do
   src="${SUP_SRC[$i]}"
   tgt_bn="${SUP_TGT_BASENAME[$i]}"
-  tgt="${BASENAME_TO_PATH[$tgt_bn]:-}"
+  kv_get BASENAME_TO_PATH "$tgt_bn"; tgt="$KV_VALUE"
   if [ -z "$tgt" ]; then
     echo "ANOMALY : supersedes de $src pointe vers $tgt_bn, introuvable dans le corpus"
     continue
@@ -459,9 +467,12 @@ node_label() {
   # substr` coupent ici par octet malgre la locale C.UTF-8, produisant du
   # mojibake. On garde le titre entier plutot que de risquer une coupure
   # invalide.
-  local t="${DOC_TITLE[$1]:-}"
+  local t
+  kv_get DOC_TITLE "$1"; t="$KV_VALUE"
   [ -z "$t" ] && t="$(basename "$1" .md)"
-  printf '%s' "$t" | sed 's/"/\x27/g'
+  # Apostrophe ecrite telle quelle : `\x27` dans un remplacement est une
+  # extension de GNU sed, que le sed d'Apple recopie en « x27 » (Mission 181).
+  printf '%s' "$t" | sed "s/\"/'/g"
 }
 
 echo "=== VUE MERMAID — COMPLETE ==="
@@ -477,10 +488,11 @@ echo '```'
 echo ""
 
 echo "=== VUE MERMAID — DOCUMENTS ACTIFS + PREMIER CERCLE ==="
-declare -A ACTIVE_TOUCH
-for p in "${!DOC_STATUS[@]}"; do
-  st_lc="$(printf '%s' "${DOC_STATUS[$p]}" | tr '[:upper:]' '[:lower:]')"
-  [ "$st_lc" = "active" ] && ACTIVE_TOUCH["$p"]=1
+kv_keys DOC_STATUS
+for p in ${KV_KEYS[@]+"${KV_KEYS[@]}"}; do
+  kv_get DOC_STATUS "$p"
+  st_lc="$(printf '%s' "$KV_VALUE" | tr '[:upper:]' '[:lower:]')"
+  [ "$st_lc" = "active" ] && kv_set ACTIVE_TOUCH "$p" 1
 done
 echo '```mermaid'
 echo "flowchart LR"
@@ -488,7 +500,7 @@ for i in "${!EDGE_SRC[@]}"; do
   [ -z "${EDGE_TGT[$i]}" ] && continue
   s="${EDGE_SRC[$i]}"
   t="${EDGE_TGT[$i]}"
-  if [ -n "${ACTIVE_TOUCH[$s]:-}" ] || [ -n "${ACTIVE_TOUCH[$t]:-}" ]; then
+  if kv_has ACTIVE_TOUCH "$s" || kv_has ACTIVE_TOUCH "$t"; then
     sid="$(node_id "$s")"
     tid="$(node_id "$t")"
     printf '  %s["%s"] -->|%s| %s["%s"]\n' "$sid" "$(node_label "$s")" "${EDGE_TYPE[$i]}" "$tid" "$(node_label "$t")"

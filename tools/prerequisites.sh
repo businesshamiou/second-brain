@@ -58,7 +58,7 @@ sb_sha256() {
   # $1 = file path. Prefers sha256sum (Linux), falls back to
   # `shasum -a 256` (macOS, no sha256sum by default).
   if command -v sha256sum >/dev/null 2>&1; then
-    sha256sum "$1" | awk '{print $1}'
+    sha256sum "$1" | awk '{print $1}'  # portability: guarded by command -v
   else
     shasum -a 256 "$1" | awk '{print $1}'
   fi
@@ -69,7 +69,7 @@ sb_download() {
   if command -v curl >/dev/null 2>&1; then
     curl -fsSL -o "$2" "$1"
   elif command -v wget >/dev/null 2>&1; then
-    wget -q -O "$2" "$1"
+    wget -q -O "$2" "$1"  # portability: guarded by command -v
   else
     echo "Neither curl nor wget is available to download $1" >&2
     return 1

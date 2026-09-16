@@ -100,12 +100,13 @@ done
 
 # --- 6. age du dernier evenement de hooks.log, s'il existe ---
 HOOKS_LOG="$VAULT_ROOT/.claude/hooks.log"
+# Age mesure par `find -mmin`, commun a GNU et BSD, et non plus par
+# `date -r FICHIER` : sur macOS, `date -r` attend un nombre de secondes, la
+# commande echouait, le repli prenait « maintenant » et ce controle ne
+# mordait jamais (Mission 181). 4320 minutes = 72 heures, meme plafond.
 if [ -f "$HOOKS_LOG" ]; then
-  NOW="$(date +%s)"
-  MTIME="$(date -r "$HOOKS_LOG" +%s 2>/dev/null || echo "$NOW")"
-  AGE_H=$(( (NOW - MTIME) / 3600 ))
-  if [ "$AGE_H" -gt 72 ]; then
-    ISSUES+=("hooks.log silencieux depuis ${AGE_H}h (plafond 72h) : $HOOKS_LOG")
+  if [ -n "$(find "$HOOKS_LOG" -mmin +4320 2>/dev/null)" ]; then
+    ISSUES+=("hooks.log silencieux depuis plus de 72h (plafond 72h) : $HOOKS_LOG")
   fi
 fi
 

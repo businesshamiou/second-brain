@@ -23,7 +23,15 @@ environment_fingerprint() {
   local path_file="$1"
   local path_hash="none"
   if [ -f "$path_file" ]; then
-    path_hash="$(sb_sha256 "$path_file" 2>/dev/null || sha256sum "$path_file" | awk '{print $1}')"
+    # Repli choisi par `command -v`, jamais un `sha256sum` appele a
+    # l'aveugle : macOS n'en livre pas, seulement `shasum` (Mission 181).
+    if command -v sb_sha256 >/dev/null 2>&1; then
+      path_hash="$(sb_sha256 "$path_file")"
+    elif command -v sha256sum >/dev/null 2>&1; then
+      path_hash="$(sha256sum "$path_file" | awk '{print $1}')"  # portability: guarded by command -v
+    else
+      path_hash="$(shasum -a 256 "$path_file" | awk '{print $1}')"
+    fi
   fi
   local claude_skills codex_skills codex_agents_skills
   claude_skills="$(ls -1 "$HOME/.claude/skills" 2>/dev/null | sort | tr '\n' ',')"

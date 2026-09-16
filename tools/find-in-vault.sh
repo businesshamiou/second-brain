@@ -64,12 +64,14 @@ EXCLUDE_RE='(^|/)(\.git|\.githooks|\.claude|\.codex|graphify-out|node_modules|\.
 # la Mission 029), cette racine peut differer de celle de generation (ex.
 # appel depuis workshop-build, liste ecrite sous workshop-production/). On
 # cherche donc le fichier n'importe ou sous $ROOT, pas seulement a sa racine.
-declare -A SUPERSEDED_BASENAMES=()
+# Ensemble porte par tools/kvmap.sh : `declare -A` n'existe pas dans le
+# bash 3.2 livre par Apple (Mission 181).
+. "$(dirname "$0")/kvmap.sh"
 while IFS= read -r SUP_LIST_FILE; do
   [ -z "$SUP_LIST_FILE" ] && continue
   while IFS= read -r SUP_REL; do
     [ -z "$SUP_REL" ] && continue
-    SUPERSEDED_BASENAMES["${SUP_REL##*/}"]=1
+    kv_set SUPERSEDED_BASENAMES "${SUP_REL##*/}" 1
   done < "$SUP_LIST_FILE"
 done < <(find "$ROOT" -type f -name 'superseded-files.txt' 2>/dev/null | grep -vE "$EXCLUDE_RE")
 
@@ -77,7 +79,7 @@ mark_superseded() {
   while IFS= read -r RESLINE; do
     RESPATH="${RESLINE%%:*}"
     RESFN="$(basename "$RESPATH")"
-    if [ -n "${SUPERSEDED_BASENAMES[$RESFN]+x}" ]; then
+    if kv_has SUPERSEDED_BASENAMES "$RESFN"; then
       printf '%s [REMPLACÉ]\n' "$RESLINE"
     else
       printf '%s\n' "$RESLINE"

@@ -40,6 +40,9 @@ WORKSPACE_ROOT="$(cd "$VAULT_ROOT/.." && pwd)"
 # resolved against the sibling now simply falls through to the other
 # candidate roots, same as before this repo ever existed).
 . "$(dirname "$0")/resolve-sibling-repo.sh"
+# Tableaux associatifs portables (Mission 181) : `declare -A` n'existe pas
+# dans le bash 3.2 livre par Apple.
+. "$(dirname "$0")/kvmap.sh"
 resolve_declared_sibling "$WORKSPACE_ROOT"
 
 FAIL=0
@@ -64,25 +67,30 @@ ALL_MD="$(git -C "$VAULT_ROOT" ls-files -- '*.md')"
 # ce poste (Git Bash/Windows) le fork de processus est le cout dominant, pas
 # le traitement lui-meme (meme diagnostic et meme patron que
 # tools/build-indexes.sh list_fields() : FNR==1 reinitialise l'etat par
-# fichier dans un unique appel awk, ENDFILE emet une ligne par fichier).
+# fichier dans un unique appel awk, une ligne emise par fichier).
+# Emission au changement de fichier et en END plutot que par ENDFILE :
+# ENDFILE est une extension gawk, que l'awk d'Apple lit comme une variable
+# nulle -- aucune ligne, table vide, et ce gardien passait sans rien
+# verifier (Mission 181). Un fichier vide n'emet plus de ligne : ses deux
+# champs valaient deja la chaine vide, que la consultation rend aussi.
 # Comportement inchange : memes deux champs (type/status) lus dans le meme
 # bloc front-matter --- ... --- au meme sens, mesure par l'oracle de la
 # Mission 127 (sortie byte-identique avant/apres).
 FM_TABLE="$(printf '%s\n' "$ALL_MD" | sed "s#^#$VAULT_ROOT/#" | tr '\n' '\0' | xargs -0 awk '
-  FNR==1 { infm=0; type=""; status="" }
+  function flush() { if (cur != "") print cur "\t" type "\t" status }
+  FNR==1 { flush(); cur=FILENAME; infm=0; type=""; status="" }
   FNR==1 && $0=="---" { infm=1; next }
   infm && $0=="---" { infm=0 }
   infm && /^type:/   { v=$0; sub(/^type:[[:space:]]*/,"",v);   gsub(/^"|"$/,"",v); type=v }
   infm && /^status:/ { v=$0; sub(/^status:[[:space:]]*/,"",v); gsub(/^"|"$/,"",v); status=v }
-  ENDFILE { print FILENAME "\t" type "\t" status }
+  END { flush() }
 ' 2>/dev/null)"
 
-declare -A FM_TYPE=() FM_STATUS=()
 while IFS="$TAB" read -r fpath ftype fstatus; do
   [ -z "$fpath" ] && continue
   frel="${fpath#"$VAULT_ROOT"/}"
-  FM_TYPE["$frel"]="$ftype"
-  FM_STATUS["$frel"]="$fstatus"
+  kv_set FM_TYPE "$frel" "$ftype"
+  kv_set FM_STATUS "$frel" "$fstatus"
 done <<EOF_FMTABLE
 $FM_TABLE
 EOF_FMTABLE
@@ -96,7 +104,8 @@ is_in_perimeter() {
   case "$rel" in
     knowledge/*|templates/*) return 0 ;;
   esac
-  local ftype="${FM_TYPE[$rel]:-}"
+  local ftype
+  kv_get FM_TYPE "$rel"; ftype="$KV_VALUE"
   [ "$ftype" = "rules" ] && return 0
   [ "$ftype" = "decision" ] && return 0
   return 1
@@ -104,7 +113,8 @@ is_in_perimeter() {
 
 is_superseded() {
   local rel="$1"
-  local status="${FM_STATUS[$rel]:-}"
+  local status
+  kv_get FM_STATUS "$rel"; status="$KV_VALUE"
   [ "$status" = "superseded" ]
 }
 
@@ -201,9 +211,8 @@ outside_root() {
 # d'un fork par jeton -- la forme par jeton coutait 18,7 s dans un clone
 # froid contre 1,9 s avant la regle (mesure Mission 142), meme patron de fork
 # par entree que la Mission 137-B avait elimine sur le gardien de fraicheur.
-# La pre-passe remplit GIT_IGNORED_SET ; le parcours ne fait plus qu'une
-# consultation en memoire.
-declare -A GIT_IGNORED_SET=()
+# La pre-passe remplit la carte GIT_IGNORED_SET (tools/kvmap.sh) ; le
+# parcours ne fait plus qu'une consultation en memoire.
 
 prime_git_ignored() {
   local tokens
@@ -218,13 +227,13 @@ prime_git_ignored() {
     | grep -v "^$SIBLING_NAME/" | grep -vE '^\.\.?$')"
   [ -z "$tokens" ] && return 0
   while IFS= read -r -d '' ign; do
-    [ -n "$ign" ] && GIT_IGNORED_SET["$ign"]=1
+    [ -n "$ign" ] && kv_set GIT_IGNORED_SET "$ign" 1
   done < <(printf '%s\n' "$tokens" | tr '\n' '\0' \
     | git -C "$VAULT_ROOT" check-ignore -z --stdin 2>/dev/null)
 }
 
 git_ignored() {
-  [ -n "${GIT_IGNORED_SET[$1]+x}" ]
+  kv_has GIT_IGNORED_SET "$1"
 }
 
 # Jetons externes connus (ticket 02, avance ici seulement -- Mission 168,

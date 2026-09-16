@@ -100,17 +100,23 @@ done < <(cut -f1 "$MANIFEST")
 # deadlocks for good on a here-document between 65537 and ~65690 bytes --
 # reached by an install path of about 71 characters.
 printf '%s\n' "$EXISTING_PATHS" | sed "s#^#$VAULT_ROOT/#" | tr '\n' '\0' | xargs -0 awk '
-  FNR==1 { distv="" }
+  function flush() { if (cur != "") print cur "\t" distv }
+  FNR==1 { flush(); cur=FILENAME; distv="" }
   FNR<=20 && distv=="" && $0 ~ /^distributable:[[:space:]]*(true|false)[[:space:]]*$/ {
     v=$0; sub(/^distributable:[[:space:]]*/,"",v); gsub(/[[:space:]]+$/,"",v); distv=v
   }
-  ENDFILE { print FILENAME "\t" distv }
+  END { flush() }
 ' > "$FM_DIST_FILE" 2>/dev/null
 
-declare -A FM_DIST=()
+# Une ligne par fichier, emise au changement de fichier et en END : ENDFILE
+# est une extension gawk que l'awk d'Apple ignore -- table vide, et la
+# coherence front-matter/manifeste n'etait plus verifiee (Mission 181).
+# Carte portable (tools/kvmap.sh) : `declare -A` n'existe pas dans le
+# bash 3.2 livre par Apple.
+. "$(dirname "$0")/kvmap.sh"
 while IFS="$TAB" read -r fpath fdist; do
   [ -z "$fpath" ] && continue
-  FM_DIST["${fpath#"$VAULT_ROOT"/}"]="$fdist"
+  kv_set FM_DIST "${fpath#"$VAULT_ROOT"/}" "$fdist"
 done < "$FM_DIST_FILE"
 
 # --- 1. fichier suivi absent du manifeste ---
@@ -162,7 +168,7 @@ while IFS="$TAB" read -r REL_PATH VERDICT || [ -n "$REL_PATH" ]; do
   FULL="$VAULT_ROOT/$REL_PATH"
   [ -f "$FULL" ] || continue
 
-  FM_DISTRIBUTABLE="${FM_DIST[$REL_PATH]:-}"
+  kv_get FM_DIST "$REL_PATH"; FM_DISTRIBUTABLE="$KV_VALUE"
 
   if [ "$FM_DISTRIBUTABLE" = "false" ] && [ "$VERDICT" = "DISTRIBUABLE" ]; then
     FAIL=1

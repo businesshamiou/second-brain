@@ -55,6 +55,18 @@ jobs:
           bash tools/session-preflight.sh
           bash .githooks/pre-commit
 
+      # Mission 181: CI used to call the guardians directly, never through
+      # Git, so hooks tracked without their execute bit ran for no
+      # participant on macOS or Linux and nothing here noticed. This one
+      # commits in a fresh clone, the way a participant does.
+      - name: Main -- a participant's commit runs the guardians (through Git)
+        shell: bash
+        run: bash tests/test-githooks-run-on-commit.sh
+
+      - name: Main -- participant path free of bash 4+ and GNU-only constructs
+        shell: bash
+        run: bash tests/test-participant-shell-portability.sh
+
       - name: Main install test -- answers file, second pass at empty porcelain
         shell: powershell
         run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-install-e2e.ps1
@@ -162,6 +174,16 @@ jobs:
           bash tools/session-preflight.sh
           bash .githooks/pre-commit
 
+      # Mission 181: CI used to call the guardians directly, never through
+      # Git, so hooks tracked without their execute bit ran for no
+      # participant on macOS or Linux and nothing here noticed. This one
+      # commits in a fresh clone, the way a participant does.
+      - name: Main -- a participant's commit runs the guardians (through Git)
+        run: bash tests/test-githooks-run-on-commit.sh
+
+      - name: Main -- participant path free of bash 4+ and GNU-only constructs
+        run: bash tests/test-participant-shell-portability.sh
+
       - name: Main install test -- answers file, second pass at empty porcelain
         run: bash tests/test-install-e2e.sh
 
@@ -216,6 +238,54 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Mission 181. A participant's new Mac has Apple's /bin/bash 3.2 and
+      # BSD tools, and nothing from Homebrew. The runner image puts
+      # Homebrew's bash 5 and other non-Apple tools ahead of them, so this
+      # job used to measure a developer's Mac: bash-4 and GNU-only
+      # constructs passed here and broke -- or silently checked nothing --
+      # on a participant's. From here on every step sees Apple's system
+      # directories only, plus what a step installs for itself (uv), and the
+      # next step proves it rather than assuming it. Chosen over pointing a
+      # single `bash` at /bin/bash: that would still leave Homebrew's awk,
+      # sed or xargs in front, and a hook or tool calls those too.
+      - name: Apple's own tools only (what a new Mac ships)
+        run: |
+          echo "Runner PATH, before: $PATH"
+          for t in bash awk sed grep find xargs date stat readlink realpath git python3 curl shasum; do
+            printf '  %-9s %s\n' "$t" "$(command -v "$t" || echo '(none)')"
+          done
+          echo "PATH=/usr/bin:/bin:/usr/sbin:/sbin" >> "$GITHUB_ENV"
+
+      # Fails the job if the step above did not take, or if the shell a
+      # participant gets would accept a bash-4 or GNU-only construct: the
+      # three probes below must be REFUSED here, exactly as on a new Mac.
+      - name: Proof -- Apple's bash 3.2 and BSD tools are the ones in use
+        run: |
+          echo "PATH=$PATH"
+          fail=0
+          case ":$PATH:" in
+            *homebrew*|*:/usr/local/bin:*|*:/opt/*) echo "REFUS : a non-Apple directory is still on PATH"; fail=1 ;;
+          esac
+          for pair in bash:/bin/bash awk:/usr/bin/awk sed:/usr/bin/sed xargs:/usr/bin/xargs find:/usr/bin/find git:/usr/bin/git; do
+            t="${pair%%:*}"; want="${pair#*:}"
+            got="$(command -v "$t" || echo '(none)')"
+            echo "  $t -> $got"
+            [ "$got" = "$want" ] || { echo "REFUS : $t resolves to $got, not $want"; fail=1; }
+          done
+          bash --version | head -n 1
+          bash -c '[ "${BASH_VERSINFO[0]}" -eq 3 ]' || { echo "REFUS : bash is not Apple's 3.x"; fail=1; }
+          if bash -c 'declare -A probe=([a]=1)' 2>/dev/null; then
+            echo "REFUS : this bash accepts declare -A -- a participant's does not"; fail=1
+          fi
+          if printf 'x\n' | awk 'ENDFILE { print "gawk" }' | grep -q gawk; then
+            echo "REFUS : this awk runs ENDFILE -- a participant's does not"; fail=1
+          fi
+          if printf 'a\n' | xargs -d '\n' echo >/dev/null 2>&1; then
+            echo "REFUS : this xargs accepts -d -- a participant's does not"; fail=1
+          fi
+          [ "$fail" -eq 0 ] || exit 1
+          echo "PASS : Apple's bash 3.2, awk, sed, find and xargs are the ones every following step uses."
+
       - name: Guardians offline (session-preflight + .githooks/pre-commit)
         run: |
           if ! command -v uv >/dev/null 2>&1; then
@@ -235,6 +305,16 @@ jobs:
           fi
           bash tools/session-preflight.sh
           bash .githooks/pre-commit
+
+      # Mission 181: CI used to call the guardians directly, never through
+      # Git, so hooks tracked without their execute bit ran for no
+      # participant on macOS or Linux and nothing here noticed. This one
+      # commits in a fresh clone, the way a participant does.
+      - name: Main -- a participant's commit runs the guardians (through Git)
+        run: bash tests/test-githooks-run-on-commit.sh
+
+      - name: Main -- participant path free of bash 4+ and GNU-only constructs
+        run: bash tests/test-participant-shell-portability.sh
 
       - name: Main install test -- answers file, second pass at empty porcelain
         run: bash tests/test-install-e2e.sh
