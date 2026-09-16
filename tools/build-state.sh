@@ -189,7 +189,11 @@ if [ -f "$JOURNAL" ]; then
 fi
 
 # --- 2. Catalogue des documents recents (mtime desc, limite 15) ---
-RECENTS="$(find "$PROJECT_ROOT" -type f -name '*.md' -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -n 15 | cut -d' ' -f2-)"
+# `ls -t` plutot que `find -printf '%T@ %p'` : `-printf` est une extension
+# GNU absente du find de BSD (macOS), ou la liste sortait vide en silence --
+# la fiche y perdait sa section « Documents recents » sans le dire
+# (Mission 180). `ls -t` trie par date de modification des deux cotes.
+RECENTS="$(find "$PROJECT_ROOT" -type f -name '*.md' -exec ls -t {} + 2>/dev/null | head -n 15)"
 
 DOC_LIST=""
 if [ -n "$RECENTS" ]; then

@@ -155,7 +155,13 @@ fi
 # carry their own licence file. Sorted (`sort`) so the generated document
 # is byte-identical across runs regardless of the filesystem's own
 # directory order -- required for --check to mean anything.
-COLLECTIONS="$(find "$WAREHOUSE_DIR" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)"
+# `-printf` est une extension GNU que le find de BSD (macOS) ne connait pas
+# -- « find: -printf: unknown primary or operator » (Mission 180). Une
+# boucle sur le motif de dossiers rend les memes noms, partout.
+COLLECTIONS="$(for d in "$WAREHOUSE_DIR"/*/; do
+  [ -d "$d" ] || continue
+  basename "$d"
+done | sort)"
 
 if [ -z "$COLLECTIONS" ]; then
   echo "REFUS : aucune collection trouvee sous $WAREHOUSE_DIR" >&2
