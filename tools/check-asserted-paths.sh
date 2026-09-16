@@ -76,7 +76,14 @@ ALL_MD="$(git -C "$VAULT_ROOT" ls-files -- '*.md')"
 # Comportement inchange : memes deux champs (type/status) lus dans le meme
 # bloc front-matter --- ... --- au meme sens, mesure par l'oracle de la
 # Mission 127 (sortie byte-identique avant/apres).
-FM_TABLE="$(printf '%s\n' "$ALL_MD" | sed "s#^#$VAULT_ROOT/#" | tr '\n' '\0' | xargs -0 awk '
+# Chemins prefixes en bash, jamais par `sed "s#^#$VAULT_ROOT/#"` : sed
+# reinterprete la racine comme un remplacement -- un `&` y devient le texte
+# trouve, un antislash un echappement (GNU sed : `\U` met tout en
+# majuscules). Table vide, perimetre 105 -> 42 et faux refus au commit de
+# l'installeur (Mission 181, reprise de l'etape 6, smoke test).
+FM_TABLE="$(printf '%s\n' "$ALL_MD" | while IFS= read -r p; do
+  [ -n "$p" ] && printf '%s/%s\0' "$VAULT_ROOT" "$p"
+done | xargs -0 awk '
   function flush() { if (cur != "") print cur "\t" type "\t" status }
   FNR==1 { flush(); cur=FILENAME; infm=0; type=""; status="" }
   FNR==1 && $0=="---" { infm=1; next }

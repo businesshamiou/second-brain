@@ -52,7 +52,10 @@ $p"
   # One line per file, flushed on file change and at END: the guardian's own
   # form since Mission 181 (ENDFILE is gawk-only). Empty files emit nothing
   # there, so they count for nothing here either.
-  printf '%s\n' "$paths" | sed "s#^#$VAULT_ROOT/#" | tr '\n' '\0' | xargs -0 awk '
+  # Prefixed in bash, as the guardian does (Mission 181, step 6 resumed).
+  printf '%s\n' "$paths" | while IFS= read -r p; do
+    [ -n "$p" ] && printf '%s/%s\0' "$VAULT_ROOT" "$p"
+  done | xargs -0 awk '
     function flush() { if (cur != "") print cur "\t" }
     FNR==1 { flush(); cur=FILENAME }
     END { flush() }

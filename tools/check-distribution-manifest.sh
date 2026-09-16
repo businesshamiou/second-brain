@@ -99,7 +99,13 @@ done < <(cut -f1 "$MANIFEST")
 # (install path length + file path) x ~500 lines, and Git Bash's bash 5.3
 # deadlocks for good on a here-document between 65537 and ~65690 bytes --
 # reached by an install path of about 71 characters.
-printf '%s\n' "$EXISTING_PATHS" | sed "s#^#$VAULT_ROOT/#" | tr '\n' '\0' | xargs -0 awk '
+# Paths are prefixed in bash, never by `sed "s#^#$VAULT_ROOT/#"`: sed reads
+# the root as a replacement, so an `&` in it becomes the matched text and a
+# backslash an escape -- an empty table, and the front-matter check silently
+# skipped (Mission 181, step 6 resumed, smoke test).
+printf '%s\n' "$EXISTING_PATHS" | while IFS= read -r p; do
+  [ -n "$p" ] && printf '%s/%s\0' "$VAULT_ROOT" "$p"
+done | xargs -0 awk '
   function flush() { if (cur != "") print cur "\t" distv }
   FNR==1 { flush(); cur=FILENAME; distv="" }
   FNR<=20 && distv=="" && $0 ~ /^distributable:[[:space:]]*(true|false)[[:space:]]*$/ {

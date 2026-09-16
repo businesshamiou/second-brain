@@ -67,6 +67,13 @@ jobs:
         shell: bash
         run: bash tests/test-participant-shell-portability.sh
 
+      # Mission 181, step 6 resumed: a root holding `&` or a backslash
+      # reached two guardians mangled by sed; this sandbox proves it no
+      # longer does (the backslash half runs where a name can hold one).
+      - name: Main -- guardians read paths holding & or a backslash intact
+        shell: bash
+        run: bash tests/test-guardian-path-special-chars.sh
+
       - name: Main install test -- answers file, second pass at empty porcelain
         shell: powershell
         run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-install-e2e.ps1
@@ -183,6 +190,12 @@ jobs:
 
       - name: Main -- participant path free of bash 4+ and GNU-only constructs
         run: bash tests/test-participant-shell-portability.sh
+
+      # Mission 181, step 6 resumed: a root holding `&` or a backslash
+      # reached two guardians mangled by sed; this sandbox proves it no
+      # longer does (the backslash half runs where a name can hold one).
+      - name: Main -- guardians read paths holding & or a backslash intact
+        run: bash tests/test-guardian-path-special-chars.sh
 
       - name: Main install test -- answers file, second pass at empty porcelain
         run: bash tests/test-install-e2e.sh
@@ -315,6 +328,12 @@ jobs:
 
       - name: Main -- participant path free of bash 4+ and GNU-only constructs
         run: bash tests/test-participant-shell-portability.sh
+
+      # Mission 181, step 6 resumed: a root holding `&` or a backslash
+      # reached two guardians mangled by sed; this sandbox proves it no
+      # longer does (the backslash half runs where a name can hold one).
+      - name: Main -- guardians read paths holding & or a backslash intact
+        run: bash tests/test-guardian-path-special-chars.sh
 
       - name: Main install test -- answers file, second pass at empty porcelain
         run: bash tests/test-install-e2e.sh
