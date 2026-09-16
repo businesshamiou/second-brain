@@ -15,7 +15,10 @@
     Mechanism (chosen over Start-Process -Credential, which is unreliable
     without an interactive session): a scheduled task registered with
     schtasks /RU <account> /RL LIMITED runs a small script as that account.
-    The script builds its own PATH without any directory holding git.exe,
+    The account is first granted "Log on as a batch job" with secedit:
+    Task Scheduler does not grant it by itself, and without it the task
+    never starts (CI run 35157346970). The script builds its own PATH
+    without any directory holding git.exe,
     uv.exe or pre-commit.exe -- the runner's machine PATH carries Git --
     then:
       1. records who it is and whether it is in Administrators (must be
@@ -92,6 +95,36 @@ $inAdmins = @(Get-LocalGroupMember -Group 'Administrators' -ErrorAction Silently
 Assert-True (-not $inAdmins) "the test account is not a member of Administrators"
 & icacls $work /grant "${AccountName}:(OI)(CI)F" | Out-Null
 
+# "Log on as a batch job" (SeBatchLogonRight) is required for a scheduled
+# task that runs under a password. Task Scheduler does NOT grant it by
+# itself: CI run 35157346970 printed "The task is registered, but may fail
+# to start. Batch logon privilege needs to be enabled for the task
+# principal." and the task never started. Granted here with secedit, the
+# policy tool Windows ships, on this disposable machine only.
+$sid = (New-Object Security.Principal.NTAccount($AccountName)).Translate([Security.Principal.SecurityIdentifier]).Value
+$policyCfg = Join-Path $work 'user-rights.inf'
+$policyDb = Join-Path $work 'user-rights.sdb'
+& secedit /export /cfg $policyCfg /areas USER_RIGHTS | Out-Null
+$policy = @(Get-Content -Path $policyCfg)
+$batchIndex = -1
+for ($i = 0; $i -lt $policy.Count; $i++) { if ($policy[$i] -match '^SeBatchLogonRight\s*=') { $batchIndex = $i } }
+if ($batchIndex -ge 0) {
+    if ($policy[$batchIndex] -notmatch [regex]::Escape("*$sid")) { $policy[$batchIndex] = $policy[$batchIndex] + ",*$sid" }
+}
+else {
+    $out = New-Object System.Collections.Generic.List[string]
+    foreach ($line in $policy) {
+        $out.Add($line) | Out-Null
+        if ($line -match '^\[Privilege Rights\]') { $out.Add("SeBatchLogonRight = *$sid") | Out-Null }
+    }
+    $policy = $out.ToArray()
+}
+$policy | Set-Content -Path $policyCfg -Encoding Unicode
+& secedit /configure /db $policyDb /cfg $policyCfg /areas USER_RIGHTS | Out-Null
+& secedit /export /cfg $policyCfg /areas USER_RIGHTS | Out-Null
+$granted = [bool](Get-Content -Path $policyCfg | Where-Object { $_ -match '^SeBatchLogonRight\s*=' -and $_ -match [regex]::Escape("*$sid") })
+Assert-True $granted "the test account holds 'Log on as a batch job' (SeBatchLogonRight), required for a password-based scheduled task"
+
 $answers = Get-Content -Raw -Encoding UTF8 (Join-Path $RepoRoot 'tests\fixtures\install-answers.sample.json') | ConvertFrom-Json
 $answers.workspacePath = Join-Path $work 'workspace'
 $answers | ConvertTo-Json -Depth 5 | Set-Content -Path (Join-Path $work 'answers.json') -Encoding UTF8
@@ -131,10 +164,19 @@ Assert-True ($LASTEXITCODE -eq 0) "scheduled task registered to run as $AccountN
 & schtasks /Run /TN $taskName | Out-Null
 
 $deadline = (Get-Date).AddMinutes($TimeoutMinutes)
+$startDeadline = (Get-Date).AddMinutes(3)
 $done = $false
 while ((Get-Date) -lt $deadline) {
     Start-Sleep -Seconds 15
     if ((Test-Path $logPath) -and (Select-String -Path $logPath -Pattern '^S9 DONE' -Quiet)) { $done = $true; break }
+    # The task script writes its first line at once: no log after three
+    # minutes means the task never started -- stop waiting and say why,
+    # instead of burning the whole timeout (CI run 35157346970 waited 40).
+    if (-not (Test-Path $logPath) -and (Get-Date) -gt $startDeadline) {
+        Write-Output "  the task has not started after 3 minutes; Task Scheduler reports:"
+        & schtasks /Query /TN $taskName /V /FO LIST 2>&1 | Where-Object { $_ -match '^(Status|Last Run Time|Last Result|Logon Mode|Run As User)' } | ForEach-Object { Write-Output "    $_" }
+        break
+    }
 }
 $lines = if (Test-Path $logPath) { @(Get-Content $logPath -Encoding UTF8) } else { @() }
 $lines | ForEach-Object { Write-Output "    $_" }

@@ -427,6 +427,7 @@ tests/test-install-e2e.ps1	DISTRIBUABLE
 tests/test-install-e2e.sh	DISTRIBUABLE
 tests/test-bootstrap-no-git.ps1	DISTRIBUABLE
 tests/test-resolve-bash-exe.ps1	DISTRIBUABLE
+tests/test-precommit-with-existing-uv.ps1	DISTRIBUABLE
 tests/test-install-standard-user.ps1	DISTRIBUABLE
 tests/test-acceptance-harness-oracles.sh	DISTRIBUABLE
 tests/test-install-workspace-path-validation.ps1	DISTRIBUABLE

@@ -89,6 +89,14 @@ jobs:
         shell: powershell
         run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-bootstrap-no-git.ps1
 
+      # Mission 183-C01, reprise 2: uv already present somewhere else than its
+      # own tool directory made the prerequisites step look for pre-commit in
+      # the wrong place (CI run 35157346970). Reproduced here, whether or not
+      # the runner has uv.
+      - name: Main -- pre-commit installed when uv is already present elsewhere
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-precommit-with-existing-uv.ps1
+
       - name: Main install test -- answers file, second pass at empty porcelain
         shell: powershell
         run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-install-e2e.ps1

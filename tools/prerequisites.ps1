@@ -364,7 +364,18 @@ function Resolve-OrInstall-PreCommit {
         return [PSCustomObject]@{ Source = 'existing'; PreCommitExe = $existing.Exe; BinDir = $existing.Dir }
     }
 
-    $preCommitExe = Join-Path $UvBinDir 'pre-commit.exe'
+    # Mission 183-C01: `uv tool install` puts executables in uv's own tool
+    # bin directory (`uv tool dir --bin`: UV_TOOL_BIN_DIR when redirected,
+    # %USERPROFILE%\.local\bin by default) -- NOT next to uv.exe. The two
+    # coincide only when uv itself was installed by this module. A uv that
+    # was already on PATH somewhere else (winget, scoop, a CI step) made
+    # this function look in the wrong place and stop the install
+    # (CI run 35157346970: "pre-commit.exe is missing at the expected path:
+    # D:\a\_temp\uv-bin\pre-commit.exe"). Ask uv, never assume.
+    $toolBinDir = (& $UvExe tool dir --bin 2>$null | Select-Object -First 1)
+    if ([string]::IsNullOrWhiteSpace($toolBinDir)) { $toolBinDir = $UvBinDir }
+    $toolBinDir = $toolBinDir.Trim()
+    $preCommitExe = Join-Path $toolBinDir 'pre-commit.exe'
     if (-not (Test-Path $preCommitExe)) {
         # UV_TOOL_DIR/UV_CACHE_DIR/etc. are already set persistently on this
         # process by Assure-Prerequisites's Initialize-UvEnvironmentRedirection
@@ -385,7 +396,7 @@ function Resolve-OrInstall-PreCommit {
     return [PSCustomObject]@{
         Source       = 'installed'
         PreCommitExe = $preCommitExe
-        BinDir       = $UvBinDir
+        BinDir       = $toolBinDir
     }
 }
 
@@ -468,12 +479,15 @@ function Assure-Prerequisites {
         & $AddPersistentPathEntry $Context $uv.BinDir
     }
 
-    # pre-commit's BinDir is always $uv.BinDir when Resolve-OrInstall-PreCommit
-    # installs it itself (it shims into $UvBinDir, never a directory of its
-    # own) -- already added to PATH just above when uv itself was newly
-    # installed, so there is never a distinct entry to add here. No
-    # `if ($preCommit.Source -eq 'installed')` branch is needed at all.
+    # pre-commit's BinDir is uv's tool bin directory. It equals $uv.BinDir
+    # only when uv was installed here; when uv was reused from elsewhere it
+    # is a distinct directory (Mission 183-C01), so it gets its own PATH
+    # entry -- never added twice.
     $preCommit = Resolve-OrInstall-PreCommit -Context $Context -Lock $lock.preCommit -UvExe $uv.UvExe -UvBinDir $uv.BinDir
+    if ($preCommit.Source -eq 'installed' -and $preCommit.BinDir -ne $uv.BinDir) {
+        Add-ProcessPathEntry -Directory $preCommit.BinDir
+        & $AddPersistentPathEntry $Context $preCommit.BinDir
+    }
 
     return [PSCustomObject]@{
         Git       = $git

@@ -100,7 +100,19 @@ try {
     # Without this step the test never saw the index.md the real installer
     # left inside web-package/<slug>/ -- the "5 announced, 6 present"
     # defect measured by Mission 182.
-    & uv run --no-project (Join-Path $RepoRoot 'tools\build_indexes.py') $TestClone *> (Join-Path $TestRoot 'build-indexes.log')
+    # uv is obtained the way the installer obtains it (tools/prerequisites.ps1:
+    # reused if on PATH, otherwise installed under this test's own root, its
+    # folders redirected there too) -- never assumed on PATH. The first
+    # version called `uv` directly: green on a developer machine that has
+    # it, red on the GitHub Windows runner that does not (CI run
+    # 35157346970, "The term 'uv' is not recognized").
+    . (Join-Path $RepoRoot 'tools\prerequisites.ps1')
+    $uvContext = [PSCustomObject]@{ TestMode = $true; ProfileRoot = (Join-Path $TestRoot 'profile') }
+    New-Item -ItemType Directory -Force -Path $uvContext.ProfileRoot | Out-Null
+    Initialize-UvEnvironmentRedirection -Context $uvContext
+    $uv = Resolve-OrInstall-Uv -Context $uvContext -Lock (Get-PrerequisitesLock).uv
+    Write-Output "  uv: $($uv.Source) ($($uv.UvExe))"
+    & $uv.UvExe run --no-project (Join-Path $RepoRoot 'tools\build_indexes.py') $TestClone *> (Join-Path $TestRoot 'build-indexes.log')
     Assert-True ($LASTEXITCODE -eq 0) "index regeneration over the test clone succeeded, as in the installer (exit $LASTEXITCODE)"
     $readmePath = Join-Path $webDir 'README.md'
     Assert-True (Test-Path $readmePath) "generated web package has a README.md"
