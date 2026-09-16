@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Refuse tout .sh suivi dont le bit d'execution est absent de l'INDEX GIT
 # alors qu'il est invoque nu (sans `bash`/`sh` devant) quelque part dans
-# ce depot. Trois causes CI distinctes de cette Mission (commits 42cd08e
-# et 7143b60) partageaient exactement ce defaut, jamais visible sur NTFS
+# ce depot. Trois causes de CI rouge distinctes ont partage exactement ce
+# defaut, jamais visible sur NTFS
 # (ce poste, tout poste Windows -- le bit n'existe pas sur ce systeme de
 # fichiers) : chaque fois decouvert un run Ubuntu a la fois, plutot que
 # tous ensemble. Ce gardien balaie la famille entiere au lieu d'attendre

@@ -10,11 +10,10 @@
 #
 # Also covers the reason `--tree-only` exists: a real leak once committed is
 # immutable history, not fixable by rewriting the checker -- this repo's own
-# history carried one from ticket 01 to ticket 02's cleanup (commits
-# 9d67391/39bfda0), until Mission 178 reduced it to a single fresh commit.
-# `--tree-only` must ignore history so CI can stay green on clean new
-# content; full mode (no flag) must still catch a real leak, so the signal
-# is not silently lost.
+# history carried one until it was rebuilt from a single root and the
+# leaking commits stopped existing. `--tree-only` must ignore
+# history so CI can stay green on clean new content; full mode (no flag)
+# must still catch a real leak, so the signal is not silently lost.
 #
 # Cases:
 #   1. self-exclusion -- a sandbox containing only a copy of the checker

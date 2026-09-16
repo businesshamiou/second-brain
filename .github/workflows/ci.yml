@@ -6,11 +6,9 @@ name: Second Brain CI
 # guardian suite and the secondary tests built by tickets 03-09. macOS only
 # runs on manual dispatch (T04: minutes on a private repo cost x10 there,
 # free once the repo is public -- Owner call, not automated every push).
-# A separate job plays the real, published install line from GitHub, but it
-# can only mean anything once the Owner has pushed (see that job's own
-# comment) -- until then the repository this workflow lives in has never
-# been pushed anywhere, so nothing here has actually run on a GitHub-hosted
-# runner. That gap is named, not hidden: see the ticket 10 report.
+# A separate job plays the real, published install line from GitHub: the
+# repository is public, so every job here runs on GitHub-hosted runners on
+# each push.
 
 on:
   push:
@@ -90,18 +88,17 @@ jobs:
         run: bash tests/test-third-party-licenses.sh
 
       # --tree-only: blocking, catches any NEW private-pattern leak in the
-      # current checkout. Full history is checked separately below,
-      # informational -- see that step's comment (ticket 10 report, class A
-      # finding: commits 9d67391/39bfda0 already carry one of this script's
-      # own private-path patterns in this repo's own immutable history, an
-      # Owner call to remediate before the first public push, not a defect
-      # this ticket's checker can hide or silently fix by rewriting history
-      # on its own initiative).
+      # current checkout. The full history is checked separately below and
+      # stays informational because it now doubles this one: the published
+      # history was rebuilt from a single root on 2026-09-15 and carries no
+      # private pattern, so both modes read the same content. Full mode
+      # earns its place the day a pattern is committed and then removed
+      # from the tree -- it would still see it, this step would not.
       - name: Secondary -- private patterns (P4), current tree
         shell: bash
         run: bash tools/check-private-patterns.sh --tree-only
 
-      - name: Secondary -- private patterns (P4), full history (informational; known pre-existing leak, Owner decision pending)
+      - name: Secondary -- private patterns (P4), full history (informational, doubles the blocking tree check)
         shell: bash
         continue-on-error: true
         run: bash tools/check-private-patterns.sh
@@ -177,7 +174,7 @@ jobs:
       - name: Secondary -- private patterns (P4), current tree
         run: bash tools/check-private-patterns.sh --tree-only
 
-      - name: Secondary -- private patterns (P4), full history (informational; known pre-existing leak, Owner decision pending)
+      - name: Secondary -- private patterns (P4), full history (informational, doubles the blocking tree check)
         continue-on-error: true
         run: bash tools/check-private-patterns.sh
 
@@ -252,7 +249,7 @@ jobs:
       - name: Secondary -- private patterns (P4), current tree
         run: bash tools/check-private-patterns.sh --tree-only
 
-      - name: Secondary -- private patterns (P4), full history (informational; known pre-existing leak, Owner decision pending)
+      - name: Secondary -- private patterns (P4), full history (informational, doubles the blocking tree check)
         continue-on-error: true
         run: bash tools/check-private-patterns.sh
 
@@ -261,15 +258,11 @@ jobs:
     needs: [windows, ubuntu]
     runs-on: ubuntu-latest
     steps:
-      # T14/T23: the Owner's first real push IS the publication event (the
-      # repository is created public, Q8). Until that push exists this job
-      # cannot do anything meaningful -- the clone below succeeds against
-      # the empty public repository (measured, Mission 168 ticket 01:
-      # `git ls-remote` on this exact URL returns 0 refs) but the install
-      # step that follows has nothing to run against. HYPOTHESIS, named
-      # explicitly per the ticket's own instruction: everything from here
-      # down is exercised for real only after a genuine push, on a genuine
-      # GitHub-hosted runner -- neither of which this Mission window has.
+      # This job is the only one that reads the repository over the network
+      # instead of the checkout: it clones the public URL a participant
+      # would use, then runs the installer from that clone, in test mode,
+      # never against the runner's own profile. It waits on the two jobs
+      # above (needs:), so a tree that fails them never reaches this check.
       - name: Clone the published repository (real GitHub line, INSTALL.md)
         run: git clone https://github.com/businesshamiou/second-brain.git "$RUNNER_TEMP/second-brain-smoke"
 
