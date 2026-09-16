@@ -86,8 +86,12 @@ echo "  verdict: $VERDICT1"
 [ "$EXIT1" = "0" ]; assert_true "$?" "first run exits 0"
 case "$VERDICT1" in *"Installation complete"*) r=0 ;; *) r=1 ;; esac
 assert_true "$r" "first run verdict reports success"
+# Comparaison arithmetique, jamais de chaine : le wc de BSD (macOS) aligne
+# son compte a droite -- « 1 » y sort precede d'espaces -- et l'egalite de
+# chaine echouait alors que l'installeur avait bien ecrit une seule ligne
+# (Mission 180, tour 3).
 LINE_COUNT="$(printf '%s\n' "$VERDICT1" | wc -l)"
-[ "$LINE_COUNT" = "1" ]; assert_true "$?" "silent mode (--answers-file) prints exactly one line, never a question"
+[ "$LINE_COUNT" -eq 1 ]; assert_true "$?" "silent mode (--answers-file) prints exactly one line, never a question"
 case "$VERDICT1" in *"first name"*|*"assistant"*|*"workspace live"*|*"Question"*) r=1 ;; *) r=0 ;; esac
 assert_true "$r" "silent mode output contains no question-prompt text"
 
