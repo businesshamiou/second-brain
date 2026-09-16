@@ -7,8 +7,10 @@
 # enough to freeze every commit for good.
 #
 # The sandbox is sized on purpose: bulk files, then one padding file whose
-# name length brings the table to TARGET_BYTES. The test refuses to conclude
-# if the table is not inside the window, so it never passes without biting.
+# name length brings the table to TARGET_BYTES. Each file holds one line:
+# since Mission 181 the table has no line for an empty file. The test
+# refuses to conclude if the table is not inside the window, so it never
+# passes without biting.
 # On a bash without the defect (Linux CI) it still passes, without proving
 # anything more than "the guardian completes".
 #
@@ -33,6 +35,8 @@ trap 'rm -rf "$TMP"' EXIT
 REPO="$TMP/repo"
 mkdir -p "$REPO/tools" "$REPO/d" "$REPO/p"
 cp "$REAL_SCRIPT" "$REPO/tools/check-distribution-manifest.sh"
+# The guardian sources its portable maps from its own folder (Mission 181).
+cp "$SCRIPT_DIR/../tools/kvmap.sh" "$REPO/tools/kvmap.sh"
 ( cd "$REPO" && git init -q -b main && git config core.autocrlf false ) || { echo "FAIL: git init" >&2; exit 1; }
 VAULT_ROOT="$(git -C "$REPO" rev-parse --show-toplevel)"
 L=${#VAULT_ROOT}
@@ -45,8 +49,13 @@ table_bytes() {
     [ -f "$VAULT_ROOT/$p" ] && paths="$paths
 $p"
   done < <(cut -f1 "$REPO/distribution-manifest.txt")
+  # One line per file, flushed on file change and at END: the guardian's own
+  # form since Mission 181 (ENDFILE is gawk-only). Empty files emit nothing
+  # there, so they count for nothing here either.
   printf '%s\n' "$paths" | sed "s#^#$VAULT_ROOT/#" | tr '\n' '\0' | xargs -0 awk '
-    ENDFILE { print FILENAME "\t" }
+    function flush() { if (cur != "") print cur "\t" }
+    FNR==1 { flush(); cur=FILENAME }
+    END { flush() }
   ' 2>/dev/null | wc -c
 }
 
@@ -64,7 +73,7 @@ BULK_COUNT=$(( (TARGET_BYTES - 400) / BULK_LINE ))
 i=0
 while [ "$i" -lt "$BULK_COUNT" ]; do
   printf -v name 'd/f%05d.md' "$i"
-  : > "$REPO/$name"
+  printf 'x\n' > "$REPO/$name"
   i=$((i + 1))
 done
 write_manifest
@@ -76,7 +85,7 @@ if [ "$PAD_NAME_LEN" -lt 1 ] || [ "$PAD_NAME_LEN" -gt 180 ]; then
   exit 1
 fi
 PAD_NAME="$(printf '%*s' "$PAD_NAME_LEN" '' | tr ' ' 'x')"
-: > "$REPO/p/$PAD_NAME"
+printf 'x\n' > "$REPO/p/$PAD_NAME"
 write_manifest
 
 SIZE="$(table_bytes)"

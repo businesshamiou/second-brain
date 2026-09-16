@@ -33,6 +33,8 @@ mkdir -p "$TMP/vault/tools" "$TMP/workshop-build/workshop-production/state"
 cp "$REAL_SCRIPT" "$TMP/vault/tools/link-graph-drone-view.sh"
 # Meme motif : l outil source tools/relpath.sh depuis son dossier.
 cp "$SCRIPT_DIR/../tools/relpath.sh" "$TMP/vault/tools/relpath.sh"
+# Et tools/kvmap.sh, ses tableaux associatifs portables (Mission 181).
+cp "$SCRIPT_DIR/../tools/kvmap.sh" "$TMP/vault/tools/kvmap.sh"
 chmod +x "$TMP/vault/tools/link-graph-drone-view.sh"
 
 cat > "$TMP/workshop-build/workshop-production/state/STATE.md" <<'EOF'
