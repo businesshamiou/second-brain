@@ -17,6 +17,15 @@
 #      .pre-commit-hooks.yaml -- le framework pre-commit invoque ce
 #      chemin nu (meme raison que check-links.sh, premiere reprise).
 #
+# Troisieme famille (Mission 181) : tout fichier suivi sous .githooks/,
+# quelle que soit son extension -- un hook n'est pas appele nu par un
+# script du depot, il est appele par Git, qui refuse d'executer un hook
+# sans bit d'execution (« hint: The '.githooks/pre-commit' hook was ignored
+# because it's not set as executable »). Les trois hooks du produit etaient
+# suivis en 100644 : chez un participant macOS ou Linux, aucun gardien ne
+# tournait au commit, et rien ne le signalait. Couverts par leur role (le
+# dossier que core.hooksPath designe), jamais par leur extension.
+#
 # usage: tools/check-exec-bit-bare-scripts.sh
 
 set -u
@@ -26,7 +35,7 @@ VAULT_ROOT="$(git rev-parse --show-toplevel)" || {
   exit 1
 }
 
-PATTERN='(^|[($]|&&|\|\||;)[[:space:]]*"\$[A-Za-z_]+(_PATH|_ROOT|_DIR)?/[^"]*\.sh"'
+PATTERN='(^|[($]|&&|\|\||;)[[:space:]]*"\$[A-Za-z_]+(_PATH|_ROOT|_DIR)?/[^"]*\.sh"' # portability: regex text, not a pipe
 CANDIDATES="$(git -C "$VAULT_ROOT" grep -hoE -- "$PATTERN" -- '*.sh' 2>/dev/null \
   | grep -oE '"\$[A-Za-z_]+(_PATH|_ROOT|_DIR)?/[^"]*\.sh"' \
   | sed -E 's/^"\$[A-Za-z_]+(_PATH|_ROOT|_DIR)?\///; s/"$//')"
@@ -36,6 +45,9 @@ if [ -f "$VAULT_ROOT/.pre-commit-hooks.yaml" ]; then
     | sed -E 's/^entry:[[:space:]]*//')"
   CANDIDATES="$(printf '%s\n%s\n' "$CANDIDATES" "$ENTRIES")"
 fi
+
+HOOKS="$(git -C "$VAULT_ROOT" ls-files -- .githooks/ 2>/dev/null)"
+CANDIDATES="$(printf '%s\n%s\n' "$CANDIDATES" "$HOOKS")"
 
 CANDIDATES="$(printf '%s\n' "$CANDIDATES" | sort -u | grep -v '^$')"
 
@@ -47,7 +59,11 @@ while IFS= read -r rel; do
   [ -z "$mode" ] && continue
   CHECKED=$((CHECKED + 1))
   if [ "$mode" != "100755" ]; then
-    echo "REFUS : $rel invoque nu (bare) mais mode $mode (bit d'execution absent de l'index)." >&2
+    case "$rel" in
+      .githooks/*) role="hook Git (execute par Git, qui ignore un hook non executable)" ;;
+      *) role="invoque nu (bare)" ;;
+    esac
+    echo "REFUS : $rel $role mais mode $mode (bit d'execution absent de l'index)." >&2
     FAIL=1
   fi
 done <<EOF_CANDIDATES

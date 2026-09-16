@@ -24,6 +24,12 @@
 #      tools/x.sh` (prefixed), at mode 100644: NOT flagged -- the false-
 #      positive guard that justifies scanning by pattern instead of by a
 #      blanket "every tracked .sh must be 100755" rule.
+#   5. githook-no-extension-missing-bit (Mission 181) -- .githooks/pre-commit
+#      at mode 100644, called by nothing but Git: refused, names it.
+#   6. githook-any-extension-missing-bit -- a .py and a .sh under
+#      .githooks/ at mode 100644: both refused -- the folder's role
+#      decides, never the extension.
+#   7. githooks-with-bit -- the same hooks at 100755: passes, counted.
 #
 # usage: tests/test-exec-bit-bare-scripts.sh
 
@@ -136,8 +142,58 @@ else
   FAILURES=$((FAILURES + 1))
 fi
 
+# --- 5. hook Git sans extension, bit absent : refuse, nomme le hook ---------
+# Mission 181 : un hook n'est appele nu par aucun script du depot -- Git
+# l'appelle, et l'ignore s'il n'est pas executable. Aucun autre fichier ne
+# l'invoque ici : seul son role (dossier .githooks/) le rend candidat.
+REPO_5="$(make_repo "$TMP/case-5")"
+mkdir -p "$REPO_5/.githooks"
+printf '#!/usr/bin/env bash\nexit 0\n' > "$REPO_5/.githooks/pre-commit"
+commit_with_modes "$REPO_5" .githooks/pre-commit -x
+OUT_5="$(cd "$REPO_5" && bash tools/check-exec-bit-bare-scripts.sh 2>&1)"; RC_5=$?
+if [ "$RC_5" -ne 0 ] && printf '%s' "$OUT_5" | grep -q ".githooks/pre-commit"; then
+  echo "ok [5-githook-no-extension-missing-bit]: refuse un hook Git sans extension et sans bit d'execution"
+else
+  echo "FAIL [5-githook-no-extension-missing-bit]: exit=$RC_5, sortie:" >&2
+  printf '%s\n' "$OUT_5" >&2
+  FAILURES=$((FAILURES + 1))
+fi
+
+# --- 6. fichier de .githooks/ portant une extension, bit absent : refuse ---
+# Le role decide, jamais l'extension : un .py ou un .sh range dans
+# .githooks/ est refuse de la meme facon.
+REPO_6="$(make_repo "$TMP/case-6")"
+mkdir -p "$REPO_6/.githooks"
+printf '#!/usr/bin/env python3\n' > "$REPO_6/.githooks/commit-msg.py"
+printf '#!/usr/bin/env bash\nexit 0\n' > "$REPO_6/.githooks/pre-push.sh"
+commit_with_modes "$REPO_6" .githooks/commit-msg.py -x .githooks/pre-push.sh -x
+OUT_6="$(cd "$REPO_6" && bash tools/check-exec-bit-bare-scripts.sh 2>&1)"; RC_6=$?
+if [ "$RC_6" -ne 0 ] && printf '%s' "$OUT_6" | grep -q ".githooks/commit-msg.py" \
+    && printf '%s' "$OUT_6" | grep -q ".githooks/pre-push.sh"; then
+  echo "ok [6-githook-any-extension-missing-bit]: refuse un fichier de .githooks/ non executable, quelle que soit son extension"
+else
+  echo "FAIL [6-githook-any-extension-missing-bit]: exit=$RC_6, sortie:" >&2
+  printf '%s\n' "$OUT_6" >&2
+  FAILURES=$((FAILURES + 1))
+fi
+
+# --- 7. hooks Git executables dans l'index : passe --------------------------
+REPO_7="$(make_repo "$TMP/case-7")"
+mkdir -p "$REPO_7/.githooks"
+printf '#!/usr/bin/env bash\nexit 0\n' > "$REPO_7/.githooks/pre-commit"
+printf '#!/usr/bin/env bash\nexit 0\n' > "$REPO_7/.githooks/commit-msg"
+commit_with_modes "$REPO_7" .githooks/pre-commit +x .githooks/commit-msg +x
+OUT_7="$(cd "$REPO_7" && bash tools/check-exec-bit-bare-scripts.sh 2>&1)"; RC_7=$?
+if [ "$RC_7" -eq 0 ] && printf '%s' "$OUT_7" | grep -q "2 script(s)"; then
+  echo "ok [7-githooks-with-bit]: passe quand les hooks sont executables dans l'index, et les compte"
+else
+  echo "FAIL [7-githooks-with-bit]: exit=$RC_7, sortie:" >&2
+  printf '%s\n' "$OUT_7" >&2
+  FAILURES=$((FAILURES + 1))
+fi
+
 if [ "$FAILURES" -eq 0 ]; then
-  echo "PASS: 4/4 cas conformes"
+  echo "PASS: 7/7 cas conformes"
   exit 0
 else
   echo "FAIL: $FAILURES cas non conformes"
