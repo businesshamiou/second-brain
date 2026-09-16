@@ -59,7 +59,14 @@ FAILURES=0
 # (add_guardian lines reference tools/<name>.{sh,py} under $VAULT_ROOT) --
 # read from .githooks/pre-commit, never hand-copied, so a future guardian
 # added there is picked up automatically instead of silently unchecked here.
-mapfile -t GUARDIAN_SCRIPTS < <(grep -oE 'tools/[A-Za-z0-9_.-]+\.(sh|py)' "$PRE_COMMIT" | sort -u)
+# Boucle de lecture plutot que `mapfile`, absent du bash 3.2 de macOS
+# (Mission 180, meme famille que le test de flux nominal).
+GUARDIAN_SCRIPTS=()
+while IFS= read -r guardian_path; do
+  if [ -n "$guardian_path" ]; then
+    GUARDIAN_SCRIPTS+=("$guardian_path")
+  fi
+done < <(grep -oE 'tools/[A-Za-z0-9_.-]+\.(sh|py)' "$PRE_COMMIT" | sort -u)
 
 if [ "${#GUARDIAN_SCRIPTS[@]}" -eq 0 ]; then
   echo "FAIL [1-static-no-network-call]: no guardian scripts parsed out of $PRE_COMMIT" >&2

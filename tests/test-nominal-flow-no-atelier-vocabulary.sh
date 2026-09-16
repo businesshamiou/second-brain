@@ -56,7 +56,15 @@ if [ ! -f "$GUARDIAN_SCRIPT" ]; then
   echo "FATAL: cannot derive P4 patterns -- guardian script not found: $GUARDIAN_SCRIPT" >&2
   exit 1
 fi
-mapfile -t PRIVATE_PATTERNS < <(sed -n '/^PLAIN_PATTERNS=(/,/^)/p' "$GUARDIAN_SCRIPT" | grep -oE '"[^"]+"' | tr -d '"')
+# Boucle de lecture plutot que `mapfile` : celui-ci n'existe qu'a partir de
+# bash 4.0, et macOS livre le bash 3.2 -- « mapfile: command not found »
+# (Mission 180, tour 4). Meme resultat, une entree par ligne lue.
+PRIVATE_PATTERNS=()
+while IFS= read -r pattern; do
+  if [ -n "$pattern" ]; then
+    PRIVATE_PATTERNS+=("$pattern")
+  fi
+done < <(sed -n '/^PLAIN_PATTERNS=(/,/^)/p' "$GUARDIAN_SCRIPT" | grep -oE '"[^"]+"' | tr -d '"')
 if [ "${#PRIVATE_PATTERNS[@]}" -eq 0 ]; then
   echo "FATAL: derived P4 pattern list is empty -- PLAIN_PATTERNS not found or empty in $GUARDIAN_SCRIPT" >&2
   exit 1
