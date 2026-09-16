@@ -44,6 +44,10 @@ make_repo() {
   local repo="$ws/vaultcanary"
   mkdir -p "$repo/tools" "$repo/decisions"
   cp "$REAL_SCRIPT" "$repo/tools/check-links.sh"
+  # Le gardien source tools/relpath.sh depuis son propre dossier (forme
+  # commune aux trois plateformes, Mission 180) : le bac a sable le copie
+  # aussi, sinon il teste un script ampute.
+  cp "$SCRIPT_DIR/../tools/relpath.sh" "$repo/tools/relpath.sh"
   (cd "$repo" && git init -q && git -c user.email=t@t -c user.name=t config commit.gpgsign false)
   printf '%s\n' "$repo"
 }

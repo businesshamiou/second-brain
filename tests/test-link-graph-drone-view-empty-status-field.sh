@@ -31,6 +31,8 @@ trap 'rm -rf "$TMP"' EXIT
 mkdir -p "$TMP/vault/tools" "$TMP/workshop-build/workshop-production/state"
 
 cp "$REAL_SCRIPT" "$TMP/vault/tools/link-graph-drone-view.sh"
+# Meme motif : l outil source tools/relpath.sh depuis son dossier.
+cp "$SCRIPT_DIR/../tools/relpath.sh" "$TMP/vault/tools/relpath.sh"
 chmod +x "$TMP/vault/tools/link-graph-drone-view.sh"
 
 cat > "$TMP/workshop-build/workshop-production/state/STATE.md" <<'EOF'

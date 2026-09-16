@@ -13,6 +13,9 @@
 
 set -u
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+. "$SCRIPT_DIR/relpath.sh"
+
 # Garde Git (Mission 125, meme raison qu'a check-secrets.sh) : refus
 # explicite hors d'un depot, plutot qu'un $VAULT_ROOT vide qui rendrait un
 # faux PASS silencieux plus loin.
@@ -167,12 +170,7 @@ while IFS= read -r file; do
       esac
 
       TARGET_PATH="$DIR/$TARGET"
-      if command -v realpath >/dev/null 2>&1; then
-        RESOLVED="$(realpath -m "$TARGET_PATH" 2>/dev/null)"
-      else
-        RDIR="$(cd "$(dirname "$TARGET_PATH")" 2>/dev/null && pwd)"
-        RESOLVED="${RDIR:+$RDIR/$(basename "$TARGET_PATH")}"
-      fi
+      RESOLVED="$(abs_path "$TARGET_PATH")"
 
       if [ -z "$RESOLVED" ]; then
         echo "LIENS: cible introuvable: $file:$LINE_NO -> $TARGET" >&2

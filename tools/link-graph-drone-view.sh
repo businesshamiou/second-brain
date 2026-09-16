@@ -44,6 +44,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 VAULT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 WORKSPACE_ROOT="$(cd "$VAULT_ROOT/.." && pwd)"
 . "$SCRIPT_DIR/resolve-sibling-repo.sh"
+. "$SCRIPT_DIR/relpath.sh"
 resolve_declared_sibling "$WORKSPACE_ROOT"
 WORKSHOP_BUILD_ROOT="$SIBLING_ROOT"
 WORKSHOP_SUBDIR="${LINK_GRAPH_WORKSHOP_SUBDIR:-workshop-production}"
@@ -52,12 +53,7 @@ STATE_FILE="${WORKSHOP_ROOT:+$WORKSHOP_ROOT/state/STATE.md}"
 
 resolve_path() {
   # $1 = chemin, potentiellement relatif et contenant . ou ..
-  if command -v realpath >/dev/null 2>&1; then
-    realpath -m "$1" 2>/dev/null
-  else
-    D="$(cd "$(dirname "$1")" 2>/dev/null && pwd)"
-    [ -n "$D" ] && printf '%s/%s\n' "$D" "$(basename "$1")"
-  fi
+  abs_path "$1"
 }
 
 # --- 1. Inventaire : union des deux corpus, fichiers .md suivis par Git ---

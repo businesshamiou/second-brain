@@ -16,6 +16,59 @@
 #
 # usage: . "$(dirname "$0")/relpath.sh" ; rel_path /a/b /a/c/d  -> ../c/d
 
+abs_path() {
+  # Chemin absolu canonique de $1, que la cible existe ou non : l'equivalent
+  # de `realpath -m`, option GNU que le realpath de BSD (macOS) refuse. Une
+  # branche « si realpath existe » ne suffisait pas -- sur macOS il existe et
+  # echoue, donc le repli n'etait jamais atteint (Mission 180).
+  # Normalisation par le texte, sans toucher au disque : un chemin vers un
+  # dossier absent doit sortir normalise, pas vide, sinon l'appelant confond
+  # « hors du depot, depot absent » (avertissement) et « cible morte »
+  # (refus). La forme de la racine est conservee -- « / » ou « C: » -- parce
+  # que les appelants comparent le resultat a une racine obtenue par
+  # `git rev-parse`, qui rend la forme Windows sous Git Bash : convertir
+  # l'une sans l'autre ferait passer tout lien interne pour un lien sortant.
+  # C'est exactement ce que fait le realpath de Git Bash : forme Windows en
+  # entree, forme Windows en sortie.
+  local p="$1" c n i root rest norm
+  case "$p" in
+    /*) root=""; rest="${p#/}" ;;
+    [A-Za-z]:/*) root="${p%%/*}"; rest="${p#*/}" ;;
+    *) root=""; rest="${PWD#/}/$p" ;;
+  esac
+
+  local -a parts=() out=()
+  local old_ifs="$IFS"
+  IFS='/'
+  read -r -a parts <<< "$rest"
+  IFS="$old_ifs"
+
+  n=0
+  for c in ${parts[@]+"${parts[@]}"}; do
+    case "$c" in
+      ''|.)
+        ;;
+      ..)
+        if [ "$n" -gt 0 ]; then n=$((n - 1)); fi
+        ;;
+      *)
+        out[$n]="$c"
+        n=$((n + 1))
+        ;;
+    esac
+  done
+
+  norm=""
+  i=0
+  while [ "$i" -lt "$n" ]; do
+    norm="${norm}/${out[$i]}"
+    i=$((i + 1))
+  done
+  [ -n "$norm" ] || norm="/"
+
+  printf '%s%s' "$root" "$norm"
+}
+
 rel_path() {
   local base="$1" target="$2" b t leaf i j rel
   b="$(cd "$base" 2>/dev/null && pwd -P)" || return 1
