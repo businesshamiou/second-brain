@@ -43,6 +43,7 @@ if [ -z "$PROJECT" ]; then
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+. "$SCRIPT_DIR/relpath.sh"
 VAULT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 PROJECT_ROOT="$(cd "$PROJECT" && pwd)"
 STATE_DIR="$PROJECT_ROOT/state"
@@ -243,8 +244,8 @@ MISSION_TRUNC="$(truncate_bytes "$MISSION_CONTENT" "$BUDGET_MISSION")"
 POINTERS_TRUNC="$(truncate_bytes "$POINTERS_CONTENT" "$BUDGET_POINTERS")"
 
 # --- Ecriture fail-closed : fichier temporaire, mesure, puis move ---
-GEN_REL="$(realpath --relative-to="$STATE_DIR" "$SCRIPT_DIR/build-digest.sh")"
-REL_READING_LIST="$(realpath --relative-to="$STATE_DIR" "$READING_LIST" 2>/dev/null)"
+GEN_REL="$(rel_path "$STATE_DIR" "$SCRIPT_DIR/build-digest.sh")"
+REL_READING_LIST="$(rel_path "$STATE_DIR" "$READING_LIST" 2>/dev/null)"
 # Repli sur le chemin absolu (jamais un nombre de "../" et un nom de dossier
 # devines) si le calcul relatif echoue -- ticket 02, Mission 168.
 [ -z "$REL_READING_LIST" ] && REL_READING_LIST="$READING_LIST"

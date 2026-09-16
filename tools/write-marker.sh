@@ -15,6 +15,7 @@ if [ -z "$WORK_ROOT" ]; then
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+. "$SCRIPT_DIR/relpath.sh"
 VAULT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 TEMPLATE="$VAULT_ROOT/templates/vault-root-template.md"
 
@@ -25,7 +26,7 @@ fi
 
 mkdir -p "$WORK_ROOT"
 WORK_ROOT_ABS="$(cd "$WORK_ROOT" && pwd)"
-REL_PATH="$(realpath --relative-to="$WORK_ROOT_ABS" "$VAULT_ROOT")"
+REL_PATH="$(rel_path "$WORK_ROOT_ABS" "$VAULT_ROOT")"
 
 MARKER="$WORK_ROOT_ABS/VAULT-ROOT.md"
 

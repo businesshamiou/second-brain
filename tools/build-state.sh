@@ -32,6 +32,7 @@ if [ -z "$PROJECT" ]; then
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+. "$SCRIPT_DIR/relpath.sh"
 VAULT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 PROJECT_ROOT="$(cd "$PROJECT" && pwd)"
 STATE_DIR="$PROJECT_ROOT/state"
@@ -39,7 +40,7 @@ JOURNAL="$STATE_DIR/journal.md"
 STATE_FILE="$STATE_DIR/STATE.md"
 CONTRACT_TEMPLATE="$VAULT_ROOT/templates/pilot-contract-template.md"
 STANDARD_RULE="$VAULT_ROOT/rules/RULES-2026-08-26-142800-project-structure-standard.md"
-REL_STANDARD="$(realpath --relative-to="$STATE_DIR" "$STANDARD_RULE" 2>/dev/null)"
+REL_STANDARD="$(rel_path "$STATE_DIR" "$STANDARD_RULE" 2>/dev/null)"
 [ -z "$REL_STANDARD" ] && REL_STANDARD="$STANDARD_RULE"
 
 # --- 0. Contrat du Pilot, recopie depuis le gabarit, jamais redige ici ---
@@ -73,7 +74,7 @@ mkdir -p "$STATE_DIR"
 # fiche est un catalogue de pointeurs, aucun contenu normatif n'est recopié.
 session_ref_line() {
   local target="$1" desc="$2" rel
-  rel="$(realpath --relative-to="$STATE_DIR" "$target" 2>/dev/null)"
+  rel="$(rel_path "$STATE_DIR" "$target" 2>/dev/null)"
   [ -z "$rel" ] && rel="(introuvable : $target)"
   echo "- \`$rel\` — $desc"
 }
@@ -194,7 +195,7 @@ DOC_LIST=""
 if [ -n "$RECENTS" ]; then
   while IFS= read -r F; do
     [ -z "$F" ] && continue
-    REL="$(realpath --relative-to="$PROJECT_ROOT" "$F")"
+    REL="$(rel_path "$PROJECT_ROOT" "$F")"
     T="$(get_field "$F" title)"
     [ -z "$T" ] && T="(sans titre)"
     DOC_LIST="$DOC_LIST- \`$REL\` — $T
@@ -216,7 +217,7 @@ else
 fi
 
 # --- 4. Ecriture ---
-GEN_REL="$(realpath --relative-to="$STATE_DIR" "$SCRIPT_DIR/build-state.sh")"
+GEN_REL="$(rel_path "$STATE_DIR" "$SCRIPT_DIR/build-state.sh")"
 {
   echo "---"
   echo "type: state"

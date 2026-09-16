@@ -15,6 +15,9 @@
 
 set -u
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+. "$SCRIPT_DIR/relpath.sh"
+
 PROJECT="${1:-.}"
 
 if [ ! -d "$PROJECT" ]; then
@@ -60,7 +63,7 @@ for ITEM in README.md rules state missions decisions proposals knowledge handoff
 done
 
 # --- 2. Inscription au registre (chemin relatif au parent du Vault) ---
-PROJECT_REL="$(realpath --relative-to="$WORKSPACE_ROOT" "$PROJECT_ABS")"
+PROJECT_REL="$(rel_path "$WORKSPACE_ROOT" "$PROJECT_ABS")"
 if [ -f "$REGISTRY" ]; then
   if ! grep -qF "$PROJECT_REL" "$REGISTRY"; then
     MISSING="$MISSING${MISSING:+, }inscription au registre ($PROJECT_REL)"

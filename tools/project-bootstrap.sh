@@ -28,6 +28,7 @@ if [ -z "$TARGET" ] || [ -z "$DISPLAY_NAME" ]; then
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+. "$SCRIPT_DIR/relpath.sh"
 VAULT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 I18N_DIR="$VAULT_ROOT/i18n"
 CATALOG_FILE="$I18N_DIR/catalog.$(printf '%s' "$LANGUAGE" | tr '[:upper:]' '[:lower:]').json"
@@ -151,9 +152,9 @@ fi
 # --- Squelette des sept fonctions (RULES-2026-08-26-142800 S2) ---
 mkdir -p "$TARGET"/rules "$TARGET"/state "$TARGET"/missions "$TARGET"/decisions "$TARGET"/proposals "$TARGET"/knowledge "$TARGET"/handoffs
 TARGET_ABS="$(cd "$TARGET" && pwd)"
-PROJECT_REL="$(realpath --relative-to="$WORKSPACE_ROOT" "$TARGET_ABS")"
-REL_STANDARD="$(realpath --relative-to="$TARGET_ABS" "$STANDARD_RULE")"
-REL_VAULT="$(realpath --relative-to="$TARGET_ABS" "$VAULT_ROOT")"
+PROJECT_REL="$(rel_path "$WORKSPACE_ROOT" "$TARGET_ABS")"
+REL_STANDARD="$(rel_path "$TARGET_ABS" "$STANDARD_RULE")"
+REL_VAULT="$(rel_path "$TARGET_ABS" "$VAULT_ROOT")"
 VAULT_HEAD="$(git -C "$VAULT_ROOT" rev-parse HEAD 2>/dev/null || echo inconnu)"
 
 # --- Registre de Missions du projet (Mission 175, etape 2) : le squelette

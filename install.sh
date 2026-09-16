@@ -810,7 +810,9 @@ if [ "$ANSWER_FP_CREATE" = "true" ]; then
     # etape 5), ce prefixe change de langue ("Remarque :", "Nota:") et un
     # filtre fige sur l'anglais aurait avale les notes traduites en
     # silence -- exactement le defaut que cette etape corrige.
-    printf '%s\n' "$BOOTSTRAP_OUTPUT" | head -n -1 >&2 || true
+    # sed '$d' plutot que `head -n -1` : le head de BSD (macOS) refuse un
+    # compte negatif -- « head: illegal line count -- -1 » (Mission 180).
+    printf '%s\n' "$BOOTSTRAP_OUTPUT" | sed '$d' >&2 || true
     step_line "Project links"
 
     # No build-indexes.sh here, unlike save_clone_pending_changes -- same
