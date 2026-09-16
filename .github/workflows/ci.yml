@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
 
       # "Gardiens hors ligne" (spec, Testing Decisions): the native
-      # .githooks/pre-commit suite (8 guardians) run against this exact
+      # .githooks/pre-commit suite (10 guardians) run against this exact
       # checkout, no staged diff needed for the tree-wide checks to be
       # meaningful. uv is required by one guardian (reciprocite, via `uv
       # run`) -- installed here only if the runner does not already have
@@ -254,7 +254,7 @@ jobs:
         run: bash tools/check-private-patterns.sh
 
   smoke-from-github:
-    name: Smoke test -- real install line from GitHub (post-publication only)
+    name: Smoke test -- real install line from GitHub
     needs: [windows, ubuntu]
     runs-on: ubuntu-latest
     steps:
