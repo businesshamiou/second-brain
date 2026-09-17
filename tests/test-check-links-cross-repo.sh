@@ -48,6 +48,11 @@ make_repo() {
   # commune aux trois plateformes, Mission 180) : le bac a sable le copie
   # aussi, sinon il teste un script ampute.
   cp "$SCRIPT_DIR/../tools/relpath.sh" "$repo/tools/relpath.sh"
+  # Mission 184 : meme motif pour la ligne de base de projet et ses deux
+  # dependances, sourcees par le gardien depuis son dossier.
+  for lib in project-baseline.sh resolve-vault.sh vault-identity.sh; do
+    cp "$SCRIPT_DIR/../tools/$lib" "$repo/tools/$lib"
+  done
   (cd "$repo" && git init -q && git -c user.email=t@t -c user.name=t config commit.gpgsign false)
   printf '%s\n' "$repo"
 }

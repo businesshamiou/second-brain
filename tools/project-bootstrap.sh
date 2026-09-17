@@ -154,7 +154,10 @@ ask_value() {
   if [ -n "$answer" ]; then printf '%s\n' "$answer"; else printf '%s\n' "$2"; fi
 }
 
-vid_ensure "$VAULT_ROOT"
+# Identite du Vault : lue ici sans rien ecrire ; generee (vid_ensure)
+# seulement apres toutes les validations, juste avant la premiere ecriture --
+# un refus ne doit jamais toucher au Vault
+# (tests/test-project-bootstrap-path-validation.sh).
 VAULT_ID="$(vid_get "$VAULT_ROOT" vault_id)"
 VAULT_ORIGIN="$(vid_get "$VAULT_ROOT" vault_origin)"
 VAULT_REF="$(vid_ref "$VAULT_ROOT")"
@@ -222,7 +225,7 @@ if [ -n "$ORDER_FILE" ]; then
     exit 1
   fi
   O_VAULT_ID="$(printf '%s' "$O_VAULT" | sed -n 's/.*vault_id=\([^ ,;]*\).*/\1/p')"
-  if [ "$O_VAULT_ID" != "$VAULT_ID" ]; then
+  if [ -z "$VAULT_ID" ] || [ "$O_VAULT_ID" != "$VAULT_ID" ]; then
     echo "REFUS : l'ordre nomme le Vault ${O_VAULT_ID:-(aucun)}, ce Vault est $VAULT_ID" >&2
     exit 1
   fi
@@ -328,6 +331,11 @@ for DEP in "$CONFORMITY_CHECK" "$INDEXES_BUILD" "$JOURNAL_APPEND" "$STANDARD_RUL
     exit 1
   fi
 done
+
+# --- Premiere ecriture : l'identite du Vault, si elle manque encore. ---
+vid_ensure "$VAULT_ROOT"
+VAULT_ID="$(vid_get "$VAULT_ROOT" vault_id)"
+VAULT_ORIGIN="$(vid_get "$VAULT_ROOT" vault_origin)"
 
 # --- Registre absent : cree depuis le gabarit avant toute ecriture de ligne
 # (Mission 118, lot 5). Le gabarit est a la meme profondeur que le registre
