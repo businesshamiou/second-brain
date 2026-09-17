@@ -68,3 +68,4 @@ Ouvre l'exécution des lots A à E listés en proposal 122144 §5, à commencer 
 - `source` — Proposal sept arbitrages et ordre des lots révisé (historique de l'atelier, non distribué) (hors Vault)
 - `see also` — Mission 027 — Lot A (historique de l'atelier, non distribué) (hors Vault)
 - `see also` — Mission 028 — Gravure du rang 1 (historique de l'atelier, non distribué) (hors Vault)
+- `amended by` — [Décision — Initiation et adoption de projet, acte de naissance](./DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md) (§1 : résolution par acte de naissance, marqueur porteur d'identité)

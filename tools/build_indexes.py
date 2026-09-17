@@ -4,7 +4,12 @@
 # eligible, sous chaque racine passee en argument. Genere uniquement : ne
 # jamais editer un index.md a la main.
 #
-# usage: build_indexes.py [-v|--verbose] <racine...>
+# usage: build_indexes.py [-v|--verbose] [--only-missing] <racine...>
+#
+# --only-missing (Decision 2026-09-17-000545, A4 -- adoption d'un dossier
+# existant) : n'ecrit un index que dans un dossier qui n'en porte aucun
+# (ni index.md ni archive) ; ne reecrit, ne retire et ne scinde jamais un
+# index existant, ne touche a superseded-files.txt que s'il est absent.
 #
 # Mission 172, audit defect 3: quiet by default (one summary line per
 # invocation) since Mission 172; -v/--verbose restores the full per-file
@@ -328,10 +333,13 @@ def main(argv):
     # used to always print (kept byte-identical when passed, so a
     # troubleshooting session loses nothing).
     verbose = False
+    only_missing = False
     roots = []
     for arg in argv:
         if arg in ("-v", "--verbose"):
             verbose = True
+        elif arg == "--only-missing":
+            only_missing = True
         else:
             roots.append(arg)
     argv = roots
@@ -384,7 +392,9 @@ def main(argv):
             key=lambda s: s.encode("utf-8", errors="surrogateescape"),
         )
         sup_file = os.path.join(root_abs, "superseded-files.txt")
-        if listed:
+        if only_missing and os.path.exists(sup_file):
+            pass
+        elif listed:
             write_text(sup_file, "\n".join(listed) + "\n")
         elif os.path.exists(sup_file):
             os.remove(sup_file)
@@ -418,6 +428,8 @@ def main(argv):
             existing_archives = {
                 n for n in os.listdir(dirpath) if ARCHIVE_RE.match(n)
             }
+            if only_missing and (os.path.exists(index_path) or existing_archives):
+                continue
 
             whole = render(title, entries, rel_std, hors)
             if len(whole.encode("utf-8", errors="surrogateescape")) <= WEIGHT_CAP:

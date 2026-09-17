@@ -14,8 +14,6 @@ Index vivant : les entrées les plus récentes. La totalité est répartie en ar
 
 ## Contenu
 
-- `2026-08-23-184200` · ARBITRATED · Retrait de Graphify du rôle « graphe du Vault » · `DECISION-2026-08-23-184200-graphify-graph-role-withdrawal.md`
-- `2026-08-23-220049` · ARBITRATED · Taxonomie PIV, langue système anglaise, charte des rôles, fin des fichiers PROM… · `DECISION-2026-08-23-220049-piv-taxonomy-and-english-system-language.md`
 - `2026-08-24-214607` · ARBITRATED · Distribution des mécanismes transverses — doctrine unique, implémentation éping… · `DECISION-2026-08-24-214607-transverse-mechanism-distribution.md`
 - `2026-08-25-110935` · ARBITRATED · Extension de la convention de tags du journal — tag CLOSE: et portes à clé · `DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md`
 - `2026-08-25-131034` · ARBITRATED · Arbitrages doctrinaux du 2026-08-25 — révocation du shell Pilot, auto-rangement… · `DECISION-2026-08-25-131034-doctrinal-arbitrations-2026-08-25.md`
@@ -51,6 +49,7 @@ Index vivant : les entrées les plus récentes. La totalité est répartie en ar
 - `2026-09-06-113850` · active · Décision — Verdicts du benchmark mémoire/retrieval : Vault natif KEEP, Mnemosyn… · `DECISION-2026-09-06-113850-memory-benchmark-verdicts-and-freeze.md`
 - `2026-09-06-114521` · active · Décision — Legacy déjà préparé : sauvegarde froide vérifiée, branche legacy pou… · `DECISION-2026-09-06-114521-legacy-already-prepared-migration-from-acquired-state.md`
 - `2026-09-07-125156` · active · Décision — Dépendances machine avant cutover : sept arbitrages Owner sur le rap… · `DECISION-2026-09-07-125156-cutover-dependencies-seven-arbitrations.md`
+- `2026-09-17-000545` · arbitrated · Initiation et adoption de projet — acte de naissance, résolution du Vault par i… · `DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md`
 
 ## Liens
 

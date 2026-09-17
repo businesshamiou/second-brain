@@ -91,3 +91,4 @@ Arbitrage Owner rendu en session de pilotage.
 - `source` — Proposal source (historique de l'atelier, non distribué) (hors Vault)
 - `amended by` — [Retrait de Graphify du rôle « graphe du Vault »](./DECISION-2026-08-23-184200-graphify-graph-role-withdrawal.md) (D5 devient sans objet)
 - `amended by` — [Standard de structure de projet](../rules/RULES-2026-08-26-142800-project-structure-standard.md) (D3, extension additive du schéma — registre v2, Mission 061)
+- `amended by` — [Décision — Initiation et adoption de projet, acte de naissance](./DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md) (D2 : champ et colonne `vcs` ; D4 : écriture par `adopt`)

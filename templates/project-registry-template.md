@@ -10,12 +10,12 @@ write_contract: "executor-only — voir DECISION project-registry-v1"
 
 Gabarit vide du [Project Registry](../projects/PROJECT-REGISTRY.md) : index des projets connus du Vault. Le Vault connaît l'adresse des projets, pas leur contenu — chaque projet reste la source canonique de sa propre mémoire. Le détail de chaque projet vit dans sa fiche `PROJECT-<project_id>.md`.
 
-Les chemins sont relatifs au parent du Vault.
+Les chemins sont relatifs au parent du Vault. La colonne `vcs` vaut `git` ou `none` (Décision 000545, A2).
 
 ## Active
 
-| project_id | display_name | status | relative_path | conformity |
-|---|---|---|---|---|
+| project_id | display_name | status | relative_path | vcs | conformity |
+|---|---|---|---|---|---|
 
 ## Paused
 

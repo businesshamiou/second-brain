@@ -30,13 +30,13 @@ Le glossaire complet des termes du produit vit dans [CONTEXT.md](./CONTEXT.md).
 **Windows (PowerShell, compte standard suffisant) :**
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.2/bootstrap.ps1)))"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.3/bootstrap.ps1)))"
 ```
 
 **macOS / Linux (Terminal) :**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.2/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.3/bootstrap.sh | bash
 ```
 
 Rien n'est à installer avant : le script d'amorçage pose Git dans ton profil s'il manque, récupère ce dépôt, puis lance l'installeur (détail dans [INSTALL.md](./INSTALL.md)).
@@ -61,6 +61,26 @@ Dans les trois cas, l'installeur crée ton espace de travail, y clone `second-br
 | Le carnet d'installation | `.install/state.json`, à la racine de ton clone, jamais suivi par Git | ton clone local |
 
 Rien n'est installé à un emplacement machine (registre système, dossier partagé), rien ne demande de droits administrateur, et rien n'est posé dans ton profil (les dossiers *.claude*, *.agents* ou *.codex* de ton compte) : l'assistant et les skills de la méthode vivent uniquement dans le clone `second-brain` et dans les projets qui les lient — supprimer un projet ou l'espace de travail entier suffit à tout retirer, sans geste de nettoyage séparé. Seul un projet non listé ici perd ces liens ; recrée-le avec le skill `first-install`/`project-bootstrap` pour les obtenir.
+
+## Ouvrir le Pilot d'un projet (application de bureau)
+
+Le rôle Pilot (penser, arbitrer, écrire les Missions) se joue dans **l'application de bureau Claude** : c'est là que vit le serveur MCP de Second Brain, qui donne au Pilot un accès disque borné à ton espace de travail. Il n'existe pas dans le navigateur.
+
+1. Depuis Claude Code ou Codex, `/first-install` pose ce serveur (`tools/install-vault-mcp.sh`) dans les outils qu'il trouve — Claude Code, Codex, l'application de bureau — avec ton espace de travail comme seul dossier autorisé. Redémarre ensuite l'application.
+2. Chaque projet porte son prompt Pilot, `<projet>/state/PILOT-PROMPT.md`, généré à sa création. La création te rend un **bloc à consommer** : crée un Projet portant le nom du projet, colle comme instructions le prompt commun (`templates/session-opening-prompt-template.md`), et donne comme premier message le chemin du projet.
+3. À l'ouverture, le Pilot vérifie que le serveur voit ce chemin, puis lit le prompt du projet et rend son **canari** : la preuve qu'il a lu le disque plutôt que sa mémoire.
+
+## Adopter un dossier existant
+
+Un dossier qui existe déjà (avec ou sans Git) devient un projet sans que rien de ce qu'il contient ne soit modifié :
+
+```bash
+bash second-brain/tools/project-bootstrap.sh adopt /chemin/du/dossier --vcs git
+```
+
+Le script ajoute seulement ce qui manque : l'**acte de naissance** (en tête de `.pre-commit-config.yaml` : identité du Second Brain qui l'a adopté, commit, `vcs`), les fichiers de pointage, le prompt Pilot, la ligne au registre. Il grave une **ligne de base datée** des fichiers présents : les gardiens ne jugent que ce qui est neuf ou modifié, un fichier ancien que tu touches doit devenir conforme. Il **propose** un plan de réorganisation en sept fonctions et n'en applique rien ; `tools/propose-link-repairs.sh` propose de même la réparation des liens cassés. Sans Git (`--vcs none`), aucun hook n'est posé : les contrôles se lancent à la main, `tools/check-links.sh <dossier>` et ses voisins ; `adopt --git` ajoute Git plus tard.
+
+Un projet se rattache à son Second Brain par cet acte, jamais par voisinage : deux Second Brain dans un même espace de travail ne se confondent pas, et un projet copié seul ailleurs garde ses contrôles. Un agent qui ouvre un dossier non adopté s'arrête et rend un **ordre d'initiation** à remplir (`project-bootstrap.sh order <dossier>`, gabarit `templates/initiation-order-template.md`) ; avec cet ordre daté par toi, il adopte sans Mission.
 
 ## Reprise et mise à jour
 

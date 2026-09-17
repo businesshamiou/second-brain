@@ -64,7 +64,18 @@ Lance ensuite, selon la plateforme, exactement l'une de ces deux commandes :
 
 Ne jamais passer `-TestMode`/`--test-mode` ici — ce skill pilote une installation réelle dans le profil et le workspace de la personne, jamais une installation jetable (`-TestMode`/`--test-mode` n'existent que pour les tests automatisés de ce dépôt, tickets 03 à 08). L'installeur imprime exactement une ligne de verdict, signée du nom d'assistant choisi, en cas de succès — ou une ligne nommant l'étape, la cause et le remède sinon. Relaie cette ligne telle quelle ; ne la paraphrase pas, puisque c'est aussi ce que le carnet d'installation vient d'enregistrer.
 
-## 4. Ce que ce skill ne fait jamais
+## 4. Poser le serveur MCP du Vault (accès disque du Pilot)
+
+Une fois le verdict de l'installeur relayé, rends l'accès disque du Pilot, qui ne vient que du Vault :
+
+1. Lance `bash "<clone>/tools/install-vault-mcp.sh" "<workspace>" --lang <langue>` (sous Windows, par le `bash` de Git). Le script détecte ce qui est présent — `claude` (Claude Code), `codex`, l'application de bureau Claude à son dossier de configuration mesuré — et y déclare le serveur `second-brain-vault` (`claude mcp add`, `codex mcp add`, fusion dans `claude_desktop_config.json` qui garde les autres serveurs). Dossier autorisé : la racine du workspace. Python est vérifié par `uv`. Un second passage ne change rien.
+2. Vérifie la contenance pour le premier projet : `bash "<clone>/tools/check-mcp-containment.sh" <configuration> "<workspace>/<projet>"` doit rendre `VERDICT: PASS` (projet et Vault sous un dossier autorisé).
+3. Relaie le geste restant que le script imprime : **redémarrer l'application Claude** (et relancer Claude Code ou Codex). Le rôle Pilot exige l'application de bureau : le serveur MCP n'existe pas dans le navigateur.
+4. Relaie le bloc à consommer du premier projet (Projet à créer, prompt commun à coller, premier message = chemin du projet) ; le canari de ce projet est dans son `<projet>/state/PILOT-PROMPT.md`.
+
+Ce geste écrit dans les configurations de l'outil de la personne : il ne se joue que dans une installation réelle, jamais en `-TestMode`/`--test-mode`.
+
+## 5. Ce que ce skill ne fait jamais
 
 - Ne réimplémente aucune étape de l'installeur (prérequis, clonage, gardiens, générateur d'assistant, déploiement des skills, profil) — tout cela reste le travail d'`install.ps1`/`install.sh`, inchangé.
 - N'écrase jamais une installation existante et complète sans un « oui, quelque chose a changé » explicite de la personne.
@@ -76,3 +87,4 @@ Ne jamais passer `-TestMode`/`--test-mode` ici — ce skill pilote une installat
 - `see also` — [install.ps1](../../install.ps1)
 - `see also` — [install.sh](../../install.sh)
 - `see also` — [AGENTS.md](../../AGENTS.md)
+- `see also` — [Décision — Initiation et adoption de projet, serveur MCP embarqué](../../decisions/DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md)

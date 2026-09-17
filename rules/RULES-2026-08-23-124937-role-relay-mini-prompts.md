@@ -22,6 +22,19 @@ scope: role-relay, mission-workflow
 >
 > Le mini-prompt ne duplique pas le contenu de la Mission.
 >
+> **Type `initiation` (amendement du 2026-09-17, Décision 000545 A5).** Un Pilot sans Mission peut émettre un **ordre d'initiation** pour faire naître ou adopter un projet. Son mini-prompt porte la ligne de titre `Session Executor — initiation (<nom du projet>)`, la position, les interdits absolus et la sortie attendue, mais **aucune rubrique « Source à appliquer »** : l'ordre est la source. Il porte à la place les huit champs de l'ordre, dans cet ordre :
+>
+> 1. `Type` : `create` ou `adopt`.
+> 2. `Mode` : `answered` (toutes les réponses sont dans l'ordre, aucune question) ou `ask` (le bootstrap pose nom, emplacement et Git).
+> 3. `Nom` : nom du dossier du projet.
+> 4. `Emplacement` : dossier parent, chemin absolu.
+> 5. `Vault + construction` : `vault_id=…, vault_origin=…, vault_ref=…`.
+> 6. `Git` : `none` ou `git`.
+> 7. `Objet` : une phrase.
+> 8. `Autorisation Owner datée` : la phrase de l'Owner, verbatim, avec sa date `AAAA-MM-JJ`.
+>
+> L'Executor la consomme comme une Mission, périmètre borné à la cible et au registre du Vault : `tools/project-bootstrap.sh --order <fichier>`. L'ordre vierge, pré-rempli pour un dossier, se rend par `tools/project-bootstrap.sh order <dossier>` ; le gabarit est [l'ordre d'initiation](../templates/initiation-order-template.md).
+>
 > **Retour.** Tout rapport d'exécution se termine par un bloc `RELAY` affiché en fin de fenêtre Executor, aux rubriques fixes suivantes, dans cet ordre : ce bloc est livré **en snippet copiable d'un seul geste** (bloc de code en fin de fenêtre), jamais en prose à recomposer — symétrie avec le sens aller (`DECISION-2026-08-27-100016`).
 >
 > ```text
@@ -55,3 +68,4 @@ scope: role-relay, mission-workflow
 - `amended by` — [Décision — Protocole de copie : snippets et destinations](../decisions/DECISION-2026-08-27-100016-copy-protocol-snippets-and-destinations.md)
 - `amended by` — [Décision — La suppression définitive est un geste Owner](../decisions/DECISION-2026-08-29-110852-deletion-is-owner-gesture-trash-zone.md)
 - `amended by` — Décision — Cohérence interne des Missions (historique de l'atelier, non distribué) (hors Vault)
+- `amended by` — [Décision — Initiation et adoption de projet, acte de naissance](../decisions/DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md) (type de mini-prompt `initiation`)

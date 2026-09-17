@@ -16,6 +16,7 @@ Index généré automatiquement. Ne pas éditer à la main : régénérer via `t
 - `current-state-template` · active · État courant — <nom du projet> · `current-state-template.md`
 - `decision-template` · proposed · <titre de la décision> · `decision-template.md`
 - `handoff-template` · active · <objet de la passation> · `handoff-template.md`
+- `initiation-order-template` · active · Gabarit — ordre d'initiation · `initiation-order-template.md`
 - `mission-index-template` · active · Registre de Missions · `mission-index-template.md`
 - `mission-template` · AUTHORIZED           # autorisation à la création — figé, jamais retouché ensuite · <titre de la Mission> · `mission-template.md`
 - `pilot-contract-template` · active · Gabarit — Contrat du Pilot · `pilot-contract-template.md`

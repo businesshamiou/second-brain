@@ -75,3 +75,4 @@ Brainstorm Owner–Pilot du 2026-08-31 sur le cas réel, en quatre points soumis
 - `amends` — [Décision — Consolidation du soir, standard de projet et plan](./DECISION-2026-08-25-232341-evening-consolidation-project-standard-and-plan.md)
 - `see also` — [Charte des rôles et détermination de session](../../../vault/rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md) (hors Vault)
 - `see also` — [Décision — Répertoire d'ouverture d'une session, position libérée](./DECISION-2026-08-25-213150-session-opening-directory-freed.md)
+- `amended by` — [Décision — Initiation et adoption de projet, acte de naissance](./DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md) (point 2 : arrêt seulement sans ordre d'initiation)

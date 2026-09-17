@@ -10,12 +10,12 @@ write_contract: "executor-only — voir DECISION project-registry-v1"
 
 Index des projets connus de ce Second Brain. Chaque projet reste la source canonique de sa propre mémoire ; le détail de chaque projet vit dans sa fiche `PROJECT-<project_id>.md`.
 
-Les chemins sont relatifs au parent de ce dépôt.
+Les chemins sont relatifs au parent de ce dépôt. La colonne `vcs` vaut `git` ou `none`.
 
 ## Active
 
-| project_id | display_name | status | relative_path | conformity |
-|---|---|---|---|---|
+| project_id | display_name | status | relative_path | vcs | conformity |
+|---|---|---|---|---|---|
 
 ## Paused
 

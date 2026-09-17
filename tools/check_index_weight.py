@@ -10,9 +10,15 @@
 # index.md, tout index-archive-*.md, et missions/MISSION-INDEX.md. Un seul
 # appel Git, jamais un par fichier.
 
+import os
 import re
 import subprocess
 import sys
+
+# Mode dossier et ligne de base (Decision 2026-09-17-000545, A4) : meme
+# bibliotheque que tools/check_indexes_fresh.py.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import project_baseline  # noqa: E402
 
 WEIGHT_CAP = 8000  # DECISION-2026-09-05-124647 point 3
 LINE_CAP = 300  # DECISION-2026-09-02-191407
@@ -58,27 +64,59 @@ def git_out(args, payload=None):
     ).stdout
 
 
+def dir_mode_batch(root, targets):
+    # Meme forme que la sortie de `git cat-file --batch`, lue sur le disque.
+    out = b""
+    for path in targets:
+        try:
+            with open(os.path.join(root, path), "rb") as f:
+                blob = f.read()
+        except OSError:
+            out += (":" + path + " missing\n").encode("utf-8", errors="surrogateescape")
+            continue
+        out += b"x blob %d\n" % len(blob) + blob + b"\n"
+    return out
+
+
 def main():
     global FAIL
 
-    # Appel Git 1 : les fichiers stages de ce commit.
-    raw = git_out(
-        ["diff", "--cached", "--name-only", "--diff-filter=ACMR"]
-    ).decode("utf-8", errors="surrogateescape")
-    staged = [p for p in raw.split("\n") if p]
+    if len(sys.argv) > 1:
+        # Mode dossier (vcs: none) : tous les fichiers du projet.
+        root = os.path.abspath(sys.argv[1])
+        if not os.path.isdir(root):
+            err("REFUS : dossier de projet introuvable : %s" % sys.argv[1])
+            return 1
+        staged = project_baseline.list_files(root)
+        top = root
+    else:
+        root = None
+        # Appel Git 1 : les fichiers stages de ce commit.
+        raw = git_out(
+            ["diff", "--cached", "--name-only", "--diff-filter=ACMR"]
+        ).decode("utf-8", errors="surrogateescape")
+        staged = [p for p in raw.split("\n") if p]
+        top = os.getcwd()
+
+    # Ligne de base : un index grave a l'adoption et non touche n'est pas juge.
+    baseline = project_baseline.Baseline(top)
 
     targets = [
         p for p in staged
-        if INDEX_RE.search(p) or ARCHIVE_RE.search(p) or p == MISSION_INDEX_PATH
+        if (INDEX_RE.search(p) or ARCHIVE_RE.search(p) or p == MISSION_INDEX_PATH)
+        and not baseline.untouched(p)
     ]
     if not targets:
         return 0
 
-    # Appel Git 2 : leur contenu depuis l'arbre stage, en une passe.
-    payload = ("\n".join(":" + p for p in targets) + "\n").encode(
-        "utf-8", errors="surrogateescape"
-    )
-    out = git_out(["cat-file", "--batch"], payload)
+    if root:
+        out = dir_mode_batch(root, targets)
+    else:
+        # Appel Git 2 : leur contenu depuis l'arbre stage, en une passe.
+        payload = ("\n".join(":" + p for p in targets) + "\n").encode(
+            "utf-8", errors="surrogateescape"
+        )
+        out = git_out(["cat-file", "--batch"], payload)
 
     pos = 0
     for path in targets:

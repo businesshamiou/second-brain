@@ -15,19 +15,47 @@ set -u
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$SCRIPT_DIR/relpath.sh"
+. "$SCRIPT_DIR/project-baseline.sh"
 
-# Garde Git (Mission 125, meme raison qu'a check-secrets.sh) : refus
-# explicite hors d'un depot, plutot qu'un $VAULT_ROOT vide qui rendrait un
-# faux PASS silencieux plus loin.
-VAULT_ROOT="$(git rev-parse --show-toplevel)" || {
-  echo "REFUS : hors d'un depot Git : gardien non executable." >&2
-  exit 1
-}
+# usage: check-links.sh             (depot courant, fichiers stages)
+#        check-links.sh <projet>    (mode dossier, sans Git : tous les .md du
+#                                    projet -- vcs: none, Decision 000545 A4)
+if [ -n "${1:-}" ]; then
+  if [ ! -d "$1" ]; then
+    echo "REFUS : dossier de projet introuvable : $1" >&2
+    exit 1
+  fi
+  VAULT_ROOT="$(cd "$1" && pwd)"
+  STAGED="$(pb_list_files "$VAULT_ROOT" | grep -E '\.md$' || true)"
+else
+  # Garde Git (Mission 125, meme raison qu'a check-secrets.sh) : refus
+  # explicite hors d'un depot, plutot qu'un $VAULT_ROOT vide qui rendrait un
+  # faux PASS silencieux plus loin.
+  VAULT_ROOT="$(git rev-parse --show-toplevel)" || {
+    echo "REFUS : hors d'un depot Git : gardien non executable." >&2
+    exit 1
+  }
+  STAGED="$(git diff --cached --name-only --diff-filter=AM -- '*.md' || true)"
+fi
 # Racine du workspace (parent du depot courant) : sert a identifier le depot
 # cible d'un lien sortant (DECISION-2026-09-02-005041) -- ../../<depot>/...
 WORKSPACE_ROOT="$(dirname "$VAULT_ROOT")"
 
-STAGED="$(git diff --cached --name-only --diff-filter=AM -- '*.md' || true)"
+# Ligne de base (Decision 000545, A4) : un fichier grave a l'adoption et non
+# touche n'est jamais juge ; touche, il est juge entier, comme un neuf.
+pb_load "$VAULT_ROOT"
+if [ -n "$PB_FILE" ] && [ -n "$STAGED" ]; then
+  KEPT=""
+  while IFS= read -r f; do
+    [ -z "$f" ] && continue
+    pb_untouched "$f" && continue
+    KEPT="${KEPT}${KEPT:+
+}$f"
+  done <<PB_EOF
+$STAGED
+PB_EOF
+  STAGED="$KEPT"
+fi
 
 if [ -z "$STAGED" ]; then
   exit 0

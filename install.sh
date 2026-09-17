@@ -721,6 +721,14 @@ check_forced_stop "guardians"
 
 # --- Step: workspace marker -------------------------------------------------
 CURRENT_STEP="marker"
+# The installed Vault's own identity (vault_id, vault_origin), generated once
+# and tracked like USER.md (Decision 2026-09-17-000545, A1/A7): every project
+# birth certificate and the marker below name this Vault by it. Idempotent --
+# an identity already generated is never rewritten, so a second run commits
+# nothing.
+run_or_fail "Generating the vault identity failed" \
+  bash -c 'bash "$1" ensure "$2" >/dev/null' _ "$CLONE_PATH/tools/vault-identity.sh" "$CLONE_PATH"
+save_clone_pending_changes "Generate vault identity"
 if [ ! -f "$MARKER_PATH" ]; then
   # Discarded to /dev/null, not run_or_fail's inherited stdio: write-marker.sh
   # echoes the marker path on stdout for its OTHER caller (the standalone
@@ -830,7 +838,10 @@ if [ "$ANSWER_FP_CREATE" = "true" ]; then
 
     (
       cd "$FIRST_PROJECT_PATH" || exit 1
-      git init -q -b main
+      # tools/project-bootstrap.sh already creates the repository when Git
+      # is on its PATH (Decision 2026-09-17-000545, vcs: git); re-running
+      # `git init -b` there would only print a re-init warning.
+      [ -e .git ] || git init -q -b main
       git config user.name "$ANSWER_GIT_USERNAME"
       git config user.email "$ANSWER_GIT_USEREMAIL"
       git add -A

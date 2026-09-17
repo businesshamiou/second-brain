@@ -7,11 +7,21 @@ metadata:
   vault-validated: "2026-09-07T21:32:10-04:00"
 ---
 
-Ouvre une session de travail : mesure l'état du poste, lis les fichiers d'état dans l'ordre, annonce le rôle et le verdict de préparation. Ce skill est **en lecture seule** : il ne dépose rien, ne commite rien, ne déplace rien — jamais, sur aucune surface. Il complète le prompt d'ouverture de l'Owner, il ne le remplace pas : ce que le prompt a déjà fait lire, ne le relis pas — vérifie que c'est fait et comble les manques seulement.
+Ouvre une session de travail : mesure l'état du poste, lis les fichiers d'état dans l'ordre, annonce le rôle et le verdict de préparation. Ce skill est **en lecture seule** : il ne dépose rien, ne commite rien, ne déplace rien — jamais, sur aucune surface. Seule exception : un ordre d'initiation reçu, qu'il fait exécuter par `tools/project-bootstrap.sh --order` (§1 bis) ; l'écriture appartient alors au bootstrap, bornée au dossier cible et au registre du Vault. Il complète le prompt d'ouverture de l'Owner, il ne le remplace pas : ce que le prompt a déjà fait lire, ne le relis pas — vérifie que c'est fait et comble les manques seulement.
 
 ## 1. Détermine ta surface, mécaniquement
 
 Tente un geste shell inoffensif (`git --version`). Il répond → branche **Executor**. Pas de shell (chat, MCP seul) → branche **Pilot**. La capacité mesurée décide ; ne te déclare jamais un rôle que tu n'as pas mesuré.
+
+## 1 bis. Le dossier est-il adopté ?
+
+**Executor** : remonte depuis le dossier courant jusqu'à un acte de naissance (`.pre-commit-config.yaml` dont la première ligne est `# second-brain-birth-certificate: v1`) ; `bash <Vault>/tools/resolve-vault.sh <dossier>` rend le Vault ou un refus nommé.
+
+- **Acte trouvé** : continue.
+- **Pas d'acte, mais un ordre d'initiation reçu** (mini-prompt de type `initiation`) : écris l'ordre dans un fichier temporaire, lance `bash <Vault>/tools/project-bootstrap.sh --order <fichier>`, relaie sa sortie (dont le bloc à consommer), puis continue l'ouverture sur le projet adopté.
+- **Ni acte ni ordre** : ne l'adopte pas. Lance `bash <Vault>/tools/project-bootstrap.sh order <dossier>`, rends l'ordre à remplir tel qu'il sort, et arrête-toi : `NOT-READY (dossier non adopté, ordre d'initiation rendu)`.
+
+**Pilot** : le serveur MCP d'abord — `list_allowed_directories` doit contenir le chemin du projet donné au premier message ; puis `<projet>/state/PILOT-PROMPT.md` du projet, dont tu rends le canari. Sans ce fichier, le projet n'est pas adopté : propose l'ordre d'initiation (gabarit `templates/initiation-order-template.md`), n'en présume rien.
 
 ## 2. Lis la liste de lecture de ton rôle
 
@@ -35,9 +45,10 @@ Format, dans cet ordre : la ligne `READY` ou `NOT-READY (<motif mesuré, verbati
 
 ## Ce que ce skill ne fait pas
 
-La clôture (`session-close`) · l'installation ou la réparation du poste (`first-install`, `project-bootstrap`) · la pose du hook (bootstrap) · la moindre écriture, y compris une ligne de journal — l'annonce vit dans la conversation · la recherche : tu lis une liste fixée, tu ne fouilles pas.
+La clôture (`session-close`) · l'installation ou la réparation du poste (`first-install`, `project-bootstrap`) · la pose du hook (bootstrap) · la moindre écriture hors d'un ordre d'initiation reçu, y compris une ligne de journal — l'annonce vit dans la conversation · la recherche : tu lis une liste fixée, tu ne fouilles pas.
 
 ## Liens
 
 - `see also` — [Liste de lecture d'ouverture de session, par rôle](./reading-list.md)
 - `see also` — [Charte des rôles et détermination de session](../../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
+- `see also` — [Gabarit — ordre d'initiation](../../templates/initiation-order-template.md)

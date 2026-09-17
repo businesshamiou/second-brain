@@ -48,10 +48,24 @@ def find_repo_root():
         d = parent
 
 
-REPO_ROOT = find_repo_root()
-if REPO_ROOT is None:
-    err("REFUS : hors d'un depot Git : gardien non executable.")
-    sys.exit(1)
+# Mode dossier (Decision 2026-09-17-000545, A4 -- vcs: none) : un argument
+# nomme la racine d'un projet sans Git ; les trois appels Git sont alors
+# remplaces par une lecture du disque (tous les fichiers du projet, tous les
+# .md comptes comme ajoutes). Sans argument : comportement inchange.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import project_baseline  # noqa: E402
+
+DIR_MODE = len(sys.argv) > 1
+if DIR_MODE:
+    REPO_ROOT = os.path.abspath(sys.argv[1])
+    if not os.path.isdir(REPO_ROOT):
+        err("REFUS : dossier de projet introuvable : %s" % sys.argv[1])
+        sys.exit(1)
+else:
+    REPO_ROOT = find_repo_root()
+    if REPO_ROOT is None:
+        err("REFUS : hors d'un depot Git : gardien non executable.")
+        sys.exit(1)
 
 # Le Bash fait `cd "$REPO_ROOT"` (l.261) avant d'inspecter les dossiers.
 os.chdir(REPO_ROOT)
@@ -138,24 +152,42 @@ def decode(b):
     return b.decode("utf-8", errors="surrogateescape")
 
 
-# Appel 1 -- Bloc Bash l.259 : jeu stage.
-diff_raw = decode(
-    git_out(
-        [
-            "diff",
-            "--cached",
-            "--name-status",
-            "-M",
-            "--diff-filter=ACDMR",
-            "--",
-            "*.md",
-        ]
-    )
-)
+# Ligne de base (Decision 000545, A4) : fichiers graves a l'adoption.
+BASELINE = project_baseline.Baseline(REPO_ROOT)
 
-# Appel 2 -- Bloc Bash l.128 : fichiers presents dans l'arbre stage.
-lsfiles_raw = git_out(["ls-files", "-z"])
-TRACKED = [decode(p) for p in lsfiles_raw.split(b"\x00") if p]
+if DIR_MODE:
+    TRACKED = project_baseline.list_files(REPO_ROOT)
+    diff_raw = "\n".join("A\t" + p for p in TRACKED if p.endswith(".md"))
+else:
+    # Appel 1 -- Bloc Bash l.259 : jeu stage.
+    diff_raw = decode(
+        git_out(
+            [
+                "diff",
+                "--cached",
+                "--name-status",
+                "-M",
+                "--diff-filter=ACDMR",
+                "--",
+                "*.md",
+            ]
+        )
+    )
+
+    # Appel 2 -- Bloc Bash l.128 : fichiers presents dans l'arbre stage.
+    lsfiles_raw = git_out(["ls-files", "-z"])
+    TRACKED = [decode(p) for p in lsfiles_raw.split(b"\x00") if p]
+
+# Un ajout ou une modification d'un fichier grave et non touche ne compte
+# pas comme un changement du commit (cliquet : seul le touche est juge).
+if BASELINE.active:
+    kept = []
+    for line in diff_raw.split("\n"):
+        fields = line.split("\t")
+        if len(fields) == 2 and fields[0][:1] in ("A", "M") and BASELINE.untouched(fields[1]):
+            continue
+        kept.append(line)
+    diff_raw = "\n".join(kept)
 
 
 # --- Bloc Bash l.236-259 : dossiers touches par un .md stage ----------------
@@ -227,6 +259,15 @@ def disk_files_of(d):
 def batch_read(specs):
     if not specs:
         return {}
+    if DIR_MODE:
+        res = {}
+        for spec in specs:
+            try:
+                with open(os.path.join(REPO_ROOT, spec[1:]), "rb") as f:
+                    res[spec] = f.read()
+            except OSError:
+                res[spec] = None
+        return res
     payload = ("\n".join(specs) + "\n").encode("utf-8", errors="surrogateescape")
     raw = git_out(["cat-file", "--batch"], payload)
     res = {}
@@ -247,6 +288,18 @@ def batch_read(specs):
 
 
 DISK = {d: disk_files_of(d) for d in DIRS}
+
+
+# Cliquet : un dossier dont l'index et chaque .md sont graves et non touches
+# n'est pas controle -- il est tel qu'a l'adoption.
+def dir_untouched(d):
+    prefix = "" if d == "." else d + "/"
+    names = ["index.md"] + DISK[d]
+    return all(BASELINE.untouched(prefix + n) for n in names)
+
+
+if BASELINE.active:
+    DIRS = [d for d in DIRS if not dir_untouched(d)]
 
 # Mission 140 : archives figees d'un dossier, presentes dans l'arbre stage.
 ARCHIVES = {}
@@ -510,7 +563,7 @@ for line in diff_raw.split("\n"):
         continue
     if fields[0][:1] in ("A", "C", "M", "R"):
         staged_now.update(p for p in fields[1:3] if p)
-if MISSION_INDEX_PATH in staged_now:
+if MISSION_INDEX_PATH in staged_now and not BASELINE.untouched(MISSION_INDEX_PATH):
     check_mission_index_line_cap()
 
 # --- Bloc Bash l.275 -------------------------------------------------------

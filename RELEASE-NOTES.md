@@ -6,6 +6,44 @@ status: active
 
 # NOTES DE PUBLICATION
 
+## v0.1.3
+
+Version d'initiation : un projet naît ou est adopté en nommant son Second Brain, et le Pilot reçoit un accès disque versionné avec lui.
+
+**Ce que cette version apporte.**
+
+- **Adopter un dossier existant sans le modifier.** `tools/project-bootstrap.sh adopt` n'ajoute que ce qui manque. Il grave une ligne de base datée des fichiers présents :
+  - les gardiens ne jugent que le neuf et le touché ;
+  - un fichier ancien modifié doit devenir conforme ;
+  - la réorganisation en sept fonctions et la réparation des liens cassés sont proposées, jamais appliquées.
+- **Un acte de naissance par projet.** En tête de `.pre-commit-config.yaml`, un bloc de commentaires nomme :
+  - l'identité du Second Brain (`vault_id`, générée à l'installation dans `VAULT-IDENTITY.md`) ;
+  - son origine et son commit ;
+  - le suivi Git (`vcs: git` ou `none`).
+  `tools/resolve-vault.sh` résout le Second Brain d'un projet par cet acte, puis par le marqueur s'il n'y a qu'un candidat, jamais par voisinage. Deux Second Brain dans un même espace de travail ne se confondent plus, et un projet copié seul garde ses contrôles.
+- **Sans Git aussi.** Avec `vcs: none`, aucun hook : `check-links.sh`, `check-secrets.sh`, `check-indexes-fresh.sh`, `check-index-weight.sh` et `check-project-conformity.sh` acceptent un dossier en argument. `adopt --git` ajoute Git plus tard.
+- **Un ordre d'initiation.** Un agent qui ouvre un dossier non adopté s'arrête et rend l'ordre à remplir (`project-bootstrap.sh order`). Avec l'ordre daté par l'Owner, il adopte sans Mission (`--order`).
+- **Un serveur MCP embarqué.** `tools/vault-mcp.py` (Python, bibliothèque standard, lancé par `uv`) :
+  - borne l'accès du Pilot aux dossiers autorisés ;
+  - refuse un lien qui s'en échappe ;
+  - rend le commit de Second Brain.
+  `tools/install-vault-mcp.sh`, appelé par `/first-install`, le déclare dans Claude Code, Codex et l'application de bureau. `tools/check-mcp-containment.sh` vérifie le périmètre.
+- **Un prompt Pilot par projet.** `<projet>/state/PILOT-PROMPT.md` porte le chemin du projet, l'identité de Second Brain et un canari que le Pilot rend à l'ouverture ; la création rend le bloc à consommer (Projet à créer, prompt commun à coller, premier message).
+- **La conformité mesure l'étage projet** : acte, épingle, hook Git, cohérence des fichiers de pointage avec l'acte. Le registre gagne la colonne `vcs`.
+
+La CI publique exerce chacun de ces comportements sur Windows, macOS et Linux, chacun avec son témoin négatif, en plus des cinq jobs existants.
+
+**Ce que cette version ne promet pas.**
+
+- L'injection du serveur MCP est prouvée sur un profil simulé, avec des substituts de `claude` et `codex` : la CI ne lance pas les vrais outils ni l'application de bureau.
+- L'application de bureau lit la configuration au chemin mesuré sur ton poste ; sous Windows, les deux emplacements connus sont renseignés quand ils existent, sans preuve de celui que l'application lit.
+- Les limites des versions précédentes restent valables : aucun mécanisme de mise à jour, S7 et S8 en `SKIP` sans clé de fournisseur.
+
+**Ce qui reste à faire de ton côté.**
+
+- Lancer `/first-install` pour poser le serveur MCP, puis redémarrer l'application Claude.
+- Pour chaque projet : créer le Projet, coller le prompt commun, donner le chemin du projet comme premier message.
+
 ## v0.1.2
 
 Version corrective : la ligne d'installation de la v0.1.1 échoue sous Windows sur un poste qui porte le lanceur WSL (`C:\Windows\System32\bash.exe`). Si c'est ton cas, installe depuis cette version.

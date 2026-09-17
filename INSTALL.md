@@ -21,13 +21,13 @@ Ce dépôt contient Second Brain : une mémoire durable et un système opératoi
 **Windows (PowerShell, compte standard suffisant) :**
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.2/bootstrap.ps1)))"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.3/bootstrap.ps1)))"
 ```
 
 **macOS / Linux (Terminal) :**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.2/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.3/bootstrap.sh | bash
 ```
 
 La ligne télécharge un script d'amorçage (`bootstrap.ps1` ou `bootstrap.sh`, à la racine de ce dépôt) qui n'exige rien d'installé : il pose Git dans ton profil si besoin, vérifie son empreinte, récupère le dépôt à la version indiquée, puis lance l'installeur (`install.ps1` ou `install.sh`). Aucune invite d'élévation, aucune écriture hors de ton profil.
@@ -46,6 +46,10 @@ Dans l'ordre :
 4. Il écrit `USER.md` à partir de tes réponses, génère l'assistant (sous-agent Claude Code, skill Codex, paquet web à téléverser toi-même) et pose un `CLAUDE.md`/`AGENTS.md` de dix lignes au plus à côté de `VAULT-ROOT.md`.
 5. Il crée ton premier projet si tu l'as confirmé, avec son propre `CLAUDE.md`/`AGENTS.md`, et y lie l'assistant et les skills de la méthode (`skills/` et `skills/external/`) — jamais dans ton profil.
 6. Il rend un verdict d'une ligne, signé par le nom de ton assistant : installation terminée, ou étape d'arrêt et cause.
+
+L'installeur génère aussi l'**identité** de ton Second Brain (`VAULT-IDENTITY.md`, suivie par Git comme `USER.md`) : chaque projet la recopie dans son acte de naissance, et le marqueur `VAULT-ROOT.md` la porte.
+
+**Accès disque du Pilot (application de bureau).** L'installeur n'écrit rien dans ton profil. Le serveur MCP de Second Brain se pose ensuite par `/first-install` (ou `bash tools/install-vault-mcp.sh <espace de travail>`) : il détecte Claude Code, Codex et l'application de bureau Claude, y déclare le serveur avec ton espace de travail comme seul dossier autorisé, vérifie Python par `uv`, puis te demande de redémarrer l'application. `tools/check-mcp-containment.sh <configuration> <projet>` vérifie que le projet et Second Brain sont bien dans le périmètre autorisé.
 
 **Première ouverture d'un projet.** La première fois que tu ouvres un projet dans Claude Code, il détecte que les liens vers l'assistant et les skills sortent du dossier de travail (import externe) et demande une approbation, une fois par projet. Réponds oui : voir la question « Pourquoi Claude Code me demande une approbation » dans les questions fréquentes du [README](./README.md).
 

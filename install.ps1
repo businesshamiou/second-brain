@@ -706,6 +706,14 @@ try {
     # Step: workspace marker (VAULT-ROOT.md, plus its own CLAUDE.md/AGENTS.md,
     # Mission 173 step 5).
     $currentStepKey = 'marker'
+    # The installed Vault's own identity (vault_id, vault_origin), generated
+    # once and tracked like USER.md (Decision 2026-09-17-000545, A1/A7):
+    # every project birth certificate and the marker below name this Vault
+    # by it. Idempotent -- an identity already generated is never rewritten,
+    # so a second run commits nothing.
+    Invoke-BashTool -BashExe $bashExe -ScriptPath (Join-Path $clonePath 'tools\vault-identity.sh') `
+        -ScriptArgs @('ensure', (ConvertTo-PosixPath $clonePath)) | Out-Null
+    Save-ClonePendingChanges -BashExe $bashExe -ClonePath $clonePath -CommitMessage 'Generate vault identity'
     if (-not (Test-Path $markerPath)) {
         $writeMarkerScript = Join-Path $clonePath 'tools\write-marker.sh'
         Invoke-BashTool -BashExe $bashExe -ScriptPath $writeMarkerScript `
@@ -841,8 +849,14 @@ try {
 
             Push-Location $firstProjectPath
             try {
-                & git init -q -b main
-                if ($LASTEXITCODE -ne 0) { throw "git init failed in $firstProjectPath" }
+                # tools/project-bootstrap.sh already creates the repository
+                # when Git is on its PATH (Decision 2026-09-17-000545, vcs:
+                # git); re-running `git init -b` there would only print a
+                # re-init warning.
+                if (-not (Test-Path (Join-Path $firstProjectPath '.git'))) {
+                    & git init -q -b main
+                    if ($LASTEXITCODE -ne 0) { throw "git init failed in $firstProjectPath" }
+                }
                 & git config user.name $gitUserName
                 & git config user.email $gitUserEmail
                 Invoke-QuietGit -ArgumentList @('add', '-A') -FailureMessage "git add failed in $firstProjectPath"

@@ -24,6 +24,12 @@ trouver — même principe que la détection d'un dépôt Git par son dossier
 
 Chemin relatif du Vault depuis cette racine de travail : `{{VAULT_RELATIVE_PATH}}`
 
+Identité du Vault : `{{VAULT_ID}}`
+
+Origine du Vault : `{{VAULT_ORIGIN}}`
+
+Un projet nomme son Vault par son acte de naissance (`vault_id` dans `.pre-commit-config.yaml`) ; ce marqueur ne résout seul que s'il n'y a qu'un Vault candidat dans cet espace de travail.
+
 ---
 
 Généré automatiquement par `tools/write-marker.sh` à partir de ce gabarit. Ne pas éditer `VAULT-ROOT.md` à la main : régénérer.
@@ -31,3 +37,4 @@ Généré automatiquement par `tools/write-marker.sh` à partir de ce gabarit. N
 ## Liens
 
 - `prescribed by` — [Sept arbitrages de session du 2026-08-23](../decisions/DECISION-2026-08-23-124848-seven-arbitrations-2026-08-23.md)
+- `amended by` — [Décision — Initiation et adoption de projet, acte de naissance](../decisions/DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md)

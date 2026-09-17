@@ -30,6 +30,16 @@ REL_PATH="$(rel_path "$WORK_ROOT_ABS" "$VAULT_ROOT")"
 
 MARKER="$WORK_ROOT_ABS/VAULT-ROOT.md"
 
+# Identite du Vault (Decision 2026-09-17-000545, A7) : generee si absente,
+# portee par le marqueur pour que deux Vaults d'un meme poste se distinguent.
+. "$SCRIPT_DIR/vault-identity.sh"
+vid_ensure "$VAULT_ROOT"
+sed_escape() {
+  printf '%s' "$1" | sed 's/[#&\\]/\\&/g'
+}
+VAULT_ID_ESC="$(sed_escape "$(vid_get "$VAULT_ROOT" vault_id)")"
+VAULT_ORIGIN_ESC="$(sed_escape "$(vid_get "$VAULT_ROOT" vault_origin)")"
+
 # Le gabarit est ecrit et verifie (check-links.sh) depuis templates/ a la
 # racine du Vault, ou ses liens relatifs (../decisions/...) sont corrects. Copie a la racine de
 # travail, ces memes liens doivent pointer via le chemin relatif du Vault
@@ -37,6 +47,8 @@ MARKER="$WORK_ROOT_ABS/VAULT-ROOT.md"
 sed \
   -e "s#{{VAULT_NAME}}#$VAULT_NAME#g" \
   -e "s#{{VAULT_RELATIVE_PATH}}#$REL_PATH#g" \
+  -e "s#{{VAULT_ID}}#$VAULT_ID_ESC#g" \
+  -e "s#{{VAULT_ORIGIN}}#$VAULT_ORIGIN_ESC#g" \
   -e "s#](\.\./#]($REL_PATH/#g" \
   "$TEMPLATE" > "$MARKER"
 

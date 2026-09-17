@@ -82,6 +82,24 @@ jobs:
         shell: bash
         run: bash tests/test-acceptance-harness-oracles.sh
 
+      # Mission 184: project initiation and adoption (birth certificate,
+      # dated baseline and ratchet, two Vaults, a project copied alone,
+      # vcs: none, initiation order), the embedded MCP server with its
+      # injection on a simulated profile and the containment check, and the
+      # catalog parity -- every case with its negative control, on the three
+      # systems. The escaping link is a junction here (no symlink privilege).
+      - name: Main -- project initiation and adoption (create, adopt, baseline, two Vaults, D4, vcs none, order)
+        shell: bash
+        run: bash tests/test-project-initiation.sh
+
+      - name: Main -- embedded MCP server, injection on a simulated profile, containment
+        shell: bash
+        run: bash tests/test-vault-mcp.sh
+
+      - name: Main -- catalog key parity (fr/en/es), shell twin
+        shell: bash
+        run: bash tests/test-catalog-key-parity.sh
+
       # Mission 183-C01: the published bootstrap installs from a PATH with no
       # Git and no uv (same account; the standard-account half is S9 in the
       # acceptance job).
@@ -225,6 +243,18 @@ jobs:
       - name: Main -- acceptance harness oracles each know how to fail
         run: bash tests/test-acceptance-harness-oracles.sh
 
+      # Mission 184: project initiation and adoption, the embedded MCP
+      # server (injection on a simulated profile, containment) and the
+      # catalog parity -- every case with its negative control.
+      - name: Main -- project initiation and adoption (create, adopt, baseline, two Vaults, D4, vcs none, order)
+        run: bash tests/test-project-initiation.sh
+
+      - name: Main -- embedded MCP server, injection on a simulated profile, containment
+        run: bash tests/test-vault-mcp.sh
+
+      - name: Main -- catalog key parity (fr/en/es), shell twin
+        run: bash tests/test-catalog-key-parity.sh
+
       - name: Main install test -- answers file, second pass at empty porcelain
         run: bash tests/test-install-e2e.sh
 
@@ -367,6 +397,18 @@ jobs:
       # model call, so it runs everywhere, on every push.
       - name: Main -- acceptance harness oracles each know how to fail
         run: bash tests/test-acceptance-harness-oracles.sh
+
+      # Mission 184: project initiation and adoption, the embedded MCP
+      # server (injection on a simulated profile, containment) and the
+      # catalog parity -- every case with its negative control.
+      - name: Main -- project initiation and adoption (create, adopt, baseline, two Vaults, D4, vcs none, order)
+        run: bash tests/test-project-initiation.sh
+
+      - name: Main -- embedded MCP server, injection on a simulated profile, containment
+        run: bash tests/test-vault-mcp.sh
+
+      - name: Main -- catalog key parity (fr/en/es), shell twin
+        run: bash tests/test-catalog-key-parity.sh
 
       - name: Main install test -- answers file, second pass at empty porcelain
         run: bash tests/test-install-e2e.sh

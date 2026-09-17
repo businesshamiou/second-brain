@@ -894,6 +894,124 @@ def cmd_write_user_profile(args):
     return 0
 
 
+# --- Serveur MCP du Vault : configuration des outils (Decision
+# 2026-09-17-000545, A6) --------------------------------------------------------
+
+def _load_json_config(path):
+    if not os.path.exists(path):
+        return {}
+    with open(path, "r", encoding="utf-8-sig") as f:
+        text = f.read()
+    if not text.strip():
+        return {}
+    data = json.loads(text)
+    if not isinstance(data, dict):
+        raise ValueError("configuration JSON inattendue : %s" % path)
+    return data
+
+
+def _toml_server(path, name):
+    """Entree [mcp_servers.<name>] d'un config.toml de Codex, ou None."""
+    with open(path, "rb") as f:
+        raw = f.read()
+    try:
+        import tomllib  # Python 3.11+
+        data = tomllib.loads(raw.decode("utf-8"))
+        return (data.get("mcp_servers") or {}).get(name)
+    except ImportError:
+        pass
+    section = None
+    entry = {}
+    for line in raw.decode("utf-8").splitlines():
+        stripped = line.strip()
+        if stripped.startswith("["):
+            section = stripped.strip("[]").strip()
+            continue
+        if section in ("mcp_servers." + name, 'mcp_servers."%s"' % name) and "=" in stripped:
+            key, value = stripped.split("=", 1)
+            try:
+                entry[key.strip()] = json.loads(value.strip())
+            except ValueError:
+                entry[key.strip()] = value.strip().strip("'\"")
+    return entry or None
+
+
+def _server_entry(path, name):
+    if path.endswith(".toml"):
+        return _toml_server(path, name)
+    data = _load_json_config(path)
+    return (data.get("mcpServers") or {}).get(name)
+
+
+def cmd_merge_mcp_json(args):
+    data = _load_json_config(args.config)
+    servers = data.get("mcpServers")
+    if not isinstance(servers, dict):
+        servers = {}
+    desired = {"command": args.command, "args": list(args.server_args)}
+    if servers.get(args.name) == desired:
+        print("UNCHANGED")
+        return 0
+    servers[args.name] = desired
+    data["mcpServers"] = servers
+    os.makedirs(os.path.dirname(os.path.abspath(args.config)), exist_ok=True)
+    tmp = args.config + ".tmp"
+    with open(tmp, "w", encoding="utf-8", newline="\n") as f:
+        f.write(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
+    os.replace(tmp, args.config)
+    print("UPDATED")
+    return 0
+
+
+def cmd_mcp_server_args(args):
+    if not os.path.exists(args.config):
+        return 1
+    entry = _server_entry(args.config, args.name)
+    if not entry:
+        return 1
+    print(entry.get("command", ""))
+    for a in entry.get("args") or []:
+        print(a)
+    return 0
+
+
+def _norm_path(p):
+    return os.path.normcase(os.path.realpath(p))
+
+
+def cmd_mcp_containment(args):
+    if not os.path.exists(args.config):
+        print("FAIL configuration introuvable : %s" % args.config)
+        return 1
+    entry = _server_entry(args.config, args.name)
+    if not entry:
+        print("FAIL serveur %s absent de %s" % (args.name, args.config))
+        return 1
+    server_args = list(entry.get("args") or [])
+    allowed = [server_args[i + 1] for i, a in enumerate(server_args[:-1]) if a == "--allow"]
+    if not allowed:
+        print("FAIL serveur %s sans dossier autorise" % args.name)
+        return 1
+    roots = [_norm_path(a) for a in allowed]
+    failed = 0
+    for path in args.paths:
+        target = _norm_path(path)
+        inside = False
+        for root in roots:
+            try:
+                if os.path.commonpath([target, root]) == root:
+                    inside = True
+                    break
+            except ValueError:
+                continue
+        if inside:
+            print("PASS %s" % path)
+        else:
+            print("FAIL %s hors des dossiers autorises (%s)" % (path, ", ".join(allowed)))
+            failed = 1
+    return failed
+
+
 def build_parser():
     parser = argparse.ArgumentParser(prog="sb_installer_helper.py")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -977,6 +1095,24 @@ def build_parser():
     p.add_argument("--claude-detected", default="False")
     p.add_argument("--codex-detected", default="False")
     p.set_defaults(func=cmd_write_user_profile)
+
+    p = sub.add_parser("merge-mcp-json")
+    p.add_argument("config")
+    p.add_argument("name")
+    p.add_argument("command")
+    p.add_argument("server_args", nargs=argparse.REMAINDER)
+    p.set_defaults(func=cmd_merge_mcp_json)
+
+    p = sub.add_parser("mcp-server-args")
+    p.add_argument("config")
+    p.add_argument("name")
+    p.set_defaults(func=cmd_mcp_server_args)
+
+    p = sub.add_parser("mcp-containment")
+    p.add_argument("config")
+    p.add_argument("name")
+    p.add_argument("paths", nargs="+")
+    p.set_defaults(func=cmd_mcp_containment)
 
     return parser
 

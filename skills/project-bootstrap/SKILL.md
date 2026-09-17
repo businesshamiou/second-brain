@@ -7,7 +7,7 @@ metadata:
   vault-validated: "2026-09-01T21:02:20-04:00"
 ---
 
-Rend un projet conscient du Vault à l'un de ses trois étages (DECISION-210731) : l'enregistre, épingle les gardiens, pose le hook `executor-preflight`, et **propose** la mise en sept fonctions sans jamais l'imposer. **Surface Executor seulement** (fichiers, Git local, hook). Ce skill ne se lance que sur prescription d'une Mission ou arbitrage Owner : adopter écrit dans le registre du Vault (DECISION-210731 point 2). La source de comportement est la Décision 210731, **à lire intégralement avant le premier geste** ; ce corps ne la paraphrase pas.
+Rend un projet conscient du Vault à l'un de ses trois étages (DECISION-210731) : l'enregistre, épingle les gardiens, pose le hook `executor-preflight`, et **propose** la mise en sept fonctions sans jamais l'imposer. **Surface Executor seulement** (fichiers, Git local, hook). Ce skill ne se lance que sur prescription d'une Mission, ordre d'initiation daté par l'Owner ou arbitrage Owner : adopter écrit dans le registre du Vault (DECISION-210731 point 2, amendé par la Décision 000545 A3). La source de comportement est la Décision 210731, **à lire intégralement avant le premier geste** ; ce corps ne la paraphrase pas.
 
 ## 1. Mesure l'étage actuel et dis-le
 
@@ -15,16 +15,18 @@ Depuis la racine du projet : **machine** — un fichier global par outil existe 
 
 ## 2. Mode adopter — projet existant
 
-Ajoute ce qui manque, **sans toucher à aucun fichier existant du projet** (un fichier présent, même incomplet, est laissé tel quel et signalé) :
-1. **Ligne au registre** (`projects/PROJECT-REGISTRY.md` du Vault, colonnes du gabarit `project-registry-template.md` : `project_id | display_name | status | relative_path | conformity`) et **fiche v2** `projects/PROJECT-<project_id>.md` du Vault, au schéma qu'écrit `tools/project-bootstrap.sh` du Vault (le lire au moment d'écrire, ne pas le recopier de mémoire) ; `conformity` mesurée par `tools/check-project-conformity.sh <projet>` du Vault.
-2. **Épingle** `.pre-commit-config.yaml` : `repo: local`, sur le Vault voisin, par chemin relatif mesuré depuis le projet (T01 — épingle par URL distante réservée à l'atelier de l'Owner, pas aux projets qu'un participant crée) ; hooks : `vault-check-secrets`, `vault-check-indexes-fresh`, `vault-check-index-weight`, `vault-check-links` (les quatre ids exposés par `.pre-commit-hooks.yaml` du Vault — la description antérieure en omettait un, corrigé ici en passant). Pas de `rev:` dans cette forme : le pin suit toujours le contenu courant du Vault voisin ; l'**empreinte** (SHA du Vault au moment de la pose) est notée dans la fiche projet (`vault_head` du front-matter), pas dans l'épingle elle-même (T01).
-3. **Hook `executor-preflight`** : copie `preflight-hook.sh` (compagnon de ce skill) en `.claude/hooks/preflight-hook.sh` du projet ; fusionne le fragment `settings-hook.json` (compagnon) dans `.claude/settings.json` — s'il existe déjà, ne le modifie pas : rends le fragment à fusionner à la main et signale-le.
-4. **Fichiers de pointage** `AGENTS.md` et `CLAUDE.md` (étage projet, DECISION-210731 point 1) : une ligne qui renvoie à la charte des rôles par chemin relatif mesuré, comme le `CLAUDE.md` du Vault. Absents seulement.
-5. `pre-commit install` dans le projet si `pre-commit` est disponible ; sinon signalé comme geste humain restant.
+`bash <Vault>/tools/project-bootstrap.sh adopt <projet> [nom] --vcs none|git [--lang FR|EN|ES]` (ou `--order <fichier>` pour un ordre d'initiation). Le script n'écrit que ce qui manque, **sans toucher à aucun fichier existant du projet** (un fichier présent, même incomplet, est laissé tel quel et signalé) :
+1. **Acte de naissance et épingle** `.pre-commit-config.yaml` : bloc de commentaires en tête (`vault_id`, `vault_origin`, `vault_ref`, `vcs`, `baseline`), puis `repo: local` sur ce Vault par chemin relatif mesuré, quatre hooks (`vault-check-secrets`, `vault-check-indexes-fresh`, `vault-check-index-weight`, `vault-check-links`). Une épingle déjà présente sans acte n'est pas modifiée : le bloc à ajouter est rendu.
+2. **Ligne de base datée** (`.vault-baseline-<date>.tsv`, nommée par l'acte) : les fichiers existants et leur empreinte. Les gardiens ne jugent que le nouveau et le touché ; un fichier gravé puis touché doit devenir conforme (cliquet). Les liens cassés d'avant : `tools/propose-link-repairs.sh <projet>` rend un plan ; `--apply` n'existe que sous Mission.
+3. **Fichiers de pointage** `AGENTS.md` et `CLAUDE.md`, prompt Pilot `<projet>/state/PILOT-PROMPT.md` (canari), `.gitignore` des liens, index absents : absents seulement.
+4. **Ligne au registre** (colonne `vcs`) et **fiche v2** du Vault ; `conformity` mesurée par `tools/check-project-conformity.sh <projet>` (sept fonctions, registre, acte, épingle, hook Git si `vcs: git`, cohérence des fichiers de pointage avec l'acte).
+5. **Git** : `vcs: git` → dépôt créé s'il manque, `pre-commit install` ; `vcs: none` → aucun hook, contrôles par commande (`tools/check-links.sh <projet>`, `check-secrets.sh`, `check-indexes-fresh.sh`, `check-index-weight.sh`, `check-project-conformity.sh`). `adopt --git` plus tard fait passer le projet à `vcs: git`.
+
+Le hook `executor-preflight` (compagnon `preflight-hook.sh`, fragment `settings-hook.json`) reste un geste de ce skill : copie le hook dans `.claude/hooks/` s'il manque ; un `.claude/settings.json` existant n'est jamais modifié, le fragment est rendu.
 
 ## 3. Mode nouveau — projet à naître
 
-`tools/project-bootstrap.sh <chemin-cible> <display_name>` du Vault (squelette des sept fonctions créé vide, README, journal, index, fiche v2, ligne de registre, **épingle `repo: local` posée** — comportement existant complété par le ticket 02 de la Mission 168, DECISION-210731 point 3 « naître »), puis les étapes 3 à 5 du §2 : hook, pointage, `pre-commit install`.
+`bash <Vault>/tools/project-bootstrap.sh create <chemin-cible> <display_name> --vcs none|git` (ou l'appel historique sans sous-commande) : squelette des sept fonctions, README, journal, index, acte de naissance et épingle, prompt Pilot, fiche v2, ligne de registre, dépôt et hook si `vcs: git`. `--ask` pose d'abord nom, emplacement et Git. Le script finit par le **bloc à consommer** (Projet à créer, prompt commun à coller, premier message = chemin du projet, canari).
 
 ## 4. Propose la réorganisation, n'applique jamais seul
 
@@ -48,3 +50,4 @@ Ouvrir ou clore une session (`session-start`, `session-close`) · pousser · mod
 - `see also` — [Standard de structure de projet, sept fonctions](../../rules/RULES-2026-08-26-142800-project-structure-standard.md)
 - `see also` — [Gabarit du registre des projets](../../templates/project-registry-template.md)
 - `see also` — [Registre des projets](../../projects/PROJECT-REGISTRY.md)
+- `applies` — [Décision — Initiation et adoption de projet, acte de naissance](../../decisions/DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md)

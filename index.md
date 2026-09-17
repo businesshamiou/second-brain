@@ -20,6 +20,7 @@ Index généré automatiquement. Ne pas éditer à la main : régénérer via `t
 - `RELEASE-NOTES` · active · Notes de publication · `RELEASE-NOTES.md`
 - `THIRD-PARTY-LICENSES` · active · Licences tierces — skills adoptés · `THIRD-PARTY-LICENSES.md`
 - `USER` · template · Fiche utilisateur — squelette · `USER.md`
+- `VAULT-IDENTITY` · template · Identité de ce Vault — squelette · `VAULT-IDENTITY.md`
 
 ## Liens
 
