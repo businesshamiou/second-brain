@@ -121,8 +121,16 @@ else {
 }
 $policy | Set-Content -Path $policyCfg -Encoding Unicode
 & secedit /configure /db $policyDb /cfg $policyCfg /areas USER_RIGHTS | Out-Null
-& secedit /export /cfg $policyCfg /areas USER_RIGHTS | Out-Null
-$granted = [bool](Get-Content -Path $policyCfg | Where-Object { $_ -match '^SeBatchLogonRight\s*=' -and $_ -match [regex]::Escape("*$sid") })
+# Read back from a fresh file, and accept the account by SID or by name:
+# CI run 35167643419 ran the task under this grant, yet a check that only
+# looked for "*<SID>" in the re-export failed. The line read is printed.
+$policyCheck = Join-Path $work 'user-rights-check.inf'
+& secedit /export /cfg $policyCheck /areas USER_RIGHTS | Out-Null
+$batchLine = @(Get-Content -Path $policyCheck | Where-Object { $_ -match '^SeBatchLogonRight\s*=' }) | Select-Object -First 1
+Write-Output "    S9 SeBatchLogonRight (re-export, secedit exit $LASTEXITCODE): $batchLine"
+$holders = @()
+if ($batchLine) { $holders = @(($batchLine -replace '^SeBatchLogonRight\s*=\s*', '') -split ',' | ForEach-Object { $_.Trim() }) }
+$granted = [bool]($holders | Where-Object { $_ -eq "*$sid" -or $_ -eq $AccountName -or $_ -like "*\$AccountName" })
 Assert-True $granted "the test account holds 'Log on as a batch job' (SeBatchLogonRight), required for a password-based scheduled task"
 
 $answers = Get-Content -Raw -Encoding UTF8 (Join-Path $RepoRoot 'tests\fixtures\install-answers.sample.json') | ConvertFrom-Json

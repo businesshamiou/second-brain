@@ -112,7 +112,15 @@ try {
     Initialize-UvEnvironmentRedirection -Context $uvContext
     $uv = Resolve-OrInstall-Uv -Context $uvContext -Lock (Get-PrerequisitesLock).uv
     Write-Output "  uv: $($uv.Source) ($($uv.UvExe))"
-    & $uv.UvExe run --no-project (Join-Path $RepoRoot 'tools\build_indexes.py') $TestClone *> (Join-Path $TestRoot 'build-indexes.log')
+    # The clone's own copy runs, as in the installer: build_indexes.py
+    # derives its link target from its own location, and os.path.relpath
+    # cannot cross drives. Run from this repository (D:\ on the GitHub
+    # runner) over a clone under %TEMP% (C:\), it raised "path is on mount
+    # 'D:', start on mount 'C:'" (CI run 35167643419).
+    $cloneTools = Join-Path $TestClone 'tools'
+    New-Item -ItemType Directory -Force -Path $cloneTools | Out-Null
+    Copy-Item -Path (Join-Path $RepoRoot 'tools\build_indexes.py') -Destination $cloneTools -Force
+    & $uv.UvExe run --no-project (Join-Path $cloneTools 'build_indexes.py') $TestClone *> (Join-Path $TestRoot 'build-indexes.log')
     Assert-True ($LASTEXITCODE -eq 0) "index regeneration over the test clone succeeded, as in the installer (exit $LASTEXITCODE)"
     $readmePath = Join-Path $webDir 'README.md'
     Assert-True (Test-Path $readmePath) "generated web package has a README.md"
