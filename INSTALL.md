@@ -21,13 +21,13 @@ Ce dépôt contient Second Brain : une mémoire durable et un système opératoi
 **Windows (PowerShell, compte standard suffisant) :**
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.1/bootstrap.ps1)))"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.2/bootstrap.ps1)))"
 ```
 
 **macOS / Linux (Terminal) :**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.1/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.2/bootstrap.sh | bash
 ```
 
 La ligne télécharge un script d'amorçage (`bootstrap.ps1` ou `bootstrap.sh`, à la racine de ce dépôt) qui n'exige rien d'installé : il pose Git dans ton profil si besoin, vérifie son empreinte, récupère le dépôt à la version indiquée, puis lance l'installeur (`install.ps1` ou `install.sh`). Aucune invite d'élévation, aucune écriture hors de ton profil.

@@ -21,7 +21,7 @@
 # Nothing here uses sudo.
 #
 # Published line (INSTALL.md):
-#   curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.1/bootstrap.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.2/bootstrap.sh | bash
 #
 # usage: bootstrap.sh [--ref <tag-or-branch>] [--repo-url <url-or-path>]
 #                     [--raw-base <url-or-directory>] [--target <dir>]
@@ -29,7 +29,7 @@
 
 set -u
 
-REF="v0.1.1"
+REF="v0.1.2"
 REPO_URL="https://github.com/businesshamiou/second-brain.git"
 RAW_BASE=""
 TARGET=""

@@ -28,7 +28,7 @@
     Nothing here asks for elevation: no RunAs, no HKLM, no Program Files.
 
     Published line (INSTALL.md):
-        powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.1/bootstrap.ps1)))"
+        powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.2/bootstrap.ps1)))"
 
     Usage (all parameters optional):
         bootstrap.ps1 [-Ref <tag-or-branch>] [-RepoUrl <url-or-path>]
@@ -45,7 +45,7 @@
 
 [CmdletBinding()]
 param(
-    [string] $Ref = 'v0.1.1',
+    [string] $Ref = 'v0.1.2',
     [string] $RepoUrl = 'https://github.com/businesshamiou/second-brain.git',
     [string] $RawBase = '',
     [string] $Target = '',

@@ -6,6 +6,24 @@ status: active
 
 # NOTES DE PUBLICATION
 
+## v0.1.2
+
+Version corrective : la ligne d'installation de la v0.1.1 échoue sous Windows sur un poste qui porte le lanceur WSL (`C:\Windows\System32\bash.exe`). Si c'est ton cas, installe depuis cette version.
+
+**Ce que cette version corrige.**
+
+- **Git Bash est trouvé même quand WSL est présent.** L'installeur prenait le `bash.exe` de WSL pour celui de Git et s'arrêtait. Il part désormais de `git.exe`, remonte jusqu'au `bash.exe` de Git quelle que soit la profondeur du dossier, et refuse un `bash.exe` situé sous le dossier de Windows.
+- **pre-commit est trouvé quand uv vient d'ailleurs.** Si uv était déjà installé (winget, scoop), l'installeur cherchait pre-commit à côté de uv au lieu du dossier d'outils de uv, et s'arrêtait. Il demande maintenant ce dossier à uv et l'ajoute à ton `PATH`.
+- **Des tests qui mesurent ce qu'ils disent.** Aucun de ces changements ne touche l'installation :
+  - le test du paquet web obtient uv comme l'installeur et lance la copie du générateur d'index présente dans le clone ;
+  - le test S9 donne au compte standard le droit d'ouvrir une session en tant que tâche, sans lequel la tâche planifiée ne démarrait pas, puis vérifie ce droit.
+
+La CI publique passe sur ce contenu, avec ses cinq jobs, dont S9 sous un compte standard. S7 et S8 y restent notés `SKIP`.
+
+**Ce que cette version ne promet pas.**
+
+- Les limites de la v0.1.1 restent valables (voir ci-dessous) : aucun mécanisme de mise à jour, S7 et S8 en `SKIP` sans clé de fournisseur, téléversement du paquet web non prouvé.
+
 ## v0.1.1
 
 Version de preuve : tout ce qui servait à accepter Second Brain devient rejouable, sans geste humain.
