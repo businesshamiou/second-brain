@@ -116,14 +116,20 @@ done
 check "(g) tools/list : dix outils${MISSING_TOOLS:+ (manquants :$MISSING_TOOLS)}" [ -z "$MISSING_TOOLS" ]
 check "(g) list_allowed_directories : commit du Vault = git rev-parse HEAD" has "$(line_of 3)" "Vault commit: $HEAD_SHA"
 check "(g) lecture dedans : PASS" has "$(line_of 4)" '"text": "dedans'
-check "(g) lecture dehors : erreur JSON-RPC nommant le chemin" sh -c 'case "$1" in *"\"error\""*"-32001"*"s.txt"*) exit 0;; *) exit 1;; esac' _ "$(line_of 5)"
+# Mission 185-C01, porte 3 : un echec d'EXECUTION d'outil n'est plus une
+# erreur JSON-RPC (-32001) mais un RESULTAT porteur de isError, dont le
+# texte nomme le chemin ET les dossiers autorises -- c'est la seule forme
+# que l'application de bureau rend telle quelle. L'oracle se resserre :
+# il exige desormais les deux faits, pas seulement un code.
+# tests/test-vault-mcp-refusal-message.py mesure la forme en detail.
+check "(g) lecture dehors : resultat isError nommant le chemin et le perimetre" sh -c 'case "$1" in *"s.txt"*"Dossiers autorisés"*"\"isError\": true"*) exit 0;; *) exit 1;; esac' _ "$(line_of 5)"
 if [ -n "$LINK_KIND" ]; then
-  check "(g) $LINK_KIND qui s'echappe : refus" sh -c 'case "$1" in *"\"error\""*"-32001"*) exit 0;; *) exit 1;; esac' _ "$(line_of 6)"
+  check "(g) $LINK_KIND qui s'echappe : refus" sh -c 'case "$1" in *"\"isError\": true"*) exit 0;; *) exit 1;; esac' _ "$(line_of 6)"
 else
   skip "lien non creable sur $(uname -s)" "(g) lien qui s'echappe"
 fi
 check "(g) ecriture dedans : fichier ecrit" sh -c "has_ok=\$(cat '$TMP/g/ws/proj/b.txt' 2>/dev/null); [ \"\$has_ok\" = 'ecrit' ]"
-check "(g) ecriture dehors : refus, rien d'ecrit" sh -c "case \"\$1\" in *-32001*) [ ! -e '$TMP/g/outside/w.txt' ];; *) exit 1;; esac" _ "$(line_of 8)"
+check "(g) ecriture dehors : refus lisible, rien d'ecrit" sh -c "case \"\$1\" in *'\"isError\": true'*) [ ! -e '$TMP/g/outside/w.txt' ];; *) exit 1;; esac" _ "$(line_of 8)"
 check "(g) list_directory dedans" has "$(line_of 9)" '[FILE] a.txt'
 check "(g) methode inconnue : erreur, le serveur continue" has "$(line_of 10)" '-32601'
 check "(g) sortie standard : seulement du JSON-RPC ($(printf '%s\n' "$RESP" | grep -c .) lignes)" sh -c '! printf "%s\n" "$1" | grep -v "^{\"jsonrpc\"" | grep -q .' _ "$RESP"

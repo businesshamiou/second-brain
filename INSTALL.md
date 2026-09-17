@@ -21,13 +21,13 @@ Ce dépôt contient Second Brain : une mémoire durable et un système opératoi
 **Windows (PowerShell, compte standard suffisant) :**
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.3/bootstrap.ps1)))"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.4/bootstrap.ps1)))"
 ```
 
 **macOS / Linux (Terminal) :**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.3/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.4/bootstrap.sh | bash
 ```
 
 La ligne télécharge un script d'amorçage (`bootstrap.ps1` ou `bootstrap.sh`, à la racine de ce dépôt) qui n'exige rien d'installé : il pose Git dans ton profil si besoin, vérifie son empreinte, récupère le dépôt à la version indiquée, puis lance l'installeur (`install.ps1` ou `install.sh`). Aucune invite d'élévation, aucune écriture hors de ton profil.
@@ -49,7 +49,21 @@ Dans l'ordre :
 
 L'installeur génère aussi l'**identité** de ton Second Brain (`VAULT-IDENTITY.md`, suivie par Git comme `USER.md`) : chaque projet la recopie dans son acte de naissance, et le marqueur `VAULT-ROOT.md` la porte.
 
-**Accès disque du Pilot (application de bureau).** L'installeur n'écrit rien dans ton profil. Le serveur MCP de Second Brain se pose ensuite par `/first-install` (ou `bash tools/install-vault-mcp.sh <espace de travail>`) : il détecte Claude Code, Codex et l'application de bureau Claude, y déclare le serveur avec ton espace de travail comme seul dossier autorisé, vérifie Python par `uv`, puis te demande de redémarrer l'application. `tools/check-mcp-containment.sh <configuration> <projet>` vérifie que le projet et Second Brain sont bien dans le périmètre autorisé.
+**Accès disque du Pilot (application de bureau).** L'installeur n'écrit rien dans ton profil. Le serveur MCP de Second Brain se pose ensuite par `/first-install` (ou à la main, ligne ci-dessous) : il détecte Claude Code, Codex et l'application de bureau Claude, y déclare le serveur avec ton espace de travail comme seul dossier autorisé, vérifie Python par `uv`, puis te demande de redémarrer l'application. `check-mcp-containment.sh <configuration> <projet>` vérifie que le projet et Second Brain sont bien dans le périmètre autorisé.
+
+À la main, depuis la racine de ton clone `second-brain` :
+
+```bash
+bash tools/install-vault-mcp.sh <espace de travail>
+bash tools/check-mcp-containment.sh <configuration> <projet>
+```
+
+**Sous Windows, dans PowerShell**, `bash` n'est pas sur le PATH ; appelle celui de Git par son chemin complet (mesuré à l'acceptation du 2026-09-17) :
+
+```powershell
+& "C:\Program Files\Git\bin\bash.exe" tools/install-vault-mcp.sh <espace de travail>
+& "C:\Program Files\Git\bin\bash.exe" tools/check-mcp-containment.sh <configuration> <projet>
+```
 
 **Première ouverture d'un projet.** La première fois que tu ouvres un projet dans Claude Code, il détecte que les liens vers l'assistant et les skills sortent du dossier de travail (import externe) et demande une approbation, une fois par projet. Réponds oui : voir la question « Pourquoi Claude Code me demande une approbation » dans les questions fréquentes du [README](./README.md).
 

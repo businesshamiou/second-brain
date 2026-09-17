@@ -13,8 +13,11 @@
 #   - tout chemin est resolu (realpath) avant comparaison ; il doit se trouver
 #     sous un dossier autorise, lui-meme resolu ;
 #   - un lien symbolique ou une jonction qui sort du perimetre est donc refuse ;
-#   - un refus est une erreur JSON-RPC qui nomme le chemin, jamais une
-#     exception ni un arret du serveur.
+#   - un refus de `tools/call` est un RESULTAT porteur de `isError: true`
+#     dont le texte nomme le chemin demande ET les dossiers autorises,
+#     jamais une exception ni un arret du serveur ; seuls les defauts de
+#     protocole (methode ou outil inconnu, JSON illisible) restent des
+#     erreurs JSON-RPC.
 #   - `list_allowed_directories` rend aussi le commit du Vault : le Pilot le
 #     compare a celui de son prompt de projet (epinglage par le commit).
 
@@ -110,7 +113,13 @@ class Sandbox:
             parent = os.path.dirname(full)
             resolved = os.path.join(norm(parent), os.path.normcase(os.path.basename(full)))
         if not self.inside(resolved):
-            raise ToolError(ACCESS_DENIED, "accès refusé hors des dossiers autorisés : %s" % path)
+            # Le texte porte les DEUX faits dont le Pilot a besoin pour
+            # corriger sans deviner : ce qu'il a demandé, et où il a le
+            # droit de lire ou d'écrire (porte 3 de la capture
+            # 2026-09-17-144137 : l'application n'affichait que
+            # « Tool execution failed », sans chemin ni raison).
+            raise ToolError(ACCESS_DENIED, "accès refusé : %s est hors des dossiers autorisés.\nDossiers autorisés :\n%s" % (
+                path, "\n".join("- " + d for d in self.allowed_display)))
         return full
 
 
@@ -306,8 +315,22 @@ def handle(sb, msg):
         name = params.get("name")
         fn = TOOL_BY_NAME.get(name)
         if fn is None:
+            # Outil inconnu : defaut de PROTOCOLE, pas d'execution -- il
+            # reste une erreur JSON-RPC.
             raise ToolError(METHOD_NOT_FOUND, "outil inconnu : %s" % name)
-        return fn(sb, params.get("arguments") or {})
+        try:
+            return fn(sb, params.get("arguments") or {})
+        except ToolError as exc:
+            # Un echec D'EXECUTION d'outil se rend comme un RESULTAT porteur
+            # de isError, jamais comme une erreur JSON-RPC (porte 3 de la
+            # capture 2026-09-17-144137) : mesure sur le poste de l'Owner,
+            # l'application de bureau replie l'erreur JSON-RPC en
+            # « <error>Tool execution failed</error> » et le texte -- le
+            # chemin demande, les dossiers autorises -- n'atteint jamais le
+            # Pilot. Le contenu d'un resultat, lui, lui est rendu tel quel.
+            # C'est aussi ce que la specification MCP prescrit pour les
+            # erreurs d'outil.
+            return {"content": [{"type": "text", "text": exc.message}], "isError": True}
     raise ToolError(METHOD_NOT_FOUND, "méthode inconnue : %s" % method)
 
 

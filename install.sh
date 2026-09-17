@@ -673,6 +673,19 @@ if [ ! -d "$CLONE_PATH/.git" ]; then
   git -C "$CLONE_PATH" config core.longpaths true
   git -C "$CLONE_PATH" config user.name "$ANSWER_GIT_USERNAME"
   git -C "$CLONE_PATH" config user.email "$ANSWER_GIT_USEREMAIL"
+  # Porte 2 de la capture 2026-09-17-144137 : la source est le clone que le
+  # bootstrap a depose dans le dossier temporaire, donc `origin` du clone
+  # installe -- et, par lui, le `vault_origin` de VAULT-IDENTITY.md, du
+  # marqueur et de chaque acte de naissance -- nommait
+  # %TEMP%\second-brain-install au lieu du depot d'ou tout vient. L'origine
+  # REELLE est celle de la source quand elle en a une ; sinon le chemin de
+  # la source, dit au participant plutot que pose en silence.
+  SOURCE_ORIGIN="$(git -C "$SOURCE_ABS" config --get remote.origin.url 2>/dev/null | head -n 1)"
+  if [ -n "$SOURCE_ORIGIN" ]; then
+    git -C "$CLONE_PATH" remote set-url origin "$SOURCE_ORIGIN"
+  else
+    catalog_get "install.vaultOrigin.fallback" "$SOURCE_ABS" >&2
+  fi
 fi
 mark_step "cloned"
 save_carnet
@@ -881,6 +894,16 @@ fi
 mark_step "profileWritten"
 save_carnet
 check_forced_stop "profile"
+
+# --- Fin d'installation : le Vault installe est rendu propre ---------------
+# Porte 8 de la capture 2026-09-17-144137 : l'installation se terminait sur
+# un clone au porcelain non vide (fiche de projet non suivie, index
+# modifies), si bien que le tout premier commit du participant heritait de
+# fichiers qu'il n'avait pas ecrits. Ce dernier passage regenere les index
+# et commite ce qui reste -- sans rien si tout est deja commite (la
+# fonction est un no-op a porcelain vide), donc une seconde execution ne
+# fabrique aucun commit.
+save_clone_pending_changes "Installation complete"
 
 # --- Verdict, signed by the assistant's own chosen name --------------------
 VERDICT="$(catalog_get "verdict.success") $(catalog_get "verdict.signature" "$ANSWER_VAULTNAME")"

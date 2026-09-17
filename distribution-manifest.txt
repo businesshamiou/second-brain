@@ -553,3 +553,15 @@ tools/propose_link_repairs.py	DISTRIBUABLE
 tools/resolve-vault.sh	DISTRIBUABLE
 tools/vault-identity.sh	DISTRIBUABLE
 tools/vault-mcp.py	DISTRIBUABLE
+tests/test-bootstrap-stale-temp-clone.ps1	DISTRIBUABLE
+tests/test-bootstrap-stale-temp-clone.sh	DISTRIBUABLE
+tests/test-common-prompt-exclusivity.sh	DISTRIBUABLE
+tests/test-install-doc-windows-invocation.sh	DISTRIBUABLE
+tests/test-install-leaves-vault-clean.sh	DISTRIBUABLE
+tests/test-install-vault-origin.sh	DISTRIBUABLE
+tests/test-project-bootstrap-adopt-git-no-question.sh	DISTRIBUABLE
+tests/test-project-bootstrap-adopt-plan.sh	DISTRIBUABLE
+tests/test-project-bootstrap-git-identity.sh	DISTRIBUABLE
+tests/test-project-bootstrap-native-paths.ps1	DISTRIBUABLE
+tests/test-project-bootstrap-native-paths.sh	DISTRIBUABLE
+tests/test-vault-mcp-refusal-message.py	DISTRIBUABLE

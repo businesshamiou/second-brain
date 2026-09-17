@@ -6,6 +6,36 @@ status: active
 
 # NOTES DE PUBLICATION
 
+## v0.1.4
+
+Version corrective : la v0.1.3 rejouée à la main sur un poste Windows déjà utilisé, dans l'application de bureau, a montré onze défauts que la CI ne pouvait pas voir — ses scénarios partent toujours d'une machine vierge. Si tu as déjà lancé la ligne publiée au moins une fois, installe depuis cette version.
+
+**Ce que cette version corrige.**
+
+- **Un poste déjà utilisé n'installe plus une version périmée.** C'est le défaut le plus grave. La ligne d'installation télécharge le dépôt dans un dossier temporaire ; ce dossier survit d'une fois sur l'autre, et l'amorçage le réutilisait tel quel. Un dossier oublié de la semaine précédente installait donc son vieux contenu — sans identité, sans acte de naissance, sans prompt Pilot — en annonçant « Installé, tout est en place ». Le dossier est désormais mis à jour et amené à la version demandée, et l'amorçage vérifie qu'il y est arrivé. En cas d'écart (autre dépôt, version inexistante), il refuse en nommant le dossier à écarter : jamais de suppression, jamais de `--force`.
+- **Ton Second Brain sait d'où il vient.** `vault_origin` — dans `VAULT-IDENTITY.md`, dans le marqueur `VAULT-ROOT.md` et dans l'acte de naissance de chaque projet — nommait le dossier temporaire au lieu du dépôt d'origine. Il porte maintenant l'origine réelle ; quand la source n'en a pas, le repli sur son chemin t'est dit, jamais posé en silence.
+- **Un refus du serveur MCP est lisible.** Dans l'application de bureau, une lecture hors périmètre affichait « Tool execution failed », sans chemin ni raison. Le serveur rend désormais un texte qui nomme le fichier demandé **et** la liste des dossiers autorisés.
+- **Le premier commit d'un projet aboutit.** `adopt` créait le dépôt Git sans identité d'auteur : sur un poste sans `user.email` global, le premier commit mourait sur « Author identity unknown ». Tout dépôt créé ou repris reçoit une identité locale — celle de ton Second Brain, sinon une identité neutre.
+- **`--git` vaut réponse.** `project-bootstrap.sh adopt <projet> --git` posait quand même la question « Suivre ce projet avec Git ? », ce qui bloquait tout appel sans terminal. L'option tranche la question au lieu de la précéder.
+- **Le Pilot sait que le serveur de Second Brain est son seul outil de fichiers.** Le prompt commun le dit désormais en une phrase : tout autre outil de fichiers est hors périmètre, même s'il est disponible.
+- **L'installation rend ton Second Brain propre.** Elle se terminait en laissant la fiche du premier projet non suivie et deux index modifiés — l'état que les gardiens refusent. Un dernier passage régénère les index et enregistre ce qui reste.
+- **Les chemins affichés sont ceux de ton système.** Sous Windows, le prompt Pilot, la fiche de projet et le bloc à consommer portaient le chemin du projet dans la forme de Git Bash, avec la lettre de lecteur en tête et des barres obliques ; ils portent maintenant la forme native de Windows, celle que l'application et le serveur MCP rendent.
+- **La documentation donne une ligne qu'on peut coller.** `INSTALL.md` et `README.md` écrivaient `bash tools/install-vault-mcp.sh` ; `bash` n'est pas sur le `PATH` de PowerShell. L'invocation Windows exacte, par le bash de Git, y figure.
+- **Le plan d'adoption ne parle plus que de l'existant.** Il proposait de ranger l'index que le même appel venait d'écrire.
+
+**Comment c'est prouvé.** Douze tests nommés, chacun avec son témoin négatif — la même mesure sur un cas fabriqué pour échouer — enchaînés dans les jobs Windows, Ubuntu et macOS de la CI publique. L'inventaire est dans [`tests/index.md`](./tests/index.md).
+
+**Ce que cette version ne promet pas.**
+
+- Rien de neuf côté fonctionnalités : cette version ferme des portes, elle n'en ouvre pas.
+- Le dossier du Projet de l'application de bureau (les outils de fichiers propres à l'application, hors serveur MCP) reste une question ouverte, non tranchée ici.
+- Les limites des versions précédentes restent valables : aucun mécanisme de mise à jour, S7 et S8 en `SKIP` sans clé de fournisseur, injection du serveur MCP prouvée sur un profil simulé.
+
+**Ce qui reste à faire de ton côté.**
+
+- Si tu as déjà installé une version précédente : relance simplement la ligne publiée ci-dessus. Si elle refuse en nommant un dossier temporaire, écarte ce dossier comme elle le demande, puis relance.
+- Pour le reste, rien ne change : `/first-install` pour le serveur MCP, puis un Projet par projet avec le prompt commun et le chemin en premier message.
+
 ## v0.1.3
 
 Version d'initiation : un projet naît ou est adopté en nommant son Second Brain, et le Pilot reçoit un accès disque versionné avec lui.

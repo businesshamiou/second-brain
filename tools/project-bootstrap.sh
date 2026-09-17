@@ -138,6 +138,21 @@ PYRUN() {
   uv run --no-project "$HELPER" "$@"
 }
 
+# native_path <chemin> : la forme que le SYSTEME comprend (porte 9 de la
+# capture 2026-09-17-144137). Sous Git Bash, `pwd` rend `/c/Users/...` ;
+# le serveur MCP, l'application de bureau et le participant lisent
+# `C:\Users\...`. Le Pilot de l'acceptation a du deviner que l'un etait
+# l'autre. Meme mecanisme que tools/install-vault-mcp.sh (native()) :
+# `cygpath -w` la ou il existe, le chemin tel quel partout ailleurs -- sous
+# Unix, rien ne change.
+native_path() {
+  if command -v cygpath >/dev/null 2>&1; then
+    cygpath -w "$1"
+  else
+    printf '%s\n' "$1"
+  fi
+}
+
 # CATALOG <cle> [args...] : message destine au participant, jamais ecrit en
 # dur (Mission 177, etape 5, contrainte "messages par les catalogues i18n/").
 CATALOG() {
@@ -264,6 +279,16 @@ if [ "$ASK" = "1" ]; then
   TARGET="${ASK_PLACE%/}/$ASK_NAME"
 fi
 
+# --- `--git` VAUT la reponse : plus aucune question (porte 5 de la capture
+# 2026-09-17-144137). `--git` ne posait que ADD_GIT, lu bien plus bas au
+# moment de l'acte de naissance ; VCS restait vide ici, donc `adopt <p>
+# --git` posait quand meme « Suivre ce projet avec Git ? » et bloquait sur
+# l'entree standard d'un appelant sans terminal. Une option explicite
+# repond a la question qu'elle tranche. ---
+if [ "$ADD_GIT" = "1" ] && [ -z "$VCS" ]; then
+  VCS="git"
+fi
+
 # --- Question Git si rien ne la porte (Decision 000545, A4) ------------------
 if [ -z "$VCS" ]; then
   if [ "$EXPLICIT" = "0" ]; then
@@ -383,6 +408,10 @@ if [ "$MODE" = "create" ]; then
   mkdir -p "$TARGET"/rules "$TARGET"/state "$TARGET"/missions "$TARGET"/decisions "$TARGET"/proposals "$TARGET"/knowledge "$TARGET"/handoffs
 fi
 TARGET_ABS="$(cd "$TARGET" && pwd)"
+# Forme native du chemin du projet : la seule qui soit rendue au
+# participant, au Pilot et a l'application (porte 9). TARGET_ABS reste la
+# forme du shell, utilisee pour tout acces disque de ce script.
+TARGET_NATIVE="$(native_path "$TARGET_ABS")"
 PROJECT_REL="$(rel_path "$WORKSPACE_ROOT" "$TARGET_ABS")"
 REL_STANDARD="$(rel_path "$TARGET_ABS" "$STANDARD_RULE")"
 REL_VAULT="$(rel_path "$TARGET_ABS" "$VAULT_ROOT")"
@@ -600,7 +629,7 @@ generated_at: "$TS"
 
 Généré par \`tools/project-bootstrap.sh\`. Ne pas éditer à la main : le prompt commun vit dans le Vault, ce fichier ne porte que ce qui est propre à ce projet.
 
-- Chemin du projet : \`$TARGET_ABS\`
+- Chemin du projet : \`$TARGET_NATIVE\`
 - Vault : \`$VAULT_ID\`, construit au commit \`$VAULT_REF\`
 - Canari : \`$CANARY\`
 
@@ -662,6 +691,31 @@ if [ "$MODE" = "create" ]; then
   bash "$JOURNAL_APPEND" "$TARGET_ABS" "OPEN:project-bootstrap -- projet $DISPLAY_NAME cree par tools/project-bootstrap.sh (Mission 061)"
 fi
 
+# --- Identite Git locale du projet (porte 4 de la capture
+# 2026-09-17-144137). `git init` ne pose aucune identite : sur un poste sans
+# `user.email` global -- le cas de l'Owner -- le tout premier commit du
+# projet echouait sur « Author identity unknown », alors que l'installeur,
+# lui, en pose une sur le clone. Ordre : ce qui est deja resolu pour ce
+# depot (local ou global) l'emporte et n'est jamais ecrase ; sinon
+# l'identite LOCALE du Vault installe ; sinon une identite neutre, qui dit
+# d'ou elle vient. ---
+PB_FALLBACK_NAME="Second Brain Installer"
+PB_FALLBACK_EMAIL="installer@example.invalid"
+ensure_git_identity() {
+  # $1 = depot du projet.
+  GI_NAME="$(git -C "$1" config --get user.name 2>/dev/null || true)"
+  GI_EMAIL="$(git -C "$1" config --get user.email 2>/dev/null || true)"
+  [ -n "$GI_NAME" ] && [ -n "$GI_EMAIL" ] && return 0
+  # --local sur le Vault : `--get` seul remonterait au global, qui est
+  # justement celui qui manque dans le cas mesure.
+  GI_VNAME="$(git -C "$VAULT_ROOT" config --local --get user.name 2>/dev/null || true)"
+  GI_VEMAIL="$(git -C "$VAULT_ROOT" config --local --get user.email 2>/dev/null || true)"
+  [ -n "$GI_NAME" ] || GI_NAME="${GI_VNAME:-$PB_FALLBACK_NAME}"
+  [ -n "$GI_EMAIL" ] || GI_EMAIL="${GI_VEMAIL:-$PB_FALLBACK_EMAIL}"
+  git -C "$1" config user.name "$GI_NAME" >/dev/null 2>&1 || return 1
+  git -C "$1" config user.email "$GI_EMAIL" >/dev/null 2>&1 || return 1
+}
+
 # --- Depot Git et hook (vcs: git) : le hook n'est jamais pose si vcs: none
 # (Decision 000545, A4 -- controles par commande). ---
 HOOK_NOTE=0
@@ -671,6 +725,10 @@ if [ "$VCS" = "git" ]; then
       || { git -C "$TARGET_ABS" init -q >/dev/null 2>&1 && git -C "$TARGET_ABS" symbolic-ref HEAD refs/heads/main; }
     [ -e "$TARGET_ABS/.git" ] && note_added ".git"
   fi
+  # Pose aussi sur un depot que ce script n'a pas cree (adopt --git sur un
+  # dossier deja sous Git) : le defaut mesure est l'absence d'identite, pas
+  # l'absence de depot.
+  [ -e "$TARGET_ABS/.git" ] && command -v git >/dev/null 2>&1 && ensure_git_identity "$TARGET_ABS"
   if [ -e "$TARGET_ABS/.git" ] && command -v pre-commit >/dev/null 2>&1; then
     (cd "$TARGET_ABS" && pre-commit install >/dev/null 2>&1) || HOOK_NOTE=1
   else
@@ -741,6 +799,7 @@ project_id: $PROJECT_ID
 display_name: "$DISPLAY_NAME"
 status: ACTIVE
 relative_path: $PROJECT_REL
+absolute_path: "$TARGET_NATIVE"
 purpose: "${ORDER_PURPOSE:-$DISPLAY_NAME}"
 canonical_context: "$ENTRY_POINT"
 entry_point: "$ENTRY_POINT"
@@ -772,6 +831,7 @@ EOF
 ## Location
 
 - \`relative_path\` : \`$PROJECT_REL\`, relatif au parent du Vault.
+- \`absolute_path\` : \`$TARGET_NATIVE\`, dans la forme que ce système comprend (porte 9) : c'est ce chemin que le serveur MCP rend et que le premier message d'une session Pilot porte.
 
 ## Entry Points
 
@@ -886,7 +946,7 @@ fi
 # historique des installeurs reste muet ici, son journal est plafonne. ---
 if [ "$EXPLICIT" = "1" ]; then
   if [ "$HOOK_NOTE" = "1" ]; then
-    CATALOG "projectBootstrap.hookMissing" "$TARGET_ABS"
+    CATALOG "projectBootstrap.hookMissing" "$TARGET_NATIVE"
   fi
   if [ "$VCS_SWITCHED" = "1" ]; then
     CATALOG "projectBootstrap.adopt.gitSwitched"
@@ -917,9 +977,21 @@ if [ "$EXPLICIT" = "1" ]; then
       CATALOG "projectBootstrap.adopt.planCreate" "README.md"
       PLAN_COUNT=$((PLAN_COUNT + 1))
     fi
+    # Porte 11 de la capture 2026-09-17-144137 : le plan proposait de
+    # deplacer `index.md` vers `knowledge/index.md` -- l'index que ce meme
+    # appel venait d'ecrire. Le plan ne parle que de l'EXISTANT : tout ce
+    # que cet appel a ajoute (liste $ADDED, rendue plus haut au
+    # participant) en est retire.
     for F in "$TARGET_ABS"/*; do
       [ -f "$F" ] || continue
       B="$(basename "$F")"
+      case "
+$ADDED
+" in
+        *"
+$B
+"*) continue ;;
+      esac
       DEST=""
       case "$B" in
         README.md|AGENTS.md|CLAUDE.md|LICENSE*|.*) DEST="" ;;
@@ -943,9 +1015,9 @@ if [ "$EXPLICIT" = "1" ]; then
   # --- Bloc a consommer (Decision 000545, A4) ---
   CATALOG "projectBootstrap.consume.header"
   CATALOG "projectBootstrap.consume.project" "$DISPLAY_NAME"
-  CATALOG "projectBootstrap.consume.instructions" "$PILOT_PROMPT_TEMPLATE"
-  CATALOG "projectBootstrap.consume.firstMessage" "$TARGET_ABS"
-  CATALOG "projectBootstrap.consume.canary" "$CANARY" "$PILOT_PROMPT"
+  CATALOG "projectBootstrap.consume.instructions" "$(native_path "$PILOT_PROMPT_TEMPLATE")"
+  CATALOG "projectBootstrap.consume.firstMessage" "$TARGET_NATIVE"
+  CATALOG "projectBootstrap.consume.canary" "$CANARY" "$(native_path "$PILOT_PROMPT")"
 fi
 
 echo "$FICHE"

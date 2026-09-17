@@ -640,6 +640,22 @@ try {
         & git -C $clonePath config core.longpaths true
         & git -C $clonePath config user.name $gitUserName
         & git -C $clonePath config user.email $gitUserEmail
+        # Gate 2 of capture 2026-09-17-144137: the source is the clone the
+        # bootstrap dropped in the temp folder, so the installed clone's
+        # `origin` -- and through it VAULT-IDENTITY.md's vault_origin, the
+        # marker and every project birth certificate -- named
+        # %TEMP%\second-brain-install instead of where all of it came from.
+        # The REAL origin is the source's own, when it has one; otherwise
+        # the source path, said out loud rather than set in silence.
+        $sourceOrigin = (& git -C $sourceAbs config --get remote.origin.url | Select-Object -First 1)
+        if ($LASTEXITCODE -ne 0 -or $null -eq $sourceOrigin) { $sourceOrigin = '' }
+        $sourceOrigin = "$sourceOrigin".Trim()
+        if ($sourceOrigin) {
+            & git -C $clonePath remote set-url origin $sourceOrigin
+        }
+        else {
+            [Console]::Error.WriteLine((Format-CatalogText -Catalog $catalog -Key 'install.vaultOrigin.fallback' -FormatArgs @($sourceAbs)))
+        }
     }
     Set-CarnetStep -Carnet $carnet -Name 'cloned'
     # The notebook is born here (T06 complement 2: this is where the
@@ -887,6 +903,16 @@ try {
     Set-CarnetStep -Carnet $carnet -Name 'profileWritten'
     Save-Carnet -Path $carnetPath -Carnet $carnet
     Test-ForcedStop -StopAfterStep $StopAfterStep -StepName 'profile'
+
+    # End of installation: the installed Vault is handed over clean.
+    # Gate 8 of capture 2026-09-17-144137: the install used to end on a
+    # clone whose porcelain was not empty (an untracked project record,
+    # modified indexes), so the participant's very first commit inherited
+    # files they never wrote. This last pass regenerates the indexes and
+    # commits whatever is left -- and nothing at all when everything is
+    # already committed (the function is a no-op at empty porcelain), so a
+    # second run still manufactures no commit.
+    Save-ClonePendingChanges -BashExe $bashExe -ClonePath $clonePath -CommitMessage 'Installation complete'
 
     # Signed by the assistant's own chosen name (T07: "il signe... en fin de
     # verdict"; ticket 05's own report named this explicitly out of scope

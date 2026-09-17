@@ -30,13 +30,13 @@ Le glossaire complet des termes du produit vit dans [CONTEXT.md](./CONTEXT.md).
 **Windows (PowerShell, compte standard suffisant) :**
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.3/bootstrap.ps1)))"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.4/bootstrap.ps1)))"
 ```
 
 **macOS / Linux (Terminal) :**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.3/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.4/bootstrap.sh | bash
 ```
 
 Rien n'est à installer avant : le script d'amorçage pose Git dans ton profil s'il manque, récupère ce dépôt, puis lance l'installeur (détail dans [INSTALL.md](./INSTALL.md)).
@@ -66,7 +66,19 @@ Rien n'est installé à un emplacement machine (registre système, dossier parta
 
 Le rôle Pilot (penser, arbitrer, écrire les Missions) se joue dans **l'application de bureau Claude** : c'est là que vit le serveur MCP de Second Brain, qui donne au Pilot un accès disque borné à ton espace de travail. Il n'existe pas dans le navigateur.
 
-1. Depuis Claude Code ou Codex, `/first-install` pose ce serveur (`tools/install-vault-mcp.sh`) dans les outils qu'il trouve — Claude Code, Codex, l'application de bureau — avec ton espace de travail comme seul dossier autorisé. Redémarre ensuite l'application.
+1. Depuis Claude Code ou Codex, `/first-install` pose ce serveur (`tools/install-vault-mcp.sh`) dans les outils qu'il trouve — Claude Code, Codex, l'application de bureau — avec ton espace de travail comme seul dossier autorisé. Redémarre ensuite l'application. À la main, depuis la racine de ton clone :
+
+   ```bash
+   bash tools/install-vault-mcp.sh <espace de travail>
+   bash tools/check-mcp-containment.sh <configuration> <projet>
+   ```
+
+   **Sous Windows, dans PowerShell**, `bash` n'est pas sur le PATH ; appelle celui de Git par son chemin complet :
+
+   ```powershell
+   & "C:\Program Files\Git\bin\bash.exe" tools/install-vault-mcp.sh <espace de travail>
+   & "C:\Program Files\Git\bin\bash.exe" tools/check-mcp-containment.sh <configuration> <projet>
+   ```
 2. Chaque projet porte son prompt Pilot, `<projet>/state/PILOT-PROMPT.md`, généré à sa création. La création te rend un **bloc à consommer** : crée un Projet portant le nom du projet, colle comme instructions le prompt commun (`templates/session-opening-prompt-template.md`), et donne comme premier message le chemin du projet.
 3. À l'ouverture, le Pilot vérifie que le serveur voit ce chemin, puis lit le prompt du projet et rend son **canari** : la preuve qu'il a lu le disque plutôt que sa mémoire.
 

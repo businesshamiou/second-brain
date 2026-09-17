@@ -88,5 +88,7 @@
   "vaultMcp.pythonOk": "Python par uv : {0}",
   "vaultMcp.pythonMissing": "Python introuvable par uv : le serveur ne peut pas démarrer, rien n'est configuré.",
   "vaultMcp.nothingDetected": "Aucun outil détecté (claude, codex, application Claude) : rien à configurer.",
-  "vaultMcp.restart": "Geste restant : redémarre l'application Claude (et relance Claude Code ou Codex) pour charger le serveur."
+  "vaultMcp.restart": "Geste restant : redémarre l'application Claude (et relance Claude Code ou Codex) pour charger le serveur.",
+
+  "install.vaultOrigin.fallback": "Origine du Vault : la source {0} n'a pas de dépôt distant ; l'origine enregistrée est ce chemin."
 }

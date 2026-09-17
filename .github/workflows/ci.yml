@@ -100,6 +100,61 @@ jobs:
         shell: bash
         run: bash tests/test-catalog-key-parity.sh
 
+      # Mission 185-C01: the twelve gates measured by the human acceptance of
+      # 2026-09-17 (capture 144137). Each test carries its own negative
+      # control -- the same measurement on a case built to fail -- and none
+      # is informational: a red one turns the job red.
+      - name: Main (185) -- a stale temp clone is brought to -Ref, never installed as is (T1)
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-bootstrap-stale-temp-clone.ps1
+
+      - name: Main (185) -- a stale temp clone, shell twin (T1)
+        shell: bash
+        run: bash tests/test-bootstrap-stale-temp-clone.sh
+
+      - name: Main (185) -- the installed Vault records its REAL origin (T2)
+        shell: bash
+        run: bash tests/test-install-vault-origin.sh
+
+      - name: Main (185) -- a finished install leaves the Vault at empty porcelain (T3)
+        shell: bash
+        run: bash tests/test-install-leaves-vault-clean.sh
+
+      - name: Main (185) -- every project repository carries an author identity (T4)
+        shell: bash
+        run: bash tests/test-project-bootstrap-git-identity.sh
+
+      - name: Main (185) -- adopt --git asks nothing and reads no stdin (T5)
+        shell: bash
+        run: bash tests/test-project-bootstrap-adopt-git-no-question.sh
+
+      - name: Main (185) -- an MCP refusal names the path and the perimeter (T6)
+        shell: bash
+        run: |
+          . tests/sandbox-vault.sh
+          sandbox_find_uv || { echo 'REFUS : uv introuvable'; exit 1; }
+          uv run --no-project tests/test-vault-mcp-refusal-message.py
+
+      - name: Main (185) -- native paths under Windows (T7)
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-project-bootstrap-native-paths.ps1
+
+      - name: Main (185) -- native paths, shell twin (T7)
+        shell: bash
+        run: bash tests/test-project-bootstrap-native-paths.sh
+
+      - name: Main (185) -- the adoption plan speaks only of what was already there (T8)
+        shell: bash
+        run: bash tests/test-project-bootstrap-adopt-plan.sh
+
+      - name: Main (185) -- the common Pilot prompt names its only file server (T9)
+        shell: bash
+        run: bash tests/test-common-prompt-exclusivity.sh
+
+      - name: Main (185) -- INSTALL.md and README.md carry the Windows invocation (T10)
+        shell: bash
+        run: bash tests/test-install-doc-windows-invocation.sh
+
       # Mission 183-C01: the published bootstrap installs from a PATH with no
       # Git and no uv (same account; the standard-account half is S9 in the
       # acceptance job).
@@ -255,6 +310,43 @@ jobs:
       - name: Main -- catalog key parity (fr/en/es), shell twin
         run: bash tests/test-catalog-key-parity.sh
 
+      # Mission 185-C01: the twelve gates measured by the human acceptance of
+      # 2026-09-17 (capture 144137). Each test carries its own negative
+      # control -- the same measurement on a case built to fail -- and none
+      # is informational: a red one turns the job red.
+      - name: Main (185) -- a stale temp clone is brought to --ref, never installed as is (T1)
+        run: bash tests/test-bootstrap-stale-temp-clone.sh
+
+      - name: Main (185) -- the installed Vault records its REAL origin (T2)
+        run: bash tests/test-install-vault-origin.sh
+
+      - name: Main (185) -- a finished install leaves the Vault at empty porcelain (T3)
+        run: bash tests/test-install-leaves-vault-clean.sh
+
+      - name: Main (185) -- every project repository carries an author identity (T4)
+        run: bash tests/test-project-bootstrap-git-identity.sh
+
+      - name: Main (185) -- adopt --git asks nothing and reads no stdin (T5)
+        run: bash tests/test-project-bootstrap-adopt-git-no-question.sh
+
+      - name: Main (185) -- an MCP refusal names the path and the perimeter (T6)
+        run: |
+          . tests/sandbox-vault.sh
+          sandbox_find_uv || { echo 'REFUS : uv introuvable'; exit 1; }
+          uv run --no-project tests/test-vault-mcp-refusal-message.py
+
+      - name: Main (185) -- native paths, POSIX side of the control (T7)
+        run: bash tests/test-project-bootstrap-native-paths.sh
+
+      - name: Main (185) -- the adoption plan speaks only of what was already there (T8)
+        run: bash tests/test-project-bootstrap-adopt-plan.sh
+
+      - name: Main (185) -- the common Pilot prompt names its only file server (T9)
+        run: bash tests/test-common-prompt-exclusivity.sh
+
+      - name: Main (185) -- INSTALL.md and README.md carry the Windows invocation (T10)
+        run: bash tests/test-install-doc-windows-invocation.sh
+
       - name: Main install test -- answers file, second pass at empty porcelain
         run: bash tests/test-install-e2e.sh
 
@@ -409,6 +501,43 @@ jobs:
 
       - name: Main -- catalog key parity (fr/en/es), shell twin
         run: bash tests/test-catalog-key-parity.sh
+
+      # Mission 185-C01: the twelve gates measured by the human acceptance of
+      # 2026-09-17 (capture 144137). Each test carries its own negative
+      # control -- the same measurement on a case built to fail -- and none
+      # is informational: a red one turns the job red.
+      - name: Main (185) -- a stale temp clone is brought to --ref, never installed as is (T1)
+        run: bash tests/test-bootstrap-stale-temp-clone.sh
+
+      - name: Main (185) -- the installed Vault records its REAL origin (T2)
+        run: bash tests/test-install-vault-origin.sh
+
+      - name: Main (185) -- a finished install leaves the Vault at empty porcelain (T3)
+        run: bash tests/test-install-leaves-vault-clean.sh
+
+      - name: Main (185) -- every project repository carries an author identity (T4)
+        run: bash tests/test-project-bootstrap-git-identity.sh
+
+      - name: Main (185) -- adopt --git asks nothing and reads no stdin (T5)
+        run: bash tests/test-project-bootstrap-adopt-git-no-question.sh
+
+      - name: Main (185) -- an MCP refusal names the path and the perimeter (T6)
+        run: |
+          . tests/sandbox-vault.sh
+          sandbox_find_uv || { echo 'REFUS : uv introuvable'; exit 1; }
+          uv run --no-project tests/test-vault-mcp-refusal-message.py
+
+      - name: Main (185) -- native paths, POSIX side of the control (T7)
+        run: bash tests/test-project-bootstrap-native-paths.sh
+
+      - name: Main (185) -- the adoption plan speaks only of what was already there (T8)
+        run: bash tests/test-project-bootstrap-adopt-plan.sh
+
+      - name: Main (185) -- the common Pilot prompt names its only file server (T9)
+        run: bash tests/test-common-prompt-exclusivity.sh
+
+      - name: Main (185) -- INSTALL.md and README.md carry the Windows invocation (T10)
+        run: bash tests/test-install-doc-windows-invocation.sh
 
       - name: Main install test -- answers file, second pass at empty porcelain
         run: bash tests/test-install-e2e.sh

@@ -18,8 +18,11 @@
          the exact place install.ps1's prerequisites step looks for it
          (%USERPROFILE%\.local\share\second-brain\PortableGit, or under
          -TestRoot\profile in test mode);
-      3. clones the repository at -Ref into -Target with that git.exe,
-         without touching PATH;
+      3. brings -Target to -Ref with that git.exe, without touching PATH:
+         a fresh clone when the folder is absent, otherwise fetch +
+         checkout on the clone already there, with HEAD proven equal to
+         -Ref (Mission 185-C01, gate 1 -- a leftover %TEMP% clone used to
+         be installed as it stood);
       4. runs the cloned install.ps1 -Source <Target>, in a separate
          process. install.ps1 then finds the extracted Git, re-verifies its
          archive, and adds it to the user PATH itself -- the same code path
@@ -28,12 +31,13 @@
     Nothing here asks for elevation: no RunAs, no HKLM, no Program Files.
 
     Published line (INSTALL.md):
-        powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.3/bootstrap.ps1)))"
+        powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.4/bootstrap.ps1)))"
 
     Usage (all parameters optional):
         bootstrap.ps1 [-Ref <tag-or-branch>] [-RepoUrl <url-or-path>]
                       [-RawBase <url-or-directory>] [-Target <directory>]
                       [-AnswersFile <path>] [-TestMode -TestRoot <path>]
+                      [-StopAfterStep <name>]
 
     -RepoUrl and -RawBase accept a local repository / directory so the
     test suite can play the whole path offline against a local clone
@@ -45,13 +49,17 @@
 
 [CmdletBinding()]
 param(
-    [string] $Ref = 'v0.1.3',
+    [string] $Ref = 'v0.1.4',
     [string] $RepoUrl = 'https://github.com/businesshamiou/second-brain.git',
     [string] $RawBase = '',
     [string] $Target = '',
     [string] $AnswersFile = '',
     [switch] $TestMode,
-    [string] $TestRoot = ''
+    [string] $TestRoot = '',
+    # Test-only, relayed as is to install.ps1 (same plumbing as -TestMode):
+    # tests/test-bootstrap-stale-temp-clone.ps1 measures the clone stage on
+    # three systems without paying for a full install on each.
+    [string] $StopAfterStep = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -61,6 +69,34 @@ function Stop-Bootstrap {
     param([string] $Reason)
     Write-Output "Second Brain bootstrap stopped: $Reason"
     exit 1
+}
+
+# Two spellings of the SAME origin must not read as two origins: a local
+# test clone is given as a Windows path, Git hands it back with forward
+# slashes, and a URL may or may not carry its .git suffix or a trailing
+# slash. Windows paths and GitHub URLs are both case-insensitive here.
+function Normalize-RepoUrl {
+    param([string] $Url)
+    if ([string]::IsNullOrWhiteSpace($Url)) { return '' }
+    $u = $Url.Trim().Replace('\', '/')
+    $u = $u.TrimEnd('/')
+    if ($u.EndsWith('.git')) { $u = $u.Substring(0, $u.Length - 4).TrimEnd('/') }
+    return $u.ToLowerInvariant()
+}
+
+# Two names for the SAME repository. Text first (the ordinary case: a URL),
+# then folder identity when both sides are local: a local path can be
+# spelled several ways (forward or back slashes, a short 8.3 name, a
+# different case), and Git records its own spelling rather than the one the
+# line used -- the same folder must not read as two repositories
+# (tests/test-bootstrap-stale-temp-clone.ps1).
+function Test-SameRepoUrl {
+    param([string] $Existing, [string] $Wanted)
+    if ((Normalize-RepoUrl $Existing) -eq (Normalize-RepoUrl $Wanted)) { return $true }
+    $a = $null; $b = $null
+    try { $a = (Resolve-Path -LiteralPath $Existing -ErrorAction Stop).Path } catch { return $false }
+    try { $b = (Resolve-Path -LiteralPath $Wanted -ErrorAction Stop).Path } catch { return $false }
+    return ($a.TrimEnd('\', '/') -eq $b.TrimEnd('\', '/'))
 }
 
 try {
@@ -124,7 +160,53 @@ try {
     }
 
     # --- 3. the repository, cloned with that git.exe (PATH untouched) ---
-    if (-not (Test-Path -LiteralPath (Join-Path $Target '.git'))) {
+    # An EXISTING clone here is the normal case on a workstation that has
+    # already played the published line: %TEMP%\second-brain-install
+    # survives. Until Mission 185-C01 this whole block was skipped when
+    # .git was there, so the installer ran whatever commit that leftover
+    # folder happened to sit on -- measured on the Owner's workstation
+    # (capture 2026-09-17-144137, gate 1): a 2026-09-13 commit, older than
+    # every tag, installed with a clean verdict. The folder is now brought
+    # to -Ref instead: same origin, fetch, checkout, and HEAD proven equal
+    # to -Ref. Never --force, never a deletion: a mismatch refuses and
+    # names the folder to move aside.
+    if (Test-Path -LiteralPath (Join-Path $Target '.git')) {
+        # `config --get` rather than `remote get-url`: it is silent on a
+        # missing remote (exit 1, nothing on stderr), and this script runs
+        # under $ErrorActionPreference = 'Stop', where a native command
+        # writing to stderr throws.
+        $existingOrigin = (& $gitExe -C $Target config --get remote.origin.url | Select-Object -First 1)
+        if ($LASTEXITCODE -ne 0 -or $null -eq $existingOrigin) { $existingOrigin = '' }
+        if (-not (Test-SameRepoUrl $existingOrigin $RepoUrl)) {
+            Stop-Bootstrap "$Target is a clone of '$existingOrigin', not of '$RepoUrl'; move $Target aside and run the line again."
+        }
+        & $gitExe -C $Target config core.longpaths true
+        & $gitExe -C $Target fetch --quiet --tags origin
+        if ($LASTEXITCODE -ne 0) {
+            Stop-Bootstrap "git fetch of $RepoUrl failed in $Target (exit $LASTEXITCODE); move $Target aside and run the line again."
+        }
+        # A tag first, then the remote-tracking branch, then a raw commit
+        # id: a stale LOCAL branch named `main` must never win over what
+        # the fetch just brought in.
+        $wanted = ''
+        foreach ($candidate in @("refs/tags/$Ref^{commit}", "refs/remotes/origin/$Ref^{commit}", "$Ref^{commit}")) {
+            # --quiet keeps stderr empty when the ref does not exist.
+            $resolved = (& $gitExe -C $Target rev-parse --verify --quiet $candidate | Select-Object -First 1)
+            if ($LASTEXITCODE -eq 0 -and -not [string]::IsNullOrWhiteSpace($resolved)) { $wanted = $resolved.Trim(); break }
+        }
+        if ([string]::IsNullOrWhiteSpace($wanted)) {
+            Stop-Bootstrap "$Ref does not exist in $RepoUrl; nothing was installed."
+        }
+        & $gitExe -C $Target -c advice.detachedHead=false checkout --quiet --detach $wanted
+        if ($LASTEXITCODE -ne 0) {
+            Stop-Bootstrap "$Ref could not be checked out in $Target (exit $LASTEXITCODE); move $Target aside and run the line again."
+        }
+        $head = (& $gitExe -C $Target rev-parse HEAD | Select-Object -First 1).Trim()
+        if ($head -ne $wanted) {
+            Stop-Bootstrap "$Target is at $head, not at $Ref ($wanted); move $Target aside and run the line again."
+        }
+    }
+    else {
         if (Test-Path -LiteralPath $Target) {
             Stop-Bootstrap "$Target exists but is not a Git repository; move it aside and run the line again."
         }
@@ -146,6 +228,7 @@ try {
     $installArgs = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $Target 'install.ps1'), '-Source', $Target)
     if (-not [string]::IsNullOrWhiteSpace($AnswersFile)) { $installArgs += @('-AnswersFile', $AnswersFile) }
     if ($TestMode) { $installArgs += @('-TestMode', '-TestRoot', $TestRoot) }
+    if (-not [string]::IsNullOrWhiteSpace($StopAfterStep)) { $installArgs += @('-StopAfterStep', $StopAfterStep) }
     & powershell @installArgs
     exit $LASTEXITCODE
 }
