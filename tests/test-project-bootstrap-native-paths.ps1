@@ -7,7 +7,7 @@
 
 .DESCRIPTION
     Measured on the Owner's workstation: state/PILOT-PROMPT.md carried
-    `/c/Users/hamio/Workspaces/sb6/test-184`, while the MCP server, the
+    the project path in Git Bash form, while the MCP server, the
     desktop application and the participant all read `C:\Users\...`. The
     Pilot had to reason its way from one to the other; nothing guaranteed
     it would.

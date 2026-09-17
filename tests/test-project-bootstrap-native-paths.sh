@@ -4,7 +4,8 @@
 # dans la forme que LEUR systeme comprend.
 #
 # Defaut mesure sur le poste de l'Owner : `state/PILOT-PROMPT.md` portait
-# `/c/Users/hamio/Workspaces/sb6/test-184` -- la forme de Git Bash -- alors
+# le chemin du projet dans la forme de Git Bash -- lettre de lecteur en
+# tete et barres obliques -- alors
 # que le serveur MCP, l'application de bureau et le participant lisent
 # `C:\Users\...`. Le Pilot a du raisonner « dossier parent » pour s'en
 # sortir ; rien ne garantissait qu'il y arrive.

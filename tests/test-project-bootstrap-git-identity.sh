@@ -90,11 +90,13 @@ else
   fail "controle : une identite Git globale est encore visible -- le test ne prouverait rien"
 fi
 
-# try_commit <projet> <message> : commit de mesure, gardiens ecartes.
-# Rend le code de sortie et laisse la sortie complete dans $LAST_COMMIT_OUT.
+# try_commit <projet> <message> [config...] : commit de mesure, gardiens
+# ecartes. Rend le code de sortie et laisse la sortie complete dans
+# $LAST_COMMIT_OUT.
 LAST_COMMIT_OUT=""
 try_commit() {
-  LAST_COMMIT_OUT="$(cd "$1" && git -c core.hooksPath="$EMPTY_HOOKS" add -A >/dev/null 2>&1; cd "$1" && git -c core.hooksPath="$EMPTY_HOOKS" commit -q -m "$2" 2>&1)"
+  TC_DIR="$1"; TC_MSG="$2"; shift 2
+  LAST_COMMIT_OUT="$(cd "$TC_DIR" && git -c core.hooksPath="$EMPTY_HOOKS" add -A >/dev/null 2>&1; cd "$TC_DIR" && git -c core.hooksPath="$EMPTY_HOOKS" "$@" commit -q -m "$TC_MSG" 2>&1)"
   return $?
 }
 
@@ -195,14 +197,23 @@ fi
 echo ""
 echo "=== temoin negatif : identite locale retiree -> commit refuse ==="
 # Le MEME projet, le MEME commit, la seule identite en moins.
+#
+# `user.useConfigOnly=true` : sans lui, ce temoin ne mesure pas la meme
+# chose partout. Quand aucune identite n'est configuree, Git en DEVINE une
+# a partir du compte et du nom de machine s'il le peut -- ce qu'il fait sur
+# le runner macOS (mesure, Mission 185-C01, tour 2 : le commit passait) et
+# ce qu'il ne pouvait pas faire sur le poste de l'Owner, ou le defaut s'est
+# manifeste. Ce reglage desactive la devinette : la condition mesuree
+# devient « aucune identite configuree » sur les trois systemes, ce que la
+# porte 4 corrige. Pose sur la commande seule (-c), jamais dans le depot.
 printf '\nUne ligne de plus.\n' >> "$P_A/README.md"
 git -C "$P_A" config --unset user.name >/dev/null 2>&1 || true
 git -C "$P_A" config --unset user.email >/dev/null 2>&1 || true
-if try_commit "$P_A" "commit temoin, sans identite"; then
+if try_commit "$P_A" "commit temoin, sans identite" -c user.useConfigOnly=true; then
   fail "temoin : le commit passe alors que l'identite a ete retiree"
 else
   case "$LAST_COMMIT_OUT" in
-    *"Author identity unknown"*|*"empty ident"*|*"unable to auto-detect email"*)
+    *"Author identity unknown"*|*"empty ident"*|*"unable to auto-detect email"*|*"auto-detection is disabled"*)
       pass "temoin : le commit est refuse et nomme l'identite manquante" ;;
     *)
       fail "temoin : commit refuse, mais pour une autre cause -- $LAST_COMMIT_OUT" ;;
