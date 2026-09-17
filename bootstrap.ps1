@@ -175,8 +175,17 @@ try {
         # missing remote (exit 1, nothing on stderr), and this script runs
         # under $ErrorActionPreference = 'Stop', where a native command
         # writing to stderr throws.
-        $existingOrigin = (& $gitExe -C $Target config --get remote.origin.url | Select-Object -First 1)
-        if ($LASTEXITCODE -ne 0 -or $null -eq $existingOrigin) { $existingOrigin = '' }
+        #
+        # @(...) rather than `| Select-Object -First 1`: -First stops the
+        # pipeline, which stops the native command, and $LASTEXITCODE is then
+        # whatever that interruption produced. Measured on the CI Windows
+        # runner (Mission 185-C01, round 1): git had printed the origin, the
+        # exit code read non-zero anyway, the value was blanked, and the line
+        # refused a folder that was in fact the right clone.
+        $originLines = @(& $gitExe -C $Target config --get remote.origin.url)
+        $originExit = $LASTEXITCODE
+        $existingOrigin = ''
+        if ($originExit -eq 0 -and $originLines.Count -gt 0) { $existingOrigin = "$($originLines[0])".Trim() }
         if (-not (Test-SameRepoUrl $existingOrigin $RepoUrl)) {
             Stop-Bootstrap "$Target is a clone of '$existingOrigin', not of '$RepoUrl'; move $Target aside and run the line again."
         }
@@ -191,8 +200,12 @@ try {
         $wanted = ''
         foreach ($candidate in @("refs/tags/$Ref^{commit}", "refs/remotes/origin/$Ref^{commit}", "$Ref^{commit}")) {
             # --quiet keeps stderr empty when the ref does not exist.
-            $resolved = (& $gitExe -C $Target rev-parse --verify --quiet $candidate | Select-Object -First 1)
-            if ($LASTEXITCODE -eq 0 -and -not [string]::IsNullOrWhiteSpace($resolved)) { $wanted = $resolved.Trim(); break }
+            $resolvedLines = @(& $gitExe -C $Target rev-parse --verify --quiet $candidate)
+            $resolvedExit = $LASTEXITCODE
+            if ($resolvedExit -eq 0 -and $resolvedLines.Count -gt 0 -and -not [string]::IsNullOrWhiteSpace($resolvedLines[0])) {
+                $wanted = "$($resolvedLines[0])".Trim()
+                break
+            }
         }
         if ([string]::IsNullOrWhiteSpace($wanted)) {
             Stop-Bootstrap "$Ref does not exist in $RepoUrl; nothing was installed."
@@ -201,7 +214,8 @@ try {
         if ($LASTEXITCODE -ne 0) {
             Stop-Bootstrap "$Ref could not be checked out in $Target (exit $LASTEXITCODE); move $Target aside and run the line again."
         }
-        $head = (& $gitExe -C $Target rev-parse HEAD | Select-Object -First 1).Trim()
+        $headLines = @(& $gitExe -C $Target rev-parse HEAD)
+        $head = if ($headLines.Count -gt 0) { "$($headLines[0])".Trim() } else { '' }
         if ($head -ne $wanted) {
             Stop-Bootstrap "$Target is at $head, not at $Ref ($wanted); move $Target aside and run the line again."
         }

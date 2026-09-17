@@ -137,19 +137,43 @@ fi
 
 # =============================================================================
 echo ""
-echo "=== temoin negatif : installation interrompue avant le commit de fin ==="
-R_B="$TMP/b"
-run_install "$R_B" --stop-after-step firstProject
-RC_B=$?
-[ "$RC_B" != "0" ] && pass "temoin : l'arret force rend un code non nul ($RC_B)" \
-  || fail "temoin : l'arret force rend 0"
-CLONE_B="$R_B/workspace/second-brain"
-PORC_B="$(porcelain_of "$CLONE_B")"
+echo "=== temoin negatif : l'etat exact de la porte 8, reproduit ==="
+# Un `--stop-after-step` ne suffit PAS a fabriquer ce temoin : chaque etape
+# de l'installeur commite avant son point d'arret, et la mesure tomberait
+# sur un porcelain vide pour une mauvaise raison (mesure ici meme, Mission
+# 185-C01). L'etat de la porte 8 est donc reproduit tel qu'il a ete
+# observe : une fiche de projet ecrite dans le Vault et les index touches,
+# sans le commit qui les enregistre -- ce que fait tout appel a
+# project-bootstrap.sh hors de l'installeur.
+if bash "$CLONE_A/tools/project-bootstrap.sh" create "$R_A/workspace/second-projet" "Second projet" --vcs none >/dev/null 2>&1; then
+  pass "temoin : un second projet est cree contre le Vault installe"
+else
+  fail "temoin : le second projet n'a pas pu etre cree"
+fi
+PORC_B="$(porcelain_of "$CLONE_A")"
 if [ -n "$PORC_B" ]; then
   pass "temoin : la meme mesure voit un porcelain NON vide ($(printf '%s\n' "$PORC_B" | grep -c .) ligne(s))"
   printf '%s\n' "$PORC_B" | head -n 4 | sed 's/^/      /'
 else
-  fail "temoin : porcelain vide alors que l'installation a ete interrompue -- la mesure ne prouverait rien"
+  fail "temoin : porcelain vide alors que le Vault vient d'etre touche -- la mesure ne prouverait rien"
+fi
+
+# ... et le passage de fin d'installation est bien ce qui referme cet etat :
+# une execution de plus le nettoie, et cette fois elle fabrique un commit.
+HEAD_DIRTY="$(git -C "$CLONE_A" rev-parse HEAD)"
+run_install "$R_A"
+RC_A3=$?
+HEAD_CLEAN="$(git -C "$CLONE_A" rev-parse HEAD)"
+[ "$RC_A3" = "0" ] && pass "temoin : l'installation rend 0 sur un Vault sali" || fail "temoin : l'installation rend $RC_A3"
+if [ -z "$(porcelain_of "$CLONE_A")" ]; then
+  pass "temoin : le passage de fin d'installation ramene le porcelain a vide"
+else
+  fail "temoin : le porcelain reste non vide apres le passage de fin"
+fi
+if [ "$HEAD_DIRTY" != "$HEAD_CLEAN" ]; then
+  pass "temoin : ce passage a bien fabrique un commit -- il n'est pas decoratif"
+else
+  fail "temoin : aucun commit fabrique alors que le Vault etait sali"
 fi
 
 echo ""

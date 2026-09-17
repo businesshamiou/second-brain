@@ -647,9 +647,15 @@ try {
         # %TEMP%\second-brain-install instead of where all of it came from.
         # The REAL origin is the source's own, when it has one; otherwise
         # the source path, said out loud rather than set in silence.
-        $sourceOrigin = (& git -C $sourceAbs config --get remote.origin.url | Select-Object -First 1)
-        if ($LASTEXITCODE -ne 0 -or $null -eq $sourceOrigin) { $sourceOrigin = '' }
-        $sourceOrigin = "$sourceOrigin".Trim()
+        # @(...) rather than `| Select-Object -First 1`: -First stops the
+        # pipeline, which stops the native command, and $LASTEXITCODE is then
+        # whatever that interruption produced -- measured on the CI Windows
+        # runner (Mission 185-C01, round 1). Reading the value back through an
+        # array keeps git's own exit code readable.
+        $originLines = @(& git -C $sourceAbs config --get remote.origin.url)
+        $originExit = $LASTEXITCODE
+        $sourceOrigin = ''
+        if ($originExit -eq 0 -and $originLines.Count -gt 0) { $sourceOrigin = "$($originLines[0])".Trim() }
         if ($sourceOrigin) {
             & git -C $clonePath remote set-url origin $sourceOrigin
         }
