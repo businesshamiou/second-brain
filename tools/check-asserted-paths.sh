@@ -255,6 +255,10 @@ git_ignored() {
 #     conception de tout checkout de second-brain ;
 #   ~/.codex/AGENTS.md, ~/.claude/CLAUDE.md -- fichiers du profil utilisateur,
 #     jamais versionnes ;
+#   claude_desktop_config.json, %APPDATA%\Claude\claude_desktop_config.json --
+#     configuration de l'application de bureau Claude, meme categorie que les
+#     deux precedents (fichier du profil utilisateur, jamais versionne dans ce
+#     depot) ; cite par la FAQ participant de README.md (Mission 186, T5) ;
 #   policy.yaml -- nomme par une Decision comme geste a faire, jamais
 #     construit sous ce nom (explicitement rejete, DECISION-2026-08-23-220049) ;
 #   build-package.sh -- outil de fabrication INTERNE (manifeste), jamais
@@ -266,7 +270,7 @@ git_ignored() {
 # dans second-brain (noms uniques), la recherche par nom de fichier (point 3
 # ci-dessus) les resout deja sans ambiguite ; le commentaire qui les decrivait
 # ici comme "jamais construits sous ce nom" etait inexact.
-KNOWN_EXTERNAL_TOKENS=" VAULT-ROOT.md MISSION-INDEX.md .pre-commit-config.yaml ~/.codex/AGENTS.md ~/.claude/CLAUDE.md policy.yaml build-package.sh tools/build-package.sh SKILL.md "
+KNOWN_EXTERNAL_TOKENS=" VAULT-ROOT.md MISSION-INDEX.md .pre-commit-config.yaml ~/.codex/AGENTS.md ~/.claude/CLAUDE.md policy.yaml build-package.sh tools/build-package.sh SKILL.md claude_desktop_config.json %APPDATA%\Claude\claude_desktop_config.json "
 
 known_external() {
   case "$KNOWN_EXTERNAL_TOKENS" in

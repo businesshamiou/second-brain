@@ -21,13 +21,13 @@ Ce dépôt contient Second Brain : une mémoire durable et un système opératoi
 **Windows (PowerShell, compte standard suffisant) :**
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.4/bootstrap.ps1)))"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.5/bootstrap.ps1)))"
 ```
 
 **macOS / Linux (Terminal) :**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.4/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.5/bootstrap.sh | bash
 ```
 
 La ligne télécharge un script d'amorçage (`bootstrap.ps1` ou `bootstrap.sh`, à la racine de ce dépôt) qui n'exige rien d'installé : il pose Git dans ton profil si besoin, vérifie son empreinte, récupère le dépôt à la version indiquée, puis lance l'installeur (`install.ps1` ou `install.sh`). Aucune invite d'élévation, aucune écriture hors de ton profil.
@@ -49,7 +49,11 @@ Dans l'ordre :
 
 L'installeur génère aussi l'**identité** de ton Second Brain (`VAULT-IDENTITY.md`, suivie par Git comme `USER.md`) : chaque projet la recopie dans son acte de naissance, et le marqueur `VAULT-ROOT.md` la porte.
 
-**Accès disque du Pilot (application de bureau).** L'installeur n'écrit rien dans ton profil. Le serveur MCP de Second Brain se pose ensuite par `/first-install` (ou à la main, ligne ci-dessous) : il détecte Claude Code, Codex et l'application de bureau Claude, y déclare le serveur avec ton espace de travail comme seul dossier autorisé, vérifie Python par `uv`, puis te demande de redémarrer l'application. `check-mcp-containment.sh <configuration> <projet>` vérifie que le projet et Second Brain sont bien dans le périmètre autorisé.
+Chaque étape est notée dans un carnet (`.install/state.json`, à la racine de ton clone, jamais suivi par Git) : une interruption reprend à l'étape manquante, sans reposer les questions déjà répondues. Relancer l'installeur sur un poste déjà installé bascule en mode mise à jour (réponses actuelles affichées, confirmation de tout changement, `USER.md` réécrit) — ce mode ne touche jamais le code ; voir [« Reprise et mise à jour » du README](./README.md#reprise-et-mise-à-jour) pour ce que cette version promet et ne promet pas.
+
+## 4. Le serveur MCP
+
+L'installeur n'écrit rien dans ton profil. **L'accès disque du Pilot (application de bureau)** se pose ensuite par `/first-install` (ou à la main, ligne ci-dessous) : il détecte Claude Code, Codex et l'application de bureau Claude, y déclare le serveur `second-brain-vault` avec ton espace de travail comme seul dossier autorisé, vérifie Python par `uv`, puis te demande de redémarrer l'application. `check-mcp-containment.sh <configuration> <projet>` vérifie que le projet et Second Brain sont bien dans le périmètre autorisé.
 
 À la main, depuis la racine de ton clone `second-brain` :
 
@@ -65,9 +69,23 @@ bash tools/check-mcp-containment.sh <configuration> <projet>
 & "C:\Program Files\Git\bin\bash.exe" tools/check-mcp-containment.sh <configuration> <projet>
 ```
 
-**Première ouverture d'un projet.** La première fois que tu ouvres un projet dans Claude Code, il détecte que les liens vers l'assistant et les skills sortent du dossier de travail (import externe) et demande une approbation, une fois par projet. Réponds oui : voir la question « Pourquoi Claude Code me demande une approbation » dans les questions fréquentes du [README](./README.md).
+**Comment vérifier qu'il tourne.** `check-mcp-containment.sh` valide la configuration écrite sur disque. Que le serveur soit réellement actif dans l'application redémarrée se confirme à l'ouverture du Pilot (section suivante) : sa première réponse porte un **canari**, la preuve qu'il a lu le disque par ce serveur plutôt que sa mémoire.
 
-Chaque étape est notée dans un carnet (`.install/state.json`, à la racine de ton clone, jamais suivi par Git) : une interruption reprend à l'étape manquante, sans reposer les questions déjà répondues. Relancer l'installeur sur un poste déjà installé bascule en mode mise à jour (réponses actuelles affichées, confirmation de tout changement, `USER.md` réécrit) — ce mode ne touche jamais le code ; voir [« Reprise et mise à jour » du README](./README.md#reprise-et-mise-à-jour) pour ce que cette version promet et ne promet pas.
+## 5. Ouvrir le Pilot
+
+La première fois que tu ouvres un projet dans Claude Code, il détecte que les liens vers l'assistant et les skills sortent du dossier de travail (import externe) et demande une approbation, une fois par projet. Réponds oui : voir la question « Pourquoi Claude Code me demande une approbation » dans les questions fréquentes du [README](./README.md).
+
+Le rôle Pilot (penser, arbitrer, écrire les Missions) se joue dans l'application de bureau Claude. Chaque projet porte son prompt Pilot, `<projet>/state/PILOT-PROMPT.md`, généré à sa création : crée un **Projet** portant le nom de ton projet, colle comme instructions le prompt commun (`templates/session-opening-prompt-template.md`), et donne comme premier message le chemin du projet. Détail complet du geste dans [« Ouvrir le Pilot d'un projet » du README](./README.md).
+
+## 6. Adopter un dossier existant
+
+Un dossier qui existe déjà (avec ou sans Git) devient un projet sans que rien de ce qu'il contient ne soit modifié :
+
+```bash
+bash second-brain/tools/project-bootstrap.sh adopt /chemin/du/dossier --vcs git
+```
+
+Le script ajoute seulement ce qui manque (acte de naissance, fichiers de pointage, prompt Pilot, ligne au registre) et ne réorganise rien sans confirmation. Détail complet (ligne de base, `--vcs none`, ordre d'initiation) dans [« Adopter un dossier existant » du README](./README.md).
 
 ## Licence
 

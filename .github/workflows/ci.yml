@@ -155,6 +155,10 @@ jobs:
         shell: bash
         run: bash tests/test-install-doc-windows-invocation.sh
 
+      - name: Main (186) -- the Project instructions block is rendered ready to paste (T4)
+        shell: bash
+        run: bash tests/test-project-bootstrap-instructions-block.sh
+
       # Mission 183-C01: the published bootstrap installs from a PATH with no
       # Git and no uv (same account; the standard-account half is S9 in the
       # acceptance job).
@@ -347,6 +351,28 @@ jobs:
       - name: Main (185) -- INSTALL.md and README.md carry the Windows invocation (T10)
         run: bash tests/test-install-doc-windows-invocation.sh
 
+      # Mission 186: the relay's single source of truth (DECISION-2026-09-17-
+      # 201623) synchronized across the distributed corpus, the Project
+      # instructions block rendered ready to paste, and the reworked install
+      # docs.
+      - name: Main (186) -- no leftover push-formula wording in the distributed corpus (T1)
+        run: bash tests/test-no-push-formula.sh
+
+      - name: Main (186) -- the RELAY grammar lives only in RULES-124937 (T2)
+        run: bash tests/test-relay-single-source.sh
+
+      - name: Main (186) -- the common Pilot prompt carries no RELAY wording (T3)
+        run: bash tests/test-common-prompt-no-relay.sh
+
+      - name: Main (186) -- the Project instructions block is rendered ready to paste (T4)
+        run: bash tests/test-project-bootstrap-instructions-block.sh
+
+      - name: Main (186) -- README.md and INSTALL.md carry the four-step participant path and FAQ (T5)
+        run: bash tests/test-install-doc-participant-path.sh
+
+      - name: Main (186) -- i18n catalog key parity, shell twin (T6)
+        run: bash tests/test-i18n-parity.sh
+
       - name: Main install test -- answers file, second pass at empty porcelain
         run: bash tests/test-install-e2e.sh
 
@@ -538,6 +564,9 @@ jobs:
 
       - name: Main (185) -- INSTALL.md and README.md carry the Windows invocation (T10)
         run: bash tests/test-install-doc-windows-invocation.sh
+
+      - name: Main (186) -- the Project instructions block is rendered ready to paste (T4)
+        run: bash tests/test-project-bootstrap-instructions-block.sh
 
       - name: Main install test -- answers file, second pass at empty porcelain
         run: bash tests/test-install-e2e.sh

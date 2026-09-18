@@ -55,3 +55,4 @@ Incident `RELAY PUSH-067` (2026-08-26) : la ligne d'autorisation collée par l'O
 - `amends` — [Décision — Le push délégué devient une règle](./DECISION-2026-08-26-154553-delegated-push-exception-becomes-rule.md)
 - `see also` — [Charte des rôles et détermination de session](../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
 - `see also` — Mission 069 — Réparations de distribution et gravure réparée (historique de l'atelier, non distribué) (hors Vault)
+- `amended by` — [Décision — Relais et délégation, une règle un seul endroit](./DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md)

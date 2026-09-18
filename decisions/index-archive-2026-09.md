@@ -30,6 +30,7 @@ Archive figée : les entrées de cette tranche n'en changent jamais. L'index cou
 - `2026-09-06-114521` · active · Décision — Legacy déjà préparé : sauvegarde froide vérifiée, branche legacy pou… · `DECISION-2026-09-06-114521-legacy-already-prepared-migration-from-acquired-state.md`
 - `2026-09-07-125156` · active · Décision — Dépendances machine avant cutover : sept arbitrages Owner sur le rap… · `DECISION-2026-09-07-125156-cutover-dependencies-seven-arbitrations.md`
 - `2026-09-17-000545` · arbitrated · Initiation et adoption de projet — acte de naissance, résolution du Vault par i… · `DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md`
+- `2026-09-17-201623` · arbitrated · Relais et délégation — une règle, un seul endroit : le push se délègue par une… · `DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md`
 
 ## Liens
 

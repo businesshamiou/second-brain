@@ -565,3 +565,10 @@ tests/test-project-bootstrap-git-identity.sh	DISTRIBUABLE
 tests/test-project-bootstrap-native-paths.ps1	DISTRIBUABLE
 tests/test-project-bootstrap-native-paths.sh	DISTRIBUABLE
 tests/test-vault-mcp-refusal-message.py	DISTRIBUABLE
+decisions/DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md	DISTRIBUABLE
+tests/test-no-push-formula.sh	DISTRIBUABLE
+tests/test-relay-single-source.sh	DISTRIBUABLE
+tests/test-common-prompt-no-relay.sh	DISTRIBUABLE
+tests/test-project-bootstrap-instructions-block.sh	DISTRIBUABLE
+tests/test-install-doc-participant-path.sh	DISTRIBUABLE
+tests/test-i18n-parity.sh	DISTRIBUABLE

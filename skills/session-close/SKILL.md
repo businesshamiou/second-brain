@@ -28,7 +28,7 @@ Tente un geste shell inoffensif (`git --version`). Il répond → branche **Exec
 3. `tools/build-state.sh` du Vault sur le projet, puis `tools/build-digest.sh` du Vault sur le même projet (Mission 121, digest d'ouverture plafonné) ; `MISSION-INDEX.md` à jour (toute Mission close de la session porte son état final) ; `tools/build-indexes.sh` du Vault sur les racines touchées seulement.
 4. **Un commit par dépôt touché**, fichier par fichier, diff inspecté, jamais `git add .` ; la sortie du hook collée. Refus de gardien = **STOP** avec verbatim, aucun contournement, aucun override.
 5. **Si le Vault a reçu un commit dans la session** : l'épingle de `<projet>/.pre-commit-config.yaml` est en retard. Sa référence de vérité est celle que `repo:` désigne — **un dépôt distant, donc `origin/main`** (mesure Mission 155) : le ré-épinglage n'est possible **qu'après le push Owner**. Tant que le push n'a pas eu lieu, c'est un **trou porté au handoff**, jamais une épingle posée sur un commit local. Après le push : ré-épingler sur le SHA poussé, commit `re-épinglage sur <SHA>`, puis régénérer `_dist/skills-chat/` par `tools/build-skills-chat-package.sh` du Vault et vérifier que `MANIFEST.txt` porte ce même SHA.
-6. RELAY de clôture en cinq lignes chiffrées (rubriques de RULES-124937), en fin de fenêtre.
+6. RELAY de clôture : le bloc RELAY de la règle 124937, en fin de fenêtre.
 
 ## 4. Canari
 

@@ -1,7 +1,7 @@
 ---
 type: template
 title: "Gabarit — prompt d'ouverture minimal de session Pilot"
-description: "Prompt Pilot commun, source unique : rôle et surface (application de bureau), canari d'ouverture, fiche d'état à lire, blocs RELAY à recoller. Chaque projet le personnalise sur le disque par son prompt Pilot généré."
+description: "Prompt Pilot commun, source unique : rôle et surface (application de bureau), canari d'ouverture, fiche d'état à lire. Chaque projet le personnalise sur le disque par son prompt Pilot généré."
 status: active
 ---
 
@@ -18,10 +18,6 @@ Le premier message de la conversation donne le chemin du projet. Avant toute aut
 1. Appelle `list_allowed_directories` : la liste doit contenir ce chemin. Note le commit du Vault qu'il rend.
 2. Lis `<chemin du projet>/state/PILOT-PROMPT.md` : rends son canari, compare son commit du Vault au précédent (un écart se dit, il ne bloque pas).
 3. Lis `<chemin du projet>/state/STATE.md` et applique le contrat qu'elle porte en tête.
-
-Les blocs RELAY reçus depuis la dernière session sont collés ci-dessous.
-
-<blocs RELAY reçus depuis la dernière session>
 <!-- PROMPT:END -->
 
 ## Liens

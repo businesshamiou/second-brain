@@ -17,7 +17,7 @@ scope: role-relay, mission-workflow
 > 1. Ligne de titre : `Session Executor — Mission <NNN> (<description courte>)` — elle nomme la session. La forme `Tu es l'Executor — Mission <NNN> (<description courte>)` est équivalente, et s'étend à toute instruction ponctuelle déléguée à l'Executor sans numéro de Mission, sous la forme `Tu es l'Executor — instruction ponctuelle (<description courte>)` (`DECISION-2026-08-27-100016`).
 > 2. Position : libre ; la session établit sa conscience de position (Décision `213150`).
 > 3. Source à appliquer : le chemin du fichier Mission, relatif au Vault, à lire et appliquer intégralement.
-> 4. Interdits absolus : toujours « aucun git push, aucun appel modèle, aucune suppression ; déplacement vers `_trash/` seulement sur prescription de la Mission », plus les interdits propres à la Mission. Le mini-prompt n'affirme jamais qu'un geste Owner (push, suppression, vidage de `_trash/`) a eu lieu : il demande à l'Executor de le mesurer, STOP si absent (`DECISION-2026-08-29-110852`).
+> 4. Interdits absolus : toujours « aucun git push non délégué (délégation : une expression claire de l'Owner qui nomme le geste et sa cible, une par geste), aucun appel modèle, aucune suppression ; déplacement vers `_trash/` seulement sur prescription de la Mission », plus les interdits propres à la Mission. Le mini-prompt n'affirme jamais qu'un geste Owner (push, suppression, vidage de `_trash/`) a eu lieu : il demande à l'Executor de le mesurer, STOP si absent (`DECISION-2026-08-29-110852`).
 > 5. Sortie attendue : terminer la fenêtre par le bloc RELAY défini dans la Mission, rempli.
 >
 > Le mini-prompt ne duplique pas le contenu de la Mission.
@@ -43,11 +43,14 @@ scope: role-relay, mission-workflow
 > Verdict   : <FAIT | PARTIEL | BLOQUÉ> + une ligne
 > Critères  : <n>/<total> PASS
 > Commits   : <dépôt> <hash> · <dépôt> <hash>
-> Résumé    : <trois à cinq lignes>
+> Poussées  : <dépôt> <avant>..<après> · <étiquette> | aucune
+> Résumé    : <cinq lignes>
 > À trancher: <une ligne, ou « rien »>
 > ```
 >
-> La rubrique **Résumé** tient en trois à cinq lignes, plafond strict — au-delà, elle redevient un second rapport et le coût qu'elle économise est repayé. Trois contraintes :
+> La rubrique **Poussées** dit ce que l'Executor a effectivement poussé, mesuré par `git ls-remote` — jamais déduit d'une intention ou d'un `git push` lancé sans vérification après coup.
+>
+> La rubrique **Résumé** tient en cinq lignes, plafond strict — au-delà, elle redevient un second rapport et le coût qu'elle économise est repayé. Trois contraintes :
 >
 > 1. Des faits, pas des appréciations : un chiffre, une comparaison, un écart nommé. « Q5 en hausse » ne vaut rien ; « Q5 : 12 décisions trouvées contre 7 » vaut la rubrique entière.
 > 2. Les chiffres qui changent une conclusion, et ce qui a surpris l'Executor.
@@ -69,3 +72,4 @@ scope: role-relay, mission-workflow
 - `amended by` — [Décision — La suppression définitive est un geste Owner](../decisions/DECISION-2026-08-29-110852-deletion-is-owner-gesture-trash-zone.md)
 - `amended by` — Décision — Cohérence interne des Missions (historique de l'atelier, non distribué) (hors Vault)
 - `amended by` — [Décision — Initiation et adoption de projet, acte de naissance](../decisions/DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md) (type de mini-prompt `initiation`)
+- `amended by` — [Décision — Relais et délégation, une règle un seul endroit](../decisions/DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md)

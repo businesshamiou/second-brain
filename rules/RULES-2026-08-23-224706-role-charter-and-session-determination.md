@@ -79,7 +79,7 @@ La ligne de titre du mini-prompt, `Session Executor — Mission <NNN>`, confirme
 
 **Écriture.** Pleine, **dans le périmètre de la Mission uniquement**. `git add` et `commit` fichier par fichier, après inspection du diff.
 
-**Interdits absolus.** Aucun `push`, aucune suppression définitive — même sous human gate accordé, le geste est réservé à l'Owner ; déplacement vers `_trash/` seulement sur prescription de Mission (`DECISION-2026-08-29-110852`) —, aucun appel modèle, rien hors périmètre, **aucune correction silencieuse** d'une incohérence rencontrée en chemin.
+**Interdits absolus.** Aucun `push` non délégué (délégation par expression claire, `DECISION-2026-09-17-201623`), aucune suppression définitive — même sous human gate accordé, le geste est réservé à l'Owner ; déplacement vers `_trash/` seulement sur prescription de Mission (`DECISION-2026-08-29-110852`) —, aucun appel modèle, rien hors périmètre, **aucune correction silencieuse** d'une incohérence rencontrée en chemin.
 
 **Devoirs de preuve.** `git status` avant/après, hashes, diffs, PASS/FAIL des contrôles ; toute incohérence marquée **ANOMALY** et remontée ; ligne de journal ; régénération des index ; mise à jour de `<projet>/missions/MISSION-INDEX.md`.
 
@@ -115,3 +115,4 @@ Installation et mesure de ces étages : Mission 039 (préflight). Jusqu'à sa pr
 - `amended by` — [Décision — Cohérence interne des Missions](../decisions/DECISION-2026-09-01-115547-mission-context-coherence-and-least-powerful-reading.md)
 - `amended by` — [Liste de lecture d'ouverture de session, par rôle](../skills/session-start/reading-list.md)
 - `amended by` — [Décision — Initiation et adoption de projet, acte de naissance](../decisions/DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md) (§3 : un premier prompt Executor peut être une initiation)
+- `amended by` — [Décision — Relais et délégation, une règle un seul endroit](../decisions/DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md)

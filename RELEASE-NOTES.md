@@ -6,6 +6,27 @@ status: active
 
 # NOTES DE PUBLICATION
 
+## v0.1.5
+
+Version de confort : trois retouches à la manière dont tu délègues un geste à l'agent et dont tu démarres un nouveau Projet — rien qui change ce qui s'exécute.
+
+**Ce que cette version apporte.**
+
+- **Déléguer un push ne demande plus une formule à réciter.** Jusqu'ici, autoriser un push exigeait une phrase précise, recopiée mot pour mot. Une phrase claire de ta part, qui dit quoi pousser, suffit désormais — l'agent la mesure, il n'en juge plus la forme.
+- **Les instructions à coller dans un Projet (Claude Desktop ou ChatGPT) sont prêtes à l'emploi.** L'installeur les génère en entier, au moment de créer ou d'adopter un projet, dans le texte même à coller : tu n'as plus besoin d'aller ouvrir un fichier séparé pour les retrouver.
+- **La documentation d'installation est retravaillée, avec une FAQ étoffée.** README.md et INSTALL.md suivent désormais le même parcours en quatre étapes (installer, le serveur MCP, ouvrir le Pilot, adopter un dossier existant), et la FAQ répond aux questions les plus fréquentes rencontrées à l'installation.
+
+**Comment c'est prouvé.** Six tests nommés, chacun avec son témoin négatif, enchaînés dans la CI publique. L'inventaire est dans [`tests/index.md`](./tests/index.md).
+
+**Ce que cette version ne promet pas.**
+
+- Rien de neuf côté fonctionnalités d'exécution : cette version clarifie ce qui se lit et se colle, elle ne touche à aucun geste que l'agent exécute pour toi.
+- Les limites des versions précédentes restent valables : aucun mécanisme de mise à jour, S7 et S8 en `SKIP` sans clé de fournisseur.
+
+**Ce qui reste à faire de ton côté.**
+
+- Rien d'immédiat : ces changements s'appliquent la prochaine fois que tu délègues un push ou que tu crées ou adoptes un projet. Si tu veux repartir de cette version, relance la ligne publiée ci-dessus.
+
 ## v0.1.4
 
 Version corrective : la v0.1.3 rejouée à la main sur un poste Windows déjà utilisé, dans l'application de bureau, a montré onze défauts que la CI ne pouvait pas voir — ses scénarios partent toujours d'une machine vierge. Si tu as déjà lancé la ligne publiée au moins une fois, installe depuis cette version.

@@ -38,7 +38,7 @@ Joue `mission-checklist.md` dans le dossier de ce skill, ligne par ligne, avant 
 
 ## 7. Produis le mini-prompt
 
-Cinq rubriques fixes de RULES-124937, dans l'ordre : titre `Session Executor — Mission <NNN> (<description courte>)` · position libre · source à appliquer (chemin de la Mission) · **les quatre interdits standards seulement** — aucun push, aucun appel modèle, aucune suppression, déplacement vers `_trash/` seulement sur prescription de la Mission — plus un renvoi explicite aux rubriques `## Gates` et `## Contraintes` de la Mission (DECISION-115547 point 3) · sortie attendue = le bloc RELAY. Jamais un interdit propre ajouté dans le prompt. Livré en snippet copiable d'un seul geste, aucun fichier PROMPT (abolis, Décision A7).
+Cinq rubriques fixes de RULES-124937, dans l'ordre : titre `Session Executor — Mission <NNN> (<description courte>)` · position libre · source à appliquer (chemin de la Mission) · **les quatre interdits standards seulement** — aucun push non délégué, aucun appel modèle, aucune suppression, déplacement vers `_trash/` seulement sur prescription de la Mission — plus un renvoi explicite aux rubriques `## Gates` et `## Contraintes` de la Mission (DECISION-115547 point 3) · sortie attendue = le bloc RELAY ; le Résumé du bloc RELAY suit le plafond de la règle 124937, jamais redit ici. Jamais un interdit propre ajouté dans le prompt. Livré en snippet copiable d'un seul geste, aucun fichier PROMPT (abolis, Décision A7).
 
 ## Ce que ce skill ne fait pas
 

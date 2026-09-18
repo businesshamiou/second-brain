@@ -60,3 +60,4 @@ Deux occurrences le 2026-08-26 (`RELAY PUSH-061`, `RELAY PUSH-062`) ont montré 
 - `see also` — Mission 063 — Allowlist MCP et amendement du push délégué (historique de l'atelier, non distribué) (hors Vault)
 - `amended by` — [Décision — Une ligne d'autorisation Owner couvre un seul geste](./DECISION-2026-08-26-231617-one-authorization-line-one-gesture.md)
 - `amended by` — [Décision — L'exception de push délégué couvre le commit de sa ligne de journal](./DECISION-2026-08-27-112528-delegated-push-exception-covers-its-journal-commit.md)
+- `amended by` — [Décision — Relais et délégation, une règle un seul endroit](./DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md)

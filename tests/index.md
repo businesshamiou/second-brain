@@ -17,6 +17,19 @@ Ce fichier est tenu à la main : `tools/build-indexes.sh` n'indexe que les docum
 
 Chaque test rend un verdict fermé — `PASS`, `FAIL`, ou `SKIP (cause, plateforme)` — et porte son propre témoin négatif : la même mesure, sur un cas fabriqué pour échouer. Un test sans témoin ne prouve pas qu'il sait échouer.
 
+### Portes fermées par la Mission 186 (v0.1.5)
+
+Six mesures : la source unique du relais Pilot↔Executor (DECISION-2026-09-17-201623) synchronisée dans tout le corpus distribué, plus le bloc « Instructions du Projet » rendu prêt à coller et le parcours d'installation retravaillé. U = Ubuntu, W = Windows, M = macOS.
+
+| # | Fichier | Ce qu'il prouve | Témoin négatif | Systèmes |
+|---|---|---|---|---|
+| T1 | `test-no-push-formula.sh` | zéro occurrence, dans le corpus distribué, des quatre formulations de l'ancienne formule de push imposée (« j'ordonne le push », « verbatim »/« à l'identique » associés à push, « aucun push » sans « non délégué ») | un fichier par motif, jamais écrit dans ce dépôt → chacun détecté et nommé | U |
+| T2 | `test-relay-single-source.sh` | la grammaire du bloc RELAY (rubriques exactes) n'apparaît que dans `RULES-2026-08-23-124937` ; les pièces qui en parlent y renvoient nommément (« 124937 ») sans la redire | une copie de skill qui redit la grammaire → détectée et nommée | U |
+| T3 | `test-common-prompt-no-relay.sh` | le bloc `PROMPT:BEGIN/END` du prompt Pilot commun ne porte plus le mot RELAY, et garde la phrase d'exclusivité du serveur MCP | RELAY réinjecté dans une copie jetable du gabarit → échec | U |
+| T4 | `test-project-bootstrap-instructions-block.sh` | le bloc « Instructions du Projet » rendu par `tools/project-bootstrap.sh` porte le tronc commun complet, prêt à coller (chemin natif, `vault_id`, canari identique à `state/PILOT-PROMPT.md`), en français et dans les trois langues du questionnaire | gabarit privé de `<!-- PROMPT:BEGIN -->` → échec propre, sans rendu partiel | W / U / M |
+| T5 | `test-install-doc-participant-path.sh` | README.md et INSTALL.md portent, dans l'ordre, les quatre étapes du parcours participant (installer, serveur MCP, ouvrir le Pilot, adopter) et une FAQ des quatre leçons de l'acceptation 184 | copie de README.md privée d'une section puis d'une entrée FAQ → échec | U |
+| T6 | `test-i18n-parity.sh` | les catalogues `i18n/catalog.{fr,en,es}.json` déclarent exactement le même ensemble de clefs, dont les nouvelles clefs `projectBootstrap.consume.instructions*` | une clef retirée d'une copie jetable d'un catalogue → détectée et nommée | U |
+
 ### Portes fermées par la Mission 185-C01 (v0.1.4)
 
 Douze mesures, une par défaut relevé pendant l'acceptation humaine du 2026-09-17. W = Windows, U = Ubuntu, M = macOS.

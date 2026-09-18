@@ -104,3 +104,4 @@ Arbitrage Owner du 2026-09-16 sur la spécification proposée par le Pilot : « 
 - `applies` — [Distribution des mécanismes transverses](./DECISION-2026-08-24-214607-transverse-mechanism-distribution.md)
 - `applies` — [Décision — L'amendement vit dans le dépôt amendé](./DECISION-2026-08-28-205904-amendment-lives-in-amended-repo.md)
 - `prescribed by` — [Cycle de contexte V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
+- `amended by` — [Décision — Relais et délégation, une règle un seul endroit](./DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md)

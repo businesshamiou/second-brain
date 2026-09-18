@@ -30,13 +30,13 @@ Le glossaire complet des termes du produit vit dans [CONTEXT.md](./CONTEXT.md).
 **Windows (PowerShell, compte standard suffisant) :**
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.4/bootstrap.ps1)))"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.5/bootstrap.ps1)))"
 ```
 
 **macOS / Linux (Terminal) :**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.4/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.5/bootstrap.sh | bash
 ```
 
 Rien n'est à installer avant : le script d'amorçage pose Git dans ton profil s'il manque, récupère ce dépôt, puis lance l'installeur (détail dans [INSTALL.md](./INSTALL.md)).
@@ -62,25 +62,35 @@ Dans les trois cas, l'installeur crée ton espace de travail, y clone `second-br
 
 Rien n'est installé à un emplacement machine (registre système, dossier partagé), rien ne demande de droits administrateur, et rien n'est posé dans ton profil (les dossiers *.claude*, *.agents* ou *.codex* de ton compte) : l'assistant et les skills de la méthode vivent uniquement dans le clone `second-brain` et dans les projets qui les lient — supprimer un projet ou l'espace de travail entier suffit à tout retirer, sans geste de nettoyage séparé. Seul un projet non listé ici perd ces liens ; recrée-le avec le skill `first-install`/`project-bootstrap` pour les obtenir.
 
+## Le serveur MCP
+
+Le rôle Pilot (penser, arbitrer, écrire les Missions) se joue dans **l'application de bureau Claude** : c'est là que vit le serveur MCP de Second Brain (`second-brain-vault`), qui donne au Pilot un accès disque borné à ton espace de travail. Il n'existe pas dans le navigateur.
+
+Depuis Claude Code ou Codex, `/first-install` pose ce serveur (`tools/install-vault-mcp.sh`) dans les outils qu'il trouve — Claude Code, Codex, l'application de bureau — avec ton espace de travail comme seul dossier autorisé. Redémarre ensuite l'application. À la main, depuis la racine de ton clone :
+
+```bash
+bash tools/install-vault-mcp.sh <espace de travail>
+bash tools/check-mcp-containment.sh <configuration> <projet>
+```
+
+**Sous Windows, dans PowerShell**, `bash` n'est pas sur le PATH ; appelle celui de Git par son chemin complet :
+
+```powershell
+& "C:\Program Files\Git\bin\bash.exe" tools/install-vault-mcp.sh <espace de travail>
+& "C:\Program Files\Git\bin\bash.exe" tools/check-mcp-containment.sh <configuration> <projet>
+```
+
+**Comment vérifier qu'il tourne.** `check-mcp-containment.sh` te dit si la configuration écrite est correcte. Pour confirmer que le serveur est bien actif une fois l'application redémarrée, ouvre le Pilot (section suivante) : sa toute première réponse porte un **canari**, la preuve qu'il a lu le disque par ce serveur plutôt que sa mémoire.
+
 ## Ouvrir le Pilot d'un projet (application de bureau)
 
-Le rôle Pilot (penser, arbitrer, écrire les Missions) se joue dans **l'application de bureau Claude** : c'est là que vit le serveur MCP de Second Brain, qui donne au Pilot un accès disque borné à ton espace de travail. Il n'existe pas dans le navigateur.
+Chaque projet porte son prompt Pilot, `<projet>/state/PILOT-PROMPT.md`, généré à sa création. La création te rend un **bloc à consommer** :
 
-1. Depuis Claude Code ou Codex, `/first-install` pose ce serveur (`tools/install-vault-mcp.sh`) dans les outils qu'il trouve — Claude Code, Codex, l'application de bureau — avec ton espace de travail comme seul dossier autorisé. Redémarre ensuite l'application. À la main, depuis la racine de ton clone :
+1. Crée un **Projet** (dans claude.ai ou l'application de bureau) portant le nom de ton projet.
+2. Colle comme instructions le prompt commun (`templates/session-opening-prompt-template.md`).
+3. Donne comme premier message le chemin du projet.
 
-   ```bash
-   bash tools/install-vault-mcp.sh <espace de travail>
-   bash tools/check-mcp-containment.sh <configuration> <projet>
-   ```
-
-   **Sous Windows, dans PowerShell**, `bash` n'est pas sur le PATH ; appelle celui de Git par son chemin complet :
-
-   ```powershell
-   & "C:\Program Files\Git\bin\bash.exe" tools/install-vault-mcp.sh <espace de travail>
-   & "C:\Program Files\Git\bin\bash.exe" tools/check-mcp-containment.sh <configuration> <projet>
-   ```
-2. Chaque projet porte son prompt Pilot, `<projet>/state/PILOT-PROMPT.md`, généré à sa création. La création te rend un **bloc à consommer** : crée un Projet portant le nom du projet, colle comme instructions le prompt commun (`templates/session-opening-prompt-template.md`), et donne comme premier message le chemin du projet.
-3. À l'ouverture, le Pilot vérifie que le serveur voit ce chemin, puis lit le prompt du projet et rend son **canari** : la preuve qu'il a lu le disque plutôt que sa mémoire.
+À l'ouverture, le Pilot vérifie que le serveur voit ce chemin, puis lit le prompt du projet et rend son **canari** : la preuve qu'il a lu le disque plutôt que sa mémoire.
 
 ## Adopter un dossier existant
 
@@ -138,6 +148,14 @@ Sans déclaration : silence, comme si l'outil n'existait pas. Avec une déclarat
 **Qui décide ce qui rentre dans `second-brain` par rapport à mes projets ?** Voir la [règle de frontière entre tes projets et Second Brain](./rules/RULES-2026-09-11-190000-project-second-brain-boundary.md).
 
 **Quelle licence pour les skills tiers du warehouse ?** Chacun porte la sienne, recensée dans [THIRD-PARTY-LICENSES.md](./THIRD-PARTY-LICENSES.md), généré depuis les manifestes du warehouse.
+
+**Sous Windows, `bash tools/...` renvoie « commande introuvable » — que faire ?** Sous PowerShell nu, `bash` n'est pas sur le PATH ; seul `git` y est en général. Lance-le par le chemin complet de Git, par exemple `& "C:\Program Files\Git\bin\bash.exe" tools/install-vault-mcp.sh <espace de travail>` (remplace la fin par la commande voulue), ou ouvre directement **« Git Bash »** depuis le menu Démarrer et tape la commande sans le préfixe `bash`.
+
+**Après une installation ratée ou interrompue, l'installeur se comporte bizarrement — que faire ?** Supprime d'abord le dossier temporaire que l'installeur réutilise, puis relance la ligne d'installation : `%TEMP%\second-brain-install` sous Windows, `${TMPDIR:-/tmp}/second-brain-install` sous macOS/Linux. L'installeur remet normalement ce dossier à jour tout seul et refuse explicitement s'il n'y arrive pas, mais un dossier laissé par un essai précédent reste la première chose à écarter si le comportement observé ne correspond pas à ce que tu attends.
+
+**Je veux vérifier `claude_desktop_config.json` à la main — où le trouver ?** Deux emplacements possibles selon comment l'application de bureau Claude a été installée : version **Microsoft Store**, sous `%LOCALAPPDATA%\Packages\Claude_<identifiant>\LocalCache\Roaming\Claude\claude_desktop_config.json` ; version **classique** (site officiel), sous `%APPDATA%\Claude\claude_desktop_config.json`. `tools/install-vault-mcp.sh` détecte et écrit dans le bon fichier automatiquement — cette vérification manuelle ne sert qu'à confirmer après coup.
+
+**Pourquoi le Pilot doit-il utiliser exclusivement le serveur `second-brain-vault`, même si un autre serveur de fichiers est configuré ?** Cette exclusivité existe parce que rien d'autre ne borne son accès disque à ton espace de travail : un autre serveur (par exemple celui d'un autre projet) pourrait laisser le Pilot lire ou écrire hors du dossier prévu, ou mélanger deux projets sans que tu t'en rendes compte — `templates/session-opening-prompt-template.md` le lui interdit explicitement. Si le Pilot semble confus sur le contexte (mauvais projet, chemins qui ne correspondent pas), vérifie avec `check-mcp-containment.sh <configuration> <projet>` que `second-brain-vault` est bien configuré avec ton espace de travail comme dossier autorisé, puis redemande-lui explicitement de relire le disque par ce serveur.
 
 ## Licence
 

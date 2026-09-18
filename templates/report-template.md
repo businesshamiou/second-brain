@@ -56,21 +56,12 @@ Arrêt de la Mission ici.
 
 ## Bloc RELAY
 
-Ce bloc est rempli **en dernier** et affiché **tel quel** en fin de fenêtre Executor, conformément à la [règle du relais entre rôles](../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md) :
-
-```text
-RELAY <NNN>
-Rapport   : <chemin du fichier REPORT déposé>
-Verdict   : <FAIT | PARTIEL | BLOQUÉ> + une ligne
-Critères  : <n>/<total> PASS
-Commits   : <dépôt> <hash> · <dépôt> <hash>
-Résumé    : <trois à cinq lignes ; faits et chiffres, pas d'appréciations ; plafond strict>
-À trancher: <une ligne, ou « rien »>
-```
+Ce bloc est rempli **en dernier** et affiché **tel quel** en fin de fenêtre Executor, à la grammaire fixe (rubriques, dont `Poussées`, et plafond de cinq lignes pour `Résumé`) de la [règle du relais entre rôles, RULES-2026-08-23-124937](../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md) — seule source de cette grammaire (`DECISION-2026-09-17-201623`, volet B1) : ni les rubriques ni le nombre de lignes ne sont redits ici.
 
 ## Liens
 
 - `prescribed by` — [Canal de rapport d'exécution](../decisions/DECISION-2026-08-21-000236-execution-report-channel.md)
 - `prescribed by` — [Relais entre rôles par mini-prompts à rubriques fixes](../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md)
 - `source` — [Décision — Rubrique « Résumé » dans le bloc RELAY du sens retour](../decisions/DECISION-2026-08-23-180500-relay-summary-rubric.md)
+- `amended by` — [Décision — Relais et délégation, une règle un seul endroit](../decisions/DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md)
 - (à compléter : type — titre — chemin relatif, voir le standard de liens)

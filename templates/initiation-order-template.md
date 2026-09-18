@@ -26,7 +26,7 @@ Ordre d'initiation
 - Objet : <une phrase>
 - Autorisation Owner datée : <phrase de l'Owner, verbatim, AAAA-MM-JJ>
 
-Interdits absolus : aucun git push, aucun appel modèle, aucune suppression ; écriture bornée au dossier cible et au registre du Vault ; réorganisation proposée, jamais appliquée.
+Interdits absolus : aucun git push non délégué, aucun appel modèle, aucune suppression ; écriture bornée au dossier cible et au registre du Vault ; réorganisation proposée, jamais appliquée.
 
 Sortie attendue : la sortie de tools/project-bootstrap.sh --order, dont le bloc à consommer, en snippet copiable.
 <!-- ORDER:END -->

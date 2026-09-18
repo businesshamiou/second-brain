@@ -159,6 +159,28 @@ CATALOG() {
   PYRUN format-catalog "$CATALOG_FILE" "$@"
 }
 
+# extract_prompt_common_block <gabarit> : rend sur stdout le texte exact
+# entre les marqueurs litteraux <!-- PROMPT:BEGIN --> et <!-- PROMPT:END -->
+# (exclus), sauts de ligne preserves -- le tronc commun a coller tel quel
+# (Decision 201623 volet C, amende 000545 A4). sed pur, portable POSIX :
+# marche sous bash 3.2 (macOS) comme sous bash moderne (Linux, Git Bash),
+# aucun tableau associatif ni mapfile. Echec fail-closed : si l'un des deux
+# marqueurs manque, un message nommant le gabarit fautif part sur stderr et
+# la fonction rend 1 -- SANS ecrire de contenu partiel. `return`, jamais
+# `exit` : cette fonction est appelee via une substitution de commande, qui
+# tourne dans un sous-shell ou `exit` ne terminerait que ce sous-shell ;
+# l'appelant doit lui-meme faire `|| exit 1` pour arreter le script.
+extract_prompt_common_block() {
+  local tpl="$1" body
+  body="$(tr -d '\r' < "$tpl")"
+  if ! printf '%s\n' "$body" | grep -qF '<!-- PROMPT:BEGIN -->' \
+    || ! printf '%s\n' "$body" | grep -qF '<!-- PROMPT:END -->'; then
+    echo "REFUS : marqueurs <!-- PROMPT:BEGIN --> / <!-- PROMPT:END --> introuvables dans le gabarit : $tpl" >&2
+    return 1
+  fi
+  printf '%s\n' "$body" | sed -n '/<!-- PROMPT:BEGIN -->/,/<!-- PROMPT:END -->/p' | sed '1d;$d'
+}
+
 # ask_value <cle-catalogue> <defaut> : question posee sur stderr, reponse lue
 # sur l'entree standard ; Entree ou fin d'entree = defaut.
 ask_value() {
@@ -1012,10 +1034,33 @@ $B
     CATALOG "projectBootstrap.adopt.planFooter"
   fi
 
-  # --- Bloc a consommer (Decision 000545, A4) ---
+  # --- Bloc a consommer (Decision 000545, A4 ; Decision 201623 volet C,
+  # amende 000545 A4 : les instructions du Projet sont RENDUES en entier,
+  # pas seulement pointees par leur chemin -- un participant doit pouvoir
+  # coller tel quel, sans aller ouvrir le gabarit lui-meme). Extraction
+  # fail-closed AVANT tout rendu de ce bloc : un gabarit sans ses deux
+  # marqueurs ne doit produire aucun affichage partiel.
+  PROMPT_COMMON_BLOCK="$(extract_prompt_common_block "$PILOT_PROMPT_TEMPLATE")" || exit 1
+  CONSUME_PURPOSE="${ORDER_PURPOSE:-$DISPLAY_NAME}"
+
   CATALOG "projectBootstrap.consume.header"
   CATALOG "projectBootstrap.consume.project" "$DISPLAY_NAME"
-  CATALOG "projectBootstrap.consume.instructions" "$(native_path "$PILOT_PROMPT_TEMPLATE")"
+  # --- Instructions du Projet : en-tete, puis le tronc commun canonique
+  # rendu tel quel (source unique, jamais recopie ni traduit ici), encadre
+  # de lignes "---" -- forme choisie pour rester lisible en texte brut sur
+  # les trois systemes et marquer sans ambiguite ou commence et ou finit ce
+  # qui doit etre colle. Les quatre lignes de champs qui suivent la
+  # fermeture du cadre (chemin, Vault, canari, objet) sont hors du cadre :
+  # elles informent le participant, elles ne font pas partie du texte a
+  # coller comme instructions du Projet.
+  CATALOG "projectBootstrap.consume.instructionsHeader"
+  echo "  ---"
+  printf '%s\n' "$PROMPT_COMMON_BLOCK"
+  echo "  ---"
+  CATALOG "projectBootstrap.consume.instructionsPath" "$TARGET_NATIVE"
+  CATALOG "projectBootstrap.consume.instructionsVault" "$VAULT_ID" "$VAULT_REF"
+  CATALOG "projectBootstrap.consume.instructionsCanary" "$CANARY"
+  CATALOG "projectBootstrap.consume.instructionsPurpose" "$CONSUME_PURPOSE"
   CATALOG "projectBootstrap.consume.firstMessage" "$TARGET_NATIVE"
   CATALOG "projectBootstrap.consume.canary" "$CANARY" "$(native_path "$PILOT_PROMPT")"
 fi
