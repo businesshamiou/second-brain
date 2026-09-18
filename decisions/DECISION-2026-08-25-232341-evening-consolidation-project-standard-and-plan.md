@@ -1,7 +1,7 @@
 ---
 type: decision
-title: "Consolidation du 2026-08-25 soir — standard de projet, dévoilement progressif, droits d'écriture du Pilot, protocole du mot exact, skills V1, plan en huit chantiers"
-description: "Grave les arbitrages du brainstorm du 25 août au soir : les cinq questions de l'arborescence projet (7 fonctions, workspace, YAGNI, exclusions, allowlist MCP), le dévoilement progressif des index, le protocole d'autorisation par mot exact, la liste des skills V1 et l'ordre des chantiers."
+title: "Consolidation of the evening of 2026-08-25 — project standard, progressive disclosure, Pilot write rights, exact-word protocol, V1 skills, plan in eight work items"
+description: "Engraves the arbitrations of the brainstorm of the evening of 25 August: the five questions of the project tree (7 functions, workspace, YAGNI, exclusions, MCP allowlist), the progressive disclosure of indexes, the exact-word authorization protocol, the list of V1 skills and the order of the work items."
 created_at: "2026-08-25T23:23:41-04:00"
 timezone: America/Montreal
 status: arbitrated
@@ -9,130 +9,130 @@ owner_gate: granted
 rapatriated_from: "workshop-build/workshop-production/decisions/DECISION-2026-08-25-232341-evening-consolidation-project-standard-and-plan.md"
 ---
 
-# DÉCISION — CONSOLIDATION DU 2026-08-25 SOIR
+# DECISION — CONSOLIDATION OF THE EVENING OF 2026-08-25
 
 ## Date
 
 2026-08-25
 
-## Statut
+## Status
 
 `ARBITRATED`
 
-Arbitré en séance par l'Owner, point par point au fil du brainstorm du 2026-08-25 au soir, puis validé globalement (« je suis d'accord avec tes propositions, vas-y »). Chaque section indique son mode d'arbitrage lorsque celui-ci fut global plutôt qu'individuel.
+Arbitrated in session by the Owner, point by point over the brainstorm of the evening of 2026-08-25, then validated as a whole (« je suis d'accord avec tes propositions, vas-y » ["I agree with your proposals, go ahead"]). Each section states its mode of arbitration when it was global rather than individual.
 
-## Décision
+## Decision
 
-### 1. Standard de projet — les cinq questions du 2026-08-24 sont fermées
+### 1. Project standard — the five questions of 2026-08-24 are closed
 
-**1.1 Le minimum vital d'un projet est défini par sept fonctions, pas par des dossiers** : identité (« quel est ce projet ? »), règles métier (« quelles lois s'appliquent ici et seulement ici ? »), mémoire d'état (« où en est-on ? »), exécution (« qu'a-t-on fait faire ? »), arbitrage (« qu'a-t-on décidé ? »), matière (« qu'a-t-on appris ? »), passation (« comment on reprend ? »).
+**1.1 The vital minimum of a project is defined by seven functions, not by folders**: identity ("what is this project?"), business rules ("which laws apply here and only here?"), state memory ("where do we stand?"), execution ("what have we had done?"), arbitration ("what have we decided?"), material ("what have we learned?"), handover ("how do we resume?").
 
-**1.2 Frontière Vault/projet**, test gravé : *« Cette règle aurait-elle du sens dans un autre projet ? »* Oui → Vault. Non → dossier `rules/` du projet. Le Vault reste distribuable ; les règles métier restent chez elles.
+**1.2 Vault/project boundary**, engraved test: *"Would this rule make sense in another project?"* Yes → Vault. No → the project's `rules/` folder. The Vault stays distributable; business rules stay at home.
 
-**1.3 Les fonctions vivent à la racine du projet** — aucun sous-dossier de travail intermédiaire. Les sous-dossiers supplémentaires naissent au fil du besoin réel, jamais par anticipation (principe YAGNI), selon les normes de nomenclature et les règles de l'art de l'industrie logicielle. Squelette de référence :
+**1.3 The functions live at the root of the project** — no intermediate working subfolder. Additional subfolders are born as real need arises, never in anticipation (YAGNI principle), according to the naming norms and the good practices of the software industry. Reference skeleton:
 
     <projet>/
-    ├── README.md      (identité, point d'entrée)
-    ├── rules/         (règles métier du projet)
-    ├── state/         (journal + fiche générée)
-    ├── missions/      (Missions ET leurs rapports — même lignée)
-    ├── decisions/     (arbitrages rendus)
-    ├── proposals/     (options en attente — séparées : une option n'est pas un arbitrage)
-    ├── knowledge/     (matière : captures, études, notes — fusion de captures/ et knowledge-notes/)
-    └── handoffs/      (passation)
+    ├── README.md      (identity, entry point)
+    ├── rules/         (the project's business rules)
+    ├── state/         (journal + generated sheet)
+    ├── missions/      (Missions AND their reports — same lineage)
+    ├── decisions/     (arbitrations given)
+    ├── proposals/     (pending options — kept apart: an option is not an arbitration)
+    ├── knowledge/     (material: captures, studies, notes — merger of captures/ and knowledge-notes/)
+    └── handoffs/      (handover)
 
-**1.4 Exclusions du standard** : `prompt-archive/` (aboli par A7), `audits/` (un audit est une exécution, son rapport va dans `missions/` avec les autres), `generated/` (naît au besoin, hors minimum).
+**1.4 Exclusions from the standard**: `prompt-archive/` (abolished by A7), `audits/` (an audit is an execution, its report goes into `missions/` with the others), `generated/` (born when needed, outside the minimum).
 
-**1.5 Clause du grand-père** : (historique de l'atelier, non distribué) reste tel quel — aucune restructuration, aucune migration. Coût connu (liens relatifs, cf. Missions 052-055) pour gain nul. Sa non-conformité a valeur pédagogique d'avant/après. Seule règle applicable : plus aucun dépôt dans ses dossiers morts.
+**1.5 Grandfather clause**: (workshop history, not distributed) stays as it is — no restructuring, no migration. Known cost (relative links, cf. Missions 052-055) for zero gain. Its non-conformity has a before/after teaching value. Only applicable rule: nothing more is filed in its dead folders.
 
-**1.6 Le workspace `workshops` est le conteneur de tout le chantier.** L'organisation du workspace (branches d'activité de l'utilisateur, sous-dossiers par domaine) est **libre et personnelle**, collectée par l'interrogatoire de première installation ; le registre v1 la supporte déjà (chemins relatifs au parent du Vault). Le standard ne porte que sur l'intérieur d'un projet.
+**1.6 The `workshops` workspace is the container of the whole undertaking.** The organization of the workspace (the user's lines of activity, subfolders per domain) is **free and personal**, collected by the first-install interview; registry v1 already supports it (paths relative to the Vault's parent). The standard covers only the inside of a project.
 
-**1.7 Le premier-né du standard est `wordpress-workshop`** (nom arbitré) : premier projet créé par le bootstrap conforme, banc d'essai du registre v2, objet montré à l'atelier, candidat projet modèle du paquet distribuable.
+**1.7 The first-born of the standard is `wordpress-workshop`** (arbitrated name): first project created by the conforming bootstrap, test bench of registry v2, object shown at the workshop, candidate model project of the distributable package.
 
-### 2. Dévoilement progressif (progressive disclosure)
+### 2. Progressive disclosure
 
-**2.1** Tout document porte un champ `description` en front-matter : une à deux phrases, **écrites par l'auteur du document au moment du dépôt** — jamais générées par un modèle tiers (leçon de l'audit externe : la couche produite par LLM est la moins fiable et exige un contrôle qualité permanent).
+**2.1** Every document carries a `description` field in its front matter: one to two sentences, **written by the document's author at filing time** — never generated by a third-party model (lesson of the external audit: the LLM-produced layer is the least reliable and requires permanent quality control).
 
-**2.2** Les `index.md` de dossier, toujours générés par script et jamais écrits à la main, s'enrichissent mécaniquement de trois champs recopiés depuis les en-têtes : `status`, `description`, relation de supersession. La génération est strictement déterministe.
+**2.2** Folder `index.md` files, always generated by script and never written by hand, are mechanically enriched with three fields copied from the headers: `status`, `description`, supersession relation. The generation is strictly deterministic.
 
-**2.3** Règle de descente, gravée : on s'arrête à l'index quand la question porte sur l'existence, le statut, ou ce qui est en vigueur ; on descend au fichier quand il faut le texte exact d'une règle, quand on va s'appuyer dessus pour une Mission ou une Decision, ou au moindre doute sur la ligne d'index.
+**2.3** Descent rule, engraved: one stops at the index when the question concerns existence, status, or what is in force; one goes down to the file when the exact text of a rule is needed, when one is going to rely on it for a Mission or a Decision, or at the slightest doubt about the index line.
 
-**2.4** La présence et la forme du champ `description` sont exigées par le garde-fou pre-commit — validation préventive à l'écriture, pas contrôle réactif après coup.
+**2.4** The presence and the form of the `description` field are required by the pre-commit guardrail — preventive validation at write time, not reactive control after the fact.
 
-**2.5** Toute partition d'archive (« dossier par an ») est une **condition de réveil**, pas une action : le chantier s'ouvre quand un dossier dépasse environ 100 fichiers. Aucun chiffre d'économie de lecture n'est revendiqué publiquement sans mesure propre.
+**2.5** Any archive partition ("folder per year") is a **wake-up condition**, not an action: the work item opens when a folder exceeds about 100 files. No figure of reading savings is claimed publicly without our own measurement.
 
-### 3. Droits d'écriture du Pilot — étage 2 de la charte, enfin défini
+### 3. Pilot write rights — stage 2 of the charter, finally defined
 
-**3.1** Allowlist par la configuration du serveur MCP, **grain gros — par dossier** : le Pilot peut créer dans les dossiers d'artefacts (`missions/`, `decisions/`, `proposals/`, `knowledge/`, `handoffs/` et leurs équivalents actuels) ; il ne touche jamais `rules/`, `state/`, `templates/`, `tools/`, les index générés ni les fichiers racine.
+**3.1** Allowlist through the MCP server configuration, **coarse grain — per folder**: the Pilot may create in the artefact folders (`missions/`, `decisions/`, `proposals/`, `knowledge/`, `handoffs/` and their current equivalents); it never touches `rules/`, `state/`, `templates/`, `tools/`, the generated indexes or the root files.
 
-**3.2** Principes importés de l'audit du système aîné : **fail closed** (configuration absente = refus bruyant, jamais de repli silencieux) ; le modèle de menace reste **anti-accident, pas anti-évasion**. La distinction créer/modifier dans un dossier autorisé reste couverte par l'étage 3 (muraille pre-commit, inspection du diff).
+**3.2** Principles imported from the audit of the older system: **fail closed** (missing configuration = loud refusal, never a silent fallback); the threat model stays **anti-accident, not anti-evasion**. The create/modify distinction within an authorized folder remains covered by stage 3 (pre-commit wall, inspection of the diff).
 
-**3.3** La réalisation technique (montages, options du serveur) doit être **mesurée, pas supposée** — Mission dédiée. (Arbitrage global.)
+**3.3** The technical implementation (mounts, server options) must be **measured, not assumed** — dedicated Mission. (Global arbitration.)
 
-### 4. Protocole du mot exact (autorisation aux gates)
+### 4. Exact-word protocol (authorization at gates)
 
-**4.1** Toute demande de porte adressée à l'Owner se termine par un snippet où **le Pilot propose lui-même les mots attendus** et leur effet — par exemple : « réponds `je valide` pour déposer tel quel, `je tranche : b` pour l'option b ». L'Owner copie le mot ; tout substitut ou formulation libre vaut discussion, pas autorisation.
+**4.1** Every door request addressed to the Owner ends with a snippet in which **the Pilot itself proposes the expected words** and their effect — for example: « réponds `je valide` pour déposer tel quel, `je tranche : b` pour l'option b » ["answer `je valide` to file as is, `je tranche : b` for option b"]. The Owner copies the word; any substitute or free wording counts as discussion, not authorization.
 
-**4.2** Clause de réalisme, gravée à la demande de l'Owner : on ne mécanise pas tout ; une petite erreur d'un côté ou de l'autre se rattrape au geste suivant. Le protocole vise la certitude des gates importants, pas le contrôle total.
+**4.2** Realism clause, engraved at the Owner's request: not everything is mechanized; a small error on one side or the other is caught at the next gesture. The protocol aims at certainty for the important gates, not at total control.
 
-**4.3** Origine : incident mesuré du système aîné (le mot « continue » servant deux autorisations différentes la même nuit) et faute de session du 2026-08-24 (« vas-y » oral pris pour un arbitrage).
+**4.3** Origin: measured incident of the older system (the word « continue » ["continue"] serving two different authorizations the same night) and session fault of 2026-08-24 (oral « vas-y » ["go ahead"] taken for an arbitration).
 
-### 5. Skills V1 — liste fermée et ordre
+### 5. V1 skills — closed list and order
 
-**5.1** Six skills : `session-start` (geste zéro : identité et racine avant toute lecture ; canari des garde-fous : hooks vivants, chemins de hooks, empreintes des fichiers de politique ; chargement de l'index du registre ; vérification de conformité du projet ; annonce du rôle) · `session-close` (le miroir manquant des deux systèmes : journal, fiche régénérée, revue des portes avec leurs `CLOSE:`, handoff si reprise) · `executor-preflight` (extension du préflight existant : geste zéro + refus de la forme `git add .`/`-A`) · `project-bootstrap` (arborescence des 7 fonctions + fiche registre + ligne d'index) · `first-install` (l'interrogatoire : questions de contexte → fiche USER → marqueur nom+contrat → journal → premiers index) · skill de recherche (enveloppe de `find-in-vault.sh`, dernier).
+**5.1** Six skills: `session-start` (gesture zero: identity and root before any reading; guardrail canary: live hooks, hook paths, fingerprints of the policy files; loading of the registry index; conformity check of the project; announcement of the role) · `session-close` (the missing mirror of both systems: journal, regenerated sheet, review of the doors with their `CLOSE:`, handoff if resuming) · `executor-preflight` (extension of the existing preflight: gesture zero + refusal of the form `git add .`/`-A`) · `project-bootstrap` (tree of the 7 functions + registry sheet + index line) · `first-install` (the interview: context questions → USER sheet → name+contract marker → journal → first indexes) · search skill (wrapper of `find-in-vault.sh`, last).
 
-**5.2** Deux mécaniques pures hors skills : filtre de la forme `git add` au pre-commit ; canari si mieux placé dans le préflight.
+**5.2** Two pure mechanisms outside skills: filter of the `git add` form at pre-commit; canary if better placed in the preflight.
 
-**5.3** Ordre impératif, justifié par l'avertissement du système aîné (ne pas bâtir sur des contrats non figés) : le nettoyage normatif (chantier 2) gèle la charte **avant** la construction des skills.
+**5.3** Mandatory order, justified by the warning of the older system (do not build on contracts that are not frozen): the normative cleanup (work item 2) freezes the charter **before** the skills are built.
 
-**5.4** Non importé, décision explicite : le moteur de politique complet du système aîné (`policy.yaml`, régimes, identité de dépôt). YAGNI — le trio lanceur d'identité + allowlist MCP + muraille pre-commit couvre les trous réels. Conservé comme référence de conception.
+**5.4** Not imported, explicit decision: the complete policy engine of the older system (`policy.yaml`, regimes, repository identity). YAGNI — the trio identity launcher + MCP allowlist + pre-commit wall covers the real holes. Kept as a design reference.
 
-### 6. Liens et pointeurs — règle générale
+### 6. Links and pointers — general rule
 
-Une cible hors dépôt ou inexistante **se cite, ne se lie pas** : l'information se garde en mention texte, le pointeur mort se supprime. (Généralise l'arbitrage des six références pré-Vault du RELAY 055.)
+A target outside the repository or non-existent **is cited, not linked**: the information is kept as a text mention, the dead pointer is removed. (Generalizes the arbitration of the six pre-Vault references of RELAY 055.)
 
-### 7. Plan en huit chantiers
+### 7. Plan in eight work items
 
-0. Audit 057 — **fait** (rapport `214618`). 1. Gravure de synthèse — **ce document**. 2. Nettoyage normatif sur pièces du rapport 057 : charte §3, quatre couples contredits, résidus PROMPT, outillage du garde-fou. 3. Registre v2 (contrat de structure : bootstrap, session-start, allowlist MCP) et 3-bis Skills V1. 4. Naissance de `wordpress-workshop`. 5. Empaquetage du Vault (interrogatoire, fiche USER, paquet, notice). 6. Contenu de l'atelier, construit dans `wordpress-workshop`. 7. Skill de recherche. Logique : on nettoie, on standardise, on fait naître l'exemple, on emballe, on prouve.
+0. Audit 057 — **done** (report `214618`). 1. Synthesis engraving — **this document**. 2. Normative cleanup on the evidence of report 057: charter §3, four contradicted pairs, PROMPT residues, guardrail tooling. 3. Registry v2 (structure contract: bootstrap, session-start, MCP allowlist) and 3-bis V1 skills. 4. Birth of `wordpress-workshop`. 5. Packaging of the Vault (interview, USER sheet, package, notice). 6. Workshop content, built in `wordpress-workshop`. 7. Search skill. Logic: we clean, we standardize, we bring the example to life, we package, we prove.
 
-## Raison
+## Reason
 
-Cinq occurrences en une journée du patron « une règle survit à l'abandon de son motif » ont montré que la doctrine seule dérive ; l'audit du système aîné a confirmé empiriquement que ce qui est mécanisé tient (zéro violation sur les gestes bloqués par hook) et que ce qui est doctrinal se viole (trois épisodes documentés). La présente consolidation transforme le brainstorm du soir en textes gravés avant que la session ne se ferme — précisément pour ne pas rejouer le patron qu'elle combat.
+Five occurrences in one day of the pattern "a rule survives the abandonment of its motive" showed that doctrine alone drifts; the audit of the older system confirmed empirically that what is mechanized holds (zero violations on the gestures blocked by hook) and that what is doctrinal gets violated (three documented episodes). The present consolidation turns the evening's brainstorm into engraved texts before the session closes — precisely so as not to replay the pattern it fights.
 
 ## Impact
 
-- Le standard de projet est arbitré ; le registre v2 a son cahier des charges ; la porte `frozen-project-tree-standard` a trouvé son réveil et sa réponse (ligne `CLOSE:` à écrire par la prochaine fenêtre Executor, avec les clés de portes associées).
-- Le gabarit de Mission recevra quatre amendements (section Préconditions ; comptes relatifs obligatoires ; section Portes avec `CLOSE:` ; contrat de reprise en cas d'arrêt partiel) — chantier 2, arbitrage global acquis.
-- Les relations d'amendement envers `DECISION-2026-08-23-124848` (point 7 : le projet modèle du lot E n'est plus « Une semaine sans écran ») et la charte §3 seront typées réciproquement par la Mission du chantier 2 — non liées ici, conformément au point 6 et aux deux refus du garde-fou documentés au rapport 057.
+- The project standard is arbitrated; registry v2 has its specification; the door `frozen-project-tree-standard` has found its wake-up and its answer (`CLOSE:` line to be written by the next Executor window, with the associated door keys).
+- The Mission template will receive four amendments (Preconditions section; mandatory relative counts; Doors section with `CLOSE:`; resume contract in case of partial stop) — work item 2, global arbitration acquired.
+- The amendment relations towards `DECISION-2026-08-23-124848` (point 7: the model project of batch E is no longer « Une semaine sans écran » ["A week without screens"]) and charter §3 will be typed reciprocally by the Mission of work item 2 — not linked here, in accordance with point 6 and with the two refusals of the guardrail documented in report 057.
 
-## Alternatives importantes
+## Important alternatives
 
-- Restructurer `workshop-production` au standard : rejetée (coût des liens, gain nul, valeur pédagogique de l'écart).
-- Grain fin par fichier pour les droits du Pilot : rejeté (non natif au serveur, se périme à chaque fichier, n'arrête pas mieux l'accident).
-- Import du moteur de politique du système aîné : rejeté, YAGNI (référence conservée).
+- Restructure `workshop-production` to the standard: rejected (cost of the links, zero gain, teaching value of the gap).
+- Fine grain per file for the Pilot's rights: rejected (not native to the server, goes stale with every file, does not stop accidents any better).
+- Import of the policy engine of the older system: rejected, YAGNI (reference kept).
 
 ## Human gate
 
-- Validation : accordée
-- Référence : arbitrages successifs en séance du 2026-08-25 soir, puis validation globale finale de l'Owner ; consigné au journal par la prochaine fenêtre Executor.
+- Validation: granted
+- Reference: successive arbitrations in the session of the evening of 2026-08-25, then final global validation by the Owner; recorded in the journal by the next Executor window.
 
-## Artefacts liés
+## Linked artefacts
 
-- Rapport de l'audit 057 : `../reports/REPORT-2026-08-25-214618-057-executor-stale-rule-survivorship-audit.md`
-- Pivot du cas d'usage : `./DECISION-2026-08-25-205728-workshop-case-study-pivot-wordpress.md`
-- Position d'ouverture libérée : `./DECISION-2026-08-25-213150-session-opening-directory-freed.md`
-- Handoff des cinq questions (2026-08-24) : `../handoffs/HANDOFF-2026-08-24-115651-pilot-session-close-graphify-eradication-and-tree-question.md` (supprimé)
-- Audits externes servant de sources (à verser en knowledge-notes, chantier en file) : audit du dévoilement progressif de la base YouTube ; audit des contraintes de rôles du système aîné (2026-08-26-030356).
+- Report of audit 057: `../reports/REPORT-2026-08-25-214618-057-executor-stale-rule-survivorship-audit.md`
+- Pivot of the use case: `./DECISION-2026-08-25-205728-workshop-case-study-pivot-wordpress.md`
+- Opening position freed: `./DECISION-2026-08-25-213150-session-opening-directory-freed.md`
+- Handoff of the five questions (2026-08-24): `../handoffs/HANDOFF-2026-08-24-115651-pilot-session-close-graphify-eradication-and-tree-question.md` (supprimé)
+- External audits used as sources (to be added to knowledge-notes, work item queued): audit of the progressive disclosure of the YouTube base; audit of the role constraints of the older system (2026-08-26-030356).
 
 ## Liens
 
-- `amended by` — Décision — §2.4 cesse d'affirmer un garde-fou qui n'existe pas (historique de l'atelier, non distribué)
-- `amended by` — [Décision — Prise de conscience du Vault par un projet, en trois étages](./DECISION-2026-08-31-210731-project-vault-awareness-three-tiers.md)
-- `amended by` — [Décision — Fin de passe skills V1](./DECISION-2026-09-01-144931-skills-v1-end-of-pass.md)
-- `prescribed by` — [Cycle de contexte V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
-- `applies` — [Décision — Pivot du cas d'usage de l'atelier](./DECISION-2026-08-25-205728-workshop-case-study-pivot-wordpress.md)
-- `applies` — [Décision — Répertoire d'ouverture libéré](./DECISION-2026-08-25-213150-session-opening-directory-freed.md)
-- `see also` — Rapport d'exécution — Mission 057 (historique de l'atelier, non distribué)
-- `see also` — Leçons de la session du 2026-08-25 (historique de l'atelier, non distribué)
-- `amends` — Décision — Modèle opératoire minimal des projets (historique de l'atelier, non distribué) (noyau minimal remplacé — Mission 065)
-- `amends` — Décision — Arbitrage de la cartographie de normalisation et héritage projet (historique de l'atelier, non distribué) (§5, architecture projet standard remplacée — Mission 065)
+- `amended by` — Decision — §2.4 stops asserting a guardrail that does not exist (workshop history, not distributed)
+- `amended by` — [Decision — Awareness of the Vault by a project, in three tiers](./DECISION-2026-08-31-210731-project-vault-awareness-three-tiers.md)
+- `amended by` — [Decision — End of the V1 skills pass](./DECISION-2026-09-01-144931-skills-v1-end-of-pass.md)
+- `prescribed by` — [Context cycle V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
+- `applies` — [Decision — Pivot of the workshop's use case](./DECISION-2026-08-25-205728-workshop-case-study-pivot-wordpress.md)
+- `applies` — [Decision — Opening directory freed](./DECISION-2026-08-25-213150-session-opening-directory-freed.md)
+- `see also` — Execution report — Mission 057 (workshop history, not distributed)
+- `see also` — Lessons of the session of 2026-08-25 (workshop history, not distributed)
+- `amends` — Decision — Minimal operating model of the projects (workshop history, not distributed) (minimal core superseded — Mission 065)
+- `amends` — Decision — Arbitration of the normalization map and project inheritance (workshop history, not distributed) (§5, standard project architecture superseded — Mission 065)

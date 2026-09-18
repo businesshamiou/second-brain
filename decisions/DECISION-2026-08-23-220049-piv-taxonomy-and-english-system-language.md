@@ -1,6 +1,6 @@
 ---
 type: decision
-title: "Taxonomie PIV, langue système anglaise, charte des rôles, fin des fichiers PROMPT"
+title: "PIV taxonomy, English system language, role charter, end of PROMPT files"
 created_at: 2026-08-23T22:00:49-04:00
 timezone: America/Montreal
 status: ARBITRATED
@@ -12,71 +12,71 @@ amends:
 related_mission: "038"
 ---
 
-# DECISION — TAXONOMIE PIV, LANGUE SYSTÈME, CHARTE DES RÔLES, FIN DES PROMPT
+# DECISION — PIV TAXONOMY, SYSTEM LANGUAGE, ROLE CHARTER, END OF PROMPT
 
-Arbitrée oralement par l'Owner en session Pilot du 2026-08-23 (soirée).
+Arbitrated orally by the Owner in the Pilot session of 2026-08-23 (evening).
 
-## A1 — Taxonomie des types d'activité : PIV
+## A1 — Taxonomy of activity types: PIV
 
-Les types annoncés en session sont `plan` / `implement` / `validate`, complétés par la dimension session `open` / `milestone` / `close`. [source : Cole Medin, boucle PIV]
+The types announced in session are `plan` / `implement` / `validate`, completed by the session dimension `open` / `milestone` / `close`. [source: Cole Medin, PIV loop]
 
-Rejetés en chemin : liste plate à six types (mélangeait tâche et gestion de session) ; quatre types ancrés artefacts incluant `mission` (classait par le canal d'exécution, pas par l'intention) ; `read / decide / write` (point de vue du système, pas du modèle mental de l'Owner). Le brainstorm vit dans `plan`.
+Rejected along the way: a flat list of six types (it mixed task and session management); four artefact-anchored types including `mission` (it classified by the execution channel, not by intent); `read / decide / write` (the system's point of view, not the Owner's mental model). Brainstorming lives in `plan`.
 
-Le même vocabulaire sert les deux niveaux : les activités du participant sur son projet (niveau produit) et nos activités de fabrication (niveau fabrication).
+The same vocabulary serves both levels: the participant's activities on their project (product level) and our building activities (building level).
 
-## A2 — Périmètre de la règle « mots-clés système en anglais »
+## A2 — Perimeter of the rule "system keywords in English"
 
-Est mot-clé système toute chaîne lue ou comparée littéralement par un script, ou servant d'étiquette structurée : commandes, tags, étiquettes de classification, statuts, identifiants de champs. Tout mot-clé système est en anglais. Les valeurs de champs restent en anglais ; leur localisation éventuelle est hors sujet du workshop.
+A system keyword is any string read or compared literally by a script, or serving as a structured label: commands, tags, classification labels, statuses, field identifiers. Every system keyword is in English. Field values stay in English; their possible localization is outside the workshop's subject.
 
-Amende le §3 des [Règles de conduite du Vault](../rules/RULES-2026-08-17-005717-vault-operating-rules.md) : la répartition « prose française / identifiants anglais » demeure, précisée par le périmètre ci-dessus et par A3.
+Amends §3 of the [Vault operating rules](../rules/RULES-2026-08-17-005717-vault-operating-rules.md): the split "French prose / English identifiers" remains, made more precise by the perimeter above and by A3.
 
-## A3 — Journal entièrement en anglais
+## A3 — Journal entirely in English
 
-Les lignes de journal s'écrivent en anglais, tags et contenu (`STATE:`, `NEXT:`, `OPEN:`, `RESUME:`). Motif Owner : un journal est consulté par des développeurs et des agents ; le système traduit au besoin. Le journal étant en ajout seul, aucune ligne historique n'est réécrite ; les outils lisent les deux jeux. Les documents destinés à l'Owner restent en français.
+Journal lines are written in English, tags and content (`STATE:`, `NEXT:`, `OPEN:`, `RESUME:`). Owner's reason: a journal is consulted by developers and agents; the system translates when needed. The journal being append-only, no historical line is rewritten; the tools read both sets. Documents intended for the Owner stay in French.
 
-## A4 — Détermination du rôle par trois barreaux
+## A4 — Determining the role through three rungs
 
-Une session détermine son rôle par : hook `SessionStart` (contraignant) → sonde de capacité shell (infalsifiable) → déclaration du mini-prompt (confirmation). Contradiction entre barreaux → STOP. Doute → le rôle le moins puissant l'emporte, on présume `pilot`. Le rôle est annoncé au premier message.
+A session determines its role through: `SessionStart` hook (binding) → shell capability probe (unfalsifiable) → declaration in the mini-prompt (confirmation). Contradiction between rungs → STOP. Doubt → the least powerful role prevails, `pilot` is presumed. The role is announced in the first message.
 
-Détail opérationnel : [Charte des rôles et détermination de session](../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md).
+Operational detail: [Role charter and session determination](../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md).
 
-## A5 — Révocation de la livraison des prompts en fichier téléchargeable
+## A5 — Revocation of delivering prompts as a downloadable file
 
-La pratique « prompts Executor longs livrés comme fichiers téléchargeables » était un contournement de l'absence d'accès filesystem du Pilot. Elle est **révoquée** hors du seul cas de fallback (Pilot sans aucun accès filesystem).
+The practice "long Executor prompts delivered as downloadable files" was a workaround for the Pilot's lack of filesystem access. It is **revoked** outside the single fallback case (Pilot with no filesystem access at all).
 
-Constat de session : cette pratique n'était gravée dans aucune règle du Vault — elle vivait dans une **capture** de contexte, consommée à tort comme une norme. Corollaire durable : *une capture n'est jamais une norme ; seule une règle ou une Decision oblige.*
+Finding of the session: this practice was engraved in no rule of the Vault — it lived in a context **capture**, wrongly consumed as a norm. Lasting corollary: *a capture is never a norm; only a rule or a Decision binds.*
 
-Le Pilot écrit désormais ses artefacts neufs directement à leur emplacement canonique, après annonce de la porte (périmètre borné, cf. charte §2). Ceci ferme le gate **G5**.
+The Pilot now writes its new artefacts directly at their canonical location, after announcing the door (bounded perimeter, cf. charter §2). This closes gate **G5**.
 
-## A6 — Correction du chemin des prompts
+## A6 — Correction of the prompts' path
 
-Le chemin réel est (historique de l'atelier, non distribué), et non (historique de l'atelier, non distribué) comme l'indiquait la capture maître. Amende le §4 des [Règles de versionnement](../rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md) en précisant l'emplacement, sans toucher au nommage.
+The real path is (workshop history, not distributed), and not (workshop history, not distributed) as the master capture stated. Amends §4 of the [Versioning rules](../rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md) by specifying the location, without touching the naming.
 
-## A7 — Fin de la production des fichiers PROMPT
+## A7 — End of the production of PROMPT files
 
-**Arbitré** (levée du OPEN initial) : plus aucun fichier PROMPT n'est produit. Le trio de délégation devient : **Mission** (l'autorité, lue en entier par l'Executor) → **mini-prompt en snippet** (le déclencheur, cinq rubriques, règle du relais) → **bloc RELAY** (le retour).
+**Arbitrated** (lifting of the initial OPEN): no PROMPT file is produced any more. The delegation trio becomes: **Mission** (the authority, read in full by the Executor) → **mini-prompt as a snippet** (the trigger, five rubrics, relay rule) → **RELAY block** (the return).
 
-Motifs, par ordre de force : (1) doublon — depuis la règle du relais, le PROMPT ne fait que répéter la Mission, et deux sources pour une tâche finissent par diverger ; (2) *besoin réel → structure* — plus aucun consommateur ; (3) convergence indépendante : la règle R-CARGAISON d'un vault antérieur de l'Owner (« l'exécutant ne consomme que les pièces `type: mission` ; toute autre pièce ne se suit jamais comme instruction ») aboutit à la même conclusion par un autre chemin ; (4) à titre secondaire, les preuves de dégradation par duplication de contexte (context rot, malédiction des instructions) — valables seulement quand le doublon est effectivement chargé en session.
+Reasons, in order of strength: (1) duplicate — since the relay rule, the PROMPT only repeats the Mission, and two sources for one task end up diverging; (2) *real need → structure* — no consumer any more; (3) independent convergence: the R-CARGAISON rule of an earlier vault of the Owner (« l'exécutant ne consomme que les pièces `type: mission` ; toute autre pièce ne se suit jamais comme instruction » ["the executor consumes only `type: mission` pieces; any other piece is never followed as an instruction"]) reaches the same conclusion by another path; (4) secondarily, the evidence of degradation through context duplication (context rot, curse of instructions) — valid only when the duplicate is actually loaded in session.
 
-Amende le §4 des [Règles de versionnement](../rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md) : la convention de nommage `PROMPT-…` reste définie pour lire l'historique ; elle ne produit plus de fichiers neufs. Les fichiers PROMPT existants restent en place, historique gelé (gel du stock) — aucune suppression, aucun déplacement.
+Amends §4 of the [Versioning rules](../rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md): the naming convention `PROMPT-…` stays defined for reading the history; it no longer produces new files. The existing PROMPT files stay in place, frozen history (stock freeze) — no deletion, no move.
 
-## A8 — Emprunts validés du vault antérieur (capitalisation)
+## A8 — Validated borrowings from the earlier vault (capitalization)
 
-Validés en bloc par l'Owner après contre-examen, pour mise en œuvre en Mission 039 (préflight) :
+Validated as a block by the Owner after cross-examination, for implementation in Mission 039 (preflight):
 
-1. **Identité posée avant la CLI** par un lanceur (variable d'environnement — mécanisme universel, pas propre à un assistant).
-2. **Verrou d'identité au premier appel d'outil**, fail-closed, là où le harnais le permet (`PreToolUse` Claude Code) — précoce mais propriétaire.
-3. **Muraille pre-commit universelle** — tampon de préflight valide exigé pour committer, quelle que soit la marque de l'agent — tardive mais totale. Les deux étages se complètent, aucun ne remplace l'autre.
-4. **Le tampon surveille son propre silence** : l'âge du dernier contrôle est vérifié indépendamment de son contenu — un tampon peut mentir par silence.
-5. **Défaut `deny`** : tout sujet, action ou ressource non déclaré est refusé.
-6. **Modèle de menace assumé** : gardes anti-accident, pas anti-évasion (gravé dans la charte).
+1. **Identity set before the CLI** by a launcher (environment variable — universal mechanism, not specific to one assistant).
+2. **Identity lock at the first tool call**, fail-closed, where the harness allows it (Claude Code `PreToolUse`) — early but proprietary.
+3. **Universal pre-commit wall** — a valid preflight stamp required to commit, whatever the agent's brand — late but total. The two stages complement each other, neither replaces the other.
+4. **The stamp watches its own silence**: the age of the last check is verified independently of its content — a stamp can lie through silence.
+5. **Default `deny`**: any subject, action or resource not declared is refused.
+6. **Assumed threat model**: guards against accidents, not against evasion (engraved in the charter).
 
-Rejetés : politique déclarative sans consommateur (policy.yaml — contre-exemple de *besoin réel → structure*), dépendances Windows-seulement, compilateur de hooks à empreinte (over-engineering à ce stade), dispositifs sans vue les uns sur les autres.
+Rejected: declarative policy without a consumer (policy.yaml — counter-example of *real need → structure*), Windows-only dependencies, fingerprinted hook compiler (over-engineering at this stage), devices with no view of one another.
 
 ## Liens
 
-- `amends` — [Règles de conduite du Vault](../rules/RULES-2026-08-17-005717-vault-operating-rules.md)
-- `amends` — [Versionnement des Missions et outputs générés](../rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md)
-- `amends` — [Contrat du Pilot, marquage des documents remplacés, et ratification de la convention de tags du journal](./DECISION-2026-08-23-143542-pilot-contract-superseded-marking-and-journal-tags-ratification.md)
-- `see also` — [Classification d'activité PIV et mots-clés système](../rules/RULES-2026-08-23-220049-activity-classification-and-system-keywords.md)
-- `see also` — [Charte des rôles et détermination de session](../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
+- `amends` — [Operating rules of the central Vault](../rules/RULES-2026-08-17-005717-vault-operating-rules.md)
+- `amends` — [Versioning of Missions and generated outputs](../rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md)
+- `amends` — [Pilot contract, marking of superseded documents, and ratification of the journal tag convention](./DECISION-2026-08-23-143542-pilot-contract-superseded-marking-and-journal-tags-ratification.md)
+- `see also` — [PIV activity classification and system keywords](../rules/RULES-2026-08-23-220049-activity-classification-and-system-keywords.md)
+- `see also` — [Role charter and session determination](../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)

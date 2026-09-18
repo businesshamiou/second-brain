@@ -1,6 +1,6 @@
 ---
 type: decision
-title: "Extension de la convention de tags du journal — tag CLOSE: et portes à clé"
+title: "Extension of the journal tag convention — CLOSE: tag and keyed doors"
 created_at: "2026-08-25T11:09:35-04:00"
 timezone: America/Montreal
 status: ARBITRATED
@@ -11,58 +11,58 @@ amends:
 related_mission: "051"
 ---
 
-# DÉCISION — EXTENSION DE LA CONVENTION DE TAGS DU JOURNAL : TAG `CLOSE:` ET PORTES À CLÉ
+# DECISION — EXTENSION OF THE JOURNAL TAG CONVENTION: `CLOSE:` TAG AND KEYED DOORS
 
 ## Date
 
 2026-08-25
 
-## Statut
+## Status
 
 `ARBITRATED`
 
-Arbitrage : session Owner/Pilot du 2026-08-25, ligne à ligne sur les fermetures, les clés et les gels (« je valide go »), exécuté par la Mission 051 (historique de l'atelier, non distribué).
+Arbitration: Owner/Pilot session of 2026-08-25, line by line on the closures, keys and freezes (« je valide go » ["I validate, go"]), executed by Mission 051 (workshop history, not distributed).
 
-## Décision
+## Decision
 
-1. Le tag `CLOSE: <clé> -- <référence>` est ajouté à la convention de tags du journal ratifiée par la [Decision du 2026-08-23-143542](./DECISION-2026-08-23-143542-pilot-contract-superseded-marking-and-journal-tags-ratification.md).
-2. Toute porte s'écrit désormais une-porte-une-ligne-une-clé : clé `open-*` ou `frozen-*`, en kebab-case anglais, suivie de ` -- ` puis le texte.
-3. L'état affiché par la fiche est le net : dernière `OPEN:` par clé, moins `CLOSE:` postérieure de la même clé.
-4. Les lignes `OPEN:` legacy sans clé, antérieures à la baseline du 2026-08-25, sont exclues de la fiche et comptées en une ligne unique ; le journal n'est jamais réécrit.
-5. Fermetures F1–F6 de la baseline du 2026-08-25 :
-   - **F1** — check-links actif sur l'atelier (historique, non distribué) (Mission 049).
-   - **F2** — défaut skip non-exécutable corrigé (Missions 046/049).
-   - **F3** — dépôts poussés et liste périmée (push du 2026-08-24).
-   - **F4** — hooks PreToolUse graphify retirés (2026-08-24T11:23).
-   - **F5** — formulation « verdict Graphify suspendu jusqu'au lot B » morte : le lot B a été exécuté et Graphify éradiqué (Mission 040) ; le gel survit sous la clé `frozen-graphify-verdict`.
-   - **F6** — trou de numérotation 047 assumé.
+1. The tag `CLOSE: <clé> -- <référence>` is added to the journal tag convention ratified by the [Decision of 2026-08-23-143542](./DECISION-2026-08-23-143542-pilot-contract-superseded-marking-and-journal-tags-ratification.md).
+2. Every door is now written one-door-one-line-one-key: key `open-*` or `frozen-*`, in English kebab-case, followed by ` -- ` then the text.
+3. The state displayed by the sheet is the net: last `OPEN:` per key, minus a later `CLOSE:` of the same key.
+4. Legacy `OPEN:` lines with no key, earlier than the baseline of 2026-08-25, are excluded from the sheet and counted in a single line; the journal is never rewritten.
+5. Closures F1–F6 of the baseline of 2026-08-25:
+   - **F1** — check-links active on the workshop (history, not distributed) (Mission 049).
+   - **F2** — non-executable skip defect fixed (Missions 046/049).
+   - **F3** — repositories pushed and outdated list (push of 2026-08-24).
+   - **F4** — graphify PreToolUse hooks removed (2026-08-24T11:23).
+   - **F5** — wording "Graphify verdict suspended until batch B" dead: batch B was executed and Graphify eradicated (Mission 040); the freeze survives under the key `frozen-graphify-verdict`.
+   - **F6** — numbering gap 047 accepted.
 
-## Raison
+## Reason
 
-La fiche d'état affichait l'union de toutes les sessions, sans fermeture ni déduplication : besoin démontré le 2026-08-24/25 (11 entrées dont au moins 4 périmées, un item répété quatre fois), pas anticipé lors de la ratification initiale des tags.
+The state sheet displayed the union of all sessions, with no closure or deduplication: a need demonstrated on 2026-08-24/25 (11 entries of which at least 4 outdated, one item repeated four times), not anticipated at the initial ratification of the tags.
 
 ## Impact
 
-- `vault/tools/build-state.sh` reconnaît `CLOSE:` en fermeture et calcule l'état net par clé ; `OUVERT:`/`OPEN:` restent reconnus en lecture pour l'historique, les nouvelles écritures utilisent `OPEN:`/`CLOSE:`.
-- La baseline arbitrée (13 portes) est gravée au journal de (historique de l'atelier, non distribué) en Mission 051, étape 5.
-- Les lignes de journal historiques ne sont ni réécrites ni supprimées.
+- `vault/tools/build-state.sh` recognizes `CLOSE:` as a closure and computes the net state per key; `OUVERT:`/`OPEN:` remain recognized on reading for the history, new writes use `OPEN:`/`CLOSE:`.
+- The arbitrated baseline (13 doors) is engraved in the journal of (workshop history, not distributed) in Mission 051, step 5.
+- Historical journal lines are neither rewritten nor deleted.
 
-## Alternatives importantes
+## Important alternatives
 
-- Réécrire ou dédupliquer le journal existant : écartée, le journal est en ajout seul par contrainte structurelle du Vault.
-- Fermer les portes legacy par des lignes `CLOSE:` rétroactives une à une : écartée, aucune de ces lignes ne porte de clé conforme ; elles sont comptées comme legacy plutôt que fermées formellement.
+- Rewrite or deduplicate the existing journal: set aside, the journal is append-only by structural constraint of the Vault.
+- Close the legacy doors with retroactive `CLOSE:` lines one by one: set aside, none of these lines carries a conforming key; they are counted as legacy rather than formally closed.
 
 ## Human gate
 
-- Validation : accordée
-- Référence : arbitrage Owner ligne à ligne, session Pilot du 2026-08-25 (« je valide go »), exécuté par la Mission 051.
+- Validation: granted
+- Reference: line-by-line arbitration by the Owner, Pilot session of 2026-08-25 (« je valide go » ["I validate, go"]), executed by Mission 051.
 
-## Artefacts liés
+## Linked artefacts
 
-- Mission d'exécution : (historique de l'atelier, non distribué)
+- Execution Mission: (workshop history, not distributed)
 
 ## Liens
 
-- `amends` — [Decision — Contrat du Pilot, marquage des documents remplacés, et ratification de la convention de tags du journal](./DECISION-2026-08-23-143542-pilot-contract-superseded-marking-and-journal-tags-ratification.md)
-- `amends` — [Classification d'activité PIV et mots-clés système](../rules/RULES-2026-08-23-220049-activity-classification-and-system-keywords.md) (§7, liste des tags — Mission 066)
-- `see also` — Mission 051 — Purge des portes ouvertes, tag CLOSE, index rattrapé (historique de l'atelier, non distribué) (hors Vault)
+- `amends` — [Decision — Pilot contract, marking of superseded documents, and ratification of the journal tag convention](./DECISION-2026-08-23-143542-pilot-contract-superseded-marking-and-journal-tags-ratification.md)
+- `amends` — [PIV activity classification and system keywords](../rules/RULES-2026-08-23-220049-activity-classification-and-system-keywords.md) (§7, list of tags — Mission 066)
+- `see also` — Mission 051 — Purge of the open doors, CLOSE tag, index caught up (workshop history, not distributed) (hors Vault)

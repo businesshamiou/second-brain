@@ -1,66 +1,66 @@
 ---
 type: decision
-title: "Arbitrage d — étage 2 (allowlist d'écriture MCP) en statu quo documenté, trois conditions de réveil"
-description: "Grave l'arbitrage Owner « d » : l'allowlist d'écriture MCP côté Pilot n'a pas de voie native satisfaisante (Mission 063, confirmé par le rapport du Vault aîné) ; l'étage 3 reste la protection en vigueur ; trois conditions de réveil nommées, aucune portée effective."
+title: "Arbitration d — stage 2 (MCP write allowlist) in documented status quo, three wake-up conditions"
+description: "Engraves the Owner's arbitration « d »: the MCP write allowlist on the Pilot side has no satisfactory native route (Mission 063, confirmed by the report of the older Vault); stage 3 remains the protection in force; three wake-up conditions named, no effective scope."
 created_at: "2026-08-26T16:39:58-04:00"
 timezone: America/Montreal
 status: arbitrated
 owner_gate: granted
 ---
 
-# DÉCISION — ÉTAGE 2 (ALLOWLIST MCP) EN STATU QUO DOCUMENTÉ
+# DECISION — STAGE 2 (MCP ALLOWLIST) IN DOCUMENTED STATUS QUO
 
 ## Date
 
 2026-08-26
 
-## Statut
+## Status
 
 `ARBITRATED`
 
-## Décision
+## Decision
 
-Deux mesures convergent : la Mission `063` a établi que le serveur MCP filesystem installé (`@modelcontextprotocol/server-filesystem@2026.7.10`, lancement natif) ne porte aucun mécanisme de lecture seule par dossier, ni par arguments CLI ni par MCP Roots. Le rapport du Vault aîné (knowledge-note `KNOWLEDGE-NOTE-2026-08-26-163649`) confirme indépendamment que son propre mécanisme de restriction d'écriture repose entièrement sur le hook `PreToolUse` de Claude Code — sans équivalent sous Claude Desktop + MCP, et dont le portage serait une réécriture substantielle, pas une adaptation mineure (knowledge-note §5.3). L'Owner tranche « d » : l'étage 2 de la charte des rôles (allowlist d'écriture du Pilot par configuration du serveur MCP) reste **en statu quo documenté**, non implémenté. L'étage 3 (muraille pre-commit) demeure la protection mécanique effective en vigueur, preuve à l'appui : trois refus réels du garde-fou à la Mission `057` (deux refus de réciprocité de liens, un crash d'outil sur cible cross-dépôt — aucun contournement tenté, tous les trois documentés au rapport 057).
+Two measurements converge: Mission `063` established that the installed MCP filesystem server (`@modelcontextprotocol/server-filesystem@2026.7.10`, native launch) carries no per-folder read-only mechanism, neither through CLI arguments nor through MCP Roots. The report of the older Vault (knowledge-note `KNOWLEDGE-NOTE-2026-08-26-163649`) independently confirms that its own write-restriction mechanism rests entirely on Claude Code's `PreToolUse` hook — with no equivalent under Claude Desktop + MCP, and whose porting would be a substantial rewrite, not a minor adaptation (knowledge-note §5.3). The Owner decides « d »: stage 2 of the role charter (Pilot write allowlist through the MCP server configuration) stays **in documented status quo**, not implemented. Stage 3 (pre-commit wall) remains the effective mechanical protection in force, with evidence: three real refusals by the guardrail at Mission `057` (two refusals of link reciprocity, one tool crash on a cross-repository target — no workaround attempted, all three documented in report 057).
 
-La leçon de la panne de 5 jours du Vault aîné (garde-fou silencieusement inactif du 21 au 26 juillet, détectée seulement a posteriori par lecture du journal — knowledge-note §4.2) justifie, en une phrase, le canari des garde-fous déjà prévu dans le skill `session-start` (Décision `232341` §5.1) : un mécanisme qui peut tomber en panne sans le signaler n'est une protection que tant que quelqu'un vérifie qu'il tourne encore.
+The lesson of the 5-day outage of the older Vault (guardrail silently inactive from 21 to 26 July, detected only afterwards by reading the journal — knowledge-note §4.2) justifies, in one sentence, the guardrail canary already planned in the `session-start` skill (Decision `232341` §5.1): a mechanism that can fail without signalling it is a protection only as long as someone checks that it is still running.
 
-## Raison
+## Reason
 
-Le statu quo n'est pas un renoncement silencieux : il est documenté, daté, et borné par des conditions de réveil explicites (ci-dessous), conformément au refus YAGNI du moteur de politique complet (Décision `232341` §5.4) — ne pas construire un mécanisme dont le besoin réel n'est pas encore mesuré.
+The status quo is not a silent renunciation: it is documented, dated, and bounded by explicit wake-up conditions (below), in line with the YAGNI refusal of the complete policy engine (Decision `232341` §5.4) — do not build a mechanism whose real need is not yet measured.
 
-## Conditions de réveil
+## Wake-up conditions
 
-Trois, et seulement trois :
+Three, and only three:
 
-1. **Le serveur amont gagne un support natif de lecture seule par dossier** (nouvelle version du paquet, ou changement de méthode de lancement mesuré et validé) — revoir l'allowlist au palier 1.
-2. **Un accident réel d'écriture Pilot survient** (pas un risque théorique : un geste effectivement observé hors du périmètre attendu) → voie de réveil : wrapper MCP côté Pilot, sur le modèle du sas par rôle de l'aîné (knowledge-note §5.3, voie 2 — réécriture de l'interception, pas une recopie).
-3. **Un accident réel d'écriture Executor survient** → voie de réveil : portage de pre_tool_use.py, sur le même runtime Claude Code que celui déjà en usage ici — la couche « hooks Git + policy » que l'aîné qualifie lui-même de « proche du copier-coller » est déjà couverte, sous une autre forme, par notre étage 3 ; c'est la couche d'interposition Write/Edit qui resterait à porter.
+1. **The upstream server gains native per-folder read-only support** (new version of the package, or a change of launch method measured and validated) — revisit the allowlist at level 1.
+2. **A real Pilot write accident occurs** (not a theoretical risk: a gesture actually observed outside the expected perimeter) → wake-up route: MCP wrapper on the Pilot side, on the model of the older system's per-role airlock (knowledge-note §5.3, route 2 — rewrite of the interception, not a copy).
+3. **A real Executor write accident occurs** → wake-up route: porting of pre_tool_use.py, on the same Claude Code runtime as the one already in use here — the "Git hooks + policy" layer that the older system itself describes as "close to copy-paste" is already covered, in another form, by our stage 3; it is the Write/Edit interposition layer that would remain to be ported.
 
 ## Impact
 
-- Aucune configuration n'est appliquée à claude_desktop_config.json ; aucun geste d'application n'a eu lieu ni n'est prévu par cette Décision.
-- La porte `open-mcp-allowlist-verification` se ferme ; une porte gelée `frozen-mcp-write-allowlist` s'ouvre, portant les trois conditions ci-dessus comme seule condition de réveil.
-- Aucun changement de périmètre d'écriture du Pilot ou de l'Executor : la charte des rôles (`RULES-2026-08-23-224706`) s'applique sans modification.
+- No configuration is applied to claude_desktop_config.json; no application gesture took place or is planned by this Decision.
+- The door `open-mcp-allowlist-verification` closes; a frozen door `frozen-mcp-write-allowlist` opens, carrying the three conditions above as its only wake-up condition.
+- No change to the write perimeter of the Pilot or of the Executor: the role charter (`RULES-2026-08-23-224706`) applies without modification.
 
-## Alternatives importantes
+## Important alternatives
 
-- Construire immédiatement un wrapper MCP (voie 2 des conditions de réveil) sans accident réel constaté : rejeté, YAGNI (232341 §5.4) — le besoin n'est pas mesuré, seulement anticipé.
-- Ne documenter aucun statu quo et laisser la question implicitement close : rejeté — c'est exactement le patron qu'une règle non gravée dérive, déjà nommé aux Missions 062 et 063 pour d'autres sujets.
+- Build an MCP wrapper immediately (route 2 of the wake-up conditions) with no real accident observed: rejected, YAGNI (232341 §5.4) — the need is not measured, only anticipated.
+- Document no status quo and leave the question implicitly closed: rejected — this is exactly the pattern that an unengraved rule drifts, already named at Missions 062 and 063 for other subjects.
 
 ## Human gate
 
-- Validation : accordée
-- Référence : mot exact « je tranche : d, dépose 064 », 2026-08-26, Mission `064`.
+- Validation: granted
+- Reference: exact word « je tranche : d, dépose 064 » ["I decide: d, file 064"], 2026-08-26, Mission `064`.
 
-## Artefacts liés
+## Linked artefacts
 
-- Mesure : (historique de l'atelier, non distribué) (hors Vault).
-- Constat brut : (historique de l'atelier, non distribué) (hors Vault).
-- Rapport du Vault aîné (enveloppé) : (historique de l'atelier, non distribué) (hors Vault).
+- Measurement: (workshop history, not distributed) (hors Vault).
+- Raw finding: (workshop history, not distributed) (hors Vault).
+- Report of the older Vault (wrapped): (workshop history, not distributed) (hors Vault).
 
 ## Liens
 
-- `source` — Rapport d'exécution — Mission 063 (historique de l'atelier, non distribué) (hors Vault)
-- `source` — Knowledge-note — Mécanisme de restriction d'écriture du Vault aîné (historique de l'atelier, non distribué) (hors Vault)
-- `applies` — Décision — Consolidation du 2026-08-25 soir (historique de l'atelier, non distribué) (hors Vault)
-- `see also` — [Charte des rôles et détermination de session](../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
+- `source` — Execution report — Mission 063 (workshop history, not distributed) (hors Vault)
+- `source` — Knowledge-note — Write-restriction mechanism of the older Vault (workshop history, not distributed) (hors Vault)
+- `applies` — Decision — Consolidation of the evening of 2026-08-25 (workshop history, not distributed) (hors Vault)
+- `see also` — [Role charter and session determination](../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)

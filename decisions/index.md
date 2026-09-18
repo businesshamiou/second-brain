@@ -14,13 +14,13 @@ Index vivant : les entrées les plus récentes. La totalité est répartie en ar
 
 ## Contenu
 
-- `2026-08-25-110935` · ARBITRATED · Extension de la convention de tags du journal — tag CLOSE: et portes à clé · `DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md`
-- `2026-08-25-131034` · ARBITRATED · Arbitrages doctrinaux du 2026-08-25 — révocation du shell Pilot, auto-rangement… · `DECISION-2026-08-25-131034-doctrinal-arbitrations-2026-08-25.md`
-- `2026-08-25-205728` · arbitrated · Pivot du cas d'usage de l'atelier — abandon de « Une semaine sans écran », adop… · `DECISION-2026-08-25-205728-workshop-case-study-pivot-wordpress.md`
-- `2026-08-25-213150` · arbitrated · Répertoire d'ouverture d'une session — révocation de la contrainte de position,… · `DECISION-2026-08-25-213150-session-opening-directory-freed.md`
-- `2026-08-25-232341` · arbitrated · Consolidation du 2026-08-25 soir — standard de projet, dévoilement progressif,… · `DECISION-2026-08-25-232341-evening-consolidation-project-standard-and-plan.md`
-- `2026-08-26-154553` · arbitrated · Amendement — le push délégué devient une règle : valide si et seulement si auto… · `DECISION-2026-08-26-154553-delegated-push-exception-becomes-rule.md`
-- `2026-08-26-163958` · arbitrated · Arbitrage d — étage 2 (allowlist d'écriture MCP) en statu quo documenté, trois… · `DECISION-2026-08-26-163958-stage2-mcp-allowlist-status-quo.md`
+- `2026-08-25-110935` · ARBITRATED · Extension of the journal tag convention — CLOSE: tag and keyed doors · `DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md`
+- `2026-08-25-131034` · ARBITRATED · Doctrinal arbitrations of 2026-08-25 — revocation of the Pilot shell, self-fili… · `DECISION-2026-08-25-131034-doctrinal-arbitrations-2026-08-25.md`
+- `2026-08-25-205728` · arbitrated · Pivot of the workshop's use case — abandonment of « Une semaine sans écran », a… · `DECISION-2026-08-25-205728-workshop-case-study-pivot-wordpress.md`
+- `2026-08-25-213150` · arbitrated · Opening directory of a session — revocation of the position constraint, require… · `DECISION-2026-08-25-213150-session-opening-directory-freed.md`
+- `2026-08-25-232341` · arbitrated · Consolidation of the evening of 2026-08-25 — project standard, progressive disc… · `DECISION-2026-08-25-232341-evening-consolidation-project-standard-and-plan.md`
+- `2026-08-26-154553` · arbitrated · Amendment — delegated push becomes a rule: valid if and only if there is a date… · `DECISION-2026-08-26-154553-delegated-push-exception-becomes-rule.md`
+- `2026-08-26-163958` · arbitrated · Arbitration d — stage 2 (MCP write allowlist) in documented status quo, three w… · `DECISION-2026-08-26-163958-stage2-mcp-allowlist-status-quo.md`
 - `2026-08-26-231617` · arbitrated · Amendement — une ligne d'autorisation Owner couvre un seul geste · `DECISION-2026-08-26-231617-one-authorization-line-one-gesture.md`
 - `2026-08-27-100016` · arbitrated · Protocole de copie — sens retour en snippet, mots exacts groupés et adressés, l… · `DECISION-2026-08-27-100016-copy-protocol-snippets-and-destinations.md`
 - `2026-08-27-112528` · arbitrated · Amendement — l'exception de push délégué couvre le commit de sa propre ligne de… · `DECISION-2026-08-27-112528-delegated-push-exception-covers-its-journal-commit.md`

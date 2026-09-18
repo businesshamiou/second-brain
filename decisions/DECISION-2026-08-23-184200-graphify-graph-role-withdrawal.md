@@ -1,6 +1,6 @@
 ---
 type: decision
-title: "Retrait de Graphify du rôle « graphe du Vault »"
+title: "Withdrawal of Graphify from the “Vault graph” role"
 created_at: "2026-08-23T18:42:00-04:00"
 timezone: America/Montreal
 status: ARBITRATED
@@ -13,78 +13,78 @@ amends:
   - "DECISION-2026-08-19-233650-graphify-integrations-amendment.md"
 ---
 
-# DÉCISION — RETRAIT DE GRAPHIFY DU RÔLE « GRAPHE DU VAULT »
+# DECISION — WITHDRAWAL OF GRAPHIFY FROM THE "VAULT GRAPH" ROLE
 
 ## Date
 
 2026-08-23
 
-## Statut
+## Status
 
 `ARBITRATED`
 
-## Décision
+## Decision
 
-Graphify sort du rôle « graphe du Vault ». Cette Decision applique mécaniquement, sans l'assouplir ni la durcir, la règle de décision du protocole du banc de mesure (historique de l'atelier, non distribué) §2.6 aux chiffres mesurés par les Missions 032 (C2), 033 (C3) et 034 (C1) — trace complète dans l'étude de cas (historique de l'atelier, non distribué) §5.
+Graphify leaves the "Vault graph" role. This Decision applies mechanically, without loosening or tightening it, the decision rule of the measurement bench protocol (workshop history, not distributed) §2.6 to the figures measured by Missions 032 (C2), 033 (C3) and 034 (C1) — full trace in the case study (workshop history, not distributed) §5.
 
-La règle : « Graphify est conservé si, et seulement si, C3 obtient une justesse strictement supérieure à C2 sur au moins une question, sans dégrader la justesse sur aucune autre. » Mesuré : C3 gagne sur Q5 (2 contre 1) mais dégrade Q1 (1 contre 2). La seconde condition de la règle — aucune dégradation — échoue. Le critère de conservation n'est pas atteint. C'est la clause du dernier essai, acceptée d'avance par la [Decision des sept arbitrages du 2026-08-23, point 6](./DECISION-2026-08-23-124848-seven-arbitrations-2026-08-23.md) et par le protocole B1 lui-même : sans nouvelle mesure.
+The rule: "Graphify is kept if, and only if, C3 obtains an accuracy strictly higher than C2 on at least one question, without degrading accuracy on any other." Measured: C3 wins on Q5 (2 versus 1) but degrades Q1 (1 versus 2). The second condition of the rule — no degradation — fails. The retention criterion is not met. This is the last-attempt clause, accepted in advance by the [Decision of the seven arbitrations of 2026-08-23, point 6](./DECISION-2026-08-23-124848-seven-arbitrations-2026-08-23.md) and by protocol B1 itself: no new measurement.
 
-### Ce qui reste en place
+### What stays in place
 
-Rien de ce qui a remplacé Graphify pour la navigation ne dépend de lui, et rien n'en est retiré par cette Decision : le corpus, la fiche d'état générée (`<projet>/state/journal.md` + `<projet>/state/STATE.md`), les index générés par dossier (`tools/build-indexes.sh`), la recherche par contenu (`tools/find-in-vault.sh`) et les liens écrits (Standard de liens entre documents) restent le système de navigation du Vault. Les trois conditions mesurées le confirment : Q2, Q3 et Q4 obtiennent 2/2 dans les trois conditions, y compris C1 qui n'a aucun de ces outils.
+Nothing that replaced Graphify for navigation depends on it, and nothing of it is withdrawn by this Decision: the corpus, the generated state sheet (`<projet>/state/journal.md` + `<projet>/state/STATE.md`), the generated per-folder indexes (`tools/build-indexes.sh`), content search (`tools/find-in-vault.sh`) and written links (Standard for links between documents) remain the navigation system of the Vault. The three measured conditions confirm it: Q2, Q3 and Q4 obtain 2/2 in all three conditions, including C1, which has none of these tools.
 
-### Gestes de retrait à faire (planifiés, non exécutés par cette Decision)
+### Withdrawal gestures to perform (planned, not executed by this Decision)
 
-Hors périmètre de la Mission qui grave cette Decision (035) — à planifier par une Mission distincte :
+Outside the scope of the Mission that engraves this Decision (035) — to be planned by a separate Mission:
 
-1. `graphify hook uninstall` : retirer les hooks `post-commit`/`post-checkout` installés dans `vault`, et l'entrée `graphify-out/graph.json merge=graphify` de `.gitattributes`.
-2. Désinstaller le paquet hors dépôt : `uv tool uninstall graphifyy`.
-3. Archiver ou retirer `graphify-out/` (supprimé, Mission 040) (déjà non versionné) une fois la décision exécutée.
-4. Retirer `.env`/`.env.example` (`GEMINI_API_KEY`) si plus aucun usage ne le requiert.
-5. Retirer le rappel automatique « MANDATORY: run graphify... » injecté à chaque appel Bash/Read/Grep — observé et explicitement ignoré dans toutes les fenêtres de mesure du lot B (rapports 032 §8, 033 §6, 034 §6).
-6. Mettre à jour `_trash/runbook-vault-setup.md` §4 (retirer ou requalifier la section Graphify, ajouter l'entrée d'historique du retrait en §9 — obligation déjà inscrite dans le runbook lui-même ; runbook retiré de la distribution depuis, Mission 175).
-7. Revoir la mention de Graphify dans `DECISION-2026-08-19-115306-project-registry-v1.md` (D5 : l'index et les fiches du Registry entraient dans le corpus actif Graphify) — devient sans objet.
-8. Vérifier qu'aucun skill de première installation (arbitrage 7 des sept arbitrages) n'installe Graphify comme composant du graphe distribué.
+1. `graphify hook uninstall`: remove the `post-commit`/`post-checkout` hooks installed in `vault`, and the entry `graphify-out/graph.json merge=graphify` from `.gitattributes`.
+2. Uninstall the package outside the repository: `uv tool uninstall graphifyy`.
+3. Archive or remove `graphify-out/` (supprimé, Mission 040 — deleted) (already unversioned) once the decision is executed.
+4. Remove `.env`/`.env.example` (`GEMINI_API_KEY`) if no use requires it any more.
+5. Remove the automatic reminder "MANDATORY: run graphify..." injected at every Bash/Read/Grep call — observed and explicitly ignored in all the measurement windows of batch B (reports 032 §8, 033 §6, 034 §6).
+6. Update `_trash/runbook-vault-setup.md` §4 (remove or requalify the Graphify section, add the history entry of the withdrawal in §9 — an obligation already written in the runbook itself; runbook withdrawn from distribution since, Mission 175).
+7. Review the mention of Graphify in `DECISION-2026-08-19-115306-project-registry-v1.md` (D5: the index and the Registry sheets entered the Graphify active corpus) — becomes moot.
+8. Check that no first-install skill (arbitration 7 of the seven arbitrations) installs Graphify as a component of the distributed graph.
 
-### Porte de retour
+### Return door
 
-Le sujet peut être rouvert si une mesure future — conduite sous ce protocole ou un successeur qui ne l'assouplit pas — produit une condition C3 où le graphe est **effectivement interrogé** (au moins une requête `graphify query`/`path`/`explain` par question, contrairement aux zéro requêtes sur cinq questions de cette mesure, rapport 033 §6 (historique de l'atelier, non distribué)) et où le résultat satisfait alors, sans assouplissement, le critère de la règle B1 §2.6. Tant que cette condition n'est pas remplie, le sujet reste clos.
+The subject may be reopened if a future measurement — conducted under this protocol or a successor that does not loosen it — produces a condition C3 where the graph is **actually queried** (at least one `graphify query`/`path`/`explain` request per question, unlike the zero requests over five questions of this measurement, report 033 §6 (workshop history, not distributed)) and where the result then satisfies, without loosening, the criterion of rule B1 §2.6. As long as this condition is not met, the subject remains closed.
 
-## Raison
+## Reason
 
-La Decision des sept arbitrages du 2026-08-23 (point 6) avait retenu « corriger, tester, puis trancher » plutôt que geler ou retirer Graphify par anticipation. Le défaut identifié (les index générés n'entraient pas dans le graphe) a été corrigé et mesuré comme effectif par la Mission 033 (33 nœuds issus de 9 fichiers `index.md`, sur 434 nœuds au total). La mesure comparative en trois conditions a ensuite été conduite selon le protocole B1, déposé d'avance et non modifié depuis. Le résultat mesuré ne satisfait pas le critère de conservation écrit d'avance : une dégradation sur Q1 accompagne le seul gain observé sur Q5.
+The Decision of the seven arbitrations of 2026-08-23 (point 6) had chosen "fix, test, then decide" rather than freezing or withdrawing Graphify in advance. The identified defect (the generated indexes did not enter the graph) was fixed and measured as effective by Mission 033 (33 nodes from 9 `index.md` files, out of 434 nodes in total). The three-condition comparative measurement was then conducted according to protocol B1, filed in advance and not modified since. The measured result does not satisfy the retention criterion written in advance: a degradation on Q1 accompanies the only gain observed, on Q5.
 
 ## Impact
 
-- Aucune installation ni suppression n'est faite par cette Decision — voir « Gestes de retrait à faire » ci-dessus.
-- Aucun composant du système corrigé (fiche d'état, index, recherche par contenu, liens écrits) n'est affecté.
-- Le paquet de distribution (arbitrage 7 des sept arbitrages) ne présentera plus Graphify comme composant du graphe du Vault une fois les gestes de retrait exécutés.
-- L'épisode ouvert par la Mission 025 (« Graphify retiré du rôle "graphe du Vault", Decision formelle à rédiger ») est clos par cette Decision.
+- No installation or removal is made by this Decision — see "Withdrawal gestures to perform" above.
+- No component of the fixed system (state sheet, indexes, content search, written links) is affected.
+- The distribution package (arbitration 7 of the seven arbitrations) will no longer present Graphify as a component of the Vault graph once the withdrawal gestures are executed.
+- The episode opened by Mission 025 ("Graphify withdrawn from the 'Vault graph' role, formal Decision to be written") is closed by this Decision.
 
-## Alternatives importantes
+## Important alternatives
 
-- **Conserver Graphify malgré la dégradation sur Q1** : rejeté — la règle écrite d'avance (B1 §2.6) exige explicitement l'absence de dégradation sur toute autre question ; l'assouplir après coup pour ne retenir que le gain sur Q5 contredirait la contrainte de la Mission 035 (« sans l'assouplir ni la durcir après coup »).
-- **Remesurer C3 en s'assurant que le graphe soit effectivement interrogé** avant de trancher : rejeté par le protocole lui-même — la clause du dernier essai (B1 §2.6) exclut explicitement une nouvelle mesure après ce résultat. Le fait que C3 n'ait jamais interrogé le graphe (§« Ce que l'étude ne dit pas » de l'étude de cas) est documenté comme porte de retour, pas comme motif de remesure immédiate.
-- **Retirer aussi le reste du système corrigé** (fiche d'état, index, recherche, liens) : rejeté — ces éléments ne dépendent pas de Graphify et obtiennent la même justesse que les autres conditions sur les questions qu'ils couvrent (Q2, Q3, Q4).
+- **Keep Graphify despite the degradation on Q1**: rejected — the rule written in advance (B1 §2.6) explicitly requires the absence of degradation on any other question; loosening it after the fact to keep only the gain on Q5 would contradict the constraint of Mission 035 ("without loosening or tightening it after the fact").
+- **Remeasure C3 while making sure the graph is actually queried** before deciding: rejected by the protocol itself — the last-attempt clause (B1 §2.6) explicitly excludes a new measurement after this result. The fact that C3 never queried the graph (§"What the study does not say" of the case study) is documented as a return door, not as a reason for immediate remeasurement.
+- **Also withdraw the rest of the fixed system** (state sheet, indexes, search, links): rejected — these elements do not depend on Graphify and obtain the same accuracy as the other conditions on the questions they cover (Q2, Q3, Q4).
 
 ## Human gate
 
-- Validation : accordée.
-- Référence : la [Decision des sept arbitrages du 2026-08-23, point 6](./DECISION-2026-08-23-124848-seven-arbitrations-2026-08-23.md) a pré-autorisé le mécanisme « corriger, tester, puis trancher » ; le protocole B1 (historique de l'atelier, non distribué), déposé sous une Mission `AUTHORIZED`, fixe la règle de décision d'avance et sans marge d'appréciation. Cette Decision exécute mécaniquement cette règle pré-autorisée sur les chiffres mesurés ; elle ne constitue pas un nouvel arbitrage de fond et ne requiert donc pas de nouveau gate distinct.
+- Validation: granted.
+- Reference: the [Decision of the seven arbitrations of 2026-08-23, point 6](./DECISION-2026-08-23-124848-seven-arbitrations-2026-08-23.md) pre-authorized the mechanism "fix, test, then decide"; protocol B1 (workshop history, not distributed), filed under an `AUTHORIZED` Mission, sets the decision rule in advance and with no margin of judgement. This Decision mechanically executes this pre-authorized rule on the measured figures; it does not constitute a new arbitration of substance and therefore does not require a new separate gate.
 
-## Artefacts liés
+## Linked artefacts
 
-- Protocole source de la règle appliquée : (historique de l'atelier, non distribué)
-- Étude de cas et trace complète du verdict : (historique de l'atelier, non distribué)
-- Mesures : (historique de l'atelier, non distribué), (historique de l'atelier, non distribué), (historique de l'atelier, non distribué)
+- Source protocol of the applied rule: (workshop history, not distributed)
+- Case study and full trace of the verdict: (workshop history, not distributed)
+- Measurements: (workshop history, not distributed), (workshop history, not distributed), (workshop history, not distributed)
 
 ## Liens
 
-- `amends` — [Architecture Graphify V1 — navigation optionnelle et corpus actif borné](./DECISION-2026-08-18-004740-graphify-v1-architecture.md)
-- `amends` — [Project Registry V1 — architecture et contrat d'écriture](./DECISION-2026-08-19-115306-project-registry-v1.md) (D5 devient sans objet)
-- `amends` — [Architecture centrale — Vault permanent et projets frères](./DECISION-2026-08-17-003000-vault-central-architecture.md) (section Graphify, Mission 065)
-- `amends` — [Amendement Graphify V1 — intégrations natives](./DECISION-2026-08-19-233650-graphify-integrations-amendment.md) (D1, D5 — Mission 065)
-- `amends` — Arbitrage de la baseline Graphify V1 du Vault (historique de l'atelier, non distribué) (hors Vault) (statut `READY_TO_RESUME` dépassé — Mission 065)
-- `source` — Protocole du banc de mesure — étude de cas Graphify (historique de l'atelier, non distribué) (hors Vault)
-- `source` — Étude de cas Graphify — synthèse, verdict et matière à illustration (historique de l'atelier, non distribué) (hors Vault)
-- `see also` — [Décision — Sept arbitrages de session du 2026-08-23, point 6](./DECISION-2026-08-23-124848-seven-arbitrations-2026-08-23.md)
+- `amends` — [Graphify V1 architecture — optional navigation and bounded active corpus](./DECISION-2026-08-18-004740-graphify-v1-architecture.md)
+- `amends` — [Project Registry V1 — architecture and write contract](./DECISION-2026-08-19-115306-project-registry-v1.md) (D5 becomes moot)
+- `amends` — [Central architecture — permanent Vault and sibling projects](./DECISION-2026-08-17-003000-vault-central-architecture.md) (Graphify section, Mission 065)
+- `amends` — [Graphify V1 amendment — native integrations](./DECISION-2026-08-19-233650-graphify-integrations-amendment.md) (D1, D5 — Mission 065)
+- `amends` — Arbitration of the Vault's Graphify V1 baseline (workshop history, not distributed) (hors Vault) (status `READY_TO_RESUME` outdated — Mission 065)
+- `source` — Measurement bench protocol — Graphify case study (workshop history, not distributed) (hors Vault)
+- `source` — Graphify case study — synthesis, verdict and material for illustration (workshop history, not distributed) (hors Vault)
+- `see also` — [Decision — Seven session arbitrations of 2026-08-23, point 6](./DECISION-2026-08-23-124848-seven-arbitrations-2026-08-23.md)

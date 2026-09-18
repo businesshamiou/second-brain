@@ -1,6 +1,6 @@
 ---
 type: decision
-title: "Répertoire d'ouverture d'une session — révocation de la contrainte de position, exigence de conscience de position"
+title: "Opening directory of a session — revocation of the position constraint, requirement of position awareness"
 created_at: "2026-08-25T21:31:50-04:00"
 timezone: America/Montreal
 status: arbitrated
@@ -9,64 +9,64 @@ amends: "../rules/RULES-2026-08-23-224706-role-charter-and-session-determination
 rapatriated_from: "workshop-build/workshop-production/decisions/DECISION-2026-08-25-213150-session-opening-directory-freed.md"
 ---
 
-# DÉCISION — RÉPERTOIRE D'OUVERTURE D'UNE SESSION
+# DECISION — OPENING DIRECTORY OF A SESSION
 
 ## Date
 
 2026-08-25
 
-## Statut
+## Status
 
 `ARBITRATED`
 
-Arbitré en séance par l'Owner le 2026-08-25, en session Pilot `plan · open`, à la suite de l'arrêt aux préconditions de la Mission 056.
+Arbitrated in session by the Owner on 2026-08-25, in a Pilot session `plan · open`, following the stop at the preconditions of Mission 056.
 
-## Décision
+## Decision
 
-1. **Révocation.** La contrainte « toute session Executor s'ouvre toujours dans le Vault, jamais ailleurs » est révoquée. Elle figure aujourd'hui à la charte des rôles, §3, rubrique « Ouverture », et dans plusieurs pièces dérivées ; la présente Décision la prive d'effet à compter de sa date.
+1. **Revocation.** The constraint "every Executor session always opens in the Vault, never elsewhere" is revoked. It currently appears in the role charter, §3, rubric "Opening", and in several derived pieces; the present Decision deprives it of effect from its date.
 
-2. **Position libre.** Une session peut s'ouvrir n'importe où dans le workspace, et s'ouvre typiquement dans le dossier du projet en cours de développement. Le répertoire de départ n'est plus une précondition, ne peut plus fonder un arrêt, et ne doit plus être vérifié comme tel.
+2. **Free position.** A session may open anywhere in the workspace, and typically opens in the folder of the project under development. The starting directory is no longer a precondition, can no longer ground a stop, and must no longer be checked as such.
 
-3. **Conscience de position exigée.** Ce qui est exigé n'est plus une position mais une capacité, en quatre points, à établir à l'ouverture :
-   - déterminer son répertoire courant ;
-   - identifier le dépôt dans lequel ce répertoire se trouve, ou constater qu'il n'est dans aucun ;
-   - atteindre les dépôts frères par chemin relatif, et changer de répertoire au besoin ;
-   - exécuter toute opération Git dans le dépôt concerné par le geste, jamais par défaut dans celui du répertoire de départ.
+3. **Position awareness required.** What is required is no longer a position but a capability, in four points, to be established at opening:
+   - determine its current directory;
+   - identify the repository in which this directory lies, or note that it lies in none;
+   - reach the sibling repositories through a relative path, and change directory when needed;
+   - run every Git operation in the repository concerned by the gesture, never by default in the one of the starting directory.
 
-4. **Règles métier de projet.** Elles restent dans le dossier de leur projet et sont lues après localisation via le Vault ou le registre, sans changement.
+4. **Project business rules.** They stay in their project's folder and are read after locating it through the Vault or the registry, unchanged.
 
-5. **Ce que la charte doit dire.** La charte des rôles doit être amendée pour porter les points 2 à 4 à la place de la formulation révoquée. **Cet amendement n'est pas exécuté par la présente Décision** : la modification d'un fichier de règles existant est un geste Executor, et l'Owner a arbitré que l'audit passe avant toute correction.
+5. **What the charter must say.** The role charter must be amended to carry points 2 to 4 in place of the revoked wording. **This amendment is not executed by the present Decision**: modifying an existing rules file is an Executor gesture, and the Owner arbitrated that the audit comes before any correction.
 
-## Raison
+## Reason
 
-La contrainte de position répondait à un motif réel — garantir que la session sache atteindre le Vault et ses règles. Ce motif est aujourd'hui satisfait autrement : l'agent sait se localiser et se déplacer, et le travail se déroule majoritairement dans le dossier du projet en développement, ce qui rendait la contrainte à la fois artificielle et coûteuse.
+The position constraint answered a real motive — guaranteeing that the session knows how to reach the Vault and its rules. This motive is now satisfied otherwise: the agent knows how to locate itself and move, and the work mostly takes place in the folder of the project under development, which made the constraint both artificial and costly.
 
-L'arrêt de la Mission 056 a rendu ce coût visible : une session par ailleurs correcte a été bloquée par une précondition dont le motif était abandonné mais dont le texte restait actif.
+The stop of Mission 056 made this cost visible: an otherwise correct session was blocked by a precondition whose motive had been abandoned but whose text remained active.
 
 ## Impact
 
-- La précondition « session ouverte dans `vault` » disparaît des Missions à venir et doit être retirée de la correction de la Mission 056.
-- La charte des rôles `RULES-2026-08-23-224706` §3 devient **partiellement périmée** tant que l'amendement du point 5 n'est pas exécuté. Toute session lisant cette charte d'ici là doit tenir le §3 « Ouverture » pour révoqué.
-- **Perte assumée.** On échange une contrainte vérifiable mécaniquement contre une exigence comportementale. Le contrôle devient plus souple et moins prouvable. L'échange est accepté en connaissance de cause.
-- **Point non arbitré, matière à l'audit 057.** Cet épisode est la troisième occurrence en une journée d'un même patron : une règle gravée survit à l'abandon de son motif, faute d'un geste qui amende le texte source au moment de la révocation. L'opportunité de graver une obligation générale — toute Décision qui révoque amende le texte qu'elle révoque — n'est pas tranchée ici et attend les mesures de l'audit.
+- The precondition "session opened in `vault`" disappears from upcoming Missions and must be removed from the correction of Mission 056.
+- The role charter `RULES-2026-08-23-224706` §3 becomes **partially outdated** as long as the amendment of point 5 is not executed. Any session reading this charter until then must hold §3 "Opening" as revoked.
+- **Accepted loss.** A mechanically verifiable constraint is traded for a behavioural requirement. The control becomes more flexible and less provable. The trade is accepted knowingly.
+- **Point not arbitrated, material for audit 057.** This episode is the third occurrence in one day of the same pattern: an engraved rule survives the abandonment of its motive, for lack of a gesture that amends the source text at the time of the revocation. The advisability of engraving a general obligation — every Decision that revokes amends the text it revokes — is not decided here and awaits the audit's measurements.
 
-## Alternatives importantes
+## Important alternatives
 
-- **Maintenir la contrainte.** Rejetée : son motif est éteint et son coût est démontré.
-- **Contrainte affaiblie — s'ouvrir dans un dépôt Git, jamais à la racine du workspace.** Écartée à ce stade au profit de la position entièrement libre ; reste réouvrable si une session hors dépôt cause un incident réel.
+- **Keep the constraint.** Rejected: its motive is extinct and its cost is demonstrated.
+- **Weakened constraint — open in a Git repository, never at the root of the workspace.** Set aside at this stage in favour of the entirely free position; remains reopenable if a session outside a repository causes a real incident.
 
 ## Human gate
 
-- Validation : accordée
-- Référence : arbitrage en séance de l'Owner, session Pilot du 2026-08-25, à la suite du RELAY 056.
+- Validation: granted
+- Reference: arbitration in session by the Owner, Pilot session of 2026-08-25, following RELAY 056.
 
-## Artefacts liés
+## Linked artefacts
 
-- Arrêt qui a révélé l'écart : `../reports/REPORT-2026-08-25-210526-056-executor-case-study-pivot-engraving-STOP.md`
-- Règle à amender : `../../../vault/rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md`
+- Stop that revealed the gap: `../reports/REPORT-2026-08-25-210526-056-executor-case-study-pivot-engraving-STOP.md`
+- Rule to amend: `../../../vault/rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md`
 
 ## Liens
 
-- `prescribed by` — [Cycle de contexte V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
-- `amends` — [Charte des rôles et détermination de session](../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
-- `see also` — Rapport d'arrêt de la Mission 056 (historique de l'atelier, non distribué)
+- `prescribed by` — [Context cycle V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
+- `amends` — [Role charter and session determination](../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
+- `see also` — Stop report of Mission 056 (workshop history, not distributed)

@@ -1,6 +1,6 @@
 ---
 type: decision
-title: "Pivot du cas d'usage de l'atelier — abandon de « Une semaine sans écran », adoption du cas WordPress piloté par le Vault"
+title: "Pivot of the workshop's use case — abandonment of « Une semaine sans écran », adoption of the WordPress case piloted by the Vault"
 created_at: "2026-08-25T20:57:28-04:00"
 timezone: America/Montreal
 status: arbitrated
@@ -9,69 +9,69 @@ amends: "./DECISION-2026-08-23-124848-seven-arbitrations-2026-08-23.md"
 rapatriated_from: "workshop-build/workshop-production/decisions/DECISION-2026-08-25-205728-workshop-case-study-pivot-wordpress.md"
 ---
 
-# DÉCISION — PIVOT DU CAS D'USAGE DE L'ATELIER
+# DECISION — PIVOT OF THE WORKSHOP'S USE CASE
 
 ## Date
 
 2026-08-25
 
-## Statut
+## Status
 
 `ARBITRATED`
 
-Arbitré en séance par l'Owner le 2026-08-25, en session Pilot `plan · open`, sur brainstorming point par point.
+Arbitrated in session by the Owner on 2026-08-25, in a Pilot session `plan · open`, on point-by-point brainstorming.
 
-## Décision
+## Decision
 
-Six points arbitrés d'un bloc.
+Six points arbitrated as a block.
 
-1. **Abandon.** Le cas d'étude « Une semaine sans écran / MiroShark » est abandonné comme cas d'usage de l'atelier. Il ne doit plus être proposé ni servir de fil rouge. Son sort matériel dans les dépôts (inventaire puis suppression éventuelle) reste un geste Executor sous human gate ; aucune suppression n'est autorisée par la présente Décision.
+1. **Abandonment.** The case study « Une semaine sans écran / MiroShark » ["A week without screens / MiroShark"] is abandoned as the workshop's use case. It must no longer be proposed nor serve as a common thread. Its material fate in the repositories (inventory then possible deletion) remains an Executor gesture under human gate; no deletion is authorized by the present Decision.
 
-2. **Nouveau cas d'usage.** L'atelier construit un site WordPress — Elementor, thème Blocksy en version gratuite, NovaMira comme pont MCP entre l'assistant et WordPress — **piloté par la méthode du Vault**, avec un environnement de *staging* et une promotion explicite vers la production.
+2. **New use case.** The workshop builds a WordPress site — Elementor, Blocksy theme in its free version, NovaMira as the MCP bridge between the assistant and WordPress — **piloted by the Vault method**, with a *staging* environment and an explicit promotion to production.
 
-3. **Deux ressources distinctes, hiérarchisées.** Le Vault est le **produit** : c'est la ressource à laquelle l'audience aura accès et qu'elle réutilisera pour n'importe quel projet. L'atelier WordPress est la **preuve** que le Vault tient debout sur un travail réel. Les matériaux de l'atelier peuvent être inclus dans le paquet distribué, mais ils n'en sont pas le cœur. Toute conception ultérieure du contenu respecte cette hiérarchie.
+3. **Two distinct resources, ranked.** The Vault is the **product**: it is the resource the audience will have access to and will reuse for any project. The WordPress workshop is the **proof** that the Vault stands up on real work. The workshop materials may be included in the distributed package, but they are not its core. Any later design of the content respects this hierarchy.
 
-4. **Audience et motif.** Environ 200 non-développeurs suivant les programmes de l'académie. Ils pratiquent déjà WordPress dans ces programmes et le vivent comme une difficulté. Le cas d'usage n'est donc pas un prérequis à enseigner mais une douleur existante à adresser.
+4. **Audience and motive.** About 200 non-developers following the academy's programmes. They already practise WordPress in these programmes and experience it as a difficulty. The use case is therefore not a prerequisite to teach but an existing pain to address.
 
-5. **Format.** L'Owner construit seul ; la salle regarde. Séance enregistrée. Une fiche récapitulative reprenant les étapes, le contexte et le matériel est distribuée. Aucune construction en direct par les participants n'est prévue : la chaîne de dépendances (hébergement, domaine, DNS, greffons, Node.js, connecteur MCP) reste du côté de l'Owner.
+5. **Format.** The Owner builds alone; the room watches. Session recorded. A summary sheet covering the steps, the context and the materials is distributed. No live building by the participants is planned: the dependency chain (hosting, domain, DNS, plugins, Node.js, MCP connector) stays on the Owner's side.
 
-6. **Durée.** Cible 3 h à 3 h 30, rythme habituel de l'académie.
+6. **Duration.** Target 3 h to 3 h 30, the academy's usual pace.
 
-## Raison
+## Reason
 
-Le cas précédent ne satisfaisait pas deux critères devenus visibles à l'examen : il ne s'appuyait sur aucune douleur vécue par l'audience, et il ne fournissait pas de preuve que la méthode résiste à un travail réel et salissant.
+The previous case did not satisfy two criteria that became visible on examination: it rested on no pain experienced by the audience, and it provided no proof that the method withstands real, messy work.
 
-Le cas WordPress les satisfait tous deux. Il part d'un échec que l'audience subit déjà, et il oppose à ce que fait couramment l'état de l'art — un prompt collé, un résultat attendu, une publication directe en production, aucune trace des décisions — les trois pièces que le Vault apporte : un environnement jetable avant la production, un corpus versionné où le plan, les décisions et les prompts sont des artefacts datés, et des gestes bornés et vérifiables plutôt qu'une commande unique.
+The WordPress case satisfies both. It starts from a failure the audience already endures, and it sets against what the state of the art commonly does — a pasted prompt, an awaited result, a direct publication to production, no trace of the decisions — the three pieces the Vault brings: a disposable environment before production, a versioned corpus where the plan, the decisions and the prompts are dated artefacts, and bounded, verifiable gestures rather than a single command.
 
-La levée du format « l'Owner construit seul » supprime par ailleurs le risque principal identifié au brainstorming : la durée non maîtrisable des phases de génération, mesurée à environ dix minutes pour la conception et environ une heure pour la migration dans la source externe étudiée.
+Settling on the format "the Owner builds alone" moreover removes the main risk identified in the brainstorming: the uncontrollable duration of the generation phases, measured at about ten minutes for the design and about one hour for the migration in the external source studied.
 
 ## Impact
 
-- La porte `open-workshop-deliverable` change d'objet et reste ouverte.
-- Le projet modèle démontable du lot E (`open-distribution-lot-e`) doit être réexaminé : le paquet distribuable et le matériel d'atelier partagent une partie de leur substance sans se confondre, le Vault restant le produit.
-- La chaîne de démonstration prévue (ChatGPT + Codex en principal) entre en tension avec le nouveau cas, dont l'outillage naturel est un assistant de bureau connecté par MCP. **Point non arbitré**, à trancher séparément.
-- L'ordre de travail arbitré au handoff du 2026-08-25 est amendé : la construction du Vault et son empaquetage passent devant la conception du contenu de l'atelier.
-- Un découpage du déroulé en cinq blocs a été esquissé en séance ; il est **explicitement non retenu à ce stade**, ayant été construit avant que la hiérarchie du point 3 ne soit établie.
+- The door `open-workshop-deliverable` changes object and stays open.
+- The dismountable model project of batch E (`open-distribution-lot-e`) must be re-examined: the distributable package and the workshop materials share part of their substance without merging, the Vault remaining the product.
+- The planned demonstration chain (ChatGPT + Codex as the main one) comes into tension with the new case, whose natural tooling is a desktop assistant connected through MCP. **Point not arbitrated**, to be decided separately.
+- The work order arbitrated in the handoff of 2026-08-25 is amended: building the Vault and packaging it come before designing the workshop's content.
+- A split of the run into five blocks was sketched in session; it is **explicitly not retained at this stage**, having been built before the hierarchy of point 3 was established.
 
-## Alternatives importantes
+## Important alternatives
 
-- **Conserver « Une semaine sans écran ».** Rejetée : aucune douleur d'audience, aucune preuve de robustesse de la méthode.
-- **Reproduire le tutoriel externe tel quel.** Rejetée : c'est une démonstration de produit, non de méthode ; elle ne laisse aucune trace relisible et publie directement en production.
-- **Faire construire les participants en direct.** Rejetée : chaîne de dépendances ingérable pour environ 200 non-développeurs en visioconférence.
+- **Keep « Une semaine sans écran » ["A week without screens"].** Rejected: no audience pain, no proof of the method's robustness.
+- **Reproduce the external tutorial as is.** Rejected: it is a product demonstration, not a method one; it leaves no rereadable trace and publishes directly to production.
+- **Have the participants build live.** Rejected: an unmanageable dependency chain for about 200 non-developers in a video conference.
 
 ## Human gate
 
-- Validation : accordée
-- Référence : arbitrage en séance de l'Owner, session Pilot du 2026-08-25 ; consigné au journal.
+- Validation: granted
+- Reference: arbitration in session by the Owner, Pilot session of 2026-08-25; recorded in the journal.
 
-## Artefacts liés
+## Linked artefacts
 
-- Source externe étudiée (à déposer) : étude de cas du tutoriel WordPress externe, `../knowledge-notes/`
-- Ordre de travail amendé : `../handoffs/HANDOFF-2026-08-25-145859-pilot-session-close-purge-anglicization-content-plan.md` (supprimé)
+- External source studied (to be filed): case study of the external WordPress tutorial, `../knowledge-notes/`
+- Work order amended: `../handoffs/HANDOFF-2026-08-25-145859-pilot-session-close-purge-anglicization-content-plan.md` (supprimé)
 
 ## Liens
 
-- `prescribed by` — [Cycle de contexte V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
-- `amends` — Clôture de session Pilot 2026-08-25 (historique de l'atelier, non distribué)
-- `amends` — [Décision — Sept arbitrages de session du 2026-08-23](./DECISION-2026-08-23-124848-seven-arbitrations-2026-08-23.md)
-- `see also` — [Charte des rôles et détermination de session](../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
+- `prescribed by` — [Context cycle V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
+- `amends` — Pilot session close 2026-08-25 (workshop history, not distributed)
+- `amends` — [Decision — Seven session arbitrations of 2026-08-23](./DECISION-2026-08-23-124848-seven-arbitrations-2026-08-23.md)
+- `see also` — [Role charter and session determination](../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
