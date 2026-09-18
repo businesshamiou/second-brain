@@ -1,50 +1,50 @@
 #!/usr/bin/env bash
-# Rend un projet conscient du Vault, en deux modes additifs (DECISION-2026-
-# 08-31-210731 point 3, Decision 2026-09-17-000545 A2-A5) :
+# Makes a project aware of the Vault, in two additive modes (DECISION-2026-
+# 08-31-210731 point 3, Decision 2026-09-17-000545 A2-A5):
 #
-#   create : cree un nouveau projet conforme au standard de structure de
-#            projet (sept fonctions, RULES-2026-08-26-142800-project-
-#            structure-standard.md) : squelette, README.md d'identite, amorce
-#            de journal, premiers index, fiche PROJECT-v2 et ligne de
-#            registre. Refuse si la cible existe deja : l'organisation du
-#            workspace est libre (232341 S1.6), ce script ne presume rien.
-#   adopt  : sur un dossier existant, n'ecrit que ce qui manque (acte de
-#            naissance et epingle, fichiers de pointage, prompt Pilot, ligne
-#            de registre, fiche), grave la ligne de base datee, signale
-#            l'existant, propose le plan de reorganisation et n'applique rien.
-#            `adopt --git` sur un projet adopte sans Git ajoute le depot, le
-#            hook et l'epingle active.
-#   order  : sans ordre d'initiation, n'ecrit rien et rend l'ordre a remplir.
+#   create : creates a new project that follows the project structure
+#            standard (seven functions, RULES-2026-08-26-142800-project-
+#            structure-standard.md): skeleton, identity README.md, journal
+#            bootstrap, first indexes, PROJECT-v2 sheet and registry
+#            line. Refuses if the target already exists: the organisation of the
+#            workspace is free (232341 S1.6), this script presumes nothing.
+#   adopt  : on an existing folder, writes only what is missing (birth
+#            certificate and pin, pointer files, Pilot prompt, registry
+#            line, sheet), records the dated baseline, reports what
+#            exists, proposes the reorganisation plan and applies nothing.
+#            `adopt --git` on a project adopted without Git adds the repository, the
+#            hook and the active pin.
+#   order  : without an initiation order, writes nothing and returns the order to fill in.
 #
-# Dans les deux modes, le projet recoit son acte de naissance : le bloc de
-# commentaires en tete de .pre-commit-config.yaml (vault_id, vault_origin,
-# vault_ref, vcs, et baseline a l'adoption), grammaire fixe lue par
-# tools/resolve-vault.sh. Forme choisie par mesure : une cle de premier
-# niveau fait avertir `pre-commit validate-config`, un bloc de commentaires
-# non (Mission 184, mesure prealable).
+# In both modes, the project receives its birth certificate: the comment
+# block at the top of .pre-commit-config.yaml (vault_id, vault_origin,
+# vault_ref, vcs, and baseline at adoption), a fixed grammar read by
+# tools/resolve-vault.sh. Form chosen by measurement: a top-level key
+# makes `pre-commit validate-config` warn, a comment block does
+# not (Mission 184, prior measurement).
 #
 # usage:
-#   project-bootstrap.sh <chemin-cible> <display_name> [langue FR|EN|ES]
-#       (appel historique : create, reponses portees par les arguments)
-#   project-bootstrap.sh create <chemin-cible> <display_name> [langue] [--vcs none|git] [--ask]
-#   project-bootstrap.sh adopt  <chemin-cible> [display_name] [langue] [--vcs none|git] [--ask] [--git]
-#   (toute forme accepte aussi --lang FR|EN|ES)
-#   project-bootstrap.sh --order <fichier-ordre> [langue]
-#   project-bootstrap.sh order <dossier> [langue]
+#   project-bootstrap.sh <target-path> <display_name> [language FR|EN|ES]
+#       (historical call: create, answers carried by the arguments)
+#   project-bootstrap.sh create <target-path> <display_name> [language] [--vcs none|git] [--ask]
+#   project-bootstrap.sh adopt  <target-path> [display_name] [language] [--vcs none|git] [--ask] [--git]
+#   (every form also accepts --lang FR|EN|ES)
+#   project-bootstrap.sh --order <order-file> [language]
+#   project-bootstrap.sh order <folder> [language]
 #
-# --ask : pose nom, emplacement et Git avant d'ecrire (reponses lues sur
-# l'entree standard, Entree = garder la proposition). Sans --ask, les
-# reponses sont portees par les arguments ou par l'ordre (Mode: answered) ;
-# si Git n'est porte par rien, la question Git est posee.
+# --ask: asks name, location and Git before writing (answers read from
+# standard input, Enter = keep the proposal). Without --ask, the
+# answers are carried by the arguments or by the order (Mode: answered);
+# if nothing carries Git, the Git question is asked.
 #
-# Langue (Mission 177, etape 5) : parametre optionnel, defaut EN --
-# retrocompatible avec tout appelant qui ne le fournit pas encore (tests
-# existants compris, qui attendent alors les messages "Note: ..." en
-# anglais). install.sh/install.ps1 passent la langue choisie au
-# questionnaire ; sans ce parametre, les messages destines au participant
-# de ce script restaient codes en dur en anglais, y compris au milieu d'une
-# installation francaise ou espagnole (defaut mesure a l'acceptation Owner
-# du 2026-09-14).
+# Language (Mission 177, step 5): optional parameter, default EN --
+# backward compatible with any caller that does not supply it yet (existing
+# tests included, which then expect the "Note: ..." messages in
+# English). install.sh/install.ps1 pass the language chosen in the
+# questionnaire; without this parameter, this script's messages intended for the
+# participant stayed hard-coded in English, including in the middle of a
+# French or Spanish installation (defect measured at the Owner acceptance
+# of 2026-09-14).
 
 set -u
 
@@ -109,7 +109,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ -n "$ORDER_FILE" ]; then
-  # --order <fichier> [langue] : la langue est le seul positionnel admis.
+  # --order <file> [language]: the language is the only positional allowed.
   LANGUAGE="${P1:-EN}"
   TARGET=""
   DISPLAY_NAME=""
@@ -118,7 +118,7 @@ elif [ "$MODE" = "order" ]; then
   DISPLAY_NAME=""
   LANGUAGE="${P2:-EN}"
 elif [ "$MODE" = "adopt" ] && [ -z "$P3" ] && printf '%s' "$P2" | grep -qixE 'fr|en|es'; then
-  # adopt <cible> <langue> : le nom est optionnel en adoption.
+  # adopt <target> <language>: the name is optional at adoption.
   TARGET="$P1"
   DISPLAY_NAME=""
   LANGUAGE="$P2"
@@ -138,13 +138,13 @@ PYRUN() {
   uv run --no-project "$HELPER" "$@"
 }
 
-# native_path <chemin> : la forme que le SYSTEME comprend (porte 9 de la
-# capture 2026-09-17-144137). Sous Git Bash, `pwd` rend `/c/Users/...` ;
-# le serveur MCP, l'application de bureau et le participant lisent
-# `C:\Users\...`. Le Pilot de l'acceptation a du deviner que l'un etait
-# l'autre. Meme mecanisme que tools/install-vault-mcp.sh (native()) :
-# `cygpath -w` la ou il existe, le chemin tel quel partout ailleurs -- sous
-# Unix, rien ne change.
+# native_path <path>: the form the SYSTEM understands (door 9 of
+# capture 2026-09-17-144137). Under Git Bash, `pwd` returns `/c/Users/...`;
+# the MCP server, the desktop application and the participant read
+# `C:\Users\...`. The acceptance Pilot had to guess that one was
+# the other. Same mechanism as tools/install-vault-mcp.sh (native()):
+# `cygpath -w` where it exists, the path as is everywhere else -- under
+# Unix, nothing changes.
 native_path() {
   if command -v cygpath >/dev/null 2>&1; then
     cygpath -w "$1"
@@ -153,23 +153,23 @@ native_path() {
   fi
 }
 
-# CATALOG <cle> [args...] : message destine au participant, jamais ecrit en
-# dur (Mission 177, etape 5, contrainte "messages par les catalogues i18n/").
+# CATALOG <key> [args...]: message intended for the participant, never
+# hard-coded (Mission 177, step 5, constraint "messages through the i18n/ catalogues").
 CATALOG() {
   PYRUN format-catalog "$CATALOG_FILE" "$@"
 }
 
-# extract_prompt_common_block <gabarit> : rend sur stdout le texte exact
-# entre les marqueurs litteraux <!-- PROMPT:BEGIN --> et <!-- PROMPT:END -->
-# (exclus), sauts de ligne preserves -- le tronc commun a coller tel quel
-# (Decision 201623 volet C, amende 000545 A4). sed pur, portable POSIX :
-# marche sous bash 3.2 (macOS) comme sous bash moderne (Linux, Git Bash),
-# aucun tableau associatif ni mapfile. Echec fail-closed : si l'un des deux
-# marqueurs manque, un message nommant le gabarit fautif part sur stderr et
-# la fonction rend 1 -- SANS ecrire de contenu partiel. `return`, jamais
-# `exit` : cette fonction est appelee via une substitution de commande, qui
-# tourne dans un sous-shell ou `exit` ne terminerait que ce sous-shell ;
-# l'appelant doit lui-meme faire `|| exit 1` pour arreter le script.
+# extract_prompt_common_block <template>: returns on stdout the exact text
+# between the literal markers <!-- PROMPT:BEGIN --> and <!-- PROMPT:END -->
+# (excluded), line breaks preserved -- the common trunk to paste as is
+# (Decision 201623 part C, amends 000545 A4). Pure sed, POSIX portable:
+# works under bash 3.2 (macOS) as under modern bash (Linux, Git Bash),
+# no associative array nor mapfile. Fail-closed failure: if either of the two
+# markers is missing, a message naming the faulty template goes to stderr and
+# the function returns 1 -- WITHOUT writing partial content. `return`, never
+# `exit`: this function is called through a command substitution, which
+# runs in a subshell where `exit` would only end that subshell;
+# the caller must itself do `|| exit 1` to stop the script.
 extract_prompt_common_block() {
   local tpl="$1" body
   body="$(tr -d '\r' < "$tpl")"
@@ -181,8 +181,8 @@ extract_prompt_common_block() {
   printf '%s\n' "$body" | sed -n '/<!-- PROMPT:BEGIN -->/,/<!-- PROMPT:END -->/p' | sed '1d;$d'
 }
 
-# ask_value <cle-catalogue> <defaut> : question posee sur stderr, reponse lue
-# sur l'entree standard ; Entree ou fin d'entree = defaut.
+# ask_value <catalogue-key> <default>: question asked on stderr, answer read
+# from standard input; Enter or end of input = default.
 ask_value() {
   local answer=""
   CATALOG "$1" "$2" >&2
@@ -191,16 +191,16 @@ ask_value() {
   if [ -n "$answer" ]; then printf '%s\n' "$answer"; else printf '%s\n' "$2"; fi
 }
 
-# Identite du Vault : lue ici sans rien ecrire ; generee (vid_ensure)
-# seulement apres toutes les validations, juste avant la premiere ecriture --
-# un refus ne doit jamais toucher au Vault
+# Vault identity: read here without writing anything; generated (vid_ensure)
+# only after all validations, just before the first write --
+# a refusal must never touch the Vault
 # (tests/test-project-bootstrap-path-validation.sh).
 VAULT_ID="$(vid_get "$VAULT_ROOT" vault_id)"
 VAULT_ORIGIN="$(vid_get "$VAULT_ROOT" vault_origin)"
 VAULT_REF="$(vid_ref "$VAULT_ROOT")"
 
-# --- order : l'ordre d'initiation a remplir, rien d'ecrit (Decision 000545,
-# A3 : sans ordre, l'agent s'arrete et propose l'adoption) ---------------------
+# --- order: the initiation order to fill in, nothing written (Decision 000545,
+# A3: without an order, the agent stops and proposes adoption) ---------------------
 if [ "$MODE" = "order" ]; then
   if [ -z "$TARGET" ]; then
     usage
@@ -227,7 +227,7 @@ if [ "$MODE" = "order" ]; then
   exit 0
 fi
 
-# --- --order <fichier> : l'ordre est la source (Decision 000545, A5) -----------
+# --- --order <file>: the order is the source (Decision 000545, A5) -----------
 ORDER_PURPOSE=""
 ORDER_AUTH=""
 if [ -n "$ORDER_FILE" ]; then
@@ -290,8 +290,8 @@ if [ -z "$DISPLAY_NAME" ]; then
   exit 1
 fi
 
-# --- Question avant d'ecrire (Decision 000545, A4) : nom et emplacement
-# proposes, l'Owner confirme ou change. ---------------------------------------
+# --- Question before writing (Decision 000545, A4): name and location
+# proposed, the Owner confirms or changes them. ---------------------------------------
 if [ "$ASK" = "1" ]; then
   ASK_NAME="$(ask_value "projectBootstrap.question.name" "$(basename "$TARGET")")"
   ASK_PLACE="$(ask_value "projectBootstrap.question.location" "$(dirname "$TARGET")")"
@@ -301,20 +301,20 @@ if [ "$ASK" = "1" ]; then
   TARGET="${ASK_PLACE%/}/$ASK_NAME"
 fi
 
-# --- `--git` VAUT la reponse : plus aucune question (porte 5 de la capture
-# 2026-09-17-144137). `--git` ne posait que ADD_GIT, lu bien plus bas au
-# moment de l'acte de naissance ; VCS restait vide ici, donc `adopt <p>
-# --git` posait quand meme « Suivre ce projet avec Git ? » et bloquait sur
-# l'entree standard d'un appelant sans terminal. Une option explicite
-# repond a la question qu'elle tranche. ---
+# --- `--git` IS the answer: no question any more (door 5 of capture
+# 2026-09-17-144137). `--git` only set ADD_GIT, read much further down at
+# the time of the birth certificate; VCS stayed empty here, so `adopt <p>
+# --git` still asked « Suivre ce projet avec Git ? » ["Track this project with Git?"] and blocked on
+# the standard input of a caller without a terminal. An explicit option
+# answers the question it settles. ---
 if [ "$ADD_GIT" = "1" ] && [ -z "$VCS" ]; then
   VCS="git"
 fi
 
-# --- Question Git si rien ne la porte (Decision 000545, A4) ------------------
+# --- Git question if nothing carries it (Decision 000545, A4) ------------------
 if [ -z "$VCS" ]; then
   if [ "$EXPLICIT" = "0" ]; then
-    # Appel historique (installeurs) : le depot Git est toujours cree.
+    # Historical call (installers): the Git repository is always created.
     VCS="git"
   else
     VCS_DEFAULT="none"
@@ -327,12 +327,12 @@ case "$VCS" in
   *) echo "REFUS : vcs doit valoir none ou git (lu : $VCS)" >&2; exit 1 ;;
 esac
 
-# --- Validation du chemin cible (Mission 171-C01, etape 3 : defaut de
-# meme famille que install.sh/install.ps1 -- validation de chemin absente).
-# Refuse un chemin cible relatif ou situe a l'interieur de ce depot Vault
-# lui-meme : un projet cree dans le Vault casserait la frontiere
-# Vault/projet qu'AGENTS.md impose ("Maintenir la frontiere entre le
-# Vault et les projets externes"). ---
+# --- Validation of the target path (Mission 171-C01, step 3: defect of the
+# same family as install.sh/install.ps1 -- missing path validation).
+# Refuses a target path that is relative or located inside this Vault repository
+# itself: a project created in the Vault would break the
+# Vault/project boundary that AGENTS.md imposes ("Maintenir la frontiere entre le
+# Vault et les projets externes" ["Maintain the boundary between the Vault and external projects"]). ---
 if [[ "$TARGET" != /* ]] && ! [[ "$TARGET" =~ ^[A-Za-z]:[/\\] ]]; then
   echo "REFUS : chemin cible non absolu : $TARGET" >&2
   exit 1
@@ -379,15 +379,15 @@ for DEP in "$CONFORMITY_CHECK" "$INDEXES_BUILD" "$JOURNAL_APPEND" "$STANDARD_RUL
   fi
 done
 
-# --- Premiere ecriture : l'identite du Vault, si elle manque encore. ---
+# --- First write: the Vault identity, if it is still missing. ---
 vid_ensure "$VAULT_ROOT"
 VAULT_ID="$(vid_get "$VAULT_ROOT" vault_id)"
 VAULT_ORIGIN="$(vid_get "$VAULT_ROOT" vault_origin)"
 
-# --- Registre absent : cree depuis le gabarit avant toute ecriture de ligne
-# (Mission 118, lot 5). Le gabarit est a la meme profondeur que le registre
-# sous VAULT_ROOT (templates/ et projects/) : ses liens relatifs restent
-# corrects tels quels, copie verbatim. ---
+# --- Registry missing: created from the template before any line is written
+# (Mission 118, batch 5). The template is at the same depth as the registry
+# under VAULT_ROOT (templates/ and projects/): its relative links stay
+# correct as they are, verbatim copy. ---
 if [ ! -e "$REGISTRY" ]; then
   REGISTRY_TEMPLATE="$VAULT_ROOT/templates/project-registry-template.md"
   if [ ! -e "$REGISTRY_TEMPLATE" ]; then
@@ -412,8 +412,8 @@ TODAY="$(date +"%Y-%m-%d")"
 TS="$(date +"%Y-%m-%dT%H:%M:%S%z")"
 STAMP="$(date +"%Y-%m-%d-%H%M%S")"
 
-# --- Ligne de base datee (adopt) : gravee AVANT toute ecriture, pour ne
-# lister que l'existant. Deposee apres, sous le nom que l'acte porte. ---
+# --- Dated baseline (adopt): recorded BEFORE any write, so as to list
+# only what exists. Put in place afterwards, under the name the certificate carries. ---
 BASELINE_NAME=""
 BASELINE_TMP=""
 CONFIG_EXISTED=0
@@ -426,13 +426,13 @@ if [ "$MODE" = "adopt" ] && [ "$CONFIG_EXISTED" = "0" ]; then
 fi
 
 if [ "$MODE" = "create" ]; then
-  # --- Squelette des sept fonctions (RULES-2026-08-26-142800 S2) ---
+  # --- Skeleton of the seven functions (RULES-2026-08-26-142800 S2) ---
   mkdir -p "$TARGET"/rules "$TARGET"/state "$TARGET"/missions "$TARGET"/decisions "$TARGET"/proposals "$TARGET"/knowledge "$TARGET"/handoffs
 fi
 TARGET_ABS="$(cd "$TARGET" && pwd)"
-# Forme native du chemin du projet : la seule qui soit rendue au
-# participant, au Pilot et a l'application (porte 9). TARGET_ABS reste la
-# forme du shell, utilisee pour tout acces disque de ce script.
+# Native form of the project path: the only one shown to the
+# participant, to the Pilot and to the application (door 9). TARGET_ABS stays the
+# shell form, used for every disk access of this script.
 TARGET_NATIVE="$(native_path "$TARGET_ABS")"
 PROJECT_REL="$(rel_path "$WORKSPACE_ROOT" "$TARGET_ABS")"
 REL_STANDARD="$(rel_path "$TARGET_ABS" "$STANDARD_RULE")"
@@ -446,7 +446,7 @@ note_added() { ADDED="${ADDED}${ADDED:+
 note_existing() { EXISTING="${EXISTING}${EXISTING:+
 }$1"; }
 
-# --- Identite du projet : reprise si deja inscrit (adopt idempotent) ---
+# --- Project identity: reused if already registered (idempotent adopt) ---
 REGISTERED=0
 PROJECT_ID=""
 if grep -qF "| $PROJECT_REL |" "$REGISTRY"; then
@@ -459,7 +459,7 @@ if [ "$MODE" = "create" ] && [ "$REGISTERED" = "1" ]; then
 fi
 
 if [ -z "$PROJECT_ID" ]; then
-  # project_id (registry v1 D1b) : date reelle + code mnemonique derive du display_name
+  # project_id (registry v1 D1b): real date + mnemonic code derived from display_name
   CODE="$(printf '%s' "$DISPLAY_NAME" | tr '[:lower:]' '[:upper:]' | tr -cs 'A-Z0-9' '-' | sed -E 's/^-+//; s/-+$//' | cut -d'-' -f1-3)"
   if [ -z "$CODE" ]; then
     echo "REFUS : impossible de deriver un code depuis display_name : $DISPLAY_NAME" >&2
@@ -474,11 +474,11 @@ if [ "$REGISTERED" = "0" ] && [ -e "$FICHE" ]; then
   exit 1
 fi
 
-# --- Acte de naissance et epingle des gardiens (Decision 000545, A1) ; repo:
-# local sur ce Vault (T01, ticket 02 de la Mission 168) : jamais une URL
-# distante, un chemin relatif mesure vers ce Vault, entry par entry, aucun
-# reseau ni cache pre-commit implique. vault_ref remplace l'empreinte
-# vault_head que la fiche portait. ---
+# --- Birth certificate and pin of the guardians (Decision 000545, A1); repo:
+# local on this Vault (T01, ticket 02 of Mission 168): never a remote
+# URL, a measured relative path to this Vault, entry by entry, no
+# network nor pre-commit cache involved. vault_ref replaces the vault_head
+# fingerprint that the sheet used to carry. ---
 write_certificate_config() {
   {
     echo "$RV_CERT_HEADER"
@@ -532,8 +532,8 @@ elif bc_file_has_certificate "$CONFIG"; then
   note_existing ".pre-commit-config.yaml"
   CURRENT_VCS="$(bc_get "$CONFIG" vcs)"
   if [ "$ADD_GIT" = "1" ] && [ "$CURRENT_VCS" = "none" ]; then
-    # adopt --git : seul geste qui retouche un fichier deja ecrit par ce
-    # script -- la ligne vcs de l'acte, la fiche et la ligne de registre.
+    # adopt --git: the only gesture that touches again a file already written by this
+    # script -- the vcs line of the certificate, the sheet and the registry line.
     VCS="git"
     CONFIG_TMP="$(mktemp)"
     sed 's/^# vcs: none$/# vcs: git/' "$CONFIG" > "$CONFIG_TMP" && cat "$CONFIG_TMP" > "$CONFIG"
@@ -554,13 +554,13 @@ else
 fi
 
 if [ "$MODE" = "create" ]; then
-  # --- Registre de Missions du projet (Mission 175, etape 2) : le squelette
-  # promet "missions/ = Missions ET leurs rapports" (standard S2) mais ne
-  # deposait jamais le registre lui-meme -- un projet cree restait sans
-  # MISSION-INDEX.md tant qu'aucune Mission n'etait ecrite a la main. Copie
-  # verbatim (front matter, en-tetes, ## Liens), jamais une chaine en dur ici,
-  # meme motif que le registre du Vault plus haut. build-indexes.sh (plus bas)
-  # indexe ce fichier des qu'il existe sur disque, avant tout premier commit.
+  # --- Mission register of the project (Mission 175, step 2): the skeleton
+  # promises "missions/ = Missions AND their reports" (standard S2) but never
+  # put the register itself in place -- a created project stayed without
+  # MISSION-INDEX.md as long as no Mission was written by hand. Verbatim
+  # copy (front matter, headers, ## Liens), never a hard-coded string here,
+  # same reason as the Vault registry above. build-indexes.sh (further down)
+  # indexes this file as soon as it exists on disk, before any first commit.
   cp "$MISSION_INDEX_TEMPLATE" "$TARGET_ABS/missions/MISSION-INDEX.md"
 
   cat > "$TARGET_ABS/README.md" <<EOF
@@ -583,16 +583,16 @@ Point d'entree du projet, cree par \`tools/project-bootstrap.sh\` (Mission 061),
 EOF
 fi
 
-# --- CLAUDE.md et AGENTS.md de niveau projet (Mission 173, Q17 : hierarchie
-# a trois niveaux). Sous 60 lignes ; nom, but, conventions minimales, puis
-# import de la methode (le CLAUDE.md de second-brain lui-meme, qui remonte
-# jusqu'a la charte des roles) -- rien de plus, la methode se lit par la
-# chaine d'imports, jamais recopiee ici. Contenu identique dans les deux
-# fichiers. Le chemin du Vault est celui de l'acte (mesure ci-dessus), jamais
-# une proximite supposee (Decision 000545, A1). Rubrique ## Liens
-# obligatoire : ces deux fichiers sont suivis par le depot de CE projet et
-# son propre gardien check-links.sh la refuse sinon. En adoption, un fichier
-# present est laisse tel quel. ---
+# --- Project-level CLAUDE.md and AGENTS.md (Mission 173, Q17: three-level
+# hierarchy). Under 60 lines; name, purpose, minimal conventions, then
+# import of the method (the CLAUDE.md of second-brain itself, which leads up
+# to the role charter) -- nothing more, the method is read through the
+# import chain, never copied here. Identical content in both
+# files. The Vault path is the certificate's (measured above), never
+# an assumed proximity (Decision 000545, A1). ## Liens section
+# mandatory: these two files are tracked by the repository of THIS project and
+# its own check-links.sh guardian refuses them otherwise. At adoption, a file
+# already present is left as is. ---
 PROJECT_GUIDE_CONTENT="# $DISPLAY_NAME
 
 But : à compléter.
@@ -622,9 +622,9 @@ for GUIDE in CLAUDE.md AGENTS.md; do
   fi
 done
 
-# --- Prompt Pilot du projet (Decision 000545, A4/A6) : le prompt commun vit
-# dans le Vault (source unique) ; ce fichier le personnalise sur le disque --
-# chemin du projet, identite du Vault, canari a rendre a l'ouverture. ---
+# --- Pilot prompt of the project (Decision 000545, A4/A6): the common prompt lives
+# in the Vault (single source); this file personalises it on disk --
+# project path, Vault identity, canary to return at opening. ---
 PILOT_PROMPT="$TARGET_ABS/state/PILOT-PROMPT.md"
 CANARY="pp-$(od -An -N6 -tx1 /dev/urandom 2>/dev/null | tr -d ' \n')"
 REL_PROMPT_TEMPLATE="$(rel_path "$TARGET_ABS/state" "$PILOT_PROMPT_TEMPLATE")"
@@ -671,17 +671,17 @@ EOF
   note_added "state/PILOT-PROMPT.md"
 fi
 
-# --- .gitignore pour les liens vers l'assistant et les skills, POSE AVANT
-# de creer les liens : sans cela, le premier `git add -A` de ce projet (fait
-# par l'installateur juste apres cet appel) suit chaque jonction/lien comme
-# un dossier ordinaire et tente d'indexer tout le contenu du CLONE en tant
-# que fichiers du projet -- mesure directement : "Permission denied" en
-# ecrivant .git/objects, l'index Git de deux depots se disputant les memes
-# fichiers sur disque. Seuls les TROIS chemins que link-project cree
-# ci-dessous sont exclus (jamais tout .claude/ ou .agents/ : un participant
-# reste libre de suivre son propre .claude/settings.json dans ce projet).
-# En adoption, un .gitignore existant n'est jamais modifie : sans les trois
-# exclusions, les liens ne sont pas poses et les lignes sont rendues. ---
+# --- .gitignore for the links to the assistant and the skills, PLACED BEFORE
+# the links are created: without it, the first `git add -A` of this project (done
+# by the installer right after this call) follows every junction/link as
+# an ordinary folder and tries to index the whole content of the CLONE as
+# files of the project -- measured directly: "Permission denied" while
+# writing .git/objects, the Git index of two repositories fighting over the same
+# files on disk. Only the THREE paths that link-project creates
+# below are excluded (never all of .claude/ or .agents/: a participant
+# remains free to track their own .claude/settings.json in this project).
+# At adoption, an existing .gitignore is never modified: without the three
+# exclusions, the links are not placed and the lines are returned. ---
 GITIGNORE="$TARGET_ABS/.gitignore"
 LINKS_OK=1
 if [ -e "$GITIGNORE" ]; then
@@ -709,27 +709,27 @@ else
 fi
 
 if [ "$MODE" = "create" ]; then
-  # --- Amorce de journal (patron existant : tools/append-journal.sh) ---
+  # --- Journal bootstrap (existing pattern: tools/append-journal.sh) ---
   bash "$JOURNAL_APPEND" "$TARGET_ABS" "OPEN:project-bootstrap -- projet $DISPLAY_NAME cree par tools/project-bootstrap.sh (Mission 061)"
 fi
 
-# --- Identite Git locale du projet (porte 4 de la capture
-# 2026-09-17-144137). `git init` ne pose aucune identite : sur un poste sans
-# `user.email` global -- le cas de l'Owner -- le tout premier commit du
-# projet echouait sur « Author identity unknown », alors que l'installeur,
-# lui, en pose une sur le clone. Ordre : ce qui est deja resolu pour ce
-# depot (local ou global) l'emporte et n'est jamais ecrase ; sinon
-# l'identite LOCALE du Vault installe ; sinon une identite neutre, qui dit
-# d'ou elle vient. ---
+# --- Local Git identity of the project (door 4 of capture
+# 2026-09-17-144137). `git init` sets no identity: on a machine without a
+# global `user.email` -- the Owner's case -- the very first commit of the
+# project failed on « Author identity unknown », whereas the installer
+# does set one on the clone. Order: what is already resolved for this
+# repository (local or global) wins and is never overwritten; otherwise
+# the LOCAL identity of the installed Vault; otherwise a neutral identity, which says
+# where it comes from. ---
 PB_FALLBACK_NAME="Second Brain Installer"
 PB_FALLBACK_EMAIL="installer@example.invalid"
 ensure_git_identity() {
-  # $1 = depot du projet.
+  # $1 = project repository.
   GI_NAME="$(git -C "$1" config --get user.name 2>/dev/null || true)"
   GI_EMAIL="$(git -C "$1" config --get user.email 2>/dev/null || true)"
   [ -n "$GI_NAME" ] && [ -n "$GI_EMAIL" ] && return 0
-  # --local sur le Vault : `--get` seul remonterait au global, qui est
-  # justement celui qui manque dans le cas mesure.
+  # --local on the Vault: `--get` alone would go up to the global one, which is
+  # precisely the one missing in the measured case.
   GI_VNAME="$(git -C "$VAULT_ROOT" config --local --get user.name 2>/dev/null || true)"
   GI_VEMAIL="$(git -C "$VAULT_ROOT" config --local --get user.email 2>/dev/null || true)"
   [ -n "$GI_NAME" ] || GI_NAME="${GI_VNAME:-$PB_FALLBACK_NAME}"
@@ -738,8 +738,8 @@ ensure_git_identity() {
   git -C "$1" config user.email "$GI_EMAIL" >/dev/null 2>&1 || return 1
 }
 
-# --- Depot Git et hook (vcs: git) : le hook n'est jamais pose si vcs: none
-# (Decision 000545, A4 -- controles par commande). ---
+# --- Git repository and hook (vcs: git): the hook is never installed if vcs: none
+# (Decision 000545, A4 -- checks by command). ---
 HOOK_NOTE=0
 if [ "$VCS" = "git" ]; then
   if [ ! -e "$TARGET_ABS/.git" ] && command -v git >/dev/null 2>&1; then
@@ -747,9 +747,9 @@ if [ "$VCS" = "git" ]; then
       || { git -C "$TARGET_ABS" init -q >/dev/null 2>&1 && git -C "$TARGET_ABS" symbolic-ref HEAD refs/heads/main; }
     [ -e "$TARGET_ABS/.git" ] && note_added ".git"
   fi
-  # Pose aussi sur un depot que ce script n'a pas cree (adopt --git sur un
-  # dossier deja sous Git) : le defaut mesure est l'absence d'identite, pas
-  # l'absence de depot.
+  # Also set on a repository this script did not create (adopt --git on a
+  # folder already under Git): the measured defect is the absence of identity, not
+  # the absence of a repository.
   [ -e "$TARGET_ABS/.git" ] && command -v git >/dev/null 2>&1 && ensure_git_identity "$TARGET_ABS"
   if [ -e "$TARGET_ABS/.git" ] && command -v pre-commit >/dev/null 2>&1; then
     (cd "$TARGET_ABS" && pre-commit install >/dev/null 2>&1) || HOOK_NOTE=1
@@ -758,9 +758,9 @@ if [ "$VCS" = "git" ]; then
   fi
 fi
 
-# --- Ligne de registre, avant mesure de conformite (l'inscription fait
-# partie du contrat). Colonne vcs (Decision 000545, A2) si le registre la
-# porte ; un registre anterieur a cinq colonnes garde sa forme. ---
+# --- Registry line, before the conformity measurement (registration is
+# part of the contract). vcs column (Decision 000545, A2) if the registry
+# carries it; an older five-column registry keeps its form. ---
 REGISTRY_HAS_VCS=0
 grep -qxF '|---|---|---|---|---|---|' "$REGISTRY" && REGISTRY_HAS_VCS=1
 registry_row() {
@@ -771,7 +771,7 @@ registry_row() {
   fi
 }
 replace_registry_row() {
-  # remplace la ligne du chemin PROJECT_REL par $1
+  # replaces the line of path PROJECT_REL with $1
   awk -v rel="| $PROJECT_REL |" -v new="$1" '{ if (index($0, rel) > 0 && !done) { print new; done=1 } else print }' "$REGISTRY" > "$REGISTRY.tmp" && mv "$REGISTRY.tmp" "$REGISTRY"
 }
 if [ "$REGISTERED" = "0" ]; then
@@ -787,16 +787,16 @@ if [ "$REGISTERED" = "0" ]; then
   ' "$REGISTRY" > "$REGISTRY.tmp" && mv "$REGISTRY.tmp" "$REGISTRY"
 fi
 
-# --- Conformite mesuree par appel du script de l'etape 4, jamais devinee ---
+# --- Conformity measured by calling the step-4 script, never guessed ---
 CONFORMITY="$(bash "$CONFORMITY_CHECK" "$TARGET_ABS")"
 CONFORMITY_STATUS="${CONFORMITY%%:*}"
 
-# Reecrit la ligne de registre avec la mesure reelle.
+# Rewrites the registry line with the real measurement.
 if [ "$REGISTERED" = "0" ] || [ "$VCS_SWITCHED" = "1" ]; then
   replace_registry_row "$(registry_row "$CONFORMITY_STATUS")"
 fi
 
-# --- Fiche PROJECT-<project_id>.md, schema v2 ---
+# --- PROJECT-<project_id>.md sheet, schema v2 ---
 if [ "$REGISTERED" = "1" ]; then
   if [ "$VCS_SWITCHED" = "1" ] && [ -f "$FICHE" ]; then
     FICHE_TMP="$(mktemp)"
@@ -880,12 +880,12 @@ EOF
   } > "$FICHE"
 fi
 
-# --- Premiers index (script uniquement, jamais a la main). VAULT_ROOT, pas
-# PROJECTS_DIR seul : projects/ n'est pas une racine de balayage a elle seule,
-# le superseded-files.txt du Vault reste unique, a sa racine. En adoption,
-# seuls les index absents sont ecrits (--only-missing) : un index existant
-# n'est jamais reecrit, et les fichiers ajoutes ci-dessus passent le gardien
-# de fraicheur des leur premier commit. ---
+# --- First indexes (script only, never by hand). VAULT_ROOT, not
+# PROJECTS_DIR alone: projects/ is not a sweep root on its own,
+# the Vault's superseded-files.txt stays unique, at its root. At adoption,
+# only missing indexes are written (--only-missing): an existing index
+# is never rewritten, and the files added above pass the freshness
+# guardian from their first commit. ---
 if [ "$MODE" = "create" ]; then
   bash "$INDEXES_BUILD" "$TARGET_ABS" "$VAULT_ROOT" >/dev/null
 else
@@ -909,25 +909,25 @@ INDEXES_EOF
 fi
 
 if [ "$MODE" = "create" ]; then
-  # --- Fiche d'etat et digest du projet (Mission 175, etape 3) : le standard
-  # de structure promet "state/ = journal + fiche generee" mais le squelette
-  # ne deposait que l'amorce de journal -- ni STATE.md ni DIGEST.md n'existaient
-  # avant la premiere Mission, laissant une ouverture de session sans rien a
-  # lire. Les deux outils prennent deja un dossier-projet generique en argument
-  # (aucun chemin d'atelier en dur) : appeles ici tels quels, jamais copies a
-  # la main. Apres la regeneration des index ci-dessus, pour que "Documents
-  # recents" (STATE.md) et l'index frais soient coherents des la premiere
-  # lecture. ---
+  # --- State sheet and digest of the project (Mission 175, step 3): the structure
+  # standard promises "state/ = journal + generated sheet" but the skeleton
+  # only put the journal bootstrap in place -- neither STATE.md nor DIGEST.md existed
+  # before the first Mission, leaving a session opening with nothing to
+  # read. Both tools already take a generic project folder as argument
+  # (no hard-coded workshop path): called here as they are, never copied by
+  # hand. After the regeneration of the indexes above, so that "Documents
+  # recents" ["Recent documents"] (STATE.md) and the fresh index are consistent from the first
+  # read. ---
   bash "$BUILD_STATE" "$TARGET_ABS" >/dev/null
   bash "$BUILD_DIGEST" "$TARGET_ABS" >/dev/null
 fi
 
-# --- Liens vers l'assistant et les skills de la methode (Mission 173,
-# Q17 : "rien dans le profil"). Poses ici, pour TOUT projet cree par ce
-# script -- au moment de l'installation comme des annees plus tard, via le
-# skill first-install/project-bootstrap -- jamais dans le profil de
-# l'utilisateur. Lecture seule sur le Vault ($VAULT_ROOT) ; ecriture
-# uniquement sous $TARGET_ABS. ---
+# --- Links to the assistant and to the method skills (Mission 173,
+# Q17: "rien dans le profil" ["nothing in the profile"]). Placed here, for EVERY project created by this
+# script -- at installation time as well as years later, through the
+# first-install/project-bootstrap skill -- never in the user's
+# profile. Read-only on the Vault ($VAULT_ROOT); writing
+# only under $TARGET_ABS. ---
 if [ "$LINKS_OK" = "1" ]; then
   LINK_OUTPUT="$(PYRUN link-project "$VAULT_ROOT" "$TARGET_ABS")" \
     || { echo "REFUS : la creation des liens (assistant/skills) dans $TARGET_ABS a echoue" >&2; exit 1; }
@@ -954,18 +954,18 @@ if [ "$LINKS_OK" = "1" ]; then
   printf '%s\n' "$LINK_OUTPUT" | grep '^ASSISTANT_SLUG_MISSING' >/dev/null \
     && CATALOG "projectBootstrap.assistantSlugMissing"
 
-  # --- Annonce de l'approbation d'import externe (Mission 173, Q17, etape 6).
-  # Meme annonce que le README/INSTALL.md : la creation de projet est le
-  # geste qui pose les liens sortant du dossier de travail, donc l'endroit le
-  # plus utile pour prevenir avant que Claude Code ne pose la question.
-  # Par le catalogue i18n/, jamais code en dur en anglais (Mission 177,
-  # etape 5 : ce message s'affichait en anglais au milieu d'une installation
-  # francaise, mesure a l'acceptation Owner du 2026-09-14). ---
+  # --- Announcement of the external import approval (Mission 173, Q17, step 6).
+  # Same announcement as README/INSTALL.md: project creation is the
+  # gesture that places the links leaving the working folder, hence the most
+  # useful place to warn before Claude Code asks the question.
+  # Through the i18n/ catalogue, never hard-coded in English (Mission 177,
+  # step 5: this message was shown in English in the middle of a French
+  # installation, measured at the Owner acceptance of 2026-09-14). ---
   CATALOG "projectBootstrap.externalImportApproval"
 fi
 
-# --- Compte rendu des modes explicites (create/adopt/--order) : l'appel
-# historique des installeurs reste muet ici, son journal est plafonne. ---
+# --- Report of the explicit modes (create/adopt/--order): the installers'
+# historical call stays silent here, its log is capped. ---
 if [ "$EXPLICIT" = "1" ]; then
   if [ "$HOOK_NOTE" = "1" ]; then
     CATALOG "projectBootstrap.hookMissing" "$TARGET_NATIVE"
@@ -985,7 +985,7 @@ if [ "$EXPLICIT" = "1" ]; then
       done
     fi
 
-    # --- Plan de reorganisation en sept fonctions : propose, jamais applique
+    # --- Reorganisation plan into seven functions: proposed, never applied
     # (210731 point 3, Decision 000545 A4). ---
     CATALOG "projectBootstrap.adopt.planHeader"
     PLAN_COUNT=0
@@ -999,11 +999,11 @@ if [ "$EXPLICIT" = "1" ]; then
       CATALOG "projectBootstrap.adopt.planCreate" "README.md"
       PLAN_COUNT=$((PLAN_COUNT + 1))
     fi
-    # Porte 11 de la capture 2026-09-17-144137 : le plan proposait de
-    # deplacer `index.md` vers `knowledge/index.md` -- l'index que ce meme
-    # appel venait d'ecrire. Le plan ne parle que de l'EXISTANT : tout ce
-    # que cet appel a ajoute (liste $ADDED, rendue plus haut au
-    # participant) en est retire.
+    # Door 11 of capture 2026-09-17-144137: the plan proposed to
+    # move `index.md` to `knowledge/index.md` -- the index that this very
+    # call had just written. The plan speaks only of what ALREADY EXISTS: everything
+    # this call added (list $ADDED, shown above to the
+    # participant) is removed from it.
     for F in "$TARGET_ABS"/*; do
       [ -f "$F" ] || continue
       B="$(basename "$F")"
@@ -1034,25 +1034,25 @@ $B
     CATALOG "projectBootstrap.adopt.planFooter"
   fi
 
-  # --- Bloc a consommer (Decision 000545, A4 ; Decision 201623 volet C,
-  # amende 000545 A4 : les instructions du Projet sont RENDUES en entier,
-  # pas seulement pointees par leur chemin -- un participant doit pouvoir
-  # coller tel quel, sans aller ouvrir le gabarit lui-meme). Extraction
-  # fail-closed AVANT tout rendu de ce bloc : un gabarit sans ses deux
-  # marqueurs ne doit produire aucun affichage partiel.
+  # --- Block to consume (Decision 000545, A4; Decision 201623 part C,
+  # amends 000545 A4: the Project instructions are SHOWN in full,
+  # not only pointed to by their path -- a participant must be able to
+  # paste as is, without going to open the template themselves). Fail-closed
+  # extraction BEFORE any output of this block: a template without its two
+  # markers must produce no partial display.
   PROMPT_COMMON_BLOCK="$(extract_prompt_common_block "$PILOT_PROMPT_TEMPLATE")" || exit 1
   CONSUME_PURPOSE="${ORDER_PURPOSE:-$DISPLAY_NAME}"
 
   CATALOG "projectBootstrap.consume.header"
   CATALOG "projectBootstrap.consume.project" "$DISPLAY_NAME"
-  # --- Instructions du Projet : en-tete, puis le tronc commun canonique
-  # rendu tel quel (source unique, jamais recopie ni traduit ici), encadre
-  # de lignes "---" -- forme choisie pour rester lisible en texte brut sur
-  # les trois systemes et marquer sans ambiguite ou commence et ou finit ce
-  # qui doit etre colle. Les quatre lignes de champs qui suivent la
-  # fermeture du cadre (chemin, Vault, canari, objet) sont hors du cadre :
-  # elles informent le participant, elles ne font pas partie du texte a
-  # coller comme instructions du Projet.
+  # --- Project instructions: header, then the canonical common trunk
+  # shown as is (single source, never copied nor translated here), framed
+  # by "---" lines -- form chosen to stay readable as plain text on
+  # the three systems and to mark unambiguously where what must be pasted
+  # begins and ends. The four field lines that follow the
+  # closing of the frame (path, Vault, canary, purpose) are outside the frame:
+  # they inform the participant, they are not part of the text to
+  # paste as Project instructions.
   CATALOG "projectBootstrap.consume.instructionsHeader"
   echo "  ---"
   printf '%s\n' "$PROMPT_COMMON_BLOCK"

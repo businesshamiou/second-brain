@@ -1,50 +1,50 @@
 #!/usr/bin/env bash
-# Resolution du Vault d'un projet (Decision 2026-09-17-000545, A1) -- fonction
-# partagee, un seul fichier source par tout outil qui doit trouver le Vault
-# (meme modele que tools/resolve-sibling-repo.sh : rien de presume).
+# Resolution of a project's Vault (Decision 2026-09-17-000545, A1) -- shared
+# function, a single source file for every tool that must find the Vault
+# (same model as tools/resolve-sibling-repo.sh: nothing presumed).
 #
-# Ordre, sans exception :
-#   (a) L'acte de naissance, trouve en remontant depuis le dossier donne
-#       comme on trouve `.git` : le bloc de commentaires en tete de
-#       `.pre-commit-config.yaml` (grammaire fixe, lignes `# <cle>: <valeur>`,
-#       premiere ligne `# second-brain-birth-certificate: v1`). Il nomme le
-#       Vault par son identite. Le Vault trouve -- chemin de l'epingle,
-#       chemin du marqueur, Vault qui execute cet outil, dossiers voisins
-#       du marqueur -- doit porter le meme `vault_id` ; aucun ne le porte :
-#       refus nommant les deux identites.
-#   (b) Sans acte : le marqueur `VAULT-ROOT.md` remonte. Il ne resout que
-#       s'il n'y a qu'un candidat (son chemin, plus tout dossier voisin qui
-#       porte une identite de Vault generee) ; deux candidats : refus, la
-#       question revient a l'Owner. Si le marqueur porte une identite, le
-#       candidat doit la porter aussi.
-# La proximite (un dossier nomme `vault` a cote) n'est jamais un candidat.
+# Order, without exception:
+#   (a) The birth certificate, found by walking up from the given folder
+#       the way `.git` is found: the comment block at the top of
+#       `.pre-commit-config.yaml` (fixed grammar, lines `# <key>: <value>`,
+#       first line `# second-brain-birth-certificate: v1`). It names the
+#       Vault by its identity. The Vault found -- path of the pin,
+#       path of the marker, Vault that runs this tool, sibling folders
+#       of the marker -- must carry the same `vault_id`; none carries it:
+#       refusal naming both identities.
+#   (b) No certificate: the `VAULT-ROOT.md` marker, walking up. It resolves only
+#       if there is only one candidate (its path, plus any sibling folder that
+#       carries a generated Vault identity); two candidates: refusal, the
+#       question goes back to the Owner. If the marker carries an identity, the
+#       candidate must carry it too.
+# Proximity (a folder named `vault` next door) is never a candidate.
 #
-# usage (source) :
+# usage (source):
 #   . "$SCRIPT_DIR/resolve-vault.sh"
-#   resolve_vault "<dossier>"
+#   resolve_vault "<folder>"
 #   # RV_STATUS  : resolved | refused
-#   # RV_VAULT   : chemin absolu du Vault (resolved seulement)
+#   # RV_VAULT   : absolute path of the Vault (resolved only)
 #   # RV_MODE    : certificate | marker
-#   # RV_PROJECT : racine du projet qui porte l'acte (certificate seulement)
-#   # RV_WORKSPACE : dossier du marqueur, vide si aucun
-#   # RV_MESSAGE : cause du refus, nommee
-# usage (execute) : resolve-vault.sh [<dossier>] -> chemin du Vault, ou REFUS
-#   sur stderr et code 1.
+#   # RV_PROJECT : root of the project that carries the certificate (certificate only)
+#   # RV_WORKSPACE : folder of the marker, empty if none
+#   # RV_MESSAGE : cause of the refusal, named
+# usage (execute): resolve-vault.sh [<folder>] -> Vault path, or REFUS
+#   on stderr and code 1.
 #
-# bash 3.2, outils POSIX seulement.
+# bash 3.2, POSIX tools only.
 
 RV_CERT_HEADER="# second-brain-birth-certificate: v1"
 
 _rv_lib_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "$_rv_lib_dir/vault-identity.sh"
 
-# bc_file_has_certificate <fichier> : 0 si le fichier porte l'acte.
+# bc_file_has_certificate <file>: 0 if the file carries the certificate.
 bc_file_has_certificate() {
   [ -f "$1" ] || return 1
   tr -d '\r' < "$1" | grep -qxF -- "$RV_CERT_HEADER"
 }
 
-# bc_get <fichier> <cle> : valeur d'une ligne `# <cle>: <valeur>` de l'acte.
+# bc_get <file> <key>: value of a `# <key>: <value>` line of the certificate.
 bc_get() {
   [ -f "$1" ] || return 0
   tr -d '\r' < "$1" | awk -v k="$2" '
@@ -52,7 +52,7 @@ bc_get() {
     /^[^#]/ { exit }'
 }
 
-# bc_find <dossier> : racine du projet qui porte l'acte, en remontant.
+# bc_find <folder>: root of the project that carries the certificate, walking up.
 bc_find() {
   local dir
   dir="$(cd "$1" 2>/dev/null && pwd -P)" || return 1
@@ -68,15 +68,15 @@ bc_find() {
   return 1
 }
 
-# bc_pin_vault_rel <racine-projet> : chemin relatif du Vault lu dans l'epingle
-# (entree du gardien de secrets), vide si absent.
+# bc_pin_vault_rel <project-root>: relative Vault path read from the pin
+# (entry of the secrets guardian), empty if missing.
 bc_pin_vault_rel() {
   tr -d '\r' < "$1/.pre-commit-config.yaml" 2>/dev/null \
     | sed -n 's#^[[:space:]]*entry:[[:space:]]*\(.*\)/tools/check-secrets\.sh[[:space:]]*$#\1#p' \
     | head -n 1
 }
 
-# rv_find_marker <dossier> : dossier qui porte VAULT-ROOT.md, en remontant.
+# rv_find_marker <folder>: folder that carries VAULT-ROOT.md, walking up.
 rv_find_marker() {
   local dir
   dir="$(cd "$1" 2>/dev/null && pwd -P)" || return 1
@@ -92,8 +92,8 @@ rv_find_marker() {
   return 1
 }
 
-# rv_marker_field <marqueur> <libelle> : valeur entre accents graves apres
-# « <libelle> : ».
+# rv_marker_field <marker> <label>: value between backticks after
+# « <label> : ».
 rv_marker_field() {
   tr -d '\r' < "$1" | grep -oE "$2 : \`[^\`]*\`" | head -n 1 | sed -E 's/.*`([^`]*)`.*/\1/'
 }
@@ -106,8 +106,8 @@ rv_marker_vault_id() {
   rv_marker_field "$1" 'Identité du Vault'
 }
 
-# _rv_add_candidate <chemin> : ajoute un dossier existant, canonique, sans
-# doublon, a la liste RV_CANDIDATES (un chemin par ligne).
+# _rv_add_candidate <path>: adds an existing folder, canonical, without
+# duplicate, to the RV_CANDIDATES list (one path per line).
 _rv_add_candidate() {
   local c
   c="$(cd "$1" 2>/dev/null && pwd -P)" || return 0
@@ -122,8 +122,8 @@ $c
 }$c"
 }
 
-# _rv_add_workspace_vaults <workspace> : dossiers voisins portant une identite
-# de Vault generee.
+# _rv_add_workspace_vaults <workspace>: sibling folders carrying a generated
+# Vault identity.
 _rv_add_workspace_vaults() {
   local ws="$1" d
   [ -d "$ws" ] || return 0

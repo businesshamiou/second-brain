@@ -1,35 +1,35 @@
 #!/usr/bin/env bash
-# rel_path BASE CIBLE : chemin de CIBLE relatif a BASE, en shell pur.
+# rel_path BASE CIBLE: path of CIBLE (target) relative to BASE, in pure shell.
 #
-# Motif (Mission 180) : `realpath --relative-to=` est une extension GNU. Le
-# realpath livre par Apple ne la connait pas et refuse -- « realpath: illegal
-# option -- - » -- ce qui rendait vide le chemin relatif calcule et ecrivait
-# des entrees comme `/tools/check-secrets.sh` dans le fichier pre-commit d'un
-# projet cree sur macOS. Une forme commune aux trois plateformes vaut mieux
-# qu'une branche par systeme : ce fichier est cette forme, et bash 3.2 suffit
-# a l'executer (tableaux indices seulement, aucun tableau associatif).
+# Reason (Mission 180): `realpath --relative-to=` is a GNU extension. The
+# realpath shipped by Apple does not know it and refuses -- « realpath: illegal
+# option -- - » -- which left the computed relative path empty and wrote
+# entries such as `/tools/check-secrets.sh` into the pre-commit file of a
+# project created on macOS. One form common to the three platforms is better
+# than one branch per system: this file is that form, and bash 3.2 is enough
+# to run it (indexed arrays only, no associative array).
 #
-# BASE doit exister et etre un dossier. CIBLE peut etre un dossier ou un
-# fichier ; seul son dossier parent doit exister. Sortie sans saut de ligne,
-# comme `realpath --relative-to`. Retourne 1 sans rien ecrire si un chemin
-# est introuvable, ce qui laisse aux appelants leur `2>/dev/null` habituel.
+# BASE must exist and be a folder. CIBLE may be a folder or a
+# file; only its parent folder must exist. Output without a newline,
+# like `realpath --relative-to`. Returns 1 without writing anything if a path
+# cannot be found, which leaves callers their usual `2>/dev/null`.
 #
 # usage: . "$(dirname "$0")/relpath.sh" ; rel_path /a/b /a/c/d  -> ../c/d
 
 abs_path() {
-  # Chemin absolu canonique de $1, que la cible existe ou non : l'equivalent
-  # de `realpath -m`, option GNU que le realpath de BSD (macOS) refuse. Une
-  # branche « si realpath existe » ne suffisait pas -- sur macOS il existe et
-  # echoue, donc le repli n'etait jamais atteint (Mission 180).
-  # Normalisation par le texte, sans toucher au disque : un chemin vers un
-  # dossier absent doit sortir normalise, pas vide, sinon l'appelant confond
-  # « hors du depot, depot absent » (avertissement) et « cible morte »
-  # (refus). La forme de la racine est conservee -- « / » ou « C: » -- parce
-  # que les appelants comparent le resultat a une racine obtenue par
-  # `git rev-parse`, qui rend la forme Windows sous Git Bash : convertir
-  # l'une sans l'autre ferait passer tout lien interne pour un lien sortant.
-  # C'est exactement ce que fait le realpath de Git Bash : forme Windows en
-  # entree, forme Windows en sortie.
+  # Canonical absolute path of $1, whether or not the target exists: the equivalent
+  # of `realpath -m`, a GNU option that the BSD (macOS) realpath refuses. A
+  # branch "if realpath exists" was not enough -- on macOS it exists and
+  # fails, so the fallback was never reached (Mission 180).
+  # Normalisation by text, without touching the disk: a path to a
+  # missing folder must come out normalised, not empty, otherwise the caller confuses
+  # "outside the repository, repository missing" (warning) and "dead target"
+  # (refusal). The form of the root is kept -- « / » or « C: » -- because
+  # callers compare the result with a root obtained through
+  # `git rev-parse`, which returns the Windows form under Git Bash: converting
+  # one without the other would make every internal link look like an outgoing link.
+  # This is exactly what the Git Bash realpath does: Windows form in,
+  # Windows form out.
   local p="$1" c n i root rest norm
   case "$p" in
     /*) root=""; rest="${p#/}" ;;

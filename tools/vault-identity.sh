@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
-# Identite du Vault installe (Decision 2026-09-17-000545, A1 et A7).
+# Identity of the installed Vault (Decision 2026-09-17-000545, A1 and A7).
 #
-# Un Vault installe porte a sa racine VAULT-IDENTITY.md, genere une fois et
-# suivi par Git comme USER.md : `vault_id` (identifiant aleatoire, jamais
-# derive du poste) et `vault_origin` (origine du clone : URL du remote, ou
-# chemin du dossier si aucun remote). Le depot distribue ne porte que le
-# squelette (`status: template`, valeurs vides) : chaque installation genere
-# sa propre identite, deux Vaults d'un meme poste ne se confondent jamais.
+# An installed Vault carries at its root VAULT-IDENTITY.md, generated once and
+# tracked by Git like USER.md: `vault_id` (random identifier, never
+# derived from the machine) and `vault_origin` (origin of the clone: remote URL, or
+# folder path if there is no remote). The distributed repository carries only the
+# skeleton (`status: template`, empty values): each installation generates
+# its own identity, two Vaults on the same machine are never confused.
 #
-# usage (execute) :
-#   vault-identity.sh ensure [<racine-du-vault>]   genere si absente, idempotent
-#   vault-identity.sh get <cle> [<racine-du-vault>] vault_id | vault_origin | vault_ref
-# usage (source) :
+# usage (execute):
+#   vault-identity.sh ensure [<vault-root>]   generates if missing, idempotent
+#   vault-identity.sh get <key> [<vault-root>] vault_id | vault_origin | vault_ref
+# usage (source):
 #   . tools/vault-identity.sh
 #   vid_ensure "$VAULT_ROOT" ; vid_get "$VAULT_ROOT" vault_id ; vid_ref "$VAULT_ROOT"
 #
-# Aucune dependance a Python : ce fichier est lu par les gardiens et par la
-# resolution du Vault, qui doivent tourner sans uv.
+# No dependency on Python: this file is read by the guardians and by the
+# Vault resolution, which must run without uv.
 
 VID_FILE_NAME="VAULT-IDENTITY.md"
 
@@ -24,8 +24,8 @@ vid_file() {
   printf '%s/%s\n' "$1" "$VID_FILE_NAME"
 }
 
-# vid_get <racine> <cle> : valeur du front matter, vide si absente. Les
-# fins de ligne CRLF sont tolerees (clone Windows avec autocrlf).
+# vid_get <root> <key>: front matter value, empty if missing. CRLF
+# line endings are tolerated (Windows clone with autocrlf).
 vid_get() {
   local f
   f="$(vid_file "$1")"
@@ -46,7 +46,7 @@ vid_get() {
     }'
 }
 
-# vid_ref <racine> : commit courant du Vault, "unknown" sans Git.
+# vid_ref <root>: current commit of the Vault, "unknown" without Git.
 vid_ref() {
   git -C "$1" rev-parse HEAD 2>/dev/null || echo unknown
 }
@@ -70,8 +70,8 @@ vid_origin_detect() {
   fi
 }
 
-# vid_ensure <racine> : genere l'identite si le fichier est absent, encore au
-# squelette, ou sans vault_id. Ne reecrit jamais une identite generee.
+# vid_ensure <root>: generates the identity if the file is missing, still at
+# the skeleton, or without vault_id. Never rewrites a generated identity.
 vid_ensure() {
   local root="$1" f status id origin created
   f="$(vid_file "$root")"

@@ -97,7 +97,7 @@ def _assistant_description_template(table, language):
 # tools/generate-assistant.ps1's own $Script:WebPackageKnowledgeFiles;
 # that file's own comment carries the full reasoning, including Mission
 # 172's revision of this list to also cover assistant/ASSISTANT.md's own
-# "Trois questions de test": the session-start skill and the Mission
+# "Trois questions de test" ["Three test questions"]: the session-start skill and the Mission
 # template/operating model were nowhere in the package, so two of those
 # three test questions had no source a Project (no filesystem of its own)
 # could ever answer from. Kept as a tuple of (source paths relative to the
@@ -604,7 +604,7 @@ def _codex_budget(default_entries, external_entries):
     # Doctrine rule 3 (Mission 171-C01 step 4): sums BOTH sources together,
     # unlike the superseded ticket-07 measurement which only summed
     # default_entries. Never raises -- the caller turns an over-budget total
-    # into a per-target fallback instead of a failure (Doctrine: "Pas d'arret").
+    # into a per-target fallback instead of a failure (Doctrine: "Pas d'arret" ["No stop"]).
     total = 0
     breakdown = []
     for name, source_path in default_entries + external_entries:
@@ -668,7 +668,7 @@ def _create_windows_junction(link_path, target_path):
     # path built from it use forward slashes (C:/Users/...). cmd.exe's
     # mklink parses its own arguments looking for "/switch" tokens, and a
     # forward-slash path like "C:/Users/..." is misread as a run of
-    # switches -- measured directly: "Option non valide - \"Users\"." --
+    # switches -- measured directly: "Option non valide - \"Users\"." ["Invalid option"] --
     # even though a mixed-separator path resolves correctly for ordinary
     # filesystem APIs. normpath() converts every forward slash to a
     # backslash on Windows, which mklink parses correctly.
@@ -699,7 +699,7 @@ def _publish_skill_link(link_path, target_path):
     return "Created"
 
 
-# Mission 173 (Q17, "rien dans le profil") retired this file's own
+# Mission 173 (Q17, "rien dans le profil" ["nothing in the profile"]) retired this file's own
 # profile-level orchestrators, cmd_deploy_skills, cmd_deploy_assistant and
 # cmd_remove_assistant_links (Mission 171-C01, steps 4 and 6): nothing is
 # ever linked into ~/.claude or ~/.agents any more. The generic primitives
@@ -763,7 +763,7 @@ def _read_assistant_slug(clone_path):
 
 
 def cmd_link_project(args):
-    # Mission 173 step 4 (Q17, "rien dans le profil"): links the method
+    # Mission 173 step 4 (Q17, "rien dans le profil" ["nothing in the profile"]): links the method
     # skills (skills/ and skills/external/, same Doctrine rule 3 Codex
     # budget fallback as the retired cmd_deploy_skills) and the current
     # assistant's two linkable forms (same two forms cmd_deploy_assistant
@@ -894,7 +894,7 @@ def cmd_write_user_profile(args):
     return 0
 
 
-# --- Serveur MCP du Vault : configuration des outils (Decision
+# --- MCP server of the Vault: configuration of the tools (Decision
 # 2026-09-17-000545, A6) --------------------------------------------------------
 
 def _load_json_config(path):
@@ -911,7 +911,7 @@ def _load_json_config(path):
 
 
 def _toml_server(path, name):
-    """Entree [mcp_servers.<name>] d'un config.toml de Codex, ou None."""
+    """Entry [mcp_servers.<name>] of a Codex config.toml, or None."""
     with open(path, "rb") as f:
         raw = f.read()
     try:

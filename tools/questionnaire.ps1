@@ -168,7 +168,7 @@ function Read-QuestionnaireLine {
     # touched, e.g. writing the *workspace prompt sentence* into
     # $answers.workspacePath, which then reached `New-Item -Path` and
     # PowerShell tried to parse a colon inside that sentence as a drive
-    # qualifier ("Lecteur introuvable"). Write-Host goes to the Information
+    # qualifier ("Lecteur introuvable" ["Drive not found"]). Write-Host goes to the Information
     # stream, never the success stream -- invisible to any variable
     # assignment or pipeline, visible to a real terminal and to a test that
     # captures every stream explicitly (`*>&1`, not `2>&1`).
@@ -203,7 +203,7 @@ function Read-RequiredQuestionnaireField {
     # For the one or two answers a blank default cannot stand in for (a
     # first name): loops the same prompt until a non-blank line comes back,
     # rather than silently accepting an empty identity field -- ticket 05's
-    # own criterion 3 ("aucun champ de gabarit restant") rules out ever
+    # own criterion 3 ("aucun champ de gabarit restant" ["no template field left"]) rules out ever
     # writing USER.md with nothing where a person's name belongs.
     param(
         [Parameter(Mandatory = $true)][string] $PromptText,
@@ -391,7 +391,7 @@ function Write-UserProfile {
     # regardless of the installer's chosen language, the same way the
     # skeleton itself never changed language; only the *values* are the
     # participant's own words, or this function's measured/derived facts).
-    # Ticket 05 criterion 3 ("aucun champ de gabarit restant"): every value
+    # Ticket 05 criterion 3 ("aucun champ de gabarit restant" ["no template field left"]): every value
     # below is either a real answer or a concrete, non-placeholder fallback
     # (an empty tools list renders as "aucun renseigné", never as
     # "_(à remplir)_").
@@ -539,7 +539,7 @@ function Resolve-QuestionnaireAnswer {
 function Test-InstallComplete {
     # Update-mode gate (T06/T22: if everything is done, a relaunch switches
     # to update mode): every step install.ps1's own flow can record must be
-    # present. Mission 173 (Q17, "rien dans le profil") retired
+    # present. Mission 173 (Q17, "rien dans le profil" ["nothing in the profile"]) retired
     # 'assistantDeployed' and 'skillsDeployed' (Mission 171-C01 steps 6 and
     # 4): nothing is deployed to the profile any more, so those carnet
     # flags no longer exist to require -- the assistant and the method

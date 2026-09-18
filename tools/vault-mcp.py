@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
-# Serveur MCP du Vault (Decision 2026-09-17-000545, A6) : donne au Pilot un
-# acces disque borne, versionne avec le Vault, sans dependance hors de la
-# bibliotheque standard de Python (lance par `uv run --no-project`).
+# MCP server of the Vault (Decision 2026-09-17-000545, A6): gives the Pilot
+# bounded disk access, versioned with the Vault, with no dependency outside the
+# Python standard library (launched by `uv run --no-project`).
 #
-# Transport stdio, JSON-RPC 2.0, un message par ligne. La sortie standard est
-# reservee aux messages JSON-RPC ; tout journal va sur la sortie d'erreur.
+# stdio transport, JSON-RPC 2.0, one message per line. Standard output is
+# reserved for JSON-RPC messages; any log goes to standard error.
 #
 # usage:
-#   uv run --no-project tools/vault-mcp.py --allow <dossier> [--allow <dossier>...] [--vault <racine>]
+#   uv run --no-project tools/vault-mcp.py --allow <folder> [--allow <folder>...] [--vault <root>]
 #
-# Bornes :
-#   - tout chemin est resolu (realpath) avant comparaison ; il doit se trouver
-#     sous un dossier autorise, lui-meme resolu ;
-#   - un lien symbolique ou une jonction qui sort du perimetre est donc refuse ;
-#   - un refus de `tools/call` est un RESULTAT porteur de `isError: true`
-#     dont le texte nomme le chemin demande ET les dossiers autorises,
-#     jamais une exception ni un arret du serveur ; seuls les defauts de
-#     protocole (methode ou outil inconnu, JSON illisible) restent des
-#     erreurs JSON-RPC.
-#   - `list_allowed_directories` rend aussi le commit du Vault : le Pilot le
-#     compare a celui de son prompt de projet (epinglage par le commit).
+# Bounds:
+#   - every path is resolved (realpath) before comparison; it must lie
+#     under an allowed folder, itself resolved;
+#   - a symbolic link or a junction that leaves the perimeter is therefore refused;
+#   - a `tools/call` refusal is a RESULT carrying `isError: true`
+#     whose text names the requested path AND the allowed folders,
+#     never an exception nor a server stop; only protocol
+#     defects (unknown method or tool, unreadable JSON) remain
+#     JSON-RPC errors.
+#   - `list_allowed_directories` also returns the Vault commit: the Pilot
+#     compares it with the one in its project prompt (pinning by commit).
 
 import argparse
 import datetime
@@ -103,7 +103,7 @@ class Sandbox:
         return False
 
     def check(self, path):
-        """Chemin existant ou non ; resolu, dans le perimetre, sinon refus."""
+        """Path, existing or not; resolved, within the perimeter, otherwise refusal."""
         if not isinstance(path, str) or not path:
             raise ToolError(INVALID_PARAMS, "chemin manquant")
         full = os.path.abspath(os.path.expanduser(path))
@@ -113,11 +113,11 @@ class Sandbox:
             parent = os.path.dirname(full)
             resolved = os.path.join(norm(parent), os.path.normcase(os.path.basename(full)))
         if not self.inside(resolved):
-            # Le texte porte les DEUX faits dont le Pilot a besoin pour
-            # corriger sans deviner : ce qu'il a demandé, et où il a le
-            # droit de lire ou d'écrire (porte 3 de la capture
-            # 2026-09-17-144137 : l'application n'affichait que
-            # « Tool execution failed », sans chemin ni raison).
+            # The text carries the TWO facts the Pilot needs in order to
+            # correct without guessing: what it asked for, and where it is
+            # allowed to read or write (door 3 of capture
+            # 2026-09-17-144137: the application showed only
+            # « Tool execution failed », with neither path nor reason).
             raise ToolError(ACCESS_DENIED, "accès refusé : %s est hors des dossiers autorisés.\nDossiers autorisés :\n%s" % (
                 path, "\n".join("- " + d for d in self.allowed_display)))
         return full
@@ -315,21 +315,21 @@ def handle(sb, msg):
         name = params.get("name")
         fn = TOOL_BY_NAME.get(name)
         if fn is None:
-            # Outil inconnu : defaut de PROTOCOLE, pas d'execution -- il
-            # reste une erreur JSON-RPC.
+            # Unknown tool: a PROTOCOL defect, not an execution one -- it
+            # remains a JSON-RPC error.
             raise ToolError(METHOD_NOT_FOUND, "outil inconnu : %s" % name)
         try:
             return fn(sb, params.get("arguments") or {})
         except ToolError as exc:
-            # Un echec D'EXECUTION d'outil se rend comme un RESULTAT porteur
-            # de isError, jamais comme une erreur JSON-RPC (porte 3 de la
-            # capture 2026-09-17-144137) : mesure sur le poste de l'Owner,
-            # l'application de bureau replie l'erreur JSON-RPC en
-            # « <error>Tool execution failed</error> » et le texte -- le
-            # chemin demande, les dossiers autorises -- n'atteint jamais le
-            # Pilot. Le contenu d'un resultat, lui, lui est rendu tel quel.
-            # C'est aussi ce que la specification MCP prescrit pour les
-            # erreurs d'outil.
+            # A tool EXECUTION failure is returned as a RESULT carrying
+            # isError, never as a JSON-RPC error (door 3 of
+            # capture 2026-09-17-144137): measured on the Owner's machine,
+            # the desktop application folds the JSON-RPC error into
+            # « <error>Tool execution failed</error> » and the text -- the
+            # requested path, the allowed folders -- never reaches the
+            # Pilot. The content of a result, by contrast, is passed to it as is.
+            # This is also what the MCP specification prescribes for
+            # tool errors.
             return {"content": [{"type": "text", "text": exc.message}], "isError": True}
     raise ToolError(METHOD_NOT_FOUND, "méthode inconnue : %s" % method)
 
@@ -373,7 +373,7 @@ def main(argv):
         except ToolError as exc:
             if is_request:
                 send({"jsonrpc": "2.0", "id": msg_id, "error": {"code": exc.code, "message": exc.message}})
-        except Exception as exc:  # noqa: BLE001 -- jamais d'arret du serveur
+        except Exception as exc:  # noqa: BLE001 -- never a server stop
             log("erreur interne : %r" % (exc,))
             if is_request:
                 send({"jsonrpc": "2.0", "id": msg_id, "error": {"code": INTERNAL_ERROR, "message": "erreur interne : %s" % exc}})

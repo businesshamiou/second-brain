@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # SessionStart hook (native, not a plugin): injects the executor role for
-# CLI sessions opened in the Vault. See RULES-2026-08-23-224706, barreau 1.
-# Mission 039 : cable au preflight (silence si READY, une ligne sinon).
-# Mission 069 (douteux 7) : le chemin du Vault injecte en contexte se
-# calcule desormais depuis la position du script (meme technique que
-# VAULT_ROOT ailleurs dans l'outillage), plus de chemin personnel en dur.
+# CLI sessions opened in the Vault. See RULES-2026-08-23-224706, rung 1.
+# Mission 039: wired to the preflight (silent if READY, one line otherwise).
+# Mission 069 (doubtful item 7): the Vault path injected into context is
+# now computed from the script's position (same technique as
+# VAULT_ROOT elsewhere in the tooling), no more hard-coded personal path.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"

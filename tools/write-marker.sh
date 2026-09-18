@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Ecrit VAULT-ROOT.md a la racine de travail depuis templates/vault-root-template.md.
-# Nom de fichier : choix du Pilot, revisable.
+# Writes VAULT-ROOT.md at the work root from templates/vault-root-template.md.
+# File name: the Pilot's choice, open to revision.
 #
-# usage: write-marker.sh <racine-de-travail> [nom-du-vault]
+# usage: write-marker.sh <work-root> [vault-name]
 
 set -u
 
@@ -30,8 +30,8 @@ REL_PATH="$(rel_path "$WORK_ROOT_ABS" "$VAULT_ROOT")"
 
 MARKER="$WORK_ROOT_ABS/VAULT-ROOT.md"
 
-# Identite du Vault (Decision 2026-09-17-000545, A7) : generee si absente,
-# portee par le marqueur pour que deux Vaults d'un meme poste se distinguent.
+# Vault identity (Decision 2026-09-17-000545, A7): generated if missing,
+# carried by the marker so that two Vaults on the same machine can be told apart.
 . "$SCRIPT_DIR/vault-identity.sh"
 vid_ensure "$VAULT_ROOT"
 sed_escape() {
@@ -40,10 +40,10 @@ sed_escape() {
 VAULT_ID_ESC="$(sed_escape "$(vid_get "$VAULT_ROOT" vault_id)")"
 VAULT_ORIGIN_ESC="$(sed_escape "$(vid_get "$VAULT_ROOT" vault_origin)")"
 
-# Le gabarit est ecrit et verifie (check-links.sh) depuis templates/ a la
-# racine du Vault, ou ses liens relatifs (../decisions/...) sont corrects. Copie a la racine de
-# travail, ces memes liens doivent pointer via le chemin relatif du Vault
-# calcule ci-dessus : on les reecrit au moment de la generation.
+# The template is written and checked (check-links.sh) from templates/ at the
+# Vault root, where its relative links (../decisions/...) are correct. Copied to the work
+# root, those same links must point through the relative Vault path
+# computed above: they are rewritten at generation time.
 sed \
   -e "s#{{VAULT_NAME}}#$VAULT_NAME#g" \
   -e "s#{{VAULT_RELATIVE_PATH}}#$REL_PATH#g" \
@@ -52,13 +52,13 @@ sed \
   -e "s#](\.\./#]($REL_PATH/#g" \
   "$TEMPLATE" > "$MARKER"
 
-# --- CLAUDE.md et AGENTS.md de niveau workspace (Mission 173, Q17 :
-# hierarchie a trois niveaux). Poses ici, jamais sous 10 lignes, a cote de
-# VAULT-ROOT.md -- hors de tout depot Git (le workspace lui-meme n'en est
-# pas un), donc jamais suivis, jamais soumis aux gardiens ou au standard de
-# liens de second-brain. Contenu identique dans les deux fichiers (meme
-# consigne que les niveaux second-brain et projet). Idempotent : reecrit a
-# chaque installation (le nom de l'assistant peut changer), jamais append. ---
+# --- Workspace-level CLAUDE.md and AGENTS.md (Mission 173, Q17:
+# three-level hierarchy). Placed here, never under 10 lines, next to
+# VAULT-ROOT.md -- outside any Git repository (the workspace itself is
+# not one), so never tracked, never subject to the guardians or to the link
+# standard of second-brain. Identical content in both files (same
+# instruction as the second-brain and project levels). Idempotent: rewritten at
+# each installation (the assistant's name may change), never appended. ---
 WORKSPACE_GUIDE_CONTENT="La méthode de ce workspace vit dans \`$REL_PATH/\` (Second Brain) : règles, skills, assistant.
 
 Ouvrir une session : lire \`$REL_PATH/skills/session-start/SKILL.md\`.

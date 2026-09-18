@@ -24,21 +24,21 @@ BUILD_ROOT="$SIBLING_ROOT"
 STAMP="$VAULT_ROOT/.claude/.preflight_stamp.json"
 CHARTER="$VAULT_ROOT/rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md"
 
-# Les deux tableaux s'expansent plus bas sous la forme gardee
-# ${TABLEAU[@]+"${TABLEAU[@]}"} : sous `set -u`, le bash 3.2 livre par Apple
-# traite l'expansion d'un tableau VIDE comme une variable non liee et s'arrete
-# (corrige dans bash 4.4, donc invisible sous Linux et Git Bash). Le chemin
-# nominal -- aucun defaut a signaler -- est justement celui ou les deux
-# tableaux sont vides : macOS echouait donc quand tout allait bien.
+# Both arrays are expanded further down in the guarded form
+# ${ARRAY[@]+"${ARRAY[@]}"}: under `set -u`, the bash 3.2 shipped by Apple
+# treats the expansion of an EMPTY array as an unbound variable and stops
+# (fixed in bash 4.4, hence invisible under Linux and Git Bash). The nominal
+# path -- no defect to report -- is precisely the one where both
+# arrays are empty: macOS therefore failed when everything was fine.
 ISSUES=()
 WARNINGS=()
 
-# --- 1. charte des roles presente ---
+# --- 1. role charter present ---
 if [ ! -f "$CHARTER" ]; then
   ISSUES+=("charte des roles introuvable : $CHARTER")
 fi
 
-# --- 2. pointeurs presents dans AGENTS.md et CLAUDE.md des deux depots ---
+# --- 2. pointers present in AGENTS.md and CLAUDE.md of both repositories ---
 check_pointer() {
   local f="$1"
   if [ ! -f "$f" ]; then
@@ -58,13 +58,13 @@ elif [ "$SIBLING_DECLARED" -eq 1 ]; then
   WARNINGS+=("declared sibling repository '$SIBLING_NAME' not found next to this workspace -- warning, not a failure")
 fi
 
-# --- 3. .claude/settings.json present et JSON valide ---
+# --- 3. .claude/settings.json present and valid JSON ---
 SETTINGS="$VAULT_ROOT/.claude/settings.json"
 if [ ! -f "$SETTINGS" ]; then
   ISSUES+=("settings.json introuvable : $SETTINGS")
 else
-  # node avant python3 : sur Windows, python3 peut n'etre qu'un alias-stub
-  # du Windows Store qui echoue toujours sans etre un vrai interprete.
+  # node before python3: on Windows, python3 may be only a Windows Store
+  # alias stub that always fails without being a real interpreter.
   JSON_OK=1
   if command -v node >/dev/null 2>&1 \
       && node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'))" "$SETTINGS" >/dev/null 2>&1; then
@@ -82,11 +82,11 @@ else
   fi
 fi
 
-# --- 4. role par sonde de capacite (barreau 2 de la charte) ---
-# Un shell bash capable d'executer ce script est la preuve meme de la capacite.
+# --- 4. role by capability probe (rung 2 of the charter) ---
+# A bash shell able to run this script is itself the proof of capability.
 ROLE="executor"
 
-# --- 5. outils attendus executables ---
+# --- 5. expected tools executable ---
 for tool in git bash; do
   command -v "$tool" >/dev/null 2>&1 || ISSUES+=("outil introuvable dans PATH : $tool")
 done
@@ -98,19 +98,19 @@ for script in tools/build-state.sh tools/build-indexes.sh tools/check-links.sh; 
   fi
 done
 
-# --- 6. age du dernier evenement de hooks.log, s'il existe ---
+# --- 6. age of the last event in hooks.log, if it exists ---
 HOOKS_LOG="$VAULT_ROOT/.claude/hooks.log"
-# Age mesure par `find -mmin`, commun a GNU et BSD, et non plus par
-# `date -r FICHIER` : sur macOS, `date -r` attend un nombre de secondes, la
-# commande echouait, le repli prenait « maintenant » et ce controle ne
-# mordait jamais (Mission 181). 4320 minutes = 72 heures, meme plafond.
+# Age measured with `find -mmin`, common to GNU and BSD, and no longer with
+# `date -r FILE`: on macOS, `date -r` expects a number of seconds, the
+# command failed, the fallback took "now" and this check never
+# bit (Mission 181). 4320 minutes = 72 hours, same ceiling.
 if [ -f "$HOOKS_LOG" ]; then
   if [ -n "$(find "$HOOKS_LOG" -mmin +4320 2>/dev/null)" ]; then
     ISSUES+=("hooks.log silencieux depuis plus de 72h (plafond 72h) : $HOOKS_LOG")
   fi
 fi
 
-# --- Ecriture du tampon (jamais versionne) ---
+# --- Writing the stamp (never versioned) ---
 N=${#ISSUES[@]}
 if [ "$N" -eq 0 ]; then
   READY_JSON=true
@@ -147,7 +147,7 @@ mkdir -p "$(dirname "$STAMP")"
   echo "}"
 } > "$STAMP"
 
-# --- Sortie ---
+# --- Output ---
 for WARNING in ${WARNINGS[@]+"${WARNINGS[@]}"}; do
   echo "  - warning: $WARNING" >&2
 done

@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-# Reparation des liens casses d'un projet adopte (Decision 2026-09-17-000545,
-# A4) : rend un PLAN, n'applique rien. L'application (--apply) n'a lieu que
-# sous une Mission nommee (--mission <fichier MISSION-...>), jamais seule.
+# Repair of the broken links of an adopted project (Decision 2026-09-17-000545,
+# A4): returns a PLAN, applies nothing. Applying (--apply) happens only
+# under a named Mission (--mission <MISSION-... file>), never on its own.
 #
-# Un lien casse est un lien Markdown relatif (./ ou ../) vers un .md absent,
-# hors bloc de code et hors code en ligne -- la regle de tools/check-links.sh.
-# Une reparation est proposee seulement si le projet porte un et un seul
-# fichier du meme nom ; sinon le lien est rendu sans proposition.
+# A broken link is a relative Markdown link (./ or ../) to a missing .md,
+# outside code blocks and outside inline code -- the rule of tools/check-links.sh.
+# A repair is proposed only if the project holds one and only one
+# file of the same name; otherwise the link is returned without a proposal.
 #
-# usage: propose_link_repairs.py <projet> [--apply --mission <fichier>]
-# Bibliotheque standard seulement.
+# usage: propose_link_repairs.py <project> [--apply --mission <file>]
+# Standard library only.
 
 import os
 import re

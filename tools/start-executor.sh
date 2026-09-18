@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Lanceur d'identite (Mission 039, Bloc 2). V1 minimal : un role, un depot,
-# aucune table d'agents, aucun clone-vitre.
-# Pose VAULT_AGENT et VAULT_ROOT, rappelle role et interdits en une ligne,
-# lance claude depuis la racine du Vault.
+# Identity launcher (Mission 039, Block 2). Minimal V1: one role, one repository,
+# no agent table, no glass clone.
+# Sets VAULT_AGENT and VAULT_ROOT, recalls role and prohibitions in one line,
+# launches claude from the Vault root.
 
 set -euo pipefail
 

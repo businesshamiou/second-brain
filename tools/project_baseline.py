@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
-# Ligne de base datee et cliquet (Decision 2026-09-17-000545, A4) -- jumeau
-# Python de tools/project-baseline.sh, lu par les gardiens ecrits en Python
-# (check_indexes_fresh.py, check_index_weight.py) et ecrit par
-# tools/project-bootstrap.sh a l'adoption (sous-commande `write`).
+# Dated baseline and ratchet (Decision 2026-09-17-000545, A4) -- Python
+# twin of tools/project-baseline.sh, read by the guardians written in Python
+# (check_indexes_fresh.py, check_index_weight.py) and written by
+# tools/project-bootstrap.sh at adoption (subcommand `write`).
 #
-# Format du fichier (une ligne par fichier existant a l'adoption) :
+# File format (one line per file existing at adoption):
 #   # second-brain-baseline: v1
-#   # created_at: <horodatage>
-#   <sha256><TAB><chemin relatif, separateur />
+#   # created_at: <timestamp>
+#   <sha256><TAB><relative path, separator />
 #
-# usage :
-#   project_baseline.py write <racine-projet> <fichier-sortie>
-#   project_baseline.py list <racine-projet>
+# usage:
+#   project_baseline.py write <project-root> <output-file>
+#   project_baseline.py list <project-root>
 #
-# Bibliotheque standard seulement.
+# Standard library only.
 
 import hashlib
 import os
@@ -27,9 +27,9 @@ PRUNE_PATHS = {".claude/skills", ".claude/agents", ".agents/skills"}
 
 
 def sha256_file(path):
-    # Empreinte du contenu sans retours chariot : une reecriture des fins de
-    # ligne par Git (core.autocrlf) ne compte pas comme une modification.
-    # Meme calcul que pb_sha256 dans tools/project-baseline.sh.
+    # Fingerprint of the content without carriage returns: a rewrite of line
+    # endings by Git (core.autocrlf) does not count as a modification.
+    # Same computation as pb_sha256 in tools/project-baseline.sh.
     h = hashlib.sha256()
     with open(path, "rb") as f:
         for chunk in iter(lambda: f.read(65536), b""):
@@ -38,7 +38,7 @@ def sha256_file(path):
 
 
 def read_certificate(root):
-    """Cles de l'acte de naissance, {} s'il n'y en a pas."""
+    """Keys of the birth certificate, {} if there is none."""
     path = os.path.join(root, ".pre-commit-config.yaml")
     try:
         with open(path, "r", encoding="utf-8", errors="replace") as f:
