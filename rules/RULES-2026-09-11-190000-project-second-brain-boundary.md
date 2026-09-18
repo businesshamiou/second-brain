@@ -1,30 +1,30 @@
 ---
 type: rules
-title: "Frontière entre un projet et Second Brain"
-description: "Où évolue Second Brain, où évolue un projet, et pourquoi un projet n'écrit jamais dans Second Brain."
+title: "Boundary between a project and Second Brain"
+description: "Where Second Brain evolves, where a project evolves, and why a project never writes into Second Brain."
 created_at: "2026-09-11T19:00:00-04:00"
 timezone: America/Montreal
 status: active
 scope: project-second-brain-boundary
 ---
 
-# FRONTIÈRE ENTRE UN PROJET ET SECOND BRAIN
+# BOUNDARY BETWEEN A PROJECT AND SECOND BRAIN
 
-Tu utilises Second Brain **depuis** tes projets : chacun hérite de sa méthode, de ses gardiens et de ses skills, sans jamais en porter une copie propre.
+You use Second Brain **from** your projects: each one inherits its method, its guardians and its skills, without ever carrying a copy of its own.
 
-Tu fais évoluer Second Brain **dans `second-brain` lui-même**, par Mission : une règle, un skill ou un gabarit corrigé ou ajouté là profite ensuite à tous tes projets, présents et futurs.
+You make Second Brain evolve **in `second-brain` itself**, through a Mission: a rule, a skill or a template corrected or added there then benefits all your projects, present and future.
 
-**Un projet n'écrit jamais dans `second-brain`.** Une amélioration découverte en travaillant sur un projet ne remonte dans Second Brain que si elle est réellement généralisable — utile à un autre projet, pas seulement au tien — et validée avant d'y entrer. Ce qui reste propre à un projet (son contexte métier, ses décisions, ses documents) reste dans ce projet.
+**A project never writes into `second-brain`.** An improvement discovered while working on a project rises into Second Brain only if it is genuinely generalizable — useful to another project, not only to yours — and validated before it enters. What remains specific to a project (its business context, its decisions, its documents) stays in that project.
 
-Cette règle vaut pour tout projet inscrit à ton [registre des projets](../projects/PROJECT-REGISTRY.md), quelle que soit sa nature.
+This rule holds for every project listed in your [project registry](../projects/PROJECT-REGISTRY.md), whatever its nature.
 
-## Test rapide
+## Quick test
 
-Avant d'écrire une règle ou un fichier : « ceci a-t-il un sens pour un autre projet, ou seulement pour celui-ci ? » Un autre projet → ça vit dans `second-brain`. Seulement celui-ci → ça vit dans le projet. Même test que le [standard de structure de projet](./RULES-2026-08-26-142800-project-structure-standard.md), §3.
+Before writing a rule or a file: "does this make sense for another project, or only for this one?" Another project → it lives in `second-brain`. Only this one → it lives in the project. Same test as the [project structure standard](./RULES-2026-08-26-142800-project-structure-standard.md), §3.
 
 ## Liens
 
-- `see also` — [Standard de structure de projet](./RULES-2026-08-26-142800-project-structure-standard.md)
-- `see also` — [Registre des projets](../projects/PROJECT-REGISTRY.md)
-- `see also` — [Glossaire du produit](../CONTEXT.md)
-- `prescribed by` — [Standard de liens entre documents](./RULES-2026-08-21-115658-document-linking-standard.md)
+- `see also` — [Project structure standard](./RULES-2026-08-26-142800-project-structure-standard.md)
+- `see also` — [Project registry](../projects/PROJECT-REGISTRY.md)
+- `see also` — [Product glossary](../CONTEXT.md)
+- `prescribed by` — [Standard for links between documents](./RULES-2026-08-21-115658-document-linking-standard.md)

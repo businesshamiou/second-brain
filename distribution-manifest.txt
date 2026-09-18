@@ -583,3 +583,7 @@ tests/test-suite-manifest-matches-ci.sh	DISTRIBUABLE
 tests/test-run-suite-reports-red.sh	DISTRIBUABLE
 tests/test-setup-test-env-offline.sh	DISTRIBUABLE
 tests/test-reference-clone-equivalence.sh	DISTRIBUABLE
+tests/test-corpus-language-english.sh	DISTRIBUABLE
+tests/test-links-targets-unchanged.sh	DISTRIBUABLE
+tests/test-skill-triggers-bilingual.sh	DISTRIBUABLE
+tests/fixtures/corpus-link-targets-653910c.tsv	DISTRIBUABLE

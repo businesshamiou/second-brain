@@ -1,41 +1,41 @@
 ---
 type: rules
-title: "Relais entre rôles par mini-prompts à rubriques fixes"
-description: "Format symétrique de passation entre la fenêtre Pilot et la fenêtre Executor : mini-prompt à l'aller, bloc RELAY au retour."
+title: "Relay between roles through mini-prompts with fixed rubrics"
+description: "Symmetric handover format between the Pilot window and the Executor window: a mini-prompt on the way out, a RELAY block on the way back."
 created_at: 2026-08-23T12:49:37-04:00
 timezone: America/Montreal
 status: active
 scope: role-relay, mission-workflow
 ---
 
-# RELAIS ENTRE RÔLES PAR MINI-PROMPTS
+# RELAY BETWEEN ROLES THROUGH MINI-PROMPTS
 
-> ### Règle — relais entre rôles par mini-prompts
+> ### Rule — relay between roles through mini-prompts
 >
-> **Aller.** Toute Mission part avec un mini-prompt de consommation, livré par le Pilot **en snippet copiable d'un seul geste** (bloc de code dans le chat), jamais en fichier à ouvrir ni en prose à recomposer. Cinq rubriques fixes, dans cet ordre :
+> **Outbound.** Every Mission leaves with a consumption mini-prompt, delivered by the Pilot **as a snippet copyable in a single gesture** (a code block in the chat), never as a file to open nor as prose to reassemble. Five fixed rubrics, in this order:
 >
-> 1. Ligne de titre : `Session Executor — Mission <NNN> (<description courte>)` — elle nomme la session. La forme `Tu es l'Executor — Mission <NNN> (<description courte>)` est équivalente, et s'étend à toute instruction ponctuelle déléguée à l'Executor sans numéro de Mission, sous la forme `Tu es l'Executor — instruction ponctuelle (<description courte>)` (`DECISION-2026-08-27-100016`).
-> 2. Position : libre ; la session établit sa conscience de position (Décision `213150`).
-> 3. Source à appliquer : le chemin du fichier Mission, relatif au Vault, à lire et appliquer intégralement.
-> 4. Interdits absolus : toujours « aucun git push non délégué (délégation : une expression claire de l'Owner qui nomme le geste et sa cible, une par geste), aucun appel modèle, aucune suppression ; déplacement vers `_trash/` seulement sur prescription de la Mission », plus les interdits propres à la Mission. Le mini-prompt n'affirme jamais qu'un geste Owner (push, suppression, vidage de `_trash/`) a eu lieu : il demande à l'Executor de le mesurer, STOP si absent (`DECISION-2026-08-29-110852`).
-> 5. Sortie attendue : terminer la fenêtre par le bloc RELAY défini dans la Mission, rempli.
+> 1. Title line: `Session Executor — Mission <NNN> (<description courte>)` — it names the session. The form `Tu es l'Executor — Mission <NNN> (<description courte>)` [“You are the Executor — Mission <NNN> (<short description>)”] is equivalent, and extends to any one-off instruction delegated to the Executor without a Mission number, in the form `Tu es l'Executor — instruction ponctuelle (<description courte>)` [“You are the Executor — one-off instruction (<short description>)”] (`DECISION-2026-08-27-100016`).
+> 2. « Position »: free; the session establishes its awareness of position (Decision `213150`).
+> 3. « Source à appliquer » [source to apply]: the path of the Mission file, relative to the Vault, to be read and applied in full.
+> 4. « Interdits absolus » [absolute prohibitions]: always "no non-delegated git push (delegation: a clear expression by the Owner that names the gesture and its target, one per gesture), no model call, no deletion; move to `_trash/` only on the Mission's prescription", plus the prohibitions specific to the Mission. The mini-prompt never asserts that an Owner gesture (push, deletion, emptying of `_trash/`) has taken place: it asks the Executor to measure it, STOP if absent (`DECISION-2026-08-29-110852`).
+> 5. « Sortie attendue » [expected output]: end the window with the RELAY block defined in the Mission, filled in.
 >
-> Le mini-prompt ne duplique pas le contenu de la Mission.
+> The mini-prompt does not duplicate the content of the Mission.
 >
-> **Type `initiation` (amendement du 2026-09-17, Décision 000545 A5).** Un Pilot sans Mission peut émettre un **ordre d'initiation** pour faire naître ou adopter un projet. Son mini-prompt porte la ligne de titre `Session Executor — initiation (<nom du projet>)`, la position, les interdits absolus et la sortie attendue, mais **aucune rubrique « Source à appliquer »** : l'ordre est la source. Il porte à la place les huit champs de l'ordre, dans cet ordre :
+> **`initiation` type (amendment of 2026-09-17, Decision 000545 A5).** A Pilot without a Mission may issue an **initiation order** to give birth to or adopt a project. Its mini-prompt carries the title line `Session Executor — initiation (<nom du projet>)` [“Executor session — initiation (<project name>)”], the position, the absolute prohibitions and the expected output, but **no « Source à appliquer » rubric**: the order is the source. In its place it carries the eight fields of the order, in this order:
 >
-> 1. `Type` : `create` ou `adopt`.
-> 2. `Mode` : `answered` (toutes les réponses sont dans l'ordre, aucune question) ou `ask` (le bootstrap pose nom, emplacement et Git).
-> 3. `Nom` : nom du dossier du projet.
-> 4. `Emplacement` : dossier parent, chemin absolu.
-> 5. `Vault + construction` : `vault_id=…, vault_origin=…, vault_ref=…`.
-> 6. `Git` : `none` ou `git`.
-> 7. `Objet` : une phrase.
-> 8. `Autorisation Owner datée` : la phrase de l'Owner, verbatim, avec sa date `AAAA-MM-JJ`.
+> 1. `Type`: `create` or `adopt`.
+> 2. `Mode`: `answered` (all the answers are in the order, no question) or `ask` (the bootstrap asks for name, location and Git).
+> 3. `Nom` [name]: name of the project's folder.
+> 4. `Emplacement` [location]: parent folder, absolute path.
+> 5. `Vault + construction`: `vault_id=…, vault_origin=…, vault_ref=…`.
+> 6. `Git`: `none` or `git`.
+> 7. `Objet` [purpose]: one sentence.
+> 8. `Autorisation Owner datée` [dated Owner authorization]: the Owner's sentence, verbatim, with its date `AAAA-MM-JJ` (year-month-day).
 >
-> L'Executor la consomme comme une Mission, périmètre borné à la cible et au registre du Vault : `tools/project-bootstrap.sh --order <fichier>`. L'ordre vierge, pré-rempli pour un dossier, se rend par `tools/project-bootstrap.sh order <dossier>` ; le gabarit est [l'ordre d'initiation](../templates/initiation-order-template.md).
+> The Executor consumes it like a Mission, with a scope bounded to the target and to the Vault's register: `tools/project-bootstrap.sh --order <fichier>`. The blank order, pre-filled for a folder, is rendered by `tools/project-bootstrap.sh order <dossier>`; the template is [the initiation order](../templates/initiation-order-template.md).
 >
-> **Retour.** Tout rapport d'exécution se termine par un bloc `RELAY` affiché en fin de fenêtre Executor, aux rubriques fixes suivantes, dans cet ordre : ce bloc est livré **en snippet copiable d'un seul geste** (bloc de code en fin de fenêtre), jamais en prose à recomposer — symétrie avec le sens aller (`DECISION-2026-08-27-100016`).
+> **Return.** Every execution report ends with a `RELAY` block displayed at the end of the Executor window, with the following fixed rubrics, in this order: this block is delivered **as a snippet copyable in a single gesture** (a code block at the end of the window), never as prose to reassemble — symmetry with the outbound direction (`DECISION-2026-08-27-100016`). [The block's labels are French literals: `Rapport` = report, `Verdict` `FAIT | PARTIEL | BLOQUÉ` = done, partial, blocked, `Critères` = criteria, `Poussées` = pushes, `Résumé` = summary, `À trancher` = to be decided.]
 >
 > ```text
 > RELAY <NNN>
@@ -48,28 +48,28 @@ scope: role-relay, mission-workflow
 > À trancher: <une ligne, ou « rien »>
 > ```
 >
-> La rubrique **Poussées** dit ce que l'Executor a effectivement poussé, mesuré par `git ls-remote` — jamais déduit d'une intention ou d'un `git push` lancé sans vérification après coup.
+> The **Poussées** rubric says what the Executor actually pushed, measured by `git ls-remote` — never inferred from an intention or from a `git push` launched without checking afterwards.
 >
-> La rubrique **Résumé** tient en cinq lignes, plafond strict — au-delà, elle redevient un second rapport et le coût qu'elle économise est repayé. Trois contraintes :
+> The **Résumé** rubric fits in five lines, a strict ceiling — beyond that, it becomes a second report again and the cost it saves is paid back. Three constraints:
 >
-> 1. Des faits, pas des appréciations : un chiffre, une comparaison, un écart nommé. « Q5 en hausse » ne vaut rien ; « Q5 : 12 décisions trouvées contre 7 » vaut la rubrique entière.
-> 2. Les chiffres qui changent une conclusion, et ce qui a surpris l'Executor.
-> 3. Tout écart au protocole ou à la Mission y figure, même mineur, même sans conséquence apparente — c'est le seul endroit où le Pilot peut le voir sans ouvrir le rapport.
-> Quand un geste réservé à l'Owner bloque la Mission, la rubrique « À trancher » nomme le chemin exact et le substitut disponible (déplacement vers `_trash/`) ; l'Executor s'arrête sans second outil ni contournement — le refus est structurel (`DECISION-2026-08-29-110852`).
+> 1. Facts, not appraisals: a figure, a comparison, a named gap. « Q5 en hausse » [“Q5 up”] is worth nothing; « Q5 : 12 décisions trouvées contre 7 » [“Q5: 12 decisions found against 7”] is worth the whole rubric.
+> 2. The figures that change a conclusion, and what surprised the Executor.
+> 3. Every deviation from the protocol or from the Mission appears there, even minor, even with no apparent consequence — it is the only place where the Pilot can see it without opening the report.
+> When a gesture reserved to the Owner blocks the Mission, the « À trancher » rubric names the exact path and the available substitute (move to `_trash/`); the Executor stops with no second tool and no workaround — the refusal is structural (`DECISION-2026-08-29-110852`).
 >
-> **Pont.** L'Owner est le seul canal entre les deux fenêtres : il colle le mini-prompt à l'aller, il recolle le bloc `RELAY` au retour. Le Pilot reprend sur la foi du bloc, et ne relit le rapport entier que si le verdict ou la rubrique « À trancher » l'exige.
+> **Bridge.** The Owner is the only channel between the two windows: they paste the mini-prompt on the way out, they paste the `RELAY` block back on the way back. The Pilot resumes on the strength of the block, and rereads the whole report only if the verdict or the « À trancher » rubric requires it.
 >
-> **Portée.** La règle vaut pour toute action déléguée à l'Executor, Mission ou instruction ponctuelle, dans tous les projets.
+> **Scope.** The rule holds for every action delegated to the Executor, Mission or one-off instruction, in all projects.
 
 ## Liens
 
-- `source` — Proposal — Relais entre rôles par mini-prompts à rubriques fixes (historique de l'atelier, non distribué) (hors Vault)
-- `see also` — [Décision — Adoption de la règle du relais entre rôles](../decisions/DECISION-2026-08-23-124937-role-relay-mini-prompts.md)
-- `amended by` — [Décision — Rubrique « Résumé » dans le bloc RELAY du sens retour](../decisions/DECISION-2026-08-23-180500-relay-summary-rubric.md)
-- `amended by` — Décision — Répertoire d'ouverture d'une session, position libérée (historique de l'atelier, non distribué)
-- `amended by` — [Décision — Le push délégué devient une règle](../decisions/DECISION-2026-08-26-154553-delegated-push-exception-becomes-rule.md)
-- `amended by` — [Décision — Protocole de copie : snippets et destinations](../decisions/DECISION-2026-08-27-100016-copy-protocol-snippets-and-destinations.md)
-- `amended by` — [Décision — La suppression définitive est un geste Owner](../decisions/DECISION-2026-08-29-110852-deletion-is-owner-gesture-trash-zone.md)
-- `amended by` — Décision — Cohérence interne des Missions (historique de l'atelier, non distribué) (hors Vault)
-- `amended by` — [Décision — Initiation et adoption de projet, acte de naissance](../decisions/DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md) (type de mini-prompt `initiation`)
-- `amended by` — [Décision — Relais et délégation, une règle un seul endroit](../decisions/DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md)
+- `source` — Proposal — Relay between roles through mini-prompts with fixed rubrics (workshop history, not distributed) (hors Vault)
+- `see also` — [Decision — Adoption of the rule of relay between roles](../decisions/DECISION-2026-08-23-124937-role-relay-mini-prompts.md)
+- `amended by` — [Decision — « Résumé » rubric in the RELAY block of the return direction](../decisions/DECISION-2026-08-23-180500-relay-summary-rubric.md)
+- `amended by` — Decision — Opening directory of a session, position freed (workshop history, not distributed)
+- `amended by` — [Decision — Delegated push becomes a rule](../decisions/DECISION-2026-08-26-154553-delegated-push-exception-becomes-rule.md)
+- `amended by` — [Decision — Copy protocol: snippets and destinations](../decisions/DECISION-2026-08-27-100016-copy-protocol-snippets-and-destinations.md)
+- `amended by` — [Decision — Permanent deletion is an Owner gesture](../decisions/DECISION-2026-08-29-110852-deletion-is-owner-gesture-trash-zone.md)
+- `amended by` — Decision — Internal consistency of Missions (workshop history, not distributed) (hors Vault)
+- `amended by` — [Decision — Project initiation and adoption, birth certificate](../decisions/DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md) (`initiation` mini-prompt type)
+- `amended by` — [Decision — Relay and delegation, one rule in one place](../decisions/DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md)

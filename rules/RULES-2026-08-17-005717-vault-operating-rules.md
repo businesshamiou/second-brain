@@ -1,83 +1,83 @@
 ---
 type: rules
-title: "Règles de conduite du Vault central"
+title: "Operating rules of the central Vault"
 created_at: 2026-08-17T00:57:17-04:00
 timezone: America/Montreal
 status: active
 ---
 
-# RÈGLES DE CONDUITE DU VAULT
+# VAULT OPERATING RULES
 
-## 1. Périmètre
+## 1. Perimeter
 
-Le Vault conserve seulement la connaissance et les mécanismes transversaux nécessaires au travail avec l’IA. Son architecture canonique est définie dans la [décision sur le Vault central](../decisions/DECISION-2026-08-17-003000-vault-central-architecture.md).
+The Vault keeps only the cross-cutting knowledge and mechanisms needed for working with AI. Its canonical architecture is defined in the [Decision on the central Vault](../decisions/DECISION-2026-08-17-003000-vault-central-architecture.md).
 
-Les projets externes conservent leur contexte métier, leurs objectifs, leur état, leurs décisions et leurs artefacts. La production du workshop demeure également à l’extérieur du Vault.
+External projects keep their business context, their objectives, their state, their decisions and their artefacts. The workshop's production also stays outside the Vault.
 
-## 2. Source de vérité
+## 2. Source of truth
 
-- les fichiers versionnés sont la source de vérité ;
-- lire les sources et leurs liens avant de modifier ;
-- une sortie générée ne devient pas canonique sans validation ;
-- un fichier doit porter une idée principale et suffisamment de contexte pour être compris seul.
+- versioned files are the source of truth;
+- read the sources and their links before modifying;
+- a generated output does not become canonical without validation;
+- a file must carry one main idea and enough context to be understood on its own.
 
-## 3. Langue et nommage
+## 3. Language and naming
 
-- prose et explications : français ;
-- identifiants machine, slugs, clés et noms de dossiers : anglais idiomatique ;
-- artefacts datés : `TYPE-YYYY-MM-DD-HHMMSS-description.ext` ;
-- horodatage à la seconde dans le fuseau `America/Montreal` ;
-- description en slug anglais, sans accent ni espace.
+- prose and explanations: French;
+- machine identifiers, slugs, keys and folder names: idiomatic English;
+- dated artefacts: `TYPE-YYYY-MM-DD-HHMMSS-description.ext`;
+- timestamp to the second in the `America/Montreal` time zone;
+- description as an English slug, without accents or spaces.
 
-## 4. Décisions
+## 4. Decisions
 
-- enregistrer toute décision structurante avec sa date, son statut, sa raison et son impact ;
-- distinguer explicitement les décisions, propositions, hypothèses et éléments non vérifiés ;
-- ne jamais transformer silencieusement une proposition en décision ;
-- ne pas faire remonter automatiquement une décision propre à un projet dans le Vault.
+- record every structuring decision with its date, its status, its reason and its impact;
+- explicitly distinguish decisions, proposals, hypotheses and unverified elements;
+- never silently turn a proposal into a decision;
+- do not automatically raise a decision specific to a project into the Vault.
 
-## 5. Capitalisation depuis les projets
+## 5. Capitalizing from projects
 
-Une leçon découverte dans un projet peut être proposée au Vault uniquement si elle est généralisable. Son intégration exige une validation humaine préalable, conformément au [modèle opératoire](../_trash/BRIEF-2026-08-17-003000-vault-concept-operating-model.md) (retiré de la distribution, conservé à titre historique).
+A lesson discovered in a project may be proposed to the Vault only if it can be generalized. Its integration requires prior human validation, in accordance with the [operating model](../_trash/BRIEF-2026-08-17-003000-vault-concept-operating-model.md) (withdrawn from distribution, kept for historical reference).
 
 ## 6. Git
 
-- inspecter chaque fichier avant staging ;
-- stage fichier par fichier ;
-- inspecter le diff staged avant commit ;
-- produire de petits commits cohérents avec un message explicite ;
-- ne jamais push automatiquement ;
-- exiger un human gate avant tout push ou commit sensible.
+- inspect each file before staging;
+- stage file by file;
+- inspect the staged diff before commit;
+- produce small, coherent commits with an explicit message;
+- never push automatically;
+- require a human gate before any push or sensitive commit.
 
-## 7. Sécurité
+## 7. Security
 
-- aucun secret, token, mot de passe, credential ou clé privée dans les fichiers suivis ;
-- ne pas partager de données sensibles sans validation humaine ;
-- vérifier les fichiers avant commit.
+- no secret, token, password, credential or private key in tracked files;
+- do not share sensitive data without human validation;
+- check files before commit.
 
 ## 8. Graphify
 
-- Graphify aide à retrouver ce qui est écrit ; il n’invente pas une décision absente ;
-- privilégier Markdown et les liens relatifs explicites ;
-- utiliser `.graphifyignore` (supprimé, Mission 040) pour exclure le bruit ;
-- ne jamais éditer manuellement `graphify-out/` (supprimé, Mission 040) ;
-- ne considérer aucune fusion des graphes comme acquise avant test et validation.
+- Graphify helps find what is written; it does not invent an absent decision;
+- favour Markdown and explicit relative links;
+- use `.graphifyignore` (supprimé, Mission 040) to exclude noise;
+- never manually edit `graphify-out/` (supprimé, Mission 040);
+- consider no merging of the graphs as settled before testing and validation.
 
-## 9. Actions sensibles
+## 9. Sensitive actions
 
-Un human gate est requis avant :
+A human gate is required before:
 
-- push ou création de remote ;
-- suppression importante ;
-- renommage structurant ;
-- changement de source de vérité ;
-- intégration d’une amélioration issue d’un projet ;
-- partage de données sensibles.
+- push or creation of a remote;
+- a significant deletion;
+- a structuring rename;
+- a change of source of truth;
+- integration of an improvement coming from a project;
+- sharing sensitive data.
 
-## 10. Gel du stock
+## 10. Freezing the existing stock
 
-Une nouvelle règle de nommage ne déclenche aucun renommage massif rétroactif. Toute migration doit constituer un chantier explicite, inventorié et vérifié.
+A new naming rule triggers no retroactive mass renaming. Any migration must be an explicit, inventoried and verified work item.
 
 ## Liens
 
-- `amended by` — [Decision : taxonomie PIV, langue système anglaise, charte des rôles, fin des PROMPT, §3 langue](../decisions/DECISION-2026-08-23-220049-piv-taxonomy-and-english-system-language.md)
+- `amended by` — [Decision: PIV taxonomy, English system language, role charter, end of PROMPT, §3 language](../decisions/DECISION-2026-08-23-220049-piv-taxonomy-and-english-system-language.md)

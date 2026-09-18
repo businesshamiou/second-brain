@@ -1,6 +1,6 @@
 ---
 type: rules
-title: "Versionnement des Missions et outputs générés"
+title: "Versioning of Missions and generated outputs"
 created_at: 2026-08-17T21:15:22-04:00
 timezone: America/Montreal
 status: active
@@ -8,79 +8,79 @@ scope: transverse-project-governance
 owner_gate: granted
 ---
 
-# VERSIONNEMENT DES MISSIONS ET OUTPUTS GÉNÉRÉS
+# VERSIONING OF MISSIONS AND GENERATED OUTPUTS
 
-Cette règle transverse s’applique au Vault et aux projets qui en héritent. Elle complète le [cycle de contexte V2](./RULES-2026-08-17-111018-context-lifecycle-v2.md) sans imposer la création de dossiers sans besoin réel.
+This cross-cutting rule applies to the Vault and to the projects that inherit from it. It complements the [context cycle V2](./RULES-2026-08-17-111018-context-lifecycle-v2.md) without imposing the creation of folders without a real need.
 
-## 1. Identité permanente d’une Mission
+## 1. Permanent identity of a Mission
 
-Une Mission reçoit un identifiant projet sur trois positions : `001`, `002`, `003`, etc.
+A Mission receives a project identifier on three digits: `001`, `002`, `003`, etc.
 
-Convention :
+Convention:
 
 `<projet>/missions/MISSION-YYYY-MM-DD-HHMMSS-NNN-description.md`
 
-Le timestamp répond à « quand ce fichier a-t-il été créé ? ». L’ID répond à « quelle Mission représente-t-il ? ».
+The timestamp answers "when was this file created?". The ID answers "which Mission does it represent?".
 
 ## 2. Corrections
 
-Une correction conserve l’ID et ajoute `C01` à `C10` :
+A correction keeps the ID and adds `C01` to `C10`:
 
 `<projet>/missions/MISSION-YYYY-MM-DD-HHMMSS-NNN-Cxx-description.md`
 
-L’original n’utilise jamais `C00`. Atteindre `C10` impose de réexaminer si l’objectif doit devenir une nouvelle Mission.
+The original never uses `C00`. Reaching `C10` requires re-examining whether the objective must become a new Mission.
 
-Chaque correction reçoit son timestamp réel. Aucun redatage fictif n’est autorisé.
+Each correction receives its real timestamp. No fictitious redating is allowed.
 
-## 3. Version complète et autonome
+## 3. Complete, self-contained version
 
-Une correction n’est pas un patch isolé. La dernière version active contient l’objectif, le périmètre, les sources, les décisions applicables, les contraintes, les étapes, les gates, les validations et le contrat de sortie actuellement valides.
+A correction is not an isolated patch. The latest active version contains the objective, the scope, the sources, the applicable decisions, the constraints, the steps, the gates, the validations and the output contract currently valid.
 
-L’Executor consomme la dernière version active; il ne recompose pas l’état courant en additionnant toutes les versions précédentes.
+The Executor consumes the latest active version; it does not reconstruct the current state by adding up all the previous versions.
 
-Les anciennes versions restent conservées comme historique. Chaque correction déclare au minimum `mission_id`, `correction`, `supersedes` et `status`.
+The old versions remain kept as history. Each correction declares at least `mission_id`, `correction`, `supersedes` and `status`.
 
-## 4. Prompts alignés (note historique — convention close à la Mission `038`)
+## 4. Aligned prompts (historical note — convention closed at Mission `038`)
 
-Convention active jusqu’à la Mission `038` (fin des fichiers PROMPT, Decision `220049`) ; conservée pour lire les Missions antérieures, non appliquée au-delà. Le Prompt canonique d’Executor portait le même identifiant fonctionnel que sa Mission :
+Convention active until Mission `038` (end of the PROMPT files, Decision `220049`); kept for reading earlier Missions, not applied beyond. The canonical Executor Prompt carried the same functional identifier as its Mission:
 
-- original : PROMPT-YYYY-MM-DD-HHMMSS-NNN-executor-description.md;
-- correction : PROMPT-YYYY-MM-DD-HHMMSS-NNN-Cxx-executor-description.md.
+- original: PROMPT-YYYY-MM-DD-HHMMSS-NNN-executor-description.md;
+- correction: PROMPT-YYYY-MM-DD-HHMMSS-NNN-Cxx-executor-description.md.
 
-Le Prompt possède son propre timestamp réel. Une correction qui modifie le contrat Executor aligne Mission et Prompt sur le même `Cxx`.
+The Prompt has its own real timestamp. A correction that modifies the Executor contract aligns Mission and Prompt on the same `Cxx`.
 
-## 5. Decisions cumulatives
+## 5. Cumulative Decisions
 
-Les Decisions ne suivent pas la numérotation `NNN-Cxx`. Elles restent cumulatives.
+Decisions do not follow the `NNN-Cxx` numbering. They remain cumulative.
 
-Une Decision plus récente ne remplace une précédente que si elle déclare explicitement `supersedes`, `amends` ou `revokes`. Une proposition arbitrée n’est pas réécrite silencieusement : une nouvelle Decision enregistre l’arbitrage et référence l’historique.
+A more recent Decision replaces an earlier one only if it explicitly declares `supersedes`, `amends` or `revokes`. An arbitrated proposal is not silently rewritten: a new Decision records the arbitration and references the history.
 
-## 6. Registre vivant
+## 6. Living register
 
-Un projet qui utilise des Missions maintient, lorsque le besoin existe :
+A project that uses Missions maintains, when the need exists:
 
 `<projet>/missions/MISSION-INDEX.md`
 
-Le registre indique au minimum l’ID, l’objectif, la version active, son statut et le chemin de la Mission active. Il ne recopie pas de mesures techniques périssables.
+The register states at least the ID, the objective, the active version, its status and the path of the active Mission. It does not copy perishable technical measurements.
 
-## 7. Zone `generated/`
+## 7. `generated/` zone
 
-`generated/` est une landing zone pour un output dont la destination canonique n’est pas encore déterminée.
+`generated/` is a landing zone for an output whose canonical destination is not yet determined.
 
-Règles :
+Rules:
 
-- non canonique par défaut;
-- review et validation avant promotion;
-- provenance conservée;
-- nomenclature datée respectée;
-- ne jamais l’utiliser lorsqu’une destination canonique est déjà connue;
-- ne jamais y placer un secret ou contourner les règles Git du projet.
+- non-canonical by default;
+- review and validation before promotion;
+- provenance kept;
+- dated naming respected;
+- never use it when a canonical destination is already known;
+- never place a secret there or bypass the project's Git rules.
 
-La promotion vers un emplacement canonique est explicite. La suppression d’un output suit les human gates applicables.
+Promotion to a canonical location is explicit. Deleting an output follows the applicable human gates.
 
-## 8. Héritage
+## 8. Inheritance
 
-Ordre de spécialisation :
+Order of specialization:
 
 ```text
 Vault rules
@@ -90,28 +90,28 @@ Project rules
 Mission / task instructions
 ```
 
-Un projet hérite de cette doctrine et documente uniquement ses spécialisations ou exceptions autorisées. L’héritage porte sur le comportement; il ne force pas la création de dossiers sans besoin réel au-delà du squelette de référence.
+A project inherits this doctrine and documents only its authorized specializations or exceptions. Inheritance concerns behaviour; it does not force the creation of folders without a real need beyond the reference skeleton.
 
-Précision (Mission 172, audit défaut 8) : cette clause ne contredit pas le [Standard de structure de projet](./RULES-2026-08-26-142800-project-structure-standard.md), postérieur et plus spécifique — son §2 mandate `missions/` dans le squelette de référence de **tout** projet créé après son adoption, sans exception. « Sans besoin réel » vise les dossiers **hors** de ce squelette (par exemple `generated/`, qui reste une landing zone créée au besoin, §7 ci-dessus) — jamais `missions/`, dont le besoin est déjà établi par le standard lui-même dès la naissance du projet.
+Clarification (Mission 172, audit defect 8): this clause does not contradict the [Project structure standard](./RULES-2026-08-26-142800-project-structure-standard.md), which is later and more specific — its §2 mandates `missions/` in the reference skeleton of **every** project created after its adoption, without exception. "Without a real need" targets folders **outside** that skeleton (for example `generated/`, which remains a landing zone created as needed, §7 above) — never `missions/`, whose need is already established by the standard itself from the project's birth.
 
-## 9. Consommation active
+## 9. Active consumption
 
-Pour exécuter une Mission :
+To execute a Mission:
 
-1. lire les Decisions actives pertinentes;
-2. résoudre la dernière version active via `<projet>/missions/MISSION-INDEX.md` lorsqu’il existe;
-3. lire la Mission complète;
-4. lire le Prompt aligné (uniquement pour les Missions antérieures à la Mission `038` ; convention close au-delà, Decision `220049`);
-5. remesurer l’état technique utile;
-6. respecter les gates et frontières du projet.
+1. read the relevant active Decisions;
+2. resolve the latest active version via `<projet>/missions/MISSION-INDEX.md` when it exists;
+3. read the complete Mission;
+4. read the aligned Prompt (only for Missions earlier than Mission `038`; convention closed beyond, Decision `220049`);
+5. measure the useful technical state again;
+6. respect the project's gates and boundaries.
 
-## 10. Auto-rangement
+## 10. Self-tidying
 
-Toute Mission commite son propre fichier et régénère les index générés en dernières étapes de sa fenêtre d'exécution. Une Mission qui laisse ce rangement à une fenêtre ultérieure le déclare explicitement en ANOMALY dans son rapport. [source : [Decision — Arbitrages doctrinaux du 2026-08-25](../decisions/DECISION-2026-08-25-131034-doctrinal-arbitrations-2026-08-25.md), point 2]
+Every Mission commits its own file and regenerates the generated indexes as the last steps of its execution window. A Mission that leaves this tidying to a later window declares it explicitly as ANOMALY in its report. [source: [Decision — Doctrinal arbitrations of 2026-08-25](../decisions/DECISION-2026-08-25-131034-doctrinal-arbitrations-2026-08-25.md), point 2]
 
 ## Liens
 
-- `see also` — [Standard de structure de projet](./RULES-2026-08-26-142800-project-structure-standard.md) (§8, précision Mission 172 : le squelette de référence mandate `missions/` sans exception, plus spécifique que la présente clause d'héritage)
-- `amended by` — [Decision : taxonomie PIV, langue système anglaise, charte des rôles, fin des PROMPT, §4 prompts alignés](../decisions/DECISION-2026-08-23-220049-piv-taxonomy-and-english-system-language.md)
-- `amended by` — [Décision — Un fichier de Mission est gelé dès l'émission de son snippet](../decisions/DECISION-2026-08-30-013217-mission-frozen-at-snippet-emission.md)
-- `source` — [Decision — Arbitrages doctrinaux du 2026-08-25](../decisions/DECISION-2026-08-25-131034-doctrinal-arbitrations-2026-08-25.md)
+- `see also` — [Project structure standard](./RULES-2026-08-26-142800-project-structure-standard.md) (§8, Mission 172 clarification: the reference skeleton mandates `missions/` without exception, more specific than the present inheritance clause)
+- `amended by` — [Decision: PIV taxonomy, English system language, role charter, end of PROMPT, §4 aligned prompts](../decisions/DECISION-2026-08-23-220049-piv-taxonomy-and-english-system-language.md)
+- `amended by` — [Decision — A Mission file is frozen as soon as its snippet is issued](../decisions/DECISION-2026-08-30-013217-mission-frozen-at-snippet-emission.md)
+- `source` — [Decision — Doctrinal arbitrations of 2026-08-25](../decisions/DECISION-2026-08-25-131034-doctrinal-arbitrations-2026-08-25.md)

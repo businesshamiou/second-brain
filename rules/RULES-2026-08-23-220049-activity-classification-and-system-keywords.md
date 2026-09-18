@@ -1,7 +1,7 @@
 ---
 type: rules
-title: "Classification d'activité PIV et mots-clés système"
-description: "Taxonomie des types d'activité (plan / implement / validate), dimension session (open / milestone / close), format d'annonce, périmètre de la règle « mots-clés système en anglais » et langue du journal."
+title: "PIV activity classification and system keywords"
+description: "Taxonomy of activity types (plan / implement / validate), session dimension (open / milestone / close), announcement format, perimeter of the \"system keywords in English\" rule and language of the journal."
 created_at: 2026-08-23T22:00:49-04:00
 timezone: America/Montreal
 status: active
@@ -9,64 +9,64 @@ scope: activity-classification-and-system-keywords
 related_mission: "038"
 ---
 
-# CLASSIFICATION D'ACTIVITÉ PIV ET MOTS-CLÉS SYSTÈME
+# PIV ACTIVITY CLASSIFICATION AND SYSTEM KEYWORDS
 
-## 1. Portée
+## 1. Reach
 
-Cette règle s'applique à toute session Pilot et Executor, dans le Vault et dans tout projet. Elle met en œuvre la [Decision : taxonomie PIV et langue système anglaise](../decisions/DECISION-2026-08-23-220049-piv-taxonomy-and-english-system-language.md), arbitrée par l'Owner.
+This rule applies to every Pilot and Executor session, in the Vault and in every project. It implements the [Decision: PIV taxonomy and English system language](../decisions/DECISION-2026-08-23-220049-piv-taxonomy-and-english-system-language.md), arbitrated by the Owner.
 
-## 2. Taxonomie des types d'activité
+## 2. Taxonomy of activity types
 
-Trois types, tirés de la boucle PIV (Plan–Implement–Validate). [source : Cole Medin, PIV loop, https://github.com/coleam00/skills]
+Three types, drawn from the PIV loop (Plan–Implement–Validate). [source: Cole Medin, PIV loop, https://github.com/coleam00/skills]
 
-| Type | Activité | Artefacts typiques |
+| Type | Activity | Typical artefacts |
 |---|---|---|
-| `plan` | explorer, comparer, trancher, cadrer | captures, proposals, decisions, missions, prompts |
-| `implement` | produire, intégrer, exécuter | contenu maître, commits, runs Executor |
-| `validate` | tester, mesurer, contrôler | audits, reports |
+| `plan` | explore, compare, decide, frame | captures, proposals, decisions, missions, prompts |
+| `implement` | produce, integrate, execute | master content, commits, Executor runs |
+| `validate` | test, measure, check | audits, reports |
 
-Le brainstorm et la recherche divergente vivent dans `plan`. La lecture pure (retrouver, vérifier un fait) n'est pas un type : elle se classe dans la phase qu'elle prépare.
+Brainstorming and divergent research live in `plan`. Pure reading (finding, checking a fact) is not a type: it is classified in the phase it prepares.
 
-## 3. Dimension session
+## 3. Session dimension
 
-Seconde dimension, indépendante du type : `open` / `milestone` / `close`. Elle peut coexister avec n'importe quel type. La commande `wrap` déclenche `close`.
+A second dimension, independent of the type: `open` / `milestone` / `close`. It can coexist with any type. The `wrap` command triggers `close`.
 
-## 4. Annonce
+## 4. Announcement
 
-L'IA annonce la classification en une ligne courte, en tête de séquence : `[<type> · <session>]` suivi d'une phrase française. Le marqueur de session est optionnel hors ouverture, jalon ou clôture.
+The AI announces the classification in one short line, at the head of the sequence: `[<type> · <session>]` followed by a sentence in French. The session marker is optional outside an opening, a milestone or a close.
 
-- Exemple : `[plan · milestone] taxonomie arbitrée, on rédige la Mission`.
-- L'Owner corrige d'un mot ; la correction fait foi, sans justification demandée.
-- Ni classification silencieuse, ni demande de confirmation avant d'enchaîner.
-- Une micro-vérification ne déclenche pas d'annonce.
+- Example: `[plan · milestone] taxonomie arbitrée, on rédige la Mission` [“taxonomy arbitrated, we are writing the Mission”].
+- The Owner corrects with one word; the correction is authoritative, with no justification asked for.
+- Neither silent classification, nor a request for confirmation before moving on.
+- A micro-check does not trigger an announcement.
 
-## 5. Classer n'est pas déposer
+## 5. Classifying is not filing
 
-La classification est informative. Elle n'ouvre aucun droit d'écriture : tout dépôt de fichier reste une porte annoncée, conformément aux [Garde-fous et niveaux de preuve](./RULES-2026-08-19-210803-guardrails-and-evidence-levels.md).
+The classification is informative. It opens no write right: any filing of a file remains an announced door, in accordance with the [Guardrails and evidence levels](./RULES-2026-08-19-210803-guardrails-and-evidence-levels.md).
 
-## 6. Mots-clés système : périmètre et langue
+## 6. System keywords: perimeter and language
 
-Est **mot-clé système** toute chaîne lue ou comparée littéralement par un script, ou servant d'étiquette structurée : commandes (`wrap`), tags de journal, étiquettes de classification (`plan`, `implement`, `validate`, `open`, `milestone`, `close`), statuts, identifiants de champs.
+A **system keyword** is any string read or compared literally by a script, or serving as a structured label: commands (`wrap`), journal tags, classification labels (`plan`, `implement`, `validate`, `open`, `milestone`, `close`), statuses, field identifiers.
 
-Tout mot-clé système est en **anglais idiomatique, sans accent**. Les annonces, la prose et les documents destinés à l'Owner restent en français.
+Every system keyword is in **idiomatic English, without accents**. Announcements, prose and documents intended for the Owner remain in French.
 
-## 7. Langue du journal
+## 7. Language of the journal
 
-Les lignes de journal s'écrivent désormais **entièrement en anglais** — tags et contenu. Tags : `STATE:`, `NEXT:`, `OPEN:`, `RESUME:`.
+Journal lines are from now on written **entirely in English** — tags and content. Tags: `STATE:`, `NEXT:`, `OPEN:`, `RESUME:`.
 
-**Note (2026-08-26, Mission 066)** : cette énumération s'est étendue depuis — le tag `CLOSE:` a été ajouté par la [DECISION-2026-08-25-110935](../decisions/DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md) ; la liste des tags s'étend par Decision, jamais par édition silencieuse de ce paragraphe.
+**Note (2026-08-26, Mission 066)**: this enumeration has since been extended — the `CLOSE:` tag was added by [DECISION-2026-08-25-110935](../decisions/DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md); the list of tags is extended by Decision, never by silent editing of this paragraph.
 
-- Le journal est en ajout seul : les lignes historiques françaises (`ETAT:`, `PROCHAIN:`, `OUVERT:`, `REPRISE:`) ne sont jamais réécrites.
-- Les outils de lecture reconnaissent les deux jeux de tags.
-- Les documents destinés à l'Owner (fiche d'état, handoffs, Decisions) restent en français.
+- The journal is append-only: the historical French lines (`ETAT:`, `PROCHAIN:`, `OUVERT:`, `REPRISE:`) are never rewritten.
+- The reading tools recognize both sets of tags.
+- Documents intended for the Owner (state sheet, handoffs, Decisions) remain in French.
 
-## 8. Extensibilité
+## 8. Extensibility
 
-Si un cas réel ne rentre dans aucun type pendant l'usage, on le note dans le journal (`OPEN:`) et on amende cette règle par le cycle normal — jamais d'extension silencieuse de la taxonomie.
+If a real case fits no type during use, it is noted in the journal (`OPEN:`) and this rule is amended through the normal cycle — never a silent extension of the taxonomy.
 
 ## Liens
 
-- `applies` — [Decision : taxonomie PIV et langue système anglaise](../decisions/DECISION-2026-08-23-220049-piv-taxonomy-and-english-system-language.md)
-- `see also` — [Règles de conduite du Vault](./RULES-2026-08-17-005717-vault-operating-rules.md)
-- `see also` — [Relais entre rôles par mini-prompts](./RULES-2026-08-23-124937-role-relay-mini-prompts.md)
-- `amended by` — [Décision — Extension de la convention de tags du journal — tag CLOSE: et portes à clé](../decisions/DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md)
+- `applies` — [Decision: PIV taxonomy and English system language](../decisions/DECISION-2026-08-23-220049-piv-taxonomy-and-english-system-language.md)
+- `see also` — [Vault operating rules](./RULES-2026-08-17-005717-vault-operating-rules.md)
+- `see also` — [Relay between roles through mini-prompts](./RULES-2026-08-23-124937-role-relay-mini-prompts.md)
+- `amended by` — [Decision — Extension of the journal tag convention — CLOSE: tag and keyed doors](../decisions/DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md)

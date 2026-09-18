@@ -1,77 +1,77 @@
 ---
 type: rules
-title: "Cycle de contexte V2 — capture → proposal → decision → current state → handoff"
+title: "Context cycle V2 — capture → proposal → decision → current state → handoff"
 created_at: 2026-08-17T11:10:18-04:00
 timezone: America/Montreal
 status: active
 supersedes: "./RULES-2026-08-17-013937-context-lifecycle.md"
 ---
 
-# CYCLE DE CONTEXTE V2 — CAPTURE → PROPOSAL → DECISION → CURRENT STATE → HANDOFF
+# CONTEXT CYCLE V2 — CAPTURE → PROPOSAL → DECISION → CURRENT STATE → HANDOFF
 
-Cette règle applique la [décision d'architecture d'information V1](../decisions/DECISION-2026-08-17-111018-vault-v1-information-architecture.md). Elle **supplante** le [cycle minimal de contexte précédent](./RULES-2026-08-17-013937-context-lifecycle.md), qui reste conservé comme historique et ne doit plus être utilisé comme règle courante.
+This rule applies the [V1 information architecture Decision](../decisions/DECISION-2026-08-17-111018-vault-v1-information-architecture.md). It **supersedes** the [previous minimal context cycle](./RULES-2026-08-17-013937-context-lifecycle.md), which remains kept as history and must no longer be used as the current rule.
 
-## 1. Principe sélectif
+## 1. Selective principle
 
-Conserver une information uniquement si elle doit survivre à la session, restera utile et n'est pas déjà portée par une source canonique suffisante. Le besoin réel détermine l'artefact ; aucune session ne doit produire mécaniquement une capture, une proposal, une décision ou un handoff.
+Keep a piece of information only if it must survive the session, will remain useful and is not already carried by a sufficient canonical source. The real need determines the artefact; no session must mechanically produce a capture, a proposal, a decision or a handoff.
 
-Ne pas conserver :
+Do not keep:
 
-- les échanges transitoires, essais sans conséquence et détails chronologiques ;
-- les idées de brainstorming qui ne justifient pas un arbitrage futur ;
-- les brouillons remplacés sans enseignement durable ;
-- les copies de contenu ou d'état déjà accessibles dans une source canonique ;
-- les hashes, compteurs ou états techniques qui peuvent être remesurés ;
-- le contexte métier ou l'état courant d'un projet dans le Vault central.
+- transient exchanges, trials without consequence and chronological details;
+- brainstorming ideas that do not justify a future arbitration;
+- replaced drafts with no lasting lesson;
+- copies of content or state already accessible in a canonical source;
+- hashes, counters or technical states that can be measured again;
+- a project's business context or current state in the central Vault.
 
 ## 2. Capture
 
-Créer une capture lorsqu'un fait, une observation, un apprentissage ou une question durable mérite une source autonome. Préciser son contexte, son niveau de certitude, son impact éventuel et ses liens.
+Create a capture when a durable fact, observation, learning or question deserves a standalone source. State its context, its level of certainty, its possible impact and its links.
 
-Une capture n'est ni une proposal ni une décision. Utiliser le [modèle de capture](../templates/capture-template.md).
+A capture is neither a proposal nor a decision. Use the [capture template](../templates/capture-template.md).
 
 ## 3. Proposal
 
-Créer une proposal seulement lorsqu'une option importante doit être conservée jusqu'à un arbitrage. Décrire la proposition, sa raison, son impact attendu et les alternatives réellement utiles.
+Create a proposal only when an important option must be kept until an arbitration. Describe the proposal, its reason, its expected impact and the alternatives that are genuinely useful.
 
-Son statut reste `PROPOSED`. Une proposal acceptée n'est jamais requalifiée silencieusement : créer un nouvel artefact `DECISION` qui la référence et conserver les deux historiques. Utiliser le [modèle de proposal](../templates/proposal-template.md).
+Its status remains `PROPOSED`. An accepted proposal is never silently requalified: create a new `DECISION` artefact that references it and keep both histories. Use the [proposal template](../templates/proposal-template.md).
 
 ## 4. Decision
 
-Créer une décision pour enregistrer un choix structurant et son arbitrage explicite. Tant que le human gate n'est pas accordé, son statut reste `PROPOSED`; après arbitrage, enregistrer `ARBITRATED` et la référence de validation.
+Create a decision to record a structuring choice and its explicit arbitration. As long as the human gate has not been granted, its status remains `PROPOSED`; after arbitration, record `ARBITRATED` and the validation reference.
 
-Une décision décrit le choix, sa raison, son impact, les alternatives importantes et ses liens, notamment la proposal source lorsqu'elle existe. Utiliser le [modèle de décision](../templates/decision-template.md).
+A decision describes the choice, its reason, its impact, the important alternatives and its links, notably the source proposal when there is one. Use the [decision template](../templates/decision-template.md).
 
 ## 5. Current state
 
-Lorsqu'un projet utilise un état de reprise, maintenir dans ce projet un unique fichier `<projet>/current-state.md`. Il reste court et décrit l'objectif actuel, l'état opérationnel, la dernière avancée validée, le prochain pas, les blocages et les sources actives.
+When a project uses a resume state, maintain in that project a single `<projet>/current-state.md` file. It stays short and describes the current objective, the operational state, the last validated step forward, the next step, the blockers and the active sources.
 
-Le current state est un **état vivant** : le mettre à jour en place. Il ne sert ni d'historique daté ni de registre de preuves techniques recopiées. Utiliser le [modèle d'état courant](../templates/current-state-template.md).
+The current state is a **living state**: update it in place. It serves neither as a dated history nor as a register of copied technical evidence. Use the [current state template](../templates/current-state-template.md).
 
 ## 6. Handoff
 
-Créer un handoff uniquement lorsqu'une reprise fiable est réellement nécessaire : interruption significative, nouvelle session, nouvel agent ou transfert de responsabilité.
+Create a handoff only when a reliable resume is genuinely necessary: significant interruption, new session, new agent or transfer of responsibility.
 
-Le handoff est une **passation historique datée**, pas un état vivant à maintenir. Il décrit la situation au moment du transfert, le travail terminé, les points ouverts, la prochaine action et les contraintes. Il pointe vers le current state et les sources prioritaires sans les recopier. Utiliser le [modèle de handoff](../templates/handoff-template.md).
+The handoff is a **dated historical handover**, not a living state to maintain. It describes the situation at the moment of the transfer, the finished work, the open points, the next action and the constraints. It points to the current state and the priority sources without copying them. Use the [handoff template](../templates/handoff-template.md).
 
-## 7. Cycle applicable
+## 7. Applicable cycle
 
 ```text
 work
-  → capture si une connaissance durable apparaît
-  → proposal si une option importante doit attendre un arbitrage
-  → decision lorsqu'un choix est explicitement arbitré
-  → mise à jour du current state si l'état opérationnel change
-  → handoff seulement si une reprise fiable est nécessaire
-  → reprise depuis le current state, les décisions et les sources liées
+  → capture if durable knowledge appears
+  → proposal if an important option must wait for an arbitration
+  → decision when a choice is explicitly arbitrated
+  → update of the current state if the operational state changes
+  → handoff only if a reliable resume is necessary
+  → resume from the current state, the decisions and the linked sources
 ```
 
-## 8. Frontière Vault / projets
+## 8. Vault / projects boundary
 
-Le Vault conserve cette règle, les explications transversales et les modèles. Les projets externes portent leur propre état courant et leurs propres captures, proposals, décisions et handoffs.
+The Vault keeps this rule, the cross-cutting explanations and the templates. External projects carry their own current state and their own captures, proposals, decisions and handoffs.
 
-Une amélioration issue d'un projet ne rejoint le Vault qu'après validation humaine de son caractère transversal. Le mécanisme de preuve associé est expliqué dans [Vérification et preuves](../knowledge/verification-and-evidence.md).
+An improvement coming from a project joins the Vault only after human validation of its cross-cutting character. The associated evidence mechanism is explained in [Verification and evidence](../knowledge/verification-and-evidence.md).
 
 ## Liens
 
-- `supersedes` — [RULES-2026-08-17-013937-context-lifecycle — Cycle minimal de conservation et de reprise du contexte](RULES-2026-08-17-013937-context-lifecycle.md)
+- `supersedes` — [RULES-2026-08-17-013937-context-lifecycle — Minimal cycle for keeping and resuming context](RULES-2026-08-17-013937-context-lifecycle.md)

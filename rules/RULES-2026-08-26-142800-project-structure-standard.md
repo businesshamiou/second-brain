@@ -1,7 +1,7 @@
 ---
 type: rules
-title: "Standard de structure de projet — sept fonctions, squelette, frontière Vault/projet, YAGNI, clause du grand-père"
-description: "Grave le standard de projet arbitré le 2026-08-25 au soir : les sept fonctions minimales d'un projet, le squelette de référence, le test de frontière Vault/projet, le principe YAGNI et la clause du grand-père pour (historique de l'atelier, non distribué)."
+title: "Project structure standard — seven functions, skeleton, Vault/project boundary, YAGNI, grandfather clause"
+description: "Sets in stone the project standard arbitrated on the evening of 2026-08-25: the seven minimal functions of a project, the reference skeleton, the Vault/project boundary test, the YAGNI principle and the grandfather clause for (workshop history, not distributed)."
 created_at: "2026-08-26T14:28:00-04:00"
 timezone: America/Montreal
 status: active
@@ -9,58 +9,58 @@ scope: project-structure-standard
 amends: "../decisions/DECISION-2026-08-19-115306-project-registry-v1.md"
 ---
 
-# STANDARD DE STRUCTURE DE PROJET
+# PROJECT STRUCTURE STANDARD
 
-Cette règle grave, pour tout projet du workspace, le contrat de structure que le registre v2 mesure (Mission 061). Elle applique les arbitrages de la Décision — Consolidation du 2026-08-25 soir (historique de l'atelier, non distribué) (hors Vault), §1.
+This rule sets in stone, for every project of the workspace, the structure contract that registry v2 measures (Mission 061). It applies the arbitrations of the Decision — Consolidation of the evening of 2026-08-25 (workshop history, not distributed) (hors Vault), §1.
 
-## 1. Les sept fonctions
+## 1. The seven functions
 
-Le minimum vital d'un projet est défini par sept fonctions, pas par des dossiers :
+A project's vital minimum is defined by seven functions, not by folders:
 
-1. **Identité** — « quel est ce projet ? »
-2. **Règles métier** — « quelles lois s'appliquent ici et seulement ici ? »
-3. **Mémoire d'état** — « où en est-on ? »
-4. **Exécution** — « qu'a-t-on fait faire ? »
-5. **Arbitrage** — « qu'a-t-on décidé ? »
-6. **Matière** — « qu'a-t-on appris ? »
-7. **Passation** — « comment on reprend ? »
+1. **Identity** — "what is this project?"
+2. **Business rules** — "which laws apply here and only here?"
+3. **State memory** — "where do we stand?"
+4. **Execution** — "what have we had done?"
+5. **Arbitration** — "what have we decided?"
+6. **Material** — "what have we learned?"
+7. **Handover** — "how do we resume?"
 
-## 2. Squelette de référence
+## 2. Reference skeleton
 
-Les fonctions vivent à la racine du projet — aucun sous-dossier de travail intermédiaire. Les sous-dossiers supplémentaires naissent au fil du besoin réel, jamais par anticipation (§4, YAGNI), selon les normes de nomenclature et les règles de l'art de l'industrie logicielle.
+The functions live at the root of the project — no intermediate working subfolder. Additional subfolders are born as the real need arises, never in anticipation (§4, YAGNI), according to the naming norms and the good practices of the software industry.
 
     <projet>/
-    ├── README.md      (identité, point d'entrée)
-    ├── rules/         (règles métier du projet)
-    ├── state/         (journal + fiche générée)
-    ├── missions/      (Missions ET leurs rapports — même lignée)
-    ├── decisions/     (arbitrages rendus)
-    ├── proposals/     (options en attente — séparées : une option n'est pas un arbitrage)
-    ├── knowledge/     (matière : captures, études, notes)
-    └── handoffs/      (passation)
+    ├── README.md      (identity, entry point)
+    ├── rules/         (the project's business rules)
+    ├── state/         (journal + generated sheet)
+    ├── missions/      (Missions AND their reports — same lineage)
+    ├── decisions/     (arbitrations rendered)
+    ├── proposals/     (pending options — kept separate: an option is not an arbitration)
+    ├── knowledge/     (material: captures, studies, notes)
+    └── handoffs/      (handover)
 
-Exclusions explicites du standard : `prompt-archive/` (aboli, mini-prompts en snippet copiable seulement), `audits/` (un audit est une exécution, son rapport va dans `missions/` avec les autres), `generated/` (naît au besoin, hors minimum).
+Explicit exclusions from the standard: `prompt-archive/` (abolished, mini-prompts as copyable snippets only), `audits/` (an audit is an execution, its report goes into `missions/` with the others), `generated/` (born as needed, outside the minimum).
 
-## 3. Test de frontière Vault/projet
+## 3. Vault/project boundary test
 
-Toute règle candidate se soumet au test suivant :
+Every candidate rule is submitted to the following test:
 
-> « Cette règle aurait-elle du sens dans un autre projet ? »
+> "Would this rule make sense in another project?"
 
-Oui → elle vit dans le Vault (portable, distribuable). Non → elle vit dans le dossier `rules/` du projet. Le Vault reste distribuable ; les règles métier restent chez elles.
+Yes → it lives in the Vault (portable, distributable). No → it lives in the project's `rules/` folder. The Vault remains distributable; business rules stay at home.
 
-## 4. Principe YAGNI
+## 4. YAGNI principle
 
-Aucun sous-dossier, aucun champ, aucun mécanisme n'est créé par anticipation d'un besoin futur. Un projet naît avec le squelette du §2 et rien de plus ; l'extension se fait au moment où le besoin est réel et mesuré, jamais avant.
+No subfolder, no field, no mechanism is created in anticipation of a future need. A project is born with the skeleton of §2 and nothing more; extension happens at the moment the need is real and measured, never before.
 
-## 5. Clause du grand-père
+## 5. Grandfather clause
 
-(historique de l'atelier, non distribué) reste tel quel : aucune restructuration, aucune migration vers le squelette du §2. Coût connu (liens relatifs, cf. Missions 052–055) pour gain nul. Sa non-conformité au présent standard a valeur pédagogique d'avant/après et sera **constatée, jamais corrigée** par `tools/check-project-conformity.sh` (Mission 061, étape 4). Seule règle qui lui reste applicable : plus aucun dépôt dans ses dossiers morts.
+(workshop history, not distributed) stays as it is: no restructuring, no migration to the skeleton of §2. Known cost (relative links, cf. Missions 052–055) for zero gain. Its non-conformity to the present standard has the teaching value of a before/after and will be **noted, never corrected** by `tools/check-project-conformity.sh` (Mission 061, step 4). The only rule that still applies to it: no more filing in its dead folders.
 
-(historique de l'atelier, non distribué) est l'unique bénéficiaire de cette clause. Tout projet créé après l'adoption de ce standard s'y conforme dès sa naissance, sans exception ni délai de grâce.
+(workshop history, not distributed) is the sole beneficiary of this clause. Every project created after the adoption of this standard conforms to it from its birth, without exception or grace period.
 
 ## Liens
 
-- `see also` — [Versionnement des Missions et outputs générés](./RULES-2026-08-17-211522-mission-versioning-and-generated-output.md) (§8, précision Mission 172 : sa clause d'héritage ne dispense pas du squelette de référence ci-dessus)
+- `see also` — [Versioning of Missions and generated outputs](./RULES-2026-08-17-211522-mission-versioning-and-generated-output.md) (§8, Mission 172 clarification: its inheritance clause does not exempt from the reference skeleton above)
 - `amends` — [Decision — Project Registry V1](../decisions/DECISION-2026-08-19-115306-project-registry-v1.md)
-- `source` — Décision — Consolidation du 2026-08-25 soir (historique de l'atelier, non distribué) (hors Vault)
+- `source` — Decision — Consolidation of the evening of 2026-08-25 (workshop history, not distributed) (hors Vault)

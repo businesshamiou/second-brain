@@ -1,107 +1,107 @@
 ---
 type: rules
-title: "Standard de liens entre documents"
-description: "(historique de l'atelier, non distribué)"
+title: "Standard for links between documents"
+description: "(workshop history, not distributed)"
 created_at: 2026-08-21T11:56:58-04:00
 timezone: America/Montreal
 status: active
 scope: document-linking-standard
 ---
 
-# STANDARD DE LIENS ENTRE DOCUMENTS
+# STANDARD FOR LINKS BETWEEN DOCUMENTS
 
-## 1. Portée
+## 1. Reach
 
-Tout document du Vault et de (historique de l'atelier, non distribué) (règle, decision, capture, proposal, current state, handoff, brief, mission, prompt, rapport, fiche projet) porte au moins un lien vers un autre document. [source : Zettelkasten] [mesure : Mission 021]
+Every document of the Vault and of (workshop history, not distributed) (rule, decision, capture, proposal, current state, handoff, brief, mission, prompt, report, project sheet) carries at least one link to another document. [source: Zettelkasten] [measure: Mission 021]
 
-## 2. Double emplacement
+## 2. Two places
 
-Le lien apparaît en contexte, dans la phrase qui énonce la relation, **et** dans une section finale `## Liens` qui récapitule avec le type. [source : adr-tools écrit le lien sous le Statut et la relation typée ; MADR « More Information »] [choix : nom « Liens »]
+The link appears in context, in the sentence that states the relation, **and** in a final `## Liens` section that recaps it with its type. [source: adr-tools writes the link under the Status and the typed relation; MADR "More Information"] [choice: the name "Liens"]
 
-## 3. Forme
+## 3. Form
 
-Un lien s'écrit `[titre lisible](chemin relatif)` ; le chemin est relatif à l'emplacement du fichier ; jamais de chemin absolu, jamais un nom nu, jamais un identifiant en backticks seul. Une mention par nom sans lien ne compte pas. [mesure : Missions 021-022, c'est ce que l'outil lit]
+A link is written `[titre lisible](chemin relatif)`; the path is relative to the file's location; never an absolute path, never a bare name, never an identifier in backticks alone. A mention by name without a link does not count. [measure: Missions 021-022, this is what the tool reads]
 
-## 4. Vocabulaire fermé des types
+## 4. Closed vocabulary of types
 
-Chaque entrée de la section `## Liens` porte un type parmi les six ci-dessous, en anglais. Aucun autre type sans amendement de cette règle. [source : adr-tools « Supersedes / Amends »] [choix : la liste retenue] [amende : Decision — arbitrages doctrinaux du 2026-08-25, point 4, anglicisation exécutée par la Mission 054]
+Each entry of the `## Liens` section carries one type among the six below, in English. No other type without an amendment of this rule. [source: adr-tools "Supersedes / Amends"] [choice: the list retained] [amends: Decision — doctrinal arbitrations of 2026-08-25, point 4, anglicization carried out by Mission 054]
 
-## 5. Lien inverse
+## 5. Inverse link
 
-`supersedes` et `amends` imposent la ligne inverse dans la cible (`superseded by`, `amended by`) dans le même commit. [source : adr-tools écrit toujours le lien retour]
+`supersedes` and `amends` require the inverse line in the target (`superseded by`, `amended by`) in the same commit. [source: adr-tools always writes the back link]
 
-## 6. Hors corpus
+## 6. Outside the corpus
 
-Un lien vers l'autre dépôt s'écrit quand même, suffixé `(hors Vault)` ou (historique de l'atelier, non distribué) ; il documente la relation sans produire d'arête dans le graphe. [choix]
+A link to the other repository is written all the same, suffixed `(hors Vault)` or (workshop history, not distributed); it documents the relation without producing an edge in the graph. [choice]
 
-## 7. Front-matter
+## 7. Front matter
 
-Les champs `supersedes`, `amends`, `sources`, `related_mission` restent et doivent être cohérents avec la section `## Liens` ; ils complètent, ne remplacent pas. [source : OKF `sources`] [mesure : Mission 021, front-matter PARTIEL]
+The fields `supersedes`, `amends`, `sources`, `related_mission` remain and must be consistent with the `## Liens` section; they complement it, they do not replace it. [source: OKF `sources`] [measure: Mission 021, front matter PARTIEL]
 
-## 8. Gabarits
+## 8. Templates
 
-Chaque gabarit porte la section `## Liens` pré-remplie avec au moins la ligne `prescribed by` vers la règle qui le prescrit. [mesure : Mission 021, aucun gabarit relié]
+Each template carries the `## Liens` section pre-filled with at least the `prescribed by` line pointing to the rule that prescribes it. [measure: Mission 021, no template linked]
 
-## 9. Vérification machine
+## 9. Machine verification
 
-Le contrôle pre-commit `tools/check-links.sh` s'applique à tout `.md` nouveau ou modifié hors `graphify-out/` (supprimé, Mission 040) : absence de section `## Liens` → bloquant ; lien relatif cassé → bloquant ; aucun lien relatif interne → avertissement, non bloquant. [choix : le partage blocage/avertissement]
+The pre-commit check `tools/check-links.sh` applies to every new or modified `.md` outside `graphify-out/` (supprimé, Mission 040): missing `## Liens` section → blocking; broken relative link → blocking; no internal relative link → warning, not blocking. [choice: the blocking/warning split]
 
-## 10. Vérification humaine
+## 10. Human verification
 
-La revue Pilot porte sur le bon type de lien et sur la présence du lien en contexte, au-delà de ce que `tools/check-links.sh` peut mesurer. [choix]
+The Pilot review covers the right link type and the presence of the link in context, beyond what `tools/check-links.sh` can measure. [choice]
 
-## 11. Rétroactivité
+## 11. Retroactivity
 
-Les documents existants sans lien ne sont pas retouchés à la volée ; ils sont corrigés par une Mission dédiée, à partir de la carte des liens manquants de la Mission 021. [choix]
+Existing documents without links are not touched up on the fly; they are corrected by a dedicated Mission, starting from Mission 021's map of missing links. [choice]
 
-## 12. Ancrage
+## 12. Anchoring
 
-Une ligne dans `AGENTS.md` renvoie à cette règle. [pratique établie : rapport d'exécution, runbook]
+A line in `AGENTS.md` points to this rule. [established practice: execution report, runbook]
 
-## Vocabulaire des types
+## Vocabulary of types
 
-Mots-clés système en anglais sans exception, aligné sur le front-matter déjà anglais (`supersedes`, `amends`) — [Decision — arbitrages doctrinaux du 2026-08-25](../decisions/DECISION-2026-08-25-131034-doctrinal-arbitrations-2026-08-25.md), point 4. Le vocabulaire français ci-avant est **retiré** ; la correspondance historique est conservée en note pour lire le corpus antérieur à la migration (Mission 054).
+System keywords in English without exception, aligned with the front matter that is already in English (`supersedes`, `amends`) — [Decision — doctrinal arbitrations of 2026-08-25](../decisions/DECISION-2026-08-25-131034-doctrinal-arbitrations-2026-08-25.md), point 4. The French vocabulary above is **withdrawn**; the historical correspondence is kept as a note for reading the corpus prior to the migration (Mission 054).
 
-| Type | Définition | Inverse |
+| Type | Definition | Inverse |
 |---|---|---|
-| `applies` | le document met en œuvre une règle ou une decision citée | — |
-| `supersedes` | le document rend obsolète la cible, qui cesse d'être une source de vérité | `superseded by` (obligatoire dans la cible) |
-| `amends` | le document modifie partiellement la cible, qui reste en vigueur pour le reste | `amended by` (obligatoire dans la cible) |
-| `source` | le document s'appuie sur la cible comme fondement ou preuve | — |
-| `prescribed by` | le document est un gabarit ou un artefact régi par la règle citée | — |
-| `see also` | relation informative sans dépendance normative | — |
+| `applies` | the document implements a cited rule or decision | — |
+| `supersedes` | the document makes the target obsolete; the target ceases to be a source of truth | `superseded by` (mandatory in the target) |
+| `amends` | the document partially modifies the target, which remains in force for the rest | `amended by` (mandatory in the target) |
+| `source` | the document relies on the target as a foundation or evidence | — |
+| `prescribed by` | the document is a template or an artefact governed by the cited rule | — |
+| `see also` | informative relation without normative dependency | — |
 
-**Correspondance historique** (retirée, pour lecture du corpus antérieur à la Mission 054 seulement) :
+**Historical correspondence** (withdrawn, for reading the corpus prior to Mission 054 only):
 
-| Français (retiré) | Anglais (canonique) |
+| French (withdrawn) | English (canonical) |
 |---|---|
 | `applique` | `applies` |
 | `remplace` | `supersedes` |
 | `amende` | `amends` |
-| `source` | `source` (inchangé) |
+| `source` | `source` (unchanged) |
 | `prescrit par` | `prescribed by` |
 | `voir aussi` | `see also` |
 | `remplacé par` | `superseded by` |
 | `amendé par` | `amended by` |
 
-## Exemple
+## Example
 
-Document fictif de cinq lignes, lien en contexte puis section `## Liens` :
+Fictitious five-line document, link in context and then the `## Liens` section:
 
 ```markdown
-# NOTE — Exemple
+# NOTE — Example
 
-Cette note applique le [Standard de liens entre documents](../rules/RULES-2026-08-21-115658-document-linking-standard.md) à un cas fictif.
+This note applies the [Standard for links between documents](../rules/RULES-2026-08-21-115658-document-linking-standard.md) to a fictitious case.
 
 ## Liens
 
-- `applies` — [Standard de liens entre documents](../rules/RULES-2026-08-21-115658-document-linking-standard.md)
+- `applies` — [Standard for links between documents](../rules/RULES-2026-08-21-115658-document-linking-standard.md)
 ```
 
 ## Liens
 
-- `applies` — [Règles de conduite du Vault, §8](./RULES-2026-08-17-005717-vault-operating-rules.md)
-- `source` — Proposal : standard de liens (historique de l'atelier, non distribué) (hors Vault)
-- `see also` — [Runbook d'installation du Vault](../_trash/runbook-vault-setup.md) (retiré de la distribution, conservé à titre historique)
-- `amended by` — [Décision — Bornage du standard de liens au corpus](../decisions/DECISION-2026-08-28-203627-link-section-requirement-scoped-to-corpus.md)
-- `amended by` — Décision — Liens sortants vers un autre dépôt (historique de l'atelier, non distribué) (hors Vault)
+- `applies` — [Vault operating rules, §8](./RULES-2026-08-17-005717-vault-operating-rules.md)
+- `source` — Proposal: links standard (workshop history, not distributed) (hors Vault)
+- `see also` — [Vault installation runbook](../_trash/runbook-vault-setup.md) (withdrawn from distribution, kept for historical reference)
+- `amended by` — [Decision — Scoping the links standard to the corpus](../decisions/DECISION-2026-08-28-203627-link-section-requirement-scoped-to-corpus.md)
+- `amended by` — Decision — Outgoing links to another repository (workshop history, not distributed) (hors Vault)

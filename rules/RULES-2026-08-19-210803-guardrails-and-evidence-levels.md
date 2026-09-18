@@ -1,91 +1,91 @@
 ---
 type: rules
-title: "Garde-fous et niveaux de preuve"
-description: "Ce qui protège le dépôt, et comment qualifier un fait selon son niveau de persistance."
+title: "Guardrails and evidence levels"
+description: "What protects the repository, and how to qualify a fact according to its level of persistence."
 created_at: 2026-08-19T21:08:03-04:00
 timezone: America/Montreal
 status: active
 scope: vault-guardrails
 ---
 
-# GARDE-FOUS ET NIVEAUX DE PREUVE
+# GUARDRAILS AND EVIDENCE LEVELS
 
-## 1. Les trois niveaux de la vérité
+## 1. The three levels of truth
 
-Le mot « fait » est interdit seul. Toute affirmation qu'un travail est accompli précise son niveau de persistance :
+The word "done" is forbidden on its own. Any claim that a piece of work is accomplished states its level of persistence:
 
-| Niveau | Signification | Vérification |
+| Level | Meaning | Verification |
 |---|---|---|
-| fait sur disque | le fichier existe et contient ce qu'on dit | lecture du fichier |
-| fait committé | le contenu est entré dans l'historique local | `git log`, `git show` |
-| fait poussé | le contenu existe hors de cette machine | `git status -sb`, mesure du distant |
+| done on disk | the file exists and contains what is claimed | reading the file |
+| done and committed | the content has entered the local history | `git log`, `git show` |
+| done and pushed | the content exists outside this machine | `git status -sb`, measuring the remote |
 
-Un travail fait sur disque et non committé disparaît avec un incident matériel. Un travail committé et non poussé disparaît avec la machine. Dire « c'est fait » sans qualificatif masque ce risque.
+Work done on disk and not committed disappears with a hardware incident. Work committed and not pushed disappears with the machine. Saying "it's done" without a qualifier hides this risk.
 
-Cette échelle complète la doctrine de preuve sans la remplacer : `VERIFIED` dit **qui** a mesuré, les trois niveaux disent **jusqu'où** le travail est allé.
+This scale complements the evidence doctrine without replacing it: `VERIFIED` says **who** measured, the three levels say **how far** the work has gone.
 
-## 2. Le refus est la position par défaut
+## 2. Refusal is the default position
 
-Face à une situation ambiguë, un mécanisme de contrôle refuse. Il ne laisse pas passer.
+Faced with an ambiguous situation, a control mechanism refuses. It does not let things through.
 
-Cela vaut pour toute vérification automatique : un motif inconnu, une dépendance absente, un fichier illisible conduisent au blocage, jamais au passage silencieux. Un contrôle qui ne peut pas vérifier ne conclut pas que tout va bien.
+This holds for any automatic check: an unknown pattern, a missing dependency, an unreadable file lead to blocking, never to silently passing. A check that cannot verify does not conclude that all is well.
 
-Le même principe s'applique aux rôles : un agent qui ne peut pas trancher ne tranche pas — il mesure, il signale, et il s'arrête.
+The same principle applies to roles: an agent that cannot decide does not decide — it measures, it reports, and it stops.
 
-## 3. Une preuve se montre
+## 3. Evidence is shown
 
-Une affirmation sur l'état d'un dépôt s'accompagne de la mesure qui la fonde. Déclarer qu'un contrôle est passé ne vaut pas montrer sa sortie.
+A claim about the state of a repository comes with the measurement it rests on. Declaring that a check has passed is not the same as showing its output.
 
-Corollaire : ne jamais reformuler un échec ou un refus en sa faveur. Un contrôle qui bloque est une information, pas un obstacle à contourner.
+Corollary: never reword a failure or a refusal in one's own favour. A check that blocks is information, not an obstacle to get around.
 
-## 4. Un rôle ne modifie pas son propre garde-fou
+## 4. A role does not modify its own guardrail
 
-Un agent ne désactive, ne contourne ni ne modifie un mécanisme qui le contraint, sauf autorisation explicite de l'Owner formulée dans la demande en cours.
+An agent does not disable, bypass or modify a mechanism that constrains it, except with the Owner's explicit authorization stated in the current request.
 
-Cela couvre les hooks, les fichiers de motifs, la configuration qui les active, et toute option de contournement.
+This covers hooks, pattern files, the configuration that activates them, and any bypass option.
 
-Une autorisation donnée dans une session passée ne vaut pas pour la session courante.
+An authorization given in a past session does not hold for the current session.
 
-## 5. Ce qui n'est pas déposé est perdu
+## 5. What is not filed is lost
 
-Une connaissance produite en conversation et non écrite dans un fichier avant la clôture est réputée perdue.
+Knowledge produced in conversation and not written into a file before the close is deemed lost.
 
-Cela vaut pour un avis, un arbitrage, une observation utile, un principe découvert en chemin. La mémoire d'une session ne se transmet pas ; seul un fichier se transmet.
+This holds for an opinion, an arbitration, a useful observation, a principle discovered along the way. A session's memory is not passed on; only a file is passed on.
 
-## 6. Un gate en attente se signale à chaque tour
+## 6. A pending gate is flagged at every turn
 
-Un gate humain non arbitré est rappelé à chaque tour, par chaque rôle, jusqu'à ce que l'Owner tranche.
+A human gate not yet arbitrated is recalled at every turn, by every role, until the Owner decides.
 
-L'Executor le place en tête de rapport, pas dans une liste d'anomalies résiduelles. Le Pilot le rappelle à l'ouverture de session et à chaque clôture de Mission.
+The Executor places it at the top of the report, not in a list of residual anomalies. The Pilot recalls it at the opening of the session and at every Mission close.
 
-Un gate qui dort dans une liste n'est pas un gate, c'est une note. Le silence prolongé sur un gate est lui-même une anomalie.
+A gate that sleeps in a list is not a gate, it is a note. Prolonged silence on a gate is itself an anomaly.
 
-## 7. Aucun secret dans un fichier versionné
+## 7. No secret in a versioned file
 
-Aucune clé, aucun jeton, aucun mot de passe, aucun identifiant d'accès n'entre dans un fichier suivi par Git.
+No key, no token, no password, no access identifier enters a file tracked by Git.
 
-Les valeurs sensibles vivent dans un fichier d'environnement local, exclu du versionnement, et un modèle sans valeur documente les clés attendues.
+Sensitive values live in a local environment file, excluded from versioning, and a template without values documents the expected keys.
 
-Cette règle est vérifiée mécaniquement au commit. Le mécanisme ne dispense pas de la vigilance : il attrape ce qu'il connaît, pas ce qu'il ignore.
+This rule is checked mechanically at commit. The mechanism does not exempt anyone from vigilance: it catches what it knows, not what it does not know.
 
-## 8. Les motifs de détection sont des données
+## 8. Detection patterns are data
 
-Les motifs qui définissent ce qu'est un secret ou un contournement vivent dans des fichiers de données versionnés, jamais en dur dans un script.
+The patterns that define what a secret or a bypass is live in versioned data files, never hard-coded in a script.
 
-Ils se lisent, se relisent et s'amendent sans toucher au code qui les applique. Un motif ajouté ne nécessite aucune modification du contrôle.
+They are read, reread and amended without touching the code that applies them. An added pattern requires no modification of the check.
 
-## 9. Portée des mécanismes
+## 9. Reach of the mechanisms
 
-Un garde-fou du Vault s'applique quel que soit le client utilisé — un agent, un autre agent, un humain, un script. Aucun mécanisme de protection n'est câblé à un fournisseur particulier.
+A Vault guardrail applies whatever the client used — one agent, another agent, a human, a script. No protection mechanism is wired to a particular vendor.
 
-Un contrôle qui ne s'active que dans un outil donné n'est pas un garde-fou : c'est une convention locale, et elle doit être documentée comme telle.
+A check that activates only in a given tool is not a guardrail: it is a local convention, and it must be documented as such.
 
-## 10. Un garde-fou non éprouvé n'en est pas un
+## 10. An untested guardrail is not one
 
-Un mécanisme de contrôle actif mais défaillant est plus dangereux que son absence : il donne une assurance fausse. Tout garde-fou est donc éprouvé par un essai qui doit échouer, avant d'être considéré comme en service.
+A control mechanism that is active but faulty is more dangerous than its absence: it gives false assurance. Every guardrail is therefore tested by a trial that must fail, before being considered in service.
 
-L'essai fait partie de l'installation, pas de la vérification ultérieure. Un contrôle dont on n'a jamais observé le refus n'est pas installé : il est seulement présent.
+The trial is part of the installation, not of later verification. A check whose refusal has never been observed is not installed: it is merely present.
 
 ## Liens
 
-- `see also` — [Vérification et preuves](../knowledge/verification-and-evidence.md)
+- `see also` — [Verification and evidence](../knowledge/verification-and-evidence.md)
