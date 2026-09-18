@@ -1,7 +1,7 @@
 ---
 type: decision
-title: "Doctrine d'adoption des skills externes — adoption par réécriture d'enveloppe V1, cycle update-ou-rejet, fin du statut intouchable"
-description: "Grave la doctrine arbitrée par l'Owner : un skill externe s'adopte en étant réécrit en version V1 à nous — enveloppe au format du Vault immédiatement, corps conservé verbatim avec empreinte, puis cycle de vie update ou rejet-et-suppression. Amende DECISION-160213 et lève l'interdit de modification de la Mission 082 pour les enveloppes. L'arbitrage E/P sur le gardien devient sans objet."
+title: "External skills adoption doctrine — adoption by V1 envelope rewrite, update-or-reject cycle, end of the untouchable status"
+description: "Engraves the doctrine arbitrated by the Owner: an external skill is adopted by being rewritten into a V1 version of our own — envelope in the Vault format immediately, body kept verbatim with a fingerprint, then an update or reject-and-delete life cycle. Amends DECISION-160213 and lifts Mission 082's modification ban for the envelopes. The E/P arbitration on the guardian becomes moot."
 created_at: "2026-08-28T17:12:09-04:00"
 timezone: America/Montreal
 status: arbitrated
@@ -10,62 +10,62 @@ amends: "./DECISION-2026-08-28-160213-skills-library-into-vault-amendment.md"
 rapatriated_from: "workshop-build/workshop-production/decisions/DECISION-2026-08-28-171209-skills-adoption-by-v1-envelope-rewrite.md"
 ---
 
-# DÉCISION — ADOPTION PAR RÉÉCRITURE D'ENVELOPPE V1
+# DECISION — ADOPTION BY V1 ENVELOPE REWRITE
 
 ## Date
 
 2026-08-28
 
-## Statut
+## Status
 
 `ARBITRATED`
 
-## Décision
+## Decision
 
-**1. Adoption = réécriture.** Un skill externe n'entre pas dans le Vault comme matériel intouchable : il s'adopte en devenant une **version V1 à nous**. Le statut « externe, jamais modifié » gravé par les Décisions 151235/160213 et la Mission 082 est levé pour le contenu de `vault/skills/external/`.
+**1. Adoption = rewrite.** An external skill does not enter the Vault as untouchable material: it is adopted by becoming a **V1 version of our own**. The status "external, never modified" engraved by Decisions 151235/160213 and Mission 082 is lifted for the content of `vault/skills/external/`.
 
-**2. La V1 se fait en deux temps, et seul le premier est immédiat.**
-- **Enveloppe, maintenant, pour les 28** : le front-matter de chaque `SKILL.md` est réécrit au format du Vault — `type: skill`, `title`, `description` (une ligne), `created_at` réel, `timezone`, `status: ADOPTED-V1` (valeur provisoire, sous réserve de l'arbitrage `open-vocabularies`) — en **conservant les champs fonctionnels** du format Agent Skills sans lesquels le skill cesse d'être découvert et chargé : `name`, la `description` fonctionnelle (fusionnée avec la nôtre : une seule ligne servant les deux lectures), `disable-model-invocation` et `argument-hint` là où ils existent. La provenance vit dans des clés plates `metadata-*` (dépôt amont, version amont, licence, **empreinte SHA-256 du corps d'origine**) — forme plate arbitrée le 2026-08-28 après mesure : le bloc `metadata:` imbriqué, point d'extension conforme du format amont, est illisible pour le parseur restreint du gardien de réciprocité (diagnostic au rapport de la Mission 083, premier lancement).
-- **Corps, au fur et à mesure** : le corps reste verbatim à l'entrée, prouvé par l'empreinte. Sa réécriture se fait skill par skill, quand l'usage le justifie, en priorité ceux que les audits demandent de durcir (`wizard`, `scroll-film-studio`). Aucune réécriture de corps en bloc.
+**2. The V1 is done in two stages, and only the first is immediate.**
+- **Envelope, now, for all 28**: the front matter of each `SKILL.md` is rewritten in the Vault format — `type: skill`, `title`, `description` (one line), real `created_at`, `timezone`, `status: ADOPTED-V1` (provisional value, subject to the `open-vocabularies` arbitration) — **keeping the functional fields** of the Agent Skills format without which the skill stops being discovered and loaded: `name`, the functional `description` (merged with ours: a single line serving both readings), `disable-model-invocation` and `argument-hint` where they exist. Provenance lives in flat `metadata-*` keys (upstream repository, upstream version, licence, **SHA-256 fingerprint of the original body**) — flat form arbitrated on 2026-08-28 after measurement: the nested `metadata:` block, a conforming extension point of the upstream format, is unreadable by the restricted parser of the reciprocity guardian (diagnosis in the report of Mission 083, first run).
+- **Body, as we go**: the body stays verbatim on entry, proven by the fingerprint. Its rewrite is done skill by skill, when use justifies it, first those the audits ask to harden (`wizard`, `scroll-film-studio`). No wholesale rewrite of bodies.
 
-**3. Cycle de vie.** Chaque skill adopté vit ensuite : **update** — notre version évolue, l'écart avec l'amont est assumé et la maintenance nous revient ; ou **rejet** — le skill est supprimé du Vault, la suppression restant un human gate de l'Owner, jamais un geste d'Executor seul.
+**3. Life cycle.** Each adopted skill then lives on: **update** — our version evolves, the gap with upstream is accepted and the maintenance falls to us; or **reject** — the skill is deleted from the Vault, deletion remaining a human gate of the Owner, never a gesture of an Executor alone.
 
-**4. Conséquence sur les gardiens.** Les enveloppes étant au format du Vault, le gardien de réciprocité lit les 28 fichiers sans exemption ni assouplissement : l'arbitrage E/P soulevé par le PARTIEL de la Mission 082 est **sans objet**. Les gardiens gardent pleins pouvoirs sur `skills/external/`, comme partout.
+**4. Consequence for the guardians.** The envelopes being in the Vault format, the reciprocity guardian reads the 28 files with no exemption or relaxation: the E/P arbitration raised by the PARTIEL of Mission 082 is **moot**. The guardians keep full powers over `skills/external/`, as everywhere.
 
-**5. `skills/external/` change de sens** : ce n'est plus une frontière de gouvernance (« matériel qu'on ne touche pas ») mais une frontière de **provenance** (« matériel né ailleurs, adopté chez nous »). Les six skills V1 natifs de `DECISION-232341` §5.1 restent hors de ce dossier.
+**5. `skills/external/` changes meaning**: it is no longer a governance boundary ("material we do not touch") but a **provenance** boundary ("material born elsewhere, adopted here"). The six native V1 skills of `DECISION-232341` §5.1 stay outside this folder.
 
-## Raison
+## Reason
 
-Arbitrage Owner du 2026-08-28 : « il faut à mon avis les adopter en les réécrivant pour être une version V1 et par la suite soit on update soit on rejette et on supprime », rendu après trois tours — définition interne/externe posée, coût du fork exposé, distinction enveloppe/corps proposée par le Pilot et intégrée. La doctrine résout aussi le blocage mesuré de la 082 : 18/28 en-têtes illisibles par le gardien cessent de l'être une fois au format du Vault, sans toucher au gardien lui-même.
+Owner arbitration of 2026-08-28: “in my view we must adopt them by rewriting them to be a V1 version and afterwards either we update or we reject and delete” (the Owner's words, translated from French), given after three rounds — internal/external definition laid down, cost of the fork exposed, envelope/body distinction proposed by the Pilot and integrated. The doctrine also resolves the measured blockage of 082: 18/28 headers unreadable by the guardian stop being so once in the Vault format, without touching the guardian itself.
 
 ## Impact
 
-- `DECISION-160213` reçoit `amended by` (même commit). Le §6 de 160213 (arbitrage de périmètre des hooks) est résolu sans exemption.
-- La contrainte « tout durcissement ou modification du contenu des skills » de la Mission 082 est levée **pour les enveloppes seulement** dans la Mission 083 ; les corps restent verbatim jusqu'à leur réécriture individuelle.
-- Le catalogue documente par skill : statut ADOPTED-V1, empreinte du corps, écart amont (aucun à l'entrée).
-- Les recommandations de durcissement des audits deviennent la file de réécriture des corps.
+- `DECISION-160213` receives `amended by` (same commit). §6 of 160213 (hooks perimeter arbitration) is resolved without exemption.
+- Mission 082's constraint "any hardening or modification of the content of the skills" is lifted **for the envelopes only** in Mission 083; the bodies stay verbatim until their individual rewrite.
+- The catalogue documents per skill: ADOPTED-V1 status, body fingerprint, upstream gap (none on entry).
+- The audits' hardening recommendations become the queue of body rewrites.
 
-## Alternatives importantes
+## Important alternatives
 
-- Exemption du gardien sur `external/` (option E) : rendue sans objet — elle traitait le symptôme (en-têtes illisibles) en laissant le matériel intouchable, ce que l'Owner ne veut pas.
-- Assouplir le parseur du gardien (option P) : rejetée — toucher un mécanisme prouvé pour tolérer un format qu'on a décidé de faire disparaître.
-- Réécrire les 28 corps immédiatement : rejeté — des jours de travail sur du matériel pas encore servi, contraire au « au fur et à mesure » de l'Owner.
+- Guardian exemption on `external/` (option E): made moot — it treated the symptom (unreadable headers) while leaving the material untouchable, which the Owner does not want.
+- Relax the guardian's parser (option P): rejected — touching a proven mechanism to tolerate a format we decided to make disappear.
+- Rewrite the 28 bodies immediately: rejected — days of work on material not yet in use, contrary to the Owner's "as we go".
 
 ## Human gate
 
-- Validation : accordée
-- Référence : mots exacts de l'Owner en séance du 2026-08-28 (doctrine), puis « je valide le dépôt de la Décision d'adoption et de la Mission 083 ».
+- Validation: granted
+- Reference: exact words of the Owner in the session of 2026-08-28 (doctrine), then « je valide le dépôt de la Décision d'adoption et de la Mission 083 » ["I validate the filing of the adoption Decision and of Mission 083"].
 
-## Artefacts liés
+## Linked artefacts
 
-- Décision amendée : `./DECISION-2026-08-28-160213-skills-library-into-vault-amendment.md`.
-- Blocage source : `../reports/REPORT-2026-08-28-162300-082-skills-library-into-vault.md` §7 (verbatim du refus du gardien).
-- Recherche `metadata` comme point d'extension : knowledge-notes du 2026-08-27.
-- Mission d'exécution : `../missions/MISSION-2026-08-28-171305-083-skills-v1-envelope-adoption.md` (déposée dans le même tour).
+- Amended Decision: `./DECISION-2026-08-28-160213-skills-library-into-vault-amendment.md`.
+- Source blockage: `../reports/REPORT-2026-08-28-162300-082-skills-library-into-vault.md` §7 (verbatim of the guardian's refusal).
+- Research on `metadata` as an extension point: knowledge-notes of 2026-08-27.
+- Execution Mission: `../missions/MISSION-2026-08-28-171305-083-skills-v1-envelope-adoption.md` (filed in the same turn).
 
 ## Liens
 
-- `amends` — [Décision — La bibliothèque de skills externes entre dans le Vault](./DECISION-2026-08-28-160213-skills-library-into-vault-amendment.md)
-- `see also` — Décision — Adoption des skills externes au seuil de score (historique de l'atelier, non distribué)
-- `see also` — Rapport d'exécution — Mission 082 (historique de l'atelier, non distribué)
-- `amended by` — [Décision — Forme standard de la bibliothèque de skills et remplacement par le paquet du warehouse](./DECISION-2026-08-31-231841-skills-library-standard-form-warehouse.md)
+- `amends` — [Decision — The external skills library enters the Vault](./DECISION-2026-08-28-160213-skills-library-into-vault-amendment.md)
+- `see also` — Decision — Adoption of external skills at the score threshold (workshop history, not distributed)
+- `see also` — Execution report — Mission 082 (workshop history, not distributed)
+- `amended by` — [Decision — Standard form of the skills library and replacement by the warehouse package](./DECISION-2026-08-31-231841-skills-library-standard-form-warehouse.md)

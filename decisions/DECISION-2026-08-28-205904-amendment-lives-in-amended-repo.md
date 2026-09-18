@@ -1,55 +1,55 @@
 ---
 type: decision
-title: "Principe de placement des amendements — une Décision d'amendement vit dans le dépôt du document qu'elle amende"
-description: "Grave l'arbitrage M de l'Owner : toute Décision portant une relation amends ou supersedes vers un document se dépose dans le dépôt de ce document, jamais dans le dépôt frère. Les relations d'amendement restent ainsi internes au graphe de chaque dépôt, calculables par les gardiens, et la chaîne d'amendement du produit distribué ne contient jamais de lien mort. Résout la tension cross-dépôt révélée par la Mission 085 sans toucher ni au standard de liens ni aux gardiens."
+title: "Placement principle for amendments — an amending Decision lives in the repository of the document it amends"
+description: "Engraves the Owner's arbitration M: any Decision carrying an amends or supersedes relation towards a document is filed in that document's repository, never in the sibling repository. Amendment relations thus stay internal to each repository's graph, computable by the guardians, and the amendment chain of the distributed product never contains a dead link. Resolves the cross-repository tension revealed by Mission 085 without touching either the links standard or the guardians."
 created_at: "2026-08-28T20:59:04-04:00"
 timezone: America/Montreal
 status: arbitrated
 owner_gate: granted
 ---
 
-# DÉCISION — L'AMENDEMENT VIT DANS LE DÉPÔT DE L'AMENDÉ
+# DECISION — THE AMENDMENT LIVES IN THE REPOSITORY OF THE AMENDED DOCUMENT
 
 ## Date
 
 2026-08-28
 
-## Statut
+## Status
 
 `ARBITRATED`
 
-## Décision
+## Decision
 
-**1.** Toute Décision portant une relation `amends` ou `supersedes` vers un document se dépose **dans le dépôt où vit ce document**. Une règle du Vault s'amende par une Décision déposée dans `vault/decisions/` ; un document de projet s'amende depuis le dépôt du projet. Aucune relation `amends`/`supersedes` ne traverse la frontière des dépôts.
+**1.** Any Decision carrying an `amends` or `supersedes` relation towards a document is filed **in the repository where that document lives**. A Vault rule is amended by a Decision filed in `vault/decisions/`; a project document is amended from the project's repository. No `amends`/`supersedes` relation crosses the boundary between repositories.
 
-**2.** Si une Décision devait amender des documents des deux dépôts à la fois, elle se scinde : une Décision par dépôt, reliées entre elles par `see also` (hors graphe, informationnel).
+**2.** If a Decision had to amend documents of both repositories at once, it is split: one Decision per repository, linked to each other by `see also` (outside the graph, informational).
 
-**3.** Ce principe est déjà la pratique de fait du corpus — les amendements du push délégué (`DECISION-112528`) et le protocole de copie (`DECISION-100016`) vivent dans `vault/decisions/` parce qu'ils amendent des textes du Vault. Il devient ici une norme gravée. `DECISION-2026-08-28-203627`, déposée par erreur de placement dans le dépôt de projet, est déménagée dans `vault/decisions/` en application immédiate.
+**3.** This principle is already the de facto practice of the corpus — the delegated push amendments (`DECISION-112528`) and the copy protocol (`DECISION-100016`) live in `vault/decisions/` because they amend texts of the Vault. It becomes an engraved norm here. `DECISION-2026-08-28-203627`, filed in the project repository by a placement error, is moved to `vault/decisions/` in immediate application.
 
-**4.** Motif produit, au-delà de la mécanique : le Vault est distribué seul. Un document du Vault dont la chaîne d'amendement pointe hors du Vault livre un **lien mort** aux participants, dans le produit même. Ce principe garantit que la chaîne d'amendement de tout document distribué est entière dans ce qui est distribué.
+**4.** Product motive, beyond the mechanics: the Vault is distributed alone. A Vault document whose amendment chain points outside the Vault delivers a **dead link** to the participants, in the product itself. This principle guarantees that the amendment chain of any distributed document is whole within what is distributed.
 
-## Raison
+## Reason
 
-Arbitrage M de l'Owner, 2026-08-28. La Mission 085 a révélé, à la première relation `amends` cross-dépôt de l'histoire du corpus, une tension structurelle entre `RULES-115658` §5 (réciprocité obligatoire des relations typées) et §6 (un lien hors dépôt n'est pas une arête) : un amendement cross-dépôt est simultanément obligatoire et invisible au calcul. Les trois issues proposées par la mesure — rendre les arêtes cross-dépôt réelles, assouplir le gardien, rétrograder en `see also` — coûtaient respectivement le couplage des dépôts et des liens morts distribués, une exemption de plus sur un gardien tout juste rendu conforme, ou la recréation de l'aveuglement aux amendements. Le placement corrige la cause : la relation n'a plus à traverser.
+Owner's arbitration M, 2026-08-28. Mission 085 revealed, at the first cross-repository `amends` relation in the corpus's history, a structural tension between `RULES-115658` §5 (mandatory reciprocity of typed relations) and §6 (a link outside the repository is not an edge): a cross-repository amendment is at once mandatory and invisible to the computation. The three ways out proposed by the measurement — make cross-repository edges real, relax the guardian, downgrade to `see also` — cost respectively the coupling of the repositories and dead links distributed, one more exemption on a guardian just brought into conformity, or the recreation of blindness to amendments. Placement corrects the cause: the relation no longer has to cross.
 
 ## Impact
 
-- `RULES-115658` §5 et §6 restent tels quels : la tension disparaît parce que le cas qui l'activait n'a plus le droit d'exister.
-- Aucun gardien modifié.
-- La ligne réciproque posée sur `RULES-115658` par la Mission 085 (commit `f9887c8`) pointe vers l'ancienne adresse : sa correction vers `../decisions/` est un geste de la Mission 086.
-- Ce principe est un candidat naturel à la promotion en règle du Vault lors d'une future consolidation du standard de liens ; en attendant, la présente Décision fait foi.
+- `RULES-115658` §5 and §6 stay as they are: the tension disappears because the case that triggered it no longer has the right to exist.
+- No guardian modified.
+- The reciprocal line placed on `RULES-115658` by Mission 085 (commit `f9887c8`) points to the old address: its correction to `../decisions/` is a gesture of Mission 086.
+- This principle is a natural candidate for promotion to a Vault rule during a future consolidation of the links standard; meanwhile, the present Decision is authoritative.
 
 ## Human gate
 
-- Validation : accordée
-- Référence : « je tranche : M », Owner, 2026-08-28.
+- Validation: granted
+- Reference: « je tranche : M » ["I decide: M"], Owner, 2026-08-28.
 
-## Artefacts liés
+## Linked artefacts
 
-- Tension mesurée : (historique de l'atelier, non distribué) (hors dépôt).
-- Application immédiate : `./DECISION-2026-08-28-203627-link-section-requirement-scoped-to-corpus.md` (déménagée).
+- Measured tension: (workshop history, not distributed) (hors dépôt).
+- Immediate application: `./DECISION-2026-08-28-203627-link-section-requirement-scoped-to-corpus.md` (moved).
 
 ## Liens
 
-- `applies` — [Standard de liens entre documents](../rules/RULES-2026-08-21-115658-document-linking-standard.md)
-- `see also` — [Décision — Bornage du standard de liens au corpus](./DECISION-2026-08-28-203627-link-section-requirement-scoped-to-corpus.md)
+- `applies` — [Standard for links between documents](../rules/RULES-2026-08-21-115658-document-linking-standard.md)
+- `see also` — [Decision — Scoping of the links standard to the corpus](./DECISION-2026-08-28-203627-link-section-requirement-scoped-to-corpus.md)

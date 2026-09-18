@@ -1,7 +1,7 @@
 ---
 type: decision
-title: "Amendement — les 28 skills externes entrent dans le Vault, bibliothèque vault/skills/external/, la portée personnelle devient des jonctions"
-description: "Amende DECISION-151235 §4 sur arbitrage Owner du 2026-08-28 : la bibliothèque canonique des 28 skills externes adoptés vit dans vault/skills/external/ et part avec le produit distribué ; la portée personnelle Claude devient des jonctions vers cette bibliothèque ; licence MIT et provenance embarquées ; le manifeste de distribution doit classer ces fichiers."
+title: "Amendment — the 28 external skills enter the Vault, library vault/skills/external/, the personal scope becomes junctions"
+description: "Amends DECISION-151235 §4 on Owner arbitration of 2026-08-28: the canonical library of the 28 adopted external skills lives in vault/skills/external/ and ships with the distributed product; the Claude personal scope becomes junctions to this library; MIT licence and provenance embedded; the distribution manifest must classify these files."
 created_at: "2026-08-28T16:02:13-04:00"
 timezone: America/Montreal
 status: arbitrated
@@ -9,60 +9,60 @@ owner_gate: granted
 rapatriated_from: "workshop-build/workshop-production/decisions/DECISION-2026-08-28-160213-skills-library-into-vault-amendment.md"
 ---
 
-# DÉCISION — LA BIBLIOTHÈQUE DE SKILLS EXTERNES ENTRE DANS LE VAULT
+# DECISION — THE EXTERNAL SKILLS LIBRARY ENTERS THE VAULT
 
 ## Date
 
 2026-08-28
 
-## Statut
+## Status
 
 `ARBITRATED`
 
-## Décision
+## Decision
 
-**1.** `DECISION-2026-08-28-151235` §4 (« portée personnelle, hors Vault ») est amendé : **la bibliothèque canonique des 28 skills adoptés vit dans `vault/skills/external/<nom>/`**. Elle fait partie du Vault et donc du produit distribué. Les listes (28 acceptés, 8 refusés), le critère de score et la règle de source unique (§1, §2, §3, §6 de 151235) restent inchangés.
+**1.** `DECISION-2026-08-28-151235` §4 (« portée personnelle, hors Vault » ["personal scope, outside the Vault"]) is amended: **the canonical library of the 28 adopted skills lives in `vault/skills/external/<nom>/`**. It is part of the Vault and therefore of the distributed product. The lists (28 accepted, 8 refused), the score criterion and the single-source rule (§1, §2, §3, §6 of 151235) stay unchanged.
 
-**2.** Le sous-dossier `external/` est une frontière de provenance : il ne contient que du matériel d'auteurs tiers, jamais les skills propres du Vault (les six V1 de `DECISION-232341` §5.1 vivront directement dans `vault/skills/`).
+**2.** The `external/` subfolder is a provenance boundary: it contains only material by third-party authors, never the Vault's own skills (the six V1 skills of `DECISION-232341` §5.1 will live directly in `vault/skills/`).
 
-**3.** La bibliothèque embarque la **licence MIT** de la collection source (Matt Pocock, `skills-main` 1.2.3) et une note de provenance ; l'obligation de licence suit les fichiers chez les participants.
+**3.** The library embeds the **MIT licence** of the source collection (Matt Pocock, `skills-main` 1.2.3) and a provenance note; the licence obligation follows the files to the participants.
 
-**4.** La portée personnelle Claude (`C:\Users\<utilisateur>\.claude\skills\<nom>`) cesse d'être une copie : chaque dossier des 28 devient une **jonction** vers `vault/skills/external/<nom>/`. Une seule source ; Claude y accède par sa porte, tout autre agent par le chemin du Vault. Aucun contenu n'est perdu : le remplacement est copie-puis-jonction, pas suppression sèche.
+**4.** The Claude personal scope (`C:\Users\<utilisateur>\.claude\skills\<nom>`) stops being a copy: each folder of the 28 becomes a **junction** to `vault/skills/external/<nom>/`. A single source; Claude reaches it through its door, any other agent through the Vault's path. No content is lost: the replacement is copy-then-junction, not outright deletion.
 
-**5.** Le **manifeste de distribution** du Vault classe les fichiers de `skills/external/` ; si son schéma actuel n'a pas de catégorie adaptée, la classification est remontée à l'Owner, jamais inventée.
+**5.** The Vault's **distribution manifest** classifies the files of `skills/external/`; if its current schema has no suitable category, the classification is raised to the Owner, never invented.
 
-**6.** Les hooks du Vault s'appliquent à ce contenu comme au reste. Un refus de hook sur ce matériel externe vaut **arrêt et rapport**, jamais contournement ; l'éventuel besoin d'exclure `skills/external/` du périmètre d'un gardien est un arbitrage d'Owner séparé.
+**6.** The Vault's hooks apply to this content as to the rest. A hook refusal on this external material means **stop and report**, never a workaround; any need to exclude `skills/external/` from a guardian's perimeter is a separate Owner arbitration.
 
-## Raison
+## Reason
 
-Arbitrage Owner du 2026-08-28 : « on garde les skills centralisés dans le vault dans leur bibliothèque c'est plus simple comme ça », rendu après présentation des trois options (bibliothèque hors dépôts ; tout au Vault ; bibliothèque plus sélection durcie) et de leurs coûts — y compris la distribution aux participants de cinq skills bêta et de `wizard` non durci, la licence à honorer, et la maintenance de matériel tiers dans le produit. La simplicité d'une source unique dans le dépôt versionné l'emporte, en connaissance de cause. L'exigence du même jour — skills à portée de n'importe quel agent, pas seulement Claude — est satisfaite : le Vault est un chemin de disque lisible par tout agent, la portée Claude n'est plus qu'un adaptateur.
+Owner arbitration of 2026-08-28: « on garde les skills centralisés dans le vault dans leur bibliothèque c'est plus simple comme ça » ["we keep the skills centralized in the vault in their library, it's simpler that way"], given after presentation of the three options (library outside the repositories; everything in the Vault; library plus hardened selection) and their costs — including distributing to participants five beta skills and an unhardened `wizard`, the licence to honour, and the maintenance of third-party material in the product. The simplicity of a single source in the versioned repository wins, knowingly. The requirement of the same day — skills within reach of any agent, not only Claude — is met: the Vault is a disk path readable by any agent, the Claude scope is now only an adapter.
 
 ## Impact
 
-- `DECISION-151235` reçoit le lien réciproque `amended by` dans le même commit.
-- Le périmètre d'audit et de packaging du Vault s'élargit de 94 fichiers externes ; le durcissement recommandé par le second audit reste non exécuté et documenté au catalogue.
-- Le catalogue (`knowledge-notes`) est mis à jour : chemins canoniques `vault/skills/external/`.
-- La distribution du produit inclut désormais ce matériel ; toute mise à jour amont (dépôt GitHub de l'auteur) est une opération de maintenance du produit, à la main de l'Owner.
+- `DECISION-151235` receives the reciprocal `amended by` link in the same commit.
+- The audit and packaging perimeter of the Vault widens by 94 external files; the hardening recommended by the second audit remains unexecuted and documented in the catalogue.
+- The catalogue (`knowledge-notes`) is updated: canonical paths `vault/skills/external/`.
+- The product's distribution now includes this material; any upstream update (the author's GitHub repository) is a product maintenance operation, in the Owner's hands.
 
-## Alternatives importantes
+## Important alternatives
 
-- Bibliothèque à la racine du workspace + adaptateurs (proposition B) : rejetée par l'Owner — simplicité d'une source dans le Vault préférée.
-- Sélection durcie seule dans le Vault (B+S) : rejetée par l'Owner après explication détaillée.
-- Copies par agent sans source canonique : rejetées — divergence garantie, contraire à `DECISION-214607`.
+- Library at the root of the workspace + adapters (proposal B): rejected by the Owner — simplicity of a source in the Vault preferred.
+- Hardened selection alone in the Vault (B+S): rejected by the Owner after detailed explanation.
+- Per-agent copies without a canonical source: rejected — guaranteed divergence, contrary to `DECISION-214607`.
 
 ## Human gate
 
-- Validation : accordée
-- Référence : arbitrage en séance, Owner, 2026-08-28, après trois tours d'options et l'explication demandée de B+S.
+- Validation: granted
+- Reference: arbitration in session, Owner, 2026-08-28, after three rounds of options and the requested explanation of B+S.
 
-## Artefacts liés
+## Linked artefacts
 
-- Décision amendée : DECISION-2026-08-28-151235-external-skills-adoption-score-threshold (historique de l'atelier, non distribué).
-- Doctrine source unique / adaptateurs : `../../../vault/decisions/DECISION-2026-08-24-214607-transverse-mechanism-distribution.md`.
-- Mission d'exécution : `../missions/MISSION-2026-08-28-160311-082-skills-library-into-vault.md` (déposée dans le même tour).
+- Amended Decision: DECISION-2026-08-28-151235-external-skills-adoption-score-threshold (workshop history, not distributed).
+- Single-source / adapters doctrine: `../../../vault/decisions/DECISION-2026-08-24-214607-transverse-mechanism-distribution.md`.
+- Execution Mission: `../missions/MISSION-2026-08-28-160311-082-skills-library-into-vault.md` (filed in the same turn).
 
 ## Liens
 
-- `amends` — Décision — Adoption des skills externes au seuil de score (historique de l'atelier, non distribué)
-- `see also` — [Décision — Distribution des mécanismes transverses](../../../vault/decisions/DECISION-2026-08-24-214607-transverse-mechanism-distribution.md) (hors Vault)
-- `amended by` — [Décision — Adoption par réécriture d'enveloppe V1](./DECISION-2026-08-28-171209-skills-adoption-by-v1-envelope-rewrite.md)
+- `amends` — Decision — Adoption of external skills at the score threshold (workshop history, not distributed)
+- `see also` — [Decision — Distribution of transverse mechanisms](../../../vault/decisions/DECISION-2026-08-24-214607-transverse-mechanism-distribution.md) (hors Vault)
+- `amended by` — [Decision — Adoption by V1 envelope rewrite](./DECISION-2026-08-28-171209-skills-adoption-by-v1-envelope-rewrite.md)

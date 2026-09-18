@@ -21,18 +21,18 @@ Index vivant : les entrées les plus récentes. La totalité est répartie en ar
 - `2026-08-25-232341` · arbitrated · Consolidation of the evening of 2026-08-25 — project standard, progressive disc… · `DECISION-2026-08-25-232341-evening-consolidation-project-standard-and-plan.md`
 - `2026-08-26-154553` · arbitrated · Amendment — delegated push becomes a rule: valid if and only if there is a date… · `DECISION-2026-08-26-154553-delegated-push-exception-becomes-rule.md`
 - `2026-08-26-163958` · arbitrated · Arbitration d — stage 2 (MCP write allowlist) in documented status quo, three w… · `DECISION-2026-08-26-163958-stage2-mcp-allowlist-status-quo.md`
-- `2026-08-26-231617` · arbitrated · Amendement — une ligne d'autorisation Owner couvre un seul geste · `DECISION-2026-08-26-231617-one-authorization-line-one-gesture.md`
-- `2026-08-27-100016` · arbitrated · Protocole de copie — sens retour en snippet, mots exacts groupés et adressés, l… · `DECISION-2026-08-27-100016-copy-protocol-snippets-and-destinations.md`
-- `2026-08-27-112528` · arbitrated · Amendement — l'exception de push délégué couvre le commit de sa propre ligne de… · `DECISION-2026-08-27-112528-delegated-push-exception-covers-its-journal-commit.md`
-- `2026-08-28-160213` · arbitrated · Amendement — les 28 skills externes entrent dans le Vault, bibliothèque vault/s… · `DECISION-2026-08-28-160213-skills-library-into-vault-amendment.md`
-- `2026-08-28-171209` · arbitrated · Doctrine d'adoption des skills externes — adoption par réécriture d'enveloppe V… · `DECISION-2026-08-28-171209-skills-adoption-by-v1-envelope-rewrite.md`
-- `2026-08-28-203627` · arbitrated · Bornage du standard de liens — la section ## Liens obligatoire s'applique au co… · `DECISION-2026-08-28-203627-link-section-requirement-scoped-to-corpus.md`
-- `2026-08-28-205904` · arbitrated · Principe de placement des amendements — une Décision d'amendement vit dans le d… · `DECISION-2026-08-28-205904-amendment-lives-in-amended-repo.md`
-- `2026-08-29-110852` · arbitrated · La suppression définitive est un geste Owner — le déplacement hors dépôts en es… · `DECISION-2026-08-29-110852-deletion-is-owner-gesture-trash-zone.md`
-- `2026-08-29-212009` · arbitrated · Statut de preuve des lignes d'arbitrage et contrôle d'arrêt obligatoire sur tou… · `DECISION-2026-08-29-212009-evidence-status-and-stop-control.md`
-- `2026-08-30-013217` · arbitrated · Amendement — un fichier de Mission est gelé dès l'émission de son snippet · `DECISION-2026-08-30-013217-mission-frozen-at-snippet-emission.md`
-- `2026-08-31-210731` · arbitrated · Prise de conscience du Vault par un projet — trois étages (machine, workspace,… · `DECISION-2026-08-31-210731-project-vault-awareness-three-tiers.md`
-- `2026-08-31-231841` · arbitrated · Amendement de DECISION-171209 — la bibliothèque de skills passe à la forme stan… · `DECISION-2026-08-31-231841-skills-library-standard-form-warehouse.md`
+- `2026-08-26-231617` · arbitrated · Amendment — one Owner authorization line covers a single gesture · `DECISION-2026-08-26-231617-one-authorization-line-one-gesture.md`
+- `2026-08-27-100016` · arbitrated · Copy protocol — return direction as a snippet, exact words grouped and addresse… · `DECISION-2026-08-27-100016-copy-protocol-snippets-and-destinations.md`
+- `2026-08-27-112528` · arbitrated · Amendment — the delegated push exception covers the commit of its own journal l… · `DECISION-2026-08-27-112528-delegated-push-exception-covers-its-journal-commit.md`
+- `2026-08-28-160213` · arbitrated · Amendment — the 28 external skills enter the Vault, library vault/skills/extern… · `DECISION-2026-08-28-160213-skills-library-into-vault-amendment.md`
+- `2026-08-28-171209` · arbitrated · External skills adoption doctrine — adoption by V1 envelope rewrite, update-or-… · `DECISION-2026-08-28-171209-skills-adoption-by-v1-envelope-rewrite.md`
+- `2026-08-28-203627` · arbitrated · Scoping of the links standard — the mandatory ## Liens section applies to the V… · `DECISION-2026-08-28-203627-link-section-requirement-scoped-to-corpus.md`
+- `2026-08-28-205904` · arbitrated · Placement principle for amendments — an amending Decision lives in the reposito… · `DECISION-2026-08-28-205904-amendment-lives-in-amended-repo.md`
+- `2026-08-29-110852` · arbitrated · Permanent deletion is an Owner gesture — moving outside the repositories is its… · `DECISION-2026-08-29-110852-deletion-is-owner-gesture-trash-zone.md`
+- `2026-08-29-212009` · arbitrated · Evidence status of arbitration lines and mandatory stop control on any unread a… · `DECISION-2026-08-29-212009-evidence-status-and-stop-control.md`
+- `2026-08-30-013217` · arbitrated · Amendment — a Mission file is frozen as soon as its snippet is issued · `DECISION-2026-08-30-013217-mission-frozen-at-snippet-emission.md`
+- `2026-08-31-210731` · arbitrated · Awareness of the Vault by a project — three tiers (machine, workspace, project)… · `DECISION-2026-08-31-210731-project-vault-awareness-three-tiers.md`
+- `2026-08-31-231841` · arbitrated · Amendment of DECISION-171209 — the skills library moves to the standard Agent S… · `DECISION-2026-08-31-231841-skills-library-standard-form-warehouse.md`
 - `2026-09-01-115547` · arbitrated · Cohérence interne des Missions — section Contexte obligatoire, relecture croisé… · `DECISION-2026-09-01-115547-mission-context-coherence-and-least-powerful-reading.md`
 - `2026-09-01-144931` · arbitrated · Fin de passe skills V1 — liste à six skills plus un hook, principe commande, ar… · `DECISION-2026-09-01-144931-skills-v1-end-of-pass.md`
 - `2026-09-02-005041` · arbitrated · Liens sortants vers un autre dépôt — marqués, contrôlés seulement quand le dépô… · `DECISION-2026-09-02-005041-cross-repo-links-checked-only-when-target-repo-present.md`

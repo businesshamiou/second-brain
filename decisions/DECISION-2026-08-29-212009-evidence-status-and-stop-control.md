@@ -1,7 +1,7 @@
 ---
 type: decision
-title: "Statut de preuve des lignes d'arbitrage et contrôle d'arrêt obligatoire sur toute affirmation non lue"
-description: "Toute ligne soumise à l'arbitrage de l'Owner déclare son statut de preuve — mesurée, hypothèse ou jugement — et tout point de Décision affirmant le contenu d'un document non lu dans la session part avec un contrôle d'arrêt nommé dans sa Mission d'exécution."
+title: "Evidence status of arbitration lines and mandatory stop control on any unread assertion"
+description: "Every line submitted to the Owner's arbitration declares its evidence status — measured, hypothesis or judgement — and every Decision point asserting the content of a document not read in the session goes out with a named stop control in its execution Mission."
 created_at: "2026-08-29T21:20:09-04:00"
 timezone: America/Montreal
 status: arbitrated
@@ -9,60 +9,60 @@ owner_gate: granted
 scope: pilot-conduct, arbitration-protocol
 ---
 
-# DÉCISION — STATUT DE PREUVE DES LIGNES D'ARBITRAGE
+# DECISION — EVIDENCE STATUS OF ARBITRATION LINES
 
 ## Date
 
 2026-08-29
 
-## Statut
+## Status
 
 `ARBITRATED`
 
-## Décision
+## Decision
 
-1. **Déclaration du statut de preuve.** Toute ligne d'une table soumise à l'arbitrage de l'Owner porte l'un de ces trois statuts, explicitement :
-   - `MESURÉ` — la source a été lue dans la session en cours, et elle est nommée sur la ligne.
-   - `HYPOTHÈSE` — l'affirmation repose sur une inférence ; le document qui la trancherait est nommé, et il n'a pas été lu.
-   - `JUGEMENT` — la ligne porte une priorité, un ordre ou une préférence, et ne prétend rien sur le contenu d'un document.
-2. **Formulation conditionnelle.** Un point de Décision reposant sur une ligne `HYPOTHÈSE` se formule au conditionnel et énonce ce qui le réfuterait.
-3. **Contrôle d'arrêt obligatoire.** Toute Mission exécutant un point issu d'une ligne `HYPOTHÈSE` porte, avant l'écriture concernée, une étape de mesure explicite avec un `STOP` nommé, sa source à lire et sa condition de réfutation.
-4. **Portée d'une validation globale.** Une validation d'ensemble — « je valide les recos » ou équivalent — ne couvre une ligne `HYPOTHÈSE` que sous la forme conditionnelle du point 2, avec son contrôle d'arrêt du point 3. Sans eux, la ligne n'est pas soumise à l'arbitrage : elle est retirée de la table.
+1. **Declaration of the evidence status.** Every line of a table submitted to the Owner's arbitration carries one of these three statuses, explicitly:
+   - `MESURÉ` [measured] — the source was read in the current session, and it is named on the line.
+   - `HYPOTHÈSE` [hypothesis] — the assertion rests on an inference; the document that would settle it is named, and it has not been read.
+   - `JUGEMENT` [judgement] — the line carries a priority, an order or a preference, and claims nothing about the content of a document.
+2. **Conditional wording.** A Decision point resting on a `HYPOTHÈSE` line is worded in the conditional and states what would refute it.
+3. **Mandatory stop control.** Any Mission executing a point that comes from a `HYPOTHÈSE` line carries, before the write concerned, an explicit measurement step with a named `STOP`, its source to read and its refutation condition.
+4. **Reach of a global validation.** An overall validation — « je valide les recos » ["I validate the recommendations"] or equivalent — covers a `HYPOTHÈSE` line only in the conditional form of point 2, with its stop control of point 3. Without them, the line is not submitted to arbitration: it is withdrawn from the table.
 
-## Raison
+## Reason
 
-Le 2026-08-29, une table de treize questions a été soumise à l'Owner, qui l'a validée d'un mot. Douze lignes reposaient sur des lectures faites dans la session ou sur des jugements de priorité. Une reposait sur une inférence tirée d'un document non ouvert, et rien ne la distinguait des autres. L'inférence était fausse : le compteur qu'elle proposait de retirer est prescrit par `DECISION-2026-08-25-110935` §4.
+On 2026-08-29, a table of thirteen questions was submitted to the Owner, who validated it in one word. Twelve lines rested on readings done in the session or on priority judgements. One rested on an inference drawn from an unopened document, and nothing distinguished it from the others. The inference was false: the counter it proposed to remove is prescribed by `DECISION-2026-08-25-110935` §4.
 
-Le format ne permettait pas à l'Owner de voir la différence : une mesure et une supposition avaient le même poids typographique et se gravaient du même mot. Le défaut n'est pas la supposition — elle est légitime et souvent nécessaire — mais son déguisement en constat.
+The format did not let the Owner see the difference: a measurement and a supposition had the same typographic weight and were engraved by the same word. The defect is not the supposition — it is legitimate and often necessary — but its disguise as a finding.
 
-Ce qui a tenu, c'est le contrôle d'arrêt inscrit dans la Mission d'exécution : la fenêtre Executor a lu la source, mesuré la contradiction et s'est arrêtée avant toute écriture, sans qu'aucun texte ne soit modifié à tort. Cette Décision généralise ce qui a fonctionné.
+What held was the stop control written into the execution Mission: the Executor window read the source, measured the contradiction and stopped before any write, with no text wrongly modified. This Decision generalizes what worked.
 
 ## Impact
 
-- Toute table d'arbitrage produite par le Pilot porte désormais une colonne ou une marque de statut de preuve.
-- Toute Mission exécutant une ligne `HYPOTHÈSE` porte un `STOP` nommé avant l'écriture concernée, et le rapport d'exécution cite la source lue.
-- Vaut pour tous les projets, quelle que soit la fenêtre.
+- Every arbitration table produced by the Pilot now carries a column or a mark of evidence status.
+- Every Mission executing a `HYPOTHÈSE` line carries a named `STOP` before the write concerned, and the execution report cites the source read.
+- Holds for all projects, whatever the window.
 
-## Alternatives importantes
+## Important alternatives
 
-- Interdire les lignes `HYPOTHÈSE` en table d'arbitrage : écartée. Elle imposerait de lire l'ensemble du corpus avant toute proposition, coût prohibitif, et pousserait l'inférence à se cacher au lieu de se déclarer.
-- Porter cette règle par amendement de la charte des rôles plutôt qu'en Décision autonome : écartée pour l'instant. Une Décision du Vault est normative par préséance ; l'amendement de la charte coûterait une édition réciproque d'un fichier de règle et un cycle push puis ré-épingle, pour un gain de découvrabilité seul. Le report dans la charte reste ouvert comme geste distinct.
+- Forbid `HYPOTHÈSE` lines in an arbitration table: set aside. It would require reading the whole corpus before any proposal, a prohibitive cost, and would push inference to hide instead of declaring itself.
+- Carry this rule by amending the role charter rather than as a standalone Decision: set aside for now. A Vault Decision is normative by precedence; amending the charter would cost a reciprocal edit of a rule file and a push-then-re-pin cycle, for a gain in discoverability only. Carrying it over into the charter remains open as a distinct gesture.
 
-## Limite assumée
+## Accepted limit
 
-Aucun garde-fou ne peut vérifier qu'un fichier a été lu. Le point 1 reste doctrinal et dérivera si rien ne le rappelle. Seul le point 3 est mécanisable, parce qu'il vit dans le texte d'une Mission que la fenêtre Executor applique et dont elle rapporte la mesure. C'est la part mécanisée qui a évité la faute du 2026-08-29 ; la part doctrinale n'y aurait pas suffi.
+No guardrail can check that a file has been read. Point 1 stays doctrinal and will drift if nothing recalls it. Only point 3 can be mechanized, because it lives in the text of a Mission that the Executor window applies and whose measurement it reports. It is the mechanized part that avoided the fault of 2026-08-29; the doctrinal part would not have been enough.
 
 ## Human gate
 
-- Validation : accordée
-- Référence : « séparée », Owner, 2026-08-29, en réponse à la question du placement de cette règle.
+- Validation: granted
+- Reference: « séparée » ["separate"], Owner, 2026-08-29, in answer to the question of where to place this rule.
 
-## Artefacts liés
+## Linked artefacts
 
-- Incident fondateur : (historique de l'atelier, non distribué)
+- Founding incident: (workshop history, not distributed)
 
 ## Liens
 
-- `see also` — [Charte des rôles et détermination de session](../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
-- `see also` — [Relais entre rôles par mini-prompts à rubriques fixes](../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md)
-- `see also` — [Décision — Tag CLOSE: et portes à clé du journal](./DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md)
+- `see also` — [Role charter and session determination](../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
+- `see also` — [Relay between roles through mini-prompts with fixed rubrics](../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md)
+- `see also` — [Decision — CLOSE: tag and keyed doors of the journal](./DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md)

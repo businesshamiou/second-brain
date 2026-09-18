@@ -1,7 +1,7 @@
 ---
 type: decision
-title: "La suppression définitive est un geste Owner — le déplacement hors dépôts en est le substitut agent"
-description: "Grave le fait mesuré trois fois par la Mission 087 : aucun agent, Pilot ou Executor, ne supprime définitivement un fichier, même sous human gate accordé — la politique de l'environnement le refuse, et le refus n'est pas contournable. La suppression rejoint le push parmi les gestes réservés à l'Owner. Substitut agent : déplacer le fichier vers une zone de dépôt hors de tout dépôt (_trash à la racine de l'espace de travail), que l'Owner seul vide. Amende la charte des rôles (§2, §3), la règle du relais (rubrique 4 et sens retour) et le gabarit de Mission (aucune étape de suppression Executor) ; AGENTS.md distingue gestes Owner et human gates."
+title: "Permanent deletion is an Owner gesture — moving outside the repositories is its agent substitute"
+description: "Engraves the fact measured three times by Mission 087: no agent, Pilot or Executor, permanently deletes a file, even under a granted human gate — the environment's policy refuses it, and the refusal cannot be worked around. Deletion joins push among the gestures reserved to the Owner. Agent substitute: move the file to a drop zone outside any repository (_trash at the root of the workspace), which the Owner alone empties. Amends the role charter (§2, §3), the relay rule (rubric 4 and return direction) and the Mission template (no Executor deletion step); AGENTS.md distinguishes Owner gestures from human gates."
 created_at: "2026-08-29T11:08:52-04:00"
 timezone: America/Montreal
 status: arbitrated
@@ -12,59 +12,59 @@ amends:
   - "../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md"
 ---
 
-# DÉCISION — LA SUPPRESSION DÉFINITIVE EST UN GESTE OWNER
+# DECISION — PERMANENT DELETION IS AN OWNER GESTURE
 
 ## Date
 
 2026-08-29
 
-## Statut
+## Status
 
 `ARBITRATED`
 
-## Décision
+## Decision
 
-**1. Geste réservé.** La suppression définitive d'un fichier — suivi ou non par Git, quel que soit son contenu — est un geste de l'Owner, au même titre que le `push`. Aucun agent ne l'exécute : ni le Pilot (déjà interdit par la charte §2), ni l'Executor, **y compris lorsqu'une Mission lui accorde le human gate**. La charte §3 (« aucune suppression sans human gate ») laissait croire qu'un gate suffisait ; il ne suffit pas. Le refus vient de la politique de l'environnement de l'agent, il est identique par tous les outils, et il n'est pas contournable — ni par reformulation, ni par outil alternatif, ni par autorisation en amont.
+**1. Reserved gesture.** The permanent deletion of a file — tracked by Git or not, whatever its content — is an Owner gesture, just like `push`. No agent executes it: neither the Pilot (already forbidden by the charter §2), nor the Executor, **including when a Mission grants it the human gate**. The charter §3 (« aucune suppression sans human gate » ["no deletion without a human gate"]) suggested that a gate was enough; it is not enough. The refusal comes from the policy of the agent's environment, it is identical through every tool, and it cannot be worked around — neither by rewording, nor by an alternative tool, nor by upstream authorization.
 
-**2. Substitut agent : le déplacement hors dépôts.** Quand une Mission exige qu'un fichier cesse d'exister au corpus, l'agent le **déplace** vers la zone de dépôt hors dépôts : `_trash/` à la racine de l'espace de travail, hors de tout dépôt Git. Un déplacement n'est pas une suppression : il est réversible et ne tombe pas sous le refus. Le déplacement est prouvé par empreinte SHA-256 avant et après (le fichier n'est pas altéré) et par l'absence remesurée à l'ancien chemin. Le Pilot peut l'exécuter lui-même via son accès filesystem quand la Mission d'un Executor bloque dessus — c'est le cas de la 087.
+**2. Agent substitute: moving outside the repositories.** When a Mission requires a file to stop existing in the corpus, the agent **moves** it to the drop zone outside the repositories: `_trash/` at the root of the workspace, outside any Git repository. A move is not a deletion: it is reversible and does not fall under the refusal. The move is proven by a SHA-256 fingerprint before and after (the file is not altered) and by the remeasured absence at the old path. The Pilot may execute it itself through its filesystem access when an Executor's Mission is blocked on it — this is the case of 087.
 
-**3. `_trash/` — statut.** Zone hors norme documentaire : pas d'index, pas de front-matter, pas de lien ; rien n'y est cité depuis le corpus. Elle est vidée par l'Owner seul, à son rythme ; son vidage n'est jamais une précondition de Mission. Un gardien de liens qui la rencontrerait comme cible signale une erreur du corpus, pas de la zone.
+**3. `_trash/` — status.** Zone outside the documentary norm: no index, no front matter, no link; nothing in it is cited from the corpus. It is emptied by the Owner alone, at their own pace; its emptying is never a precondition of a Mission. A links guardian that met it as a target signals an error of the corpus, not of the zone.
 
-**4. Gabarit de Mission.** Une Mission ne prescrit plus jamais une étape « supprimer » à l'Executor. Deux formes seulement : **(a)** « déplacer vers `_trash/` » comme étape agent, avec empreinte et remesure d'absence en validation ; ou **(b)** « suppression par l'Owner » comme human gate, hors des étapes, avec précondition de reprise « absence mesurée à l'ancien chemin, STOP sinon ». Le snippet de lancement n'affirme jamais qu'une suppression Owner a eu lieu : il demande à l'Executor de la mesurer.
+**4. Mission template.** A Mission never again prescribes a "delete" step to the Executor. Two forms only: **(a)** "move to `_trash/`" as an agent step, with fingerprint and remeasurement of absence in validation; or **(b)** "deletion by the Owner" as a human gate, outside the steps, with the resume precondition "absence measured at the old path, STOP otherwise". The launch snippet never asserts that an Owner deletion has taken place: it asks the Executor to measure it.
 
-**5. Relais, snippets et réponses d'agent.** Dans le mini-prompt du sens aller (RULES-124937, rubrique 4), l'interdit « aucune suppression » devient « aucune suppression ; déplacement vers `_trash/` seulement sur prescription de la Mission ». Un snippet du Pilot n'affirme jamais qu'un geste Owner — push, suppression, vidage de `_trash/` — a eu lieu : il demande à l'Executor de le mesurer, STOP si absent. Au sens retour, quand un geste réservé bloque une Mission, la rubrique « À trancher » nomme le chemin exact et le substitut disponible (déplacement vers `_trash/`), et l'Executor s'arrête sans tentative de contournement ni deuxième outil : un refus de cette classe est structurel, le répéter est une perte de fenêtre. Le Pilot, à réception, exécute le déplacement lui-même ou le fait prescrire, sans relancer sur un fait non mesuré.
+**5. Relay, snippets and agent replies.** In the mini-prompt of the outbound direction (RULES-124937, rubric 4), the prohibition "no deletion" becomes "no deletion; move to `_trash/` only on the Mission's prescription". A snippet from the Pilot never asserts that an Owner gesture — push, deletion, emptying of `_trash/` — has taken place: it asks the Executor to measure it, STOP if absent. In the return direction, when a reserved gesture blocks a Mission, the « À trancher » rubric names the exact path and the available substitute (move to `_trash/`), and the Executor stops with no attempt at a workaround and no second tool: a refusal of this class is structural, repeating it is a wasted window. The Pilot, on receipt, executes the move itself or has it prescribed, without relaunching on an unmeasured fact.
 
-**6. Options écartées.** Contournement par override de gardien ou `--no-verify` — sans objet, le refus n'est pas un gardien du dépôt mais la politique de l'agent ; « l'Owner supprime toujours » (S1) — vrai en principe mais a produit deux reprises bloquées sur un fait annoncé et non fait, d'où la préférence pour le substitut mesurable (S2) ; laisser coexister les deux exemplaires (S3) — contraire à l'objectif de l'enveloppement.
+**6. Options set aside.** Workaround by guardian override or `--no-verify` — moot, the refusal is not a guardian of the repository but the agent's policy; "the Owner always deletes" (S1) — true in principle but produced two resumes blocked on a fact announced and not done, hence the preference for the measurable substitute (S2); letting both copies coexist (S3) — contrary to the goal of the enveloping.
 
-## Raison
+## Reason
 
-Mission 087 : l'Executor a tenté la suppression du fichier source enveloppé par deux outils distincts et reçu deux fois le même refus verbatim, classé « Permanently deleting data » dans une catégorie que la politique système de l'agent n'exécute jamais, quelle que soit l'autorisation reçue. Deux reprises lancées sur un snippet affirmant la suppression Owner ont bloqué à raison (fichier toujours présent, même empreinte). Le déplacement par le Pilot vers `_trash/` a débloqué la Mission en un tour, avec preuve d'identité et d'absence. Arbitrage Owner : « s2 », 2026-08-29.
+Mission 087: the Executor attempted the deletion of the enveloped source file through two distinct tools and twice received the same verbatim refusal, classed "Permanently deleting data" in a category that the agent's system policy never executes, whatever authorization is received. Two resumes launched on a snippet asserting the Owner deletion rightly blocked (file still present, same fingerprint). The move by the Pilot to `_trash/` unblocked the Mission in one turn, with proof of identity and of absence. Owner arbitration: « s2 », 2026-08-29.
 
-La leçon est de la même famille que le push délégué (DECISION-154553 et amendements) : un geste que l'agent ne peut pas faire doit être gravé comme geste Owner, avec son substitut mesurable, sinon chaque Mission qui le rencontre redécouvre le mur.
+The lesson is of the same family as the delegated push (DECISION-154553 and amendments): a gesture the agent cannot perform must be engraved as an Owner gesture, with its measurable substitute, otherwise every Mission that meets it rediscovers the wall.
 
 ## Impact
 
-- `AGENTS.md` du Vault : la ligne « human gate pour tout push, suppression importante… » distingue désormais les gestes réservés à l'Owner (push, suppression définitive) des gestes sous human gate (renommage structurant, partage sensible).
-- Règle du relais §aller rubrique 4 et §retour : formulations du §5 ci-dessus.
-- Charte des rôles §2 : « suppression » reste interdite au Pilot ; « déplacement vers `_trash/` » est explicitement permis comme écriture bornée.
-- Charte des rôles §3 : « aucune suppression sans human gate » devient « aucune suppression, même sous human gate ; déplacement vers `_trash/` sur prescription de Mission ».
-- Gabarit de Mission : commentaire de la section Étapes rappelant le §4 ci-dessus.
-- Les réciproques `amended by` sont posées dans les trois documents amendés, dans le même commit que cette Décision (RULES-115658), par l'Executor de la Mission de rangement.
-- Le dossier `_trash/` existe depuis le 2026-08-29 à la racine de l'espace de travail, hors des dépôts `vault` et (historique de l'atelier, non distribué).
+- The Vault's `AGENTS.md`: the line « human gate pour tout push, suppression importante… » ["human gate for any push, significant deletion…"] now distinguishes the gestures reserved to the Owner (push, permanent deletion) from the gestures under a human gate (structuring rename, sensitive sharing).
+- Relay rule §outbound rubric 4 and §return: wordings of §5 above.
+- Role charter §2: "deletion" stays forbidden to the Pilot; "move to `_trash/`" is explicitly allowed as a bounded write.
+- Role charter §3: « aucune suppression sans human gate » ["no deletion without a human gate"] becomes « aucune suppression, même sous human gate ; déplacement vers `_trash/` sur prescription de Mission » ["no deletion, even under a human gate; move to `_trash/` on a Mission's prescription"].
+- Mission template: comment in the Steps section recalling §4 above.
+- The reciprocal `amended by` links are placed in the three amended documents, in the same commit as this Decision (RULES-115658), by the Executor of the tidying Mission.
+- The `_trash/` folder has existed since 2026-08-29 at the root of the workspace, outside the repositories `vault` and (workshop history, not distributed).
 
 ## Human gate
 
-- Validation : accordée
-- Référence : « s2 » puis « on continue » (N1 — graver d'abord), Owner, 2026-08-29.
+- Validation: granted
+- Reference: « s2 » then « on continue » ["we carry on"] (N1 — engrave first), Owner, 2026-08-29.
 
-## Artefacts liés
+## Linked artefacts
 
-- Rapports de la Mission 087 (l'atelier (historique, non distribué), hors Vault) : REPORT-2026-08-29-011726-087-second-audit-enveloping-STOP.md (refus verbatim, deux outils), REPORT-2026-08-29-013432-…-resume-STOP.md et REPORT-2026-08-29-103907-…-resume2-STOP.md (reprises bloquées à raison), REPORT-2026-08-29-105604-…-completion.md (déplacement mesuré, achèvement).
+- Reports of Mission 087 (the workshop (history, not distributed), outside the Vault): REPORT-2026-08-29-011726-087-second-audit-enveloping-STOP.md (verbatim refusal, two tools), REPORT-2026-08-29-013432-…-resume-STOP.md and REPORT-2026-08-29-103907-…-resume2-STOP.md (resumes rightly blocked), REPORT-2026-08-29-105604-…-completion.md (measured move, completion).
 
 ## Liens
 
-- `amends` — [Charte des rôles et détermination de session](../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
-- `amends` — [Gabarit de Mission](../templates/mission-template.md)
-- `amends` — [Relais entre rôles par mini-prompts à rubriques fixes](../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md)
-- `applies` — [Instructions pour les agents](../AGENTS.md)
-- `see also` — [Décision — L'amendement vit dans le dépôt de l'amendé](./DECISION-2026-08-28-205904-amendment-lives-in-amended-repo.md)
+- `amends` — [Role charter and session determination](../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
+- `amends` — [Mission template](../templates/mission-template.md)
+- `amends` — [Relay between roles through mini-prompts with fixed rubrics](../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md)
+- `applies` — [Instructions for agents](../AGENTS.md)
+- `see also` — [Decision — The amendment lives in the repository of the amended document](./DECISION-2026-08-28-205904-amendment-lives-in-amended-repo.md)

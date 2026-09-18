@@ -1,7 +1,7 @@
 ---
 type: decision
-title: "Amendement — l'exception de push délégué couvre le commit de sa propre ligne de journal"
-description: "Amende DECISION-154553 : l'exception de push délégué autorise désormais l'écriture ET le commit de sa ligne de journal, rien d'autre ; le périmètre des gestes reste inchangé pour tout le reste."
+title: "Amendment — the delegated push exception covers the commit of its own journal line"
+description: "Amends DECISION-154553: the delegated push exception now authorizes the writing AND the commit of its journal line, nothing else; the perimeter of gestures stays unchanged for everything else."
 created_at: "2026-08-27T11:25:28-04:00"
 timezone: America/Montreal
 status: arbitrated
@@ -9,49 +9,49 @@ owner_gate: granted
 amends: "./DECISION-2026-08-26-154553-delegated-push-exception-becomes-rule.md"
 ---
 
-# DÉCISION — L'EXCEPTION DE PUSH DÉLÉGUÉ COUVRE LE COMMIT DE SA LIGNE DE JOURNAL
+# DECISION — THE DELEGATED PUSH EXCEPTION COVERS THE COMMIT OF ITS JOURNAL LINE
 
 ## Date
 
 2026-08-27
 
-## Statut
+## Status
 
 `ARBITRATED`
 
-## Décision
+## Decision
 
-L'exception de push délégué (`DECISION-2026-08-26-154553`) couvre désormais, en plus de l'écriture de la ligne de journal de clôture, **le commit de cette seule ligne**. Le geste ajouté est strictement borné : un `git add` portant uniquement `<projet>/state/journal.md`, puis un commit portant uniquement ce fichier. Rien d'autre n'est ajouté au périmètre : `git status -sb` (avant/après), `git push` sur `main` uniquement, aucun `add` d'un autre fichier, aucune suppression, aucun `--force` restent, comme avant, les seuls autres gestes couverts. Le gabarit d'autorisation verbatim et sa portée à un seul geste (`DECISION-2026-08-26-231617`) restent inchangés.
+The delegated push exception (`DECISION-2026-08-26-154553`) now covers, in addition to the writing of the closing journal line, **the commit of that line alone**. The added gesture is strictly bounded: a `git add` bearing only on `<projet>/state/journal.md`, then a commit bearing only on that file. Nothing else is added to the perimeter: `git status -sb` (before/after), `git push` on `main` only, no `add` of any other file, no deletion, no `--force` remain, as before, the only other gestures covered. The verbatim authorization template and its reach limited to a single gesture (`DECISION-2026-08-26-231617`) stay unchanged.
 
-## Raison
+## Reason
 
-Trois occurrences datées du 2026-08-27 (sixième, septième et huitième push délégués du journal, mesurées à l'ouverture de la Mission 072) ont montré le même défaut de conception : l'exception autorisait l'écriture de la ligne mais pas son commit, laissant systématiquement state/journal.md modifié et non commité après chaque push délégué — chacune signalée par l'Executor en rubrique « À trancher » de son bloc RELAY sans qu'aucune règle n'y remédie. Une quatrième occurrence (neuvième push délégué, `2026-08-27T11:18:19-04:00`) est survenue une minute après la rédaction de la Mission 072, pendant l'instruction de push qui a précédé cette fenêtre — elle n'était pas mesurable à l'écriture de la Mission, mais confirme le même patron une fois de plus. Une exception répétée sans être nommée dérive — motif propre de `DECISION-154553`, ici appliqué à son propre défaut de conception plutôt qu'à un patron externe.
+Three dated occurrences of 2026-08-27 (sixth, seventh and eighth delegated pushes of the journal, measured at the opening of Mission 072) showed the same design defect: the exception authorized the writing of the line but not its commit, systematically leaving state/journal.md modified and uncommitted after each delegated push — each one reported by the Executor under the « À trancher » rubric of its RELAY block without any rule remedying it. A fourth occurrence (ninth delegated push, `2026-08-27T11:18:19-04:00`) occurred one minute after Mission 072 was written, during the push instruction that preceded this window — it was not measurable when the Mission was written, but confirms the same pattern once more. An exception repeated without being named drifts — the very motive of `DECISION-154553`, here applied to its own design defect rather than to an external pattern.
 
 ## Impact
 
-- `DECISION-154553` reçoit un amendement, dans le même dépôt : son gabarit verbatim et son périmètre de gestes restent inchangés dans leur forme ; l'exception couvre désormais un geste de plus, borné à un seul fichier (`<projet>/state/journal.md`) et un seul commit.
-- Lien réciproque `amended by` posé sur `DECISION-154553` dans ce même commit.
-- Aucun changement à `DECISION-2026-08-26-231617` (une ligne = un geste) : cette Décision ajoute un geste couvert par le même gabarit d'autorisation, elle ne change pas la règle de non-fusion.
-- `open-delegated-push-journal-commit` se ferme par ce lot (Mission 072, étape 6) : les trois (puis quatre) occurrences mesurées cessent de se reproduire pour tout push délégué futur.
+- `DECISION-154553` receives an amendment, in the same repository: its verbatim template and its perimeter of gestures stay unchanged in their form; the exception now covers one more gesture, bounded to a single file (`<projet>/state/journal.md`) and a single commit.
+- Reciprocal `amended by` link placed on `DECISION-154553` in this same commit.
+- No change to `DECISION-2026-08-26-231617` (one line = one gesture): this Decision adds a gesture covered by the same authorization template; it does not change the no-merge rule.
+- `open-delegated-push-journal-commit` is closed by this batch (Mission 072, step 6): the three (then four) measured occurrences stop recurring for any future delegated push.
 
-## Alternatives importantes
+## Important alternatives
 
-- Étendre l'exception à un commit couvrant `<projet>/state/journal.md` **et** tout autre fichier modifié en même temps : rejeté — élargirait le périmètre bien au-delà du défaut mesuré (une seule ligne de journal orpheline), contredit la doctrine « une ligne d'autorisation, un geste borné » de `DECISION-231617`.
-- Laisser une Mission ultérieure absorber la ligne orpheline à chaque fois, sans amender l'exception : rejeté — c'est exactement le patron répété quatre fois qui motive cette gravure ; laisser filer une cinquième occurrence n'apporte rien de plus qu'un cinquième signalement.
+- Extend the exception to a commit covering `<projet>/state/journal.md` **and** any other file modified at the same time: rejected — would widen the perimeter well beyond the measured defect (a single orphan journal line), contradicts the doctrine "one authorization line, one bounded gesture" of `DECISION-231617`.
+- Let a later Mission absorb the orphan line each time, without amending the exception: rejected — that is exactly the pattern repeated four times that motivates this engraving; letting a fifth occurrence slip by brings nothing more than a fifth report.
 
 ## Human gate
 
-- Validation : accordée
-- Référence : Mission `072` (mot exact « Rédige la Mission 072 : les deux R1, l'amendement de 154553, la ligne de journal de la porte fantôme », 2026-08-27), qui prescrit cette gravure.
+- Validation: granted
+- Reference: Mission `072` (exact word « Rédige la Mission 072 : les deux R1, l'amendement de 154553, la ligne de journal de la porte fantôme » ["Write Mission 072: the two R1s, the amendment of 154553, the journal line of the phantom door"], 2026-08-27), which prescribes this engraving.
 
-## Artefacts liés
+## Linked artefacts
 
-- Décision amendée : `DECISION-2026-08-26-154553-delegated-push-exception-becomes-rule.md`.
-- Occurrences sources : journal (historique de l'atelier, non distribué), lignes du 2026-08-27 (sixième, septième, huitième et neuvième push délégués). (hors Vault)
-- Mission source : (historique de l'atelier, non distribué) (hors Vault).
+- Amended Decision: `DECISION-2026-08-26-154553-delegated-push-exception-becomes-rule.md`.
+- Source occurrences: journal (workshop history, not distributed), lines of 2026-08-27 (sixth, seventh, eighth and ninth delegated pushes). (hors Vault)
+- Source Mission: (workshop history, not distributed) (hors Vault).
 
 ## Liens
 
-- `amends` — [Décision — Le push délégué devient une règle](./DECISION-2026-08-26-154553-delegated-push-exception-becomes-rule.md)
-- `see also` — [Décision — Une ligne d'autorisation Owner couvre un seul geste](./DECISION-2026-08-26-231617-one-authorization-line-one-gesture.md)
-- `see also` — Mission 072 — Lot d'apurement (historique de l'atelier, non distribué) (hors Vault)
+- `amends` — [Decision — Delegated push becomes a rule](./DECISION-2026-08-26-154553-delegated-push-exception-becomes-rule.md)
+- `see also` — [Decision — One Owner authorization line covers a single gesture](./DECISION-2026-08-26-231617-one-authorization-line-one-gesture.md)
+- `see also` — Mission 072 — Clean-up batch (workshop history, not distributed) (hors Vault)
