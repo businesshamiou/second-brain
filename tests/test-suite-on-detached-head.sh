@@ -11,6 +11,10 @@
 # Negative control: in the same clone, a trial manifest holding one test
 #   that requires HEAD to be on main makes the runner fail, and names it.
 #
+# CI checks out a shallow clone (depth 1): fetching HEAD from it needs
+# --update-shallow, or Git refuses the shallow root (measured on run
+# 35364591081).
+#
 # The inner run sets SB_DETACHED_RUN=1: this test then reports SKIP instead
 # of starting itself again. SB_T2_MANIFEST (optional) replaces the suite
 # played inside, for a quick local check of the mechanism.
@@ -37,7 +41,7 @@ echo "=== T2 : the suite on a detached HEAD with no branch ==="
 C="$TMP/clone"
 git init -q "$C" \
   && git -C "$C" config core.longpaths true \
-  && git -C "$C" fetch -q --no-tags "$REPO_ROOT" HEAD \
+  && git -C "$C" fetch -q --no-tags --update-shallow "$REPO_ROOT" HEAD \
   && git -C "$C" -c advice.detachedHead=false checkout -q --detach FETCH_HEAD \
   || { echo "FAIL : detached clone not built"; exit 1; }
 BRANCHES="$(git -C "$C" for-each-ref refs/heads | wc -l | tr -d ' ')"
