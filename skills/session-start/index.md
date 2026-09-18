@@ -13,7 +13,7 @@ Index généré automatiquement. Ne pas éditer à la main : régénérer via `t
 ## Contenu
 
 - `SKILL` · inconnu · (sans titre) · `SKILL.md`
-- `reading-list` · active · Liste de lecture d'ouverture de session, par rôle · `reading-list.md`
+- `reading-list` · active · Session opening reading list, by role · `reading-list.md`
 
 ## Liens
 

@@ -13,7 +13,7 @@ Index généré automatiquement. Ne pas éditer à la main : régénérer via `t
 ## Contenu
 
 - `SKILL` · inconnu · (sans titre) · `SKILL.md`
-- `mission-checklist` · active · Liste de contrôle de forme d'un artefact Pilot, une faute par ligne · `mission-checklist.md`
+- `mission-checklist` · active · Form checklist for a Pilot artefact, one fault per line · `mission-checklist.md`
 
 ## Liens
 

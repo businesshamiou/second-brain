@@ -1,54 +1,54 @@
 ---
 name: ecriture-de-mission
-description: "Draft a Vault Mission file and its Executor mini-prompt from the template, with measured links, a mandatory Context section, and a cross-check of Validations against Gates. Use when the Pilot needs to write, review, or fix a Mission. Triggers on: « écris la Mission », « rédige la Mission », « write the Mission »."
+description: "Draft a Vault Mission file and its Executor mini-prompt from the template, with measured links, a mandatory Context section, and a cross-check of Validations against Gates. Use when the Pilot needs to write, review, or fix a Mission. Triggers on: « écris la Mission », « rédige la Mission », \"write the Mission\"."
 license: "MIT"
 metadata:
   vault-implements: "(historique de l'atelier, non distribué), rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md, rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md, decisions/DECISION-2026-08-29-212009-evidence-status-and-stop-control.md"
   vault-validated: "2026-09-08T00:40:13-04:00"
 ---
 
-Rédige une Mission du Vault et le mini-prompt Executor qui y mène, depuis le gabarit, avec des liens mesurés, une section Contexte obligatoire et une relecture croisée. **Surface Pilot seulement** : déposer un artefact est un geste Pilot ; l'Executor n'invoque pas ce skill. Ce skill n'exécute rien et ne décide pas l'architecture : un choix qui n'est pas une « manière d'implémenter » devient une question à l'Owner, recommandation et gate word inclus.
+Drafts a Vault Mission and the Executor mini-prompt that leads to it, from the template, with measured links, a mandatory Context section and a cross-review. **Pilot surface only**: filing an artefact is a Pilot gesture; the Executor does not invoke this skill. This skill executes nothing and does not decide the architecture: a choice that is not a "way of implementing" becomes a question to the Owner, recommendation and gate word included.
 
-## 1. Lis le gabarit au moment d'écrire
+## 1. Read the template at the moment of writing
 
-Ouvre `templates/mission-template.md` du Vault **maintenant**, jamais de mémoire : il a changé le 1er septembre (Mission 111 : section `## Contexte`, commentaire de relecture croisée). La liste des sections est celle du gabarit, dans son ordre.
+Open the Vault's `templates/mission-template.md` **now**, never from memory: it changed on 1 September (Mission 111: `## Context` section [formerly « Contexte »], cross-review comment). The list of sections is the template's, in its order.
 
-## 2. Rassemble un contexte mesuré
+## 2. Gather a measured context
 
-- Chaque fait porte sa date et son statut : `MESURÉ` / `DECLARED` / `HYPOTHÈSE` (DECISION-212009).
-- Chaque nom de fichier lié est obtenu par `search_files` ou par listage, jamais tapé de mémoire (faute du 30 août : lien écrit de tête avec un mauvais nom).
-- Chaque existence affirmée passe par `get_file_info` (faute « le hook existe », 30 août).
-- Ce que l'Executor va trouver sur disque, et pourquoi c'est là, est écrit ; les pièges connus (défauts d'outil, emplacements trompeurs, précédents) sont nommés.
+- Each fact carries its date and its status: `MESURÉ` / `DECLARED` / `HYPOTHÈSE` (DECISION-212009).
+- Each linked file name is obtained by `search_files` or by listing, never typed from memory (fault of 30 August: link written from memory with a wrong name).
+- Each asserted existence goes through `get_file_info` (fault "the hook exists", 30 August).
+- What the Executor will find on disk, and why it is there, is written; the known pitfalls (tool defects, misleading locations, precedents) are named.
 
-## 3. Rédige, section par section
+## 3. Draft, section by section
 
-`## Contexte` (les quatre contenus de DECISION-115547 point 1, dans l'ordre) · `## Objectif` · `## Périmètre` avec un hors-périmètre explicite · `## Préconditions` avec statut de preuve et STOP au moindre écart non trivial · `## Sources` · `## Décisions applicables` · `## Contraintes` · `## Mesures préalables` (obligatoire dès qu'une étape crée, copie, installe, épingle, câble ou configure : une ligne par cible, avec la commande qui mesure son état avant la pose) · `## Étapes` (jamais « supprimer » : « déplacer vers `_trash/` » avec empreinte, ou human gate) · `## Gates` (mot Owner **verbatim**, daté ; human gate non accordé listé) · `## Validations` chiffrées (avant → après) · `## Contrat de sortie` · `## Contrat de reprise` · `## Portes` · `## Liens` (`prescribed by` le standard de versionnement des Missions + `applies` sur chaque Décision appliquée).
+`## Context` (the four contents of DECISION-115547 point 1, in order) · `## Objective` [« Objectif »] · `## Scope` [« Périmètre »] with an explicit out-of-scope · `## Preconditions` [« Préconditions »] with evidence status and STOP at the slightest non-trivial gap · `## Sources` · `## Applicable decisions` [« Décisions applicables »] · `## Constraints` [« Contraintes »] · `## Prior measurements` [« Mesures préalables »] (mandatory as soon as a step creates, copies, installs, pins, wires or configures: one row per target, with the command that measures its state before laying it down) · `## Steps` [« Étapes »] (never "delete": "move to `_trash/`" with fingerprint, or human gate) · `## Gates` (Owner word **verbatim**, dated; human gate not granted listed) · `## Validations` with figures (before → after) · `## Exit contract` [« Contrat de sortie »] · `## Resume contract` [« Contrat de reprise »] · `## Doors` [« Portes »] · `## Liens` (`prescribed by` the Mission versioning standard + `applies` on each applied Decision).
 
-## 4. Relecture croisée avant dépôt
+## 4. Cross-review before filing
 
-Trois rubriques deux à deux (DECISION-115547 point 2) : chaque compte de `## Validations` est atteignable sans violer un interdit de `## Gates` ou de `## Contraintes` ; chaque étape de `## Étapes` est permise par les mêmes interdits. Trace-la par le commentaire HTML en tête de `## Validations`. Une contradiction trouvée = **réécrire, pas déposer** (fautes 090 et 108 ×2 : contradictions attrapées à l'exécution).
+Three rubrics, two by two (DECISION-115547 point 2): each count of `## Validations` is reachable without violating a prohibition of `## Gates` or of `## Constraints`; each step of `## Steps` is allowed by the same prohibitions. Trace it through the HTML comment at the head of `## Validations`. A contradiction found = **rewrite, do not file** (faults 090 and 108 ×2: contradictions caught at execution).
 
-## 5. Contrôle de forme final
+## 5. Final form check
 
-Joue `mission-checklist.md` dans le dossier de ce skill, ligne par ligne, avant le dépôt de **tout artefact Pilot** (Mission, Décision, capture, handoff, proposal) — pas seulement d'une Mission : les deux STOP de la Mission 149 sont tombés sur une Décision déposée sans que la liste ait été jouée (rapport 157, F3). Chaque ligne cite la faute ou la Décision qui l'a payée ; une ligne en échec = pas de dépôt.
+Run `mission-checklist.md` in this skill's folder, line by line, before filing **any Pilot artefact** (Mission, Decision, capture, handoff, proposal) — not only a Mission: the two STOPs of Mission 149 fell on a Decision filed without the list having been run (report 157, F3). Each line cites the fault or the Decision that paid for it; a failing line = no filing.
 
-## 6. Dépose par le patron DRAFT
+## 6. File through the DRAFT pattern
 
-`DRAFT-<slug>.md` au canonique (`missions/` du projet) → `get_file_info` → horodatage mesuré substitué dans `created_at` et dans le nom → renommage `MISSION-<YYYY-MM-DD-HHMMSS>-<NNN>-<slug>.md` → `get_file_info` final. Un seul tour ; `created_at` = horodatage du nom.
+`DRAFT-<slug>.md` at the canonical location (the project's `missions/`) → `get_file_info` → measured timestamp substituted in `created_at` and in the name → rename to `MISSION-<YYYY-MM-DD-HHMMSS>-<NNN>-<slug>.md` → final `get_file_info`. A single turn; `created_at` = timestamp of the name.
 
-## 7. Produis le mini-prompt
+## 7. Produce the mini-prompt
 
-Cinq rubriques fixes de RULES-124937, dans l'ordre : titre `Session Executor — Mission <NNN> (<description courte>)` · position libre · source à appliquer (chemin de la Mission) · **les quatre interdits standards seulement** — aucun push non délégué, aucun appel modèle, aucune suppression, déplacement vers `_trash/` seulement sur prescription de la Mission — plus un renvoi explicite aux rubriques `## Gates` et `## Contraintes` de la Mission (DECISION-115547 point 3) · sortie attendue = le bloc RELAY ; le Résumé du bloc RELAY suit le plafond de la règle 124937, jamais redit ici. Jamais un interdit propre ajouté dans le prompt. Livré en snippet copiable d'un seul geste, aucun fichier PROMPT (abolis, Décision A7).
+Five fixed rubrics of RULES-124937, in order: title `Session Executor — Mission <NNN> (<description courte>)` · free position · source to apply (path of the Mission) · **the four standard prohibitions only** — no non-delegated push, no model call, no deletion, move to `_trash/` only on the Mission's prescription — plus an explicit reference to the Mission's `## Gates` and `## Constraints` rubrics (DECISION-115547 point 3) · expected output = the RELAY block of rule 124937; its summary follows the ceiling of rule 124937, never restated here. Never a prohibition of its own added in the prompt. Delivered as a snippet copyable in a single gesture, no PROMPT file (abolished, Decision A7).
 
-## Ce que ce skill ne fait pas
+## What this skill does not do
 
-Exécuter la Mission (Executor) · décider l'architecture à la place de l'Owner (un choix hors « manière d'implémenter » = question à l'Owner) · écrire un fichier PROMPT · clore ou ouvrir une session · modifier une Mission déjà exécutée (gelée, RULES-211522) : une correction passe par une Mission `-C01` ou un arbitrage Owner.
+Execute the Mission (Executor) · decide the architecture in the Owner's place (a choice outside "way of implementing" = question to the Owner) · write a PROMPT file · close or open a session · modify a Mission already executed (frozen, RULES-211522): a correction goes through a `-C01` Mission or an Owner arbitration.
 
 ## Liens
 
-- `see also` — [Liste de contrôle de forme d'un artefact Pilot, une faute par ligne](./mission-checklist.md)
-- `see also` — [Gabarit de Mission](../../templates/mission-template.md)
-- `applies` — Décision — Cohérence interne des Missions (historique de l'atelier, non distribué) (hors Vault)
-- `applies` — [Relais entre rôles par mini-prompts à rubriques fixes](../../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md)
-- `applies` — [Versionnement des Missions et outputs générés](../../rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md)
-- `applies` — [Décision — Statut de preuve et contrôle du STOP](../../decisions/DECISION-2026-08-29-212009-evidence-status-and-stop-control.md)
+- `see also` — [Form checklist for a Pilot artefact, one fault per line](./mission-checklist.md)
+- `see also` — [Mission template](../../templates/mission-template.md)
+- `applies` — Decision — Internal consistency of Missions (workshop history, not distributed) (hors Vault)
+- `applies` — [Relay between roles through mini-prompts with fixed rubrics](../../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md)
+- `applies` — [Versioning of Missions and generated outputs](../../rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md)
+- `applies` — [Decision — Evidence status and STOP control](../../decisions/DECISION-2026-08-29-212009-evidence-status-and-stop-control.md)

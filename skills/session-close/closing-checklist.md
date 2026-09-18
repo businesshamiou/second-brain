@@ -1,29 +1,29 @@
 ---
-title: "Liste des trous de clôture, une mesure par ligne"
-description: "Source unique de l'inventaire joué par le skill session-close avant toute clôture : chaque famille de trou avec l'outil qui la mesure et la faute datée qui l'a payée. C'est ce fichier qu'on amende quand un trou nouveau apparaît — le corps du skill ne bouge pas. Chaîne amended by suivie par le skill."
+title: "List of closing holes, one measurement per line"
+description: "Single source of the inventory run by the session-close skill before any close: each family of hole with the tool that measures it and the dated fault that paid for it. This is the file that is amended when a new hole appears — the body of the skill does not move. amended by chain followed by the skill."
 created_at: "2026-09-01T19:30:00-04:00"
 timezone: America/Montreal
 status: active
 ---
 
-# LISTE DES TROUS DE CLÔTURE
+# LIST OF CLOSING HOLES
 
-Jouée par le skill `session-close` (§2, étape 1 côté Pilot ; §3 côté Executor pour les lignes marquées E). Une ligne = un trou possible, l'outil qui le mesure, la faute qui l'a payée. Un trou non mesuré est un trou.
+Run by the `session-close` skill (§2, step 1 on the Pilot side; §3 on the Executor side for the lines marked E). One line = one possible hole, the tool that measures it, the fault that paid for it. An unmeasured hole is a hole.
 
-| # | Trou | Mesure (Pilot : MCP · Executor : shell) | Faute payée |
+| # | Hole | Measurement (Pilot: MCP · Executor: shell) | Fault paid |
 |---|---|---|---|
-| 1 | Mission de `MISSION-INDEX.md` sans état final (ligne absente, ou statut ni `COMPLETED` ni `STOP`/`PARTIEL` daté) | `read_text_file` de `missions/MISSION-INDEX.md`, comparer aux Missions déposées dans la session · E : `grep` de chaque numéro | Mission 112 : trois fenêtres sans ligne 112, la 113 a STOP dessus (2026-09-01) |
-| 2 | Bloc RELAY reçu dans la conversation et non consommé (verdict non repris, « À trancher » sans mot Owner) | relecture de la conversation, un RELAY = une ligne | RELAY 112 (reprise) non tranché avant l'émission du /goal 113 (2026-09-01) |
-| 3 | Artefact Pilot déposé (capture, proposal, decision, mission) non suivi par Git | `get_file_info` sur chaque chemin annoncé dans la conversation, puis présence dans le dernier commit du dépôt · E : `git status --porcelain` | résidus non commités traînés trois sessions (28-30 août, rangés Mission 109) |
-| 4 | Porte ouverte (`OPEN:` au journal) sans `CLOSE:` postérieure alors que sa condition est remplie | `read_text_file` de `state/STATE.md` (section portes) · E : `build-state.sh` à blanc | porte `open-mission-internal-coherence` fermée seulement par la Mission 111 |
-| 5 | Résidu signalé (rapport, RELAY : diff fantôme, sous-produit d'outil, fichier concurrent) sans arbitrage Owner | rubriques « Écarts » / « Consignations » des rapports de la session | `proposals/superseded-files.txt` traîné deux fenêtres avant prescription (Mission 112) |
-| 6 | État push : tête locale ≠ `refs/remotes/origin/main` sur un dépôt, sans mot Owner sur le push | `read_text_file` de `.git/refs/heads/main` et `.git/refs/remotes/origin/main` (ou `packed-refs`) · E : `git status -sb` (`ahead`) | push suspendu par l'Owner le 2026-09-01 01:00, à rappeler à chaque clôture |
-| 7 | Handoff précédent non consommé (file de reprise dont un point n'a ni été joué ni été arbitré) | lecture du dernier `handoffs/HANDOFF-*.md` | handoff 004859 : points « skills chat » et « override caduc » repris deux sessions plus tard |
-| 8 | Épingle en retard : le Vault a reçu un commit dans la session et `<projet>/.pre-commit-config.yaml` pointe encore l'ancien SHA — référence de vérité `origin/main`, `repo:` désignant un dépôt distant (Mission 155) ; ré-épinglage possible **après le push Owner** seulement, sinon trou porté au handoff, avec régénération de `_dist/skills-chat/` | `grep rev:` du fichier comparé à `.git/refs/remotes/origin/main` du Vault · E : `bash tools/check-vault-pin.sh` | ANOMALY des rapports 153 et 154, quatre re-épinglages manuels en un jour |
+| 1 | Mission of `MISSION-INDEX.md` without a final state (line absent, or status neither `COMPLETED` nor a dated `STOP`/`PARTIEL`) | `read_text_file` of `missions/MISSION-INDEX.md`, compare with the Missions filed during the session · E: `grep` of each number | Mission 112: three windows without a 112 line, 113 STOPped on it (2026-09-01) |
+| 2 | RELAY block received in the conversation and not consumed (verdict not taken up, « À trancher » [to be decided] without an Owner word) | review of the conversation, one RELAY = one line | RELAY 112 (resume) not settled before the /goal 113 was issued (2026-09-01) |
+| 3 | Pilot artefact filed (capture, proposal, decision, mission) not tracked by Git | `get_file_info` on each path announced in the conversation, then presence in the repository's last commit · E: `git status --porcelain` | uncommitted residues dragged along for three sessions (28-30 August, tidied by Mission 109) |
+| 4 | Open door (`OPEN:` in the journal) without a later `CLOSE:` although its condition is met | `read_text_file` of `state/STATE.md` (doors section) · E: `build-state.sh` dry run | door `open-mission-internal-coherence` closed only by Mission 111 |
+| 5 | Flagged residue (report, RELAY: phantom diff, tool by-product, concurrent file) without Owner arbitration | "Deviations" [« Écarts »] / « Consignations » [records] rubrics of the session's reports | `proposals/superseded-files.txt` dragged along for two windows before prescription (Mission 112) |
+| 6 | Push state: local head ≠ `refs/remotes/origin/main` on a repository, without an Owner word on the push | `read_text_file` of `.git/refs/heads/main` and `.git/refs/remotes/origin/main` (or `packed-refs`) · E: `git status -sb` (`ahead`) | push suspended by the Owner on 2026-09-01 01:00, to be recalled at each close |
+| 7 | Previous handoff not consumed (resume queue with a point that was neither run nor arbitrated) | reading of the last `handoffs/HANDOFF-*.md` | handoff 004859: points "chat skills" and "obsolete override" taken up two sessions later |
+| 8 | Pin behind: the Vault received a commit during the session and `<projet>/.pre-commit-config.yaml` still points to the old SHA — reference of truth `origin/main`, `repo:` designating a remote repository (Mission 155); re-pinning possible **after the Owner push** only, otherwise hole carried to the handoff, with regeneration of `_dist/skills-chat/` | `grep rev:` of the file compared with the Vault's `.git/refs/remotes/origin/main` · E: `bash tools/check-vault-pin.sh` | ANOMALY of reports 153 and 154, four manual re-pinnings in one day |
 
-Règle : la liste est un inventaire ; un trou se ferme par une Mission, un arbitrage Owner ou une instruction ponctuelle — jamais par le skill lui-même.
+Rule: the list is an inventory; a hole is closed by a Mission, an Owner arbitration or a one-off instruction — never by the skill itself.
 
 ## Liens
 
-- `see also` — [Skill session-close](./SKILL.md)
-- `applies` — [Décision — Tag CLOSE: et portes à clé du journal](../../decisions/DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md)
+- `see also` — [session-close skill](./SKILL.md)
+- `applies` — [Decision — CLOSE: tag and keyed doors of the journal](../../decisions/DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md)

@@ -1,36 +1,36 @@
 ---
-title: "Liste d'installation, une mesure par item"
-description: "Source unique de l'inventaire joué par le skill first-install : chaque item d'installation du Vault sur un poste, avec la mesure qui dit installé ou manquant et le geste qui l'installe sans écraser. C'est ce fichier qu'on amende quand un item nouveau apparaît — le corps du skill ne bouge pas. Chaîne amended by suivie par le skill."
+title: "Installation checklist, one measurement per item"
+description: "Single source of the inventory run by the first-install skill: each item of the Vault's installation on a machine, with the measurement that says installed or missing and the gesture that installs it without overwriting. This is the file that is amended when a new item appears — the body of the skill does not move. amended by chain followed by the skill."
 created_at: "2026-09-01T21:05:00-04:00"
 timezone: America/Montreal
 status: active
 ---
 
-# LISTE D'INSTALLATION
+# INSTALLATION CHECKLIST
 
-Jouée par le skill `first-install` (§2 inventaire, §3 installation). Une ligne = un item, sa mesure, le geste s'il manque. Un item installé n'est jamais retouché.
+Run by the `first-install` skill (§2 inventory, §3 installation). One line = one item, its measurement, the gesture if it is missing. An installed item is never touched again.
 
-| # | Item | Mesure (installé si…) | Geste si manquant | Réponse |
+| # | Item | Measurement (installed if…) | Gesture if missing | Answer |
 |---|---|---|---|---|
-| 1 | Racine de travail marquée | `VAULT-ROOT.md` trouvé en remontant depuis le Vault, ligne « Chemin relatif du Vault » lisible | `tools/write-marker.sh` du Vault (geste Executor sur prescription) | machine |
-| 2 | Vault cloné | `.git` présent à la racine du Vault (trouvée par le marqueur), `git -C <racine du Vault> status -sb` répond | clone par l'humain (URL et emplacement = réponses de l'interrogatoire) | humaine (chemin) |
-| 3 | `core.hooksPath` du Vault | `git -C <racine du Vault> config core.hooksPath` = `.githooks` | `git -C <racine du Vault> config core.hooksPath .githooks` | machine |
-| 4 | Outils des gardiens | `command -v bash git sha256sum` tous présents | installation par l'humain (Git for Windows fournit les trois) | machine → humaine |
-| 5 | `pre-commit` | `command -v pre-commit` présent | installation par l'humain (`pipx`/`uv tool install pre-commit`) ; sans lui, les projets gardent le hook natif seulement | machine → humaine |
-| 6 | Support des jonctions | Windows : `fsutil` présent et une jonction d'essai lisible ; autres : `ln -s` | aucun (capacité du poste, signalée) | machine |
-| 7 | Dossier personnel des skills | `%USERPROFILE%\.claude\skills\` existe | `mkdir` | machine |
-| 8 | Jonctions des skills du Vault | pour chaque `skills/<nom>/SKILL.md` du Vault (hors `external/`) : jonction du même nom, `test -ef` IDENTIQUE — **troisième état (Mission 125)** : jonction du même nom **présente mais `test -ef` FAUX** (elle cible un autre Vault installé sur ce poste) = ni installé ni manquant, **STOP et demander à l'Owner** ; ne jamais réécrire une jonction existante, quel que soit son état | `mklink /J` (ou `ln -s`) vers `skills/<nom>` du Vault, jamais sur une jonction existante | machine |
-| 9 | Jonctions de la bibliothèque externe | pour chaque `skills/external/<nom>/SKILL.md` du Vault : jonction du même nom, `test -ef` IDENTIQUE — même troisième état qu'à l'item 8 (jonction existante, cible différente) : **STOP et demander à l'Owner**, jamais de réécriture | idem vers `skills/external/<nom>` du Vault | machine |
-| 10 | Jonctions étrangères | jonction du dossier personnel sans cible dans le Vault | aucun geste : signalée, laissée (elle n'appartient pas au Vault) | machine |
-| 11 | Étage machine — Claude Code | `~/.claude/CLAUDE.md` existe et mentionne `VAULT-ROOT` | créer le fichier minimal (DECISION-210731 point 1) ; s'il existe sans la mention : signalé, non modifié | machine |
-| 12 | Étage machine — Codex | `~/.codex/AGENTS.md` existe (taille > 0) et mentionne `VAULT-ROOT` | absent, ou présent à 0 octet : créer le fichier minimal (DECISION-210731 point 1) ; présent avec un contenu non vide sans la mention : signalé, non modifié | machine |
-| 13 | Racine MCP filesystem (surface Pilot) | configuration du client chat lisible et pointant la racine de travail | geste humain (paramètres du client), chemin proposé | machine → humaine |
-| 14 | Projets enregistrés : `pre-commit install` | pour chaque `relative_path` du registre : `.git/hooks/pre-commit` posé par pre-commit, ou `core.hooksPath` natif présent — **précision (Mission 125)** : `projects/PROJECT-REGISTRY.md` est `INTERNE` au manifeste (contenu propre à ce poste, jamais distribué) ; **absent sur un clone neuf, ce n'est pas un manque** — 0 projet enregistré, rien à faire ici ; le registre est créé depuis `templates/project-registry-template.md` (`DISTRIBUABLE`) par `project-bootstrap.sh` au premier projet, pas par `first-install` | `pre-commit install` dans le projet, si l'item 5 est installé et le registre présent | machine |
-| 15 | Skills chat (claude.ai) | jamais mesurable depuis le poste | liste des zips avec chemin mesuré, `laissé (geste humain)` | humaine |
-| 16 | Rapport d'installation | fichier déposé au chemin nommé par l'Owner | `install-report-template.md` rempli | humaine (chemin) |
+| 1 | Work root marked | `VAULT-ROOT.md` found by walking up from the Vault, line « Chemin relatif du Vault » ["Relative path of the Vault"] readable | the Vault's `tools/write-marker.sh` (Executor gesture on prescription) | machine |
+| 2 | Vault cloned | `.git` present at the root of the Vault (found through the marker), `git -C <racine du Vault> status -sb` answers | clone by the human (URL and location = answers of the questioning) | human (path) |
+| 3 | The Vault's `core.hooksPath` | `git -C <racine du Vault> config core.hooksPath` = `.githooks` | `git -C <racine du Vault> config core.hooksPath .githooks` | machine |
+| 4 | Guardians' tools | `command -v bash git sha256sum` all present | installation by the human (Git for Windows provides all three) | machine → human |
+| 5 | `pre-commit` | `command -v pre-commit` present | installation by the human (`pipx`/`uv tool install pre-commit`); without it, the projects keep the native hook only | machine → human |
+| 6 | Junction support | Windows: `fsutil` present and a test junction readable; others: `ln -s` | none (capability of the machine, flagged) | machine |
+| 7 | Personal skills folder | `%USERPROFILE%\.claude\skills\` exists | `mkdir` | machine |
+| 8 | Junctions of the Vault's skills | for each `skills/<nom>/SKILL.md` of the Vault (outside `external/`): junction of the same name, `test -ef` IDENTICAL — **third state (Mission 125)**: junction of the same name **present but `test -ef` FALSE** (it targets another Vault installed on this machine) = neither installed nor missing, **STOP and ask the Owner**; never rewrite an existing junction, whatever its state | `mklink /J` (or `ln -s`) towards the Vault's `skills/<nom>`, never over an existing junction | machine |
+| 9 | Junctions of the external library | for each `skills/external/<nom>/SKILL.md` of the Vault: junction of the same name, `test -ef` IDENTICAL — same third state as at item 8 (existing junction, different target): **STOP and ask the Owner**, never a rewrite | same, towards the Vault's `skills/external/<nom>` | machine |
+| 10 | Foreign junctions | junction of the personal folder without a target in the Vault | no gesture: flagged, left (it does not belong to the Vault) | machine |
+| 11 | Machine tier — Claude Code | `~/.claude/CLAUDE.md` exists and mentions `VAULT-ROOT` | create the minimal file (DECISION-210731 point 1); if it exists without the mention: flagged, not modified | machine |
+| 12 | Machine tier — Codex | `~/.codex/AGENTS.md` exists (size > 0) and mentions `VAULT-ROOT` | absent, or present at 0 bytes: create the minimal file (DECISION-210731 point 1); present with non-empty content without the mention: flagged, not modified | machine |
+| 13 | MCP filesystem root (Pilot surface) | configuration of the chat client readable and pointing to the work root | human gesture (client settings), path proposed | machine → human |
+| 14 | Registered projects: `pre-commit install` | for each `relative_path` of the registry: `.git/hooks/pre-commit` laid down by pre-commit, or native `core.hooksPath` present — **clarification (Mission 125)**: `projects/PROJECT-REGISTRY.md` is `INTERNE` in the manifest (content specific to this machine, never distributed); **absent on a fresh clone, this is not a lack** — 0 registered projects, nothing to do here; the registry is created from `templates/project-registry-template.md` (`DISTRIBUABLE`) by `project-bootstrap.sh` at the first project, not by `first-install` | `pre-commit install` in the project, if item 5 is installed and the registry present | machine |
+| 15 | Chat skills (claude.ai) | never measurable from the machine | list of the zips with measured path, `laissé (geste humain)` [left (human gesture)] | human |
+| 16 | Installation report | file filed at the path named by the Owner | `install-report-template.md` filled in | human (path) |
 
 ## Liens
 
-- `see also` — [Skill first-install](./SKILL.md)
-- `see also` — [Gabarit du rapport d'installation](./install-report-template.md)
-- `applies` — Décision — Prise de conscience du Vault par un projet, trois étages (historique de l'atelier, non distribué) (hors Vault)
+- `see also` — [first-install skill](./SKILL.md)
+- `see also` — [Installation report template](./install-report-template.md)
+- `applies` — Decision — Awareness of the Vault by a project, three tiers (workshop history, not distributed) (hors Vault)

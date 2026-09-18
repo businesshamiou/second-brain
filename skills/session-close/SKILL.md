@@ -1,50 +1,50 @@
 ---
 name: session-close
-description: "Close a work session: inventory holes, refuse to close while any remain, then produce the handoff and capture (Pilot) or the closing commit (Executor). Use when the Owner says wrap, close, or asks to end the session. Triggers on: « wrap », « on ferme », « clôture », « clos la session », « close »."
+description: "Close a work session: inventory holes, refuse to close while any remain, then produce the handoff and capture (Pilot) or the closing commit (Executor). Use when the Owner says wrap, close, or asks to end the session. Triggers on: « wrap », « on ferme », « clôture », « clos la session », \"close\"."
 license: "MIT"
 metadata:
   vault-implements: "(historique de l'atelier, non distribué), decisions/DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md, rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md"
   vault-validated: "2026-09-08T00:40:13-04:00"
 ---
 
-Clôt une session de travail : inventorie les trous, refuse de clore tant qu'il en reste un, puis produit la passation. Ce skill ne se déclenche **jamais seul** : l'Owner le lance par le mot « wrap » (ou « close », « on ferme ») — principe `commande`, DECISION-144931 §2. Sur la surface Executor, la commande fixe est `/session-close`. Il ne pousse rien, ne supprime rien, ne tranche rien.
+Closes a work session: inventories the holes, refuses to close as long as one remains, then produces the handover. This skill is **never triggered on its own**: the Owner launches it with the word « wrap » (or « close », « on ferme » ["we're closing"]) — `commande` principle, DECISION-144931 §2. On the Executor surface, the fixed command is `/session-close`. It pushes nothing, deletes nothing, settles nothing.
 
-## 1. Détermine ta surface, mécaniquement
+## 1. Determine your surface, mechanically
 
-Tente un geste shell inoffensif (`git --version`). Il répond → branche **Executor** (§3). Pas de shell → branche **Pilot** (§2). La capacité mesurée décide.
+Try a harmless shell gesture (`git --version`). It answers → **Executor** branch (§3). No shell → **Pilot** branch (§2). The measured capability decides.
 
-## 2. Branche Pilot (chat)
+## 2. Pilot branch (chat)
 
-1. **Inventaire des trous, mesuré.** Ouvre `closing-checklist.md` dans le dossier de ce skill et joue chaque ligne avec l'outil qu'elle nomme. **Nomme ce fichier dans ta réponse** — « `closing-checklist.md` jouée, N lignes » : une liste de trous dont on ne sait pas de quelle checklist elle sort n'est pas une mesure (Mission 153, faute mesurée au rapport 152).
-   Outils par ligne (MCP : `read_text_file`, `get_file_info`, `search_files`). Un trou est constaté, jamais supposé. Les familles de trous sont celles de `closing-checklist.md`, source unique ; ce fichier n'en tient aucune énumération — une énumération recopiée ici prend du retard dès qu'une ligne est ajoutée là-bas, et elle en avait pris deux (rapport 157, §7).
-2. **Un trou → refus de clore.** Rends la liste des trous, chacun avec l'action qui le fermerait (Mission à écrire, arbitrage Owner, instruction ponctuelle). Tu ne clos pas ; tu attends le mot de l'Owner sur chaque trou. Un résidu « on verra plus tard » est un trou arbitré seulement si l'Owner l'a dit.
-3. **Zéro trou → passation.** Dépose au canonique, dans cet ordre : le **handoff** (gabarit `templates/handoff-template.md` du Vault, dossier `handoffs/` du projet) puis la **capture** (gabarit `templates/capture-template.md` du Vault, dossier `captures/`). Patron de dépôt : `DRAFT-…` → `get_file_info` → horodatage mesuré → renommage définitif → `get_file_info` final, dans un seul tour. Le handoff porte, pour chaque fait, VERIFIED ou DECLARED, et une file de reprise ordonnée avec **un mot exact par point** (le mot que l'Owner collera). La capture liste les fautes Pilot de la session, une par ligne, datées.
-4. **Rends la commande de clôture Executor** : un snippet, cinq rubriques (RULES-124937), portant les quatre interdits standards seulement et pointant le handoff par son chemin. Rien d'autre : la clôture Executor est fixée par le §3 de ce skill, pas par un texte libre.
+1. **Inventory of the holes, measured.** Open `closing-checklist.md` in this skill's folder and run each line with the tool it names. **Name this file in your answer** — "`closing-checklist.md` run, N lines": a list of holes of which nobody knows which checklist it comes from is not a measurement (Mission 153, fault measured in report 152).
+   Tools per line (MCP: `read_text_file`, `get_file_info`, `search_files`). A hole is observed, never assumed. The families of holes are those of `closing-checklist.md`, single source; this file holds no enumeration of them — an enumeration copied here falls behind as soon as a line is added there, and it had fallen two behind (report 157, §7).
+2. **One hole → refusal to close.** Return the list of holes, each with the action that would close it (Mission to write, Owner arbitration, one-off instruction). You do not close; you wait for the Owner's word on each hole. A "we'll see later" residue is an arbitrated hole only if the Owner said so.
+3. **Zero holes → handover.** File at the canonical location, in this order: the **handoff** (the Vault's `templates/handoff-template.md` template, the project's `handoffs/` folder) then the **capture** (the Vault's `templates/capture-template.md` template, `captures/` folder). Filing pattern: `DRAFT-…` → `get_file_info` → measured timestamp → final rename → final `get_file_info`, in a single turn. The handoff carries, for each fact, VERIFIED or DECLARED, and an ordered resume queue with **one exact word per point** (the word the Owner will paste). The capture lists the session's Pilot faults, one per line, dated.
+4. **Return the Executor closing command**: a snippet, five rubrics (RULES-124937), carrying the four standard prohibitions only and pointing to the handoff by its path. Nothing else: the Executor close is fixed by §3 of this skill, not by free text.
 
-## 3. Branche Executor (Claude Code, `/session-close`)
+## 3. Executor branch (Claude Code, `/session-close`)
 
-1. Conscience de position (répertoire courant, dépôt, chemins relatifs vers la racine du Vault — trouvée en remontant jusqu'au marqueur `VAULT-ROOT.md`, jamais un dossier nommé `vault` en dur — et vers le dépôt du projet), puis lis le **handoff nommé** par la commande de clôture, intégralement.
-2. **Journal** (`state/journal.md` du projet, via `tools/append-journal.sh` du Vault) : une ligne `STATE:` de clôture — têtes des deux dépôts, avance sur `origin`, portes ouvertes restantes ; puis les lignes `CLOSE: <clé> -- <référence>` que le handoff prescrit, **une par porte, clé exacte** (DECISION-110935). Aucune `CLOSE:` que le handoff ne nomme pas. Toute ligne `STATE:`/`CLOSE:`/`REPRISE:` est un pointeur ≤ 300 caractères (DECISION-191407) — `append-journal.sh` la refuse fail-closed sinon (Mission 123) : rédiger le pointeur, laisser le récit au rapport ou au handoff.
-3. `tools/build-state.sh` du Vault sur le projet, puis `tools/build-digest.sh` du Vault sur le même projet (Mission 121, digest d'ouverture plafonné) ; `MISSION-INDEX.md` à jour (toute Mission close de la session porte son état final) ; `tools/build-indexes.sh` du Vault sur les racines touchées seulement.
-4. **Un commit par dépôt touché**, fichier par fichier, diff inspecté, jamais `git add .` ; la sortie du hook collée. Refus de gardien = **STOP** avec verbatim, aucun contournement, aucun override.
-5. **Si le Vault a reçu un commit dans la session** : l'épingle de `<projet>/.pre-commit-config.yaml` est en retard. Sa référence de vérité est celle que `repo:` désigne — **un dépôt distant, donc `origin/main`** (mesure Mission 155) : le ré-épinglage n'est possible **qu'après le push Owner**. Tant que le push n'a pas eu lieu, c'est un **trou porté au handoff**, jamais une épingle posée sur un commit local. Après le push : ré-épingler sur le SHA poussé, commit `re-épinglage sur <SHA>`, puis régénérer `_dist/skills-chat/` par `tools/build-skills-chat-package.sh` du Vault et vérifier que `MANIFEST.txt` porte ce même SHA.
-6. RELAY de clôture : le bloc RELAY de la règle 124937, en fin de fenêtre.
+1. Awareness of position (current directory, repository, relative paths to the root of the Vault — found by walking up to the `VAULT-ROOT.md` marker, never a hard-coded folder named `vault` — and to the project's repository), then read the **handoff named** by the closing command, in full.
+2. **Journal** (the project's `state/journal.md`, through the Vault's `tools/append-journal.sh`): a closing `STATE:` line — heads of the two repositories, lead over `origin`, remaining open doors; then the `CLOSE: <clé> -- <référence>` lines that the handoff prescribes, **one per door, exact key** (DECISION-110935). No `CLOSE:` that the handoff does not name. Every `STATE:`/`CLOSE:`/`REPRISE:` line is a pointer ≤ 300 characters (DECISION-191407) — `append-journal.sh` refuses it fail-closed otherwise (Mission 123): draft the pointer, leave the narrative to the report or the handoff.
+3. The Vault's `tools/build-state.sh` on the project, then the Vault's `tools/build-digest.sh` on the same project (Mission 121, capped opening digest); `MISSION-INDEX.md` up to date (every Mission closed during the session carries its final state); the Vault's `tools/build-indexes.sh` on the touched roots only.
+4. **One commit per touched repository**, file by file, diff inspected, never `git add .`; the hook's output pasted. Guardian refusal = **STOP** with verbatim, no workaround, no override.
+5. **If the Vault received a commit during the session**: the pin of `<projet>/.pre-commit-config.yaml` is behind. Its reference of truth is the one `repo:` designates — **a remote repository, hence `origin/main`** (measurement Mission 155): re-pinning is possible **only after the Owner push**. As long as the push has not taken place, it is a **hole carried to the handoff**, never a pin laid on a local commit. After the push: re-pin on the pushed SHA, commit `re-épinglage sur <SHA>` [re-pinning on <SHA>], then regenerate `_dist/skills-chat/` with the Vault's `tools/build-skills-chat-package.sh` and check that `MANIFEST.txt` carries that same SHA.
+6. Closing RELAY: the RELAY block of rule 124937, at the end of the window.
 
-## 4. Canari
+## 4. Canary
 
-Avant tout geste, les gabarits `handoff-template.md` et `capture-template.md` existent dans `templates/` du Vault (`get_file_info` ou `test -f`). Un gabarit absent → `NOT-READY`, aucune clôture, la réparation est une Mission.
+Before any gesture, the templates `handoff-template.md` and `capture-template.md` exist in the Vault's `templates/` (`get_file_info` or `test -f`). A missing template → `NOT-READY`, no close, the repair is a Mission.
 
-## Ce que ce skill ne fait pas
+## What this skill does not do
 
-Ouvrir une session (`session-start`) · pousser (geste Owner, délégué par instruction nommée seulement) · trancher un trou (l'Owner) · fabriquer ou réécrire une Mission (`ecriture-de-mission`) · inventer une ligne `CLOSE:` absente du handoff · clore avec un trou « mineur ».
+Open a session (`session-start`) · push (Owner gesture, delegated by named instruction only) · settle a hole (the Owner) · fabricate or rewrite a Mission (`ecriture-de-mission`) · invent a `CLOSE:` line absent from the handoff · close with a "minor" hole.
 
 ## Liens
 
-- `see also` — [Liste des trous de clôture, une mesure par ligne](./closing-checklist.md)
-- `applies` — Décision — Fin de passe skills V1 (historique de l'atelier, non distribué) (hors Vault)
-- `applies` — [Décision — Tag CLOSE: et portes à clé du journal](../../decisions/DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md)
-- `applies` — [Décision — Journal et index en pointeurs](../../decisions/DECISION-2026-09-02-191407-journal-and-index-as-pointers-300-chars.md)
-- `applies` — [Charte des rôles et détermination de session](../../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
-- `see also` — [Relais entre rôles par mini-prompts à rubriques fixes](../../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md)
-- `see also` — [Gabarit de handoff](../../templates/handoff-template.md)
-- `see also` — [Gabarit de capture](../../templates/capture-template.md)
+- `see also` — [List of closing holes, one measurement per line](./closing-checklist.md)
+- `applies` — Decision — End of the skills V1 pass (workshop history, not distributed) (hors Vault)
+- `applies` — [Decision — CLOSE: tag and keyed doors of the journal](../../decisions/DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md)
+- `applies` — [Decision — Journal and index as pointers](../../decisions/DECISION-2026-09-02-191407-journal-and-index-as-pointers-300-chars.md)
+- `applies` — [Role charter and session determination](../../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
+- `see also` — [Relay between roles through mini-prompts with fixed rubrics](../../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md)
+- `see also` — [Handoff template](../../templates/handoff-template.md)
+- `see also` — [Capture template](../../templates/capture-template.md)

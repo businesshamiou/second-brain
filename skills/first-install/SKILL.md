@@ -1,47 +1,47 @@
 ---
 name: first-install
-description: "Install Second Brain from Claude Code or Codex: ask the same seven questions the installer's own terminal questionnaire asks, in the agent's own chat, write them to an answers file, then run install.ps1 or install.sh non-interactively. Also handles an already-existing clone: examines the parent folder for a prior or partial installation before deciding whether to start fresh, resume, or update. Use when asked to install, repair, resume, or update Second Brain from an agent chat."
+description: "Install Second Brain from Claude Code or Codex: ask the same seven questions the installer's own terminal questionnaire asks, in the agent's own chat, write them to an answers file, then run install.ps1 or install.sh non-interactively. Also handles an already-existing clone: examines the parent folder for a prior or partial installation before deciding whether to start fresh, resume, or update. Use when asked to install, repair, resume, or update Second Brain from an agent chat. Triggers on: « installe Second Brain », « installer Second Brain », \"install Second Brain\"."
 license: "MIT"
 metadata:
   vault-implements: "(historique de l'atelier, non distribué), (historique de l'atelier, non distribué), (historique de l'atelier, non distribué)"
   vault-validated: "2026-09-11T17:00:00-04:00"
 ---
 
-Installe Second Brain en pilotant **le même mécanisme** que la porte humaine (`install.ps1` sous Windows, `install.sh` sous macOS/Linux) : ce skill ne réimplémente jamais l'installeur, il lui fournit seulement ses deux entrées requises — un **fichier de réponses** et une **source locale** — puis le lance. Tout ce que l'installeur garantit déjà (idempotence, carnet d'installation, mêmes trois catalogues de langue, même verdict) est hérité sans changement.
+Installs Second Brain by driving **the same mechanism** as the human door (`install.ps1` on Windows, `install.sh` on macOS/Linux): this skill never reimplements the installer, it only supplies its two required inputs — an **answers file** and a **local source** — then launches it. Everything the installer already guarantees (idempotence, installation log, same three language catalogues, same verdict) is inherited unchanged.
 
-## 1. Localiser la source et déterminer le scénario
+## 1. Locate the source and determine the scenario
 
-Ce fichier `SKILL.md` vit à `<clone>/skills/first-install/SKILL.md` dans un clone de Second Brain — que ce clone soit celui dans lequel tu travailles directement, ou le clone d'origine depuis lequel ce skill a été lié (jamais copié) lors de son déploiement dans le dossier de skills personnel (`tools/deploy-skills.ps1`/`deploy-skills.sh`, ticket 07). Dans les deux cas, résous `<clone>` comme deux dossiers au-dessus du chemin réel de ce fichier, et utilise-le comme `-Source`/`--source` de l'installeur — toujours un chemin local, jamais une URL.
+This `SKILL.md` file lives at `<clone>/skills/first-install/SKILL.md` in a Second Brain clone — whether that clone is the one you are working in directly, or the original clone from which this skill was linked (never copied) when it was deployed into the personal skills folder (`tools/deploy-skills.ps1`/`deploy-skills.sh`, ticket 07). In both cases, resolve `<clone>` as two folders above the real path of this file, and use it as the installer's `-Source`/`--source` — always a local path, never a URL.
 
-Examine ensuite le dossier parent de `<clone>` (le workspace) :
+Then examine the parent folder of `<clone>` (the workspace):
 
-- **`<workspace>/.install` ou `<clone>/.install/state.json` est absent** — aucune installation n'a jamais commencé ici. Traite ce cas comme une **installation neuve** : propose le parent de `<clone>` lui-même, ou un nouveau workspace voisin, à la question 3 ci-dessous.
-- **`<clone>/.install/state.json` existe mais est incomplet** (une exécution précédente a été interrompue) — **reprends** : lis d'abord toi-même les réponses déjà enregistrées et les étapes déjà faites, et ne pose que ce qui manque réellement, dans l'ordre fixe ci-dessous.
-- **`<clone>/.install/state.json` existe et toutes les étapes sont faites** — c'est un workspace **déjà installé**. Montre ce qui a été enregistré, demande « quelque chose a changé ? », et ne réécris une réponse que si la personne répond oui — jamais de relance silencieuse sur une installation terminée.
+- **`<workspace>/.install` or `<clone>/.install/state.json` is absent** — no installation has ever started here. Treat this case as a **fresh installation**: propose the parent of `<clone>` itself, or a new neighbouring workspace, at question 3 below.
+- **`<clone>/.install/state.json` exists but is incomplete** (a previous run was interrupted) — **resume**: first read yourself the answers already recorded and the steps already done, and ask only what is really missing, in the fixed order below.
+- **`<clone>/.install/state.json` exists and all the steps are done** — this is an **already installed** workspace. Show what was recorded, ask « quelque chose a changé ? » ["has anything changed?"], and rewrite an answer only if the person answers yes — never a silent rerun on a finished installation.
 
-Ne devine jamais cet état de mémoire : lis le carnet réel. N'y écris jamais toi-même — le script installeur en est le seul propriétaire ; ce skill ne produit que le fichier de réponses que l'installeur lit.
+Never guess this state from memory: read the real log. Never write to it yourself — the installer script is its only owner; this skill produces only the answers file that the installer reads.
 
-## 2. Poser les sept questions, dans cet ordre exact
+## 2. Ask the seven questions, in this exact order
 
-Même ordre et mêmes défauts que le questionnaire du terminal (T06 complément 2), car un mélange de questions répondues au terminal et par l'agent, sur la même installation, doit rester indistinguable pour l'installeur :
+Same order and same defaults as the terminal questionnaire (T06 complement 2), because a mix of questions answered in the terminal and by the agent, on the same installation, must remain indistinguishable for the installer:
 
-1. **Langue** — `FR`, `EN` ou `ES`. Défaut : la langue déjà utilisée dans cette conversation, si elle correspond à l'une des trois ; sinon `EN`. C'est aussi la langue à utiliser pour la suite de cette conversation.
-2. **Nom de l'assistant** — défaut `Brian`.
-3. **Workspace** — où Second Brain (et son premier projet) doivent vivre. Défaut : le dossier parent trouvé à l'étape 1 (installation neuve) ou le dossier existant (reprise/mise à jour — jamais déplacé).
-4. **Prénom.**
-5. **Ce que la personne fait, en une phrase.**
-6. **Comment elle travaille avec l'IA** — jetons séparés par des virgules parmi `claude-code`, `codex`, `claude-ai`, `chatgpt`. Tu sais déjà lesquels des deux premiers sont vrais pour *cette* conversation — propose-le en défaut, ne demande jamais à la personne ce que tu peux déjà constater.
-7. **Ce qui compte pour elle** — défaut : « simplicity, no over-engineering ».
+1. **Language** — `FR`, `EN` or `ES`. Default: the language already used in this conversation, if it matches one of the three; otherwise `EN`. It is also the language to use for the rest of this conversation.
+2. **Assistant name** — default `Brian`.
+3. **Workspace** — where Second Brain (and its first project) must live. Default: the parent folder found at step 1 (fresh installation) or the existing folder (resume/update — never moved).
+4. **First name.**
+5. **What the person does, in one sentence.**
+6. **How they work with AI** — comma-separated tokens among `claude-code`, `codex`, `claude-ai`, `chatgpt`. You already know which of the first two are true for *this* conversation — propose it as the default, never ask the person what you can already observe.
+7. **What matters to them** — default: « simplicity, no over-engineering ».
 
-Les skills de la méthode (`skills/` et `skills/external/`) sont désormais toujours déployés par lien, pour Claude Code comme pour Codex : plus aucune question ne les concerne (l'ancienne huitième question, retirée). Le warehouse (`skills-warehouse/`) n'est jamais déployé par ce skill.
+The skills of the method (`skills/` and `skills/external/`) are now always deployed by link, for Claude Code as for Codex: no question concerns them any more (the former eighth question, withdrawn). The warehouse (`skills-warehouse/`) is never deployed by this skill.
 
-Confirme ensuite le **premier projet** : défaut oui, nom suggéré dérivé de la réponse à la question 5 (minuscules, suites non alphanumériques réduites à un tiret), modifiable.
+Then confirm the **first project**: default yes, suggested name derived from the answer to question 5 (lower case, non-alphanumeric runs reduced to a hyphen), editable.
 
-Ne jamais poser une question dont la réponse est mesurable par l'environnement (OS, shell, présence de Claude Code ou Codex, fuseau horaire) — c'est exactement ce que T06 interdit, questionnaire par agent compris.
+Never ask a question whose answer can be measured from the environment (OS, shell, presence of Claude Code or Codex, time zone) — that is exactly what T06 forbids, agent questionnaire included.
 
-## 3. Écrire le fichier de réponses et appeler l'installeur
+## 3. Write the answers file and call the installer
 
-Écris un fichier JSON (un chemin temporaire convient — il n'est jamais commité, l'installeur ne fait que le lire) au format suivant, un champ par question ci-dessus, plus les défauts fixes pour tout ce qui n'a pas été posé parce que déjà connu d'un carnet repris :
+Write a JSON file (a temporary path is fine — it is never committed, the installer only reads it) in the following format, one field per question above, plus the fixed defaults for everything that was not asked because already known from a resumed log:
 
 ```json
 {
@@ -57,34 +57,34 @@ Ne jamais poser une question dont la réponse est mesurable par l'environnement 
 }
 ```
 
-Lance ensuite, selon la plateforme, exactement l'une de ces deux commandes :
+Then launch, depending on the platform, exactly one of these two commands:
 
-- Windows : `powershell -NoProfile -ExecutionPolicy Bypass -File "<clone>\install.ps1" -Source "<clone>" -AnswersFile "<fichier-de-reponses>"`
-- macOS/Linux : `bash "<clone>/install.sh" --source "<clone>" --answers-file "<fichier-de-reponses>"`
+- Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File "<clone>\install.ps1" -Source "<clone>" -AnswersFile "<fichier-de-reponses>"`
+- macOS/Linux: `bash "<clone>/install.sh" --source "<clone>" --answers-file "<fichier-de-reponses>"`
 
-Ne jamais passer `-TestMode`/`--test-mode` ici — ce skill pilote une installation réelle dans le profil et le workspace de la personne, jamais une installation jetable (`-TestMode`/`--test-mode` n'existent que pour les tests automatisés de ce dépôt, tickets 03 à 08). L'installeur imprime exactement une ligne de verdict, signée du nom d'assistant choisi, en cas de succès — ou une ligne nommant l'étape, la cause et le remède sinon. Relaie cette ligne telle quelle ; ne la paraphrase pas, puisque c'est aussi ce que le carnet d'installation vient d'enregistrer.
+Never pass `-TestMode`/`--test-mode` here — this skill drives a real installation in the person's profile and workspace, never a throwaway installation (`-TestMode`/`--test-mode` exist only for the automated tests of this repository, tickets 03 to 08). The installer prints exactly one verdict line, signed with the chosen assistant name, on success — or a line naming the step, the cause and the remedy otherwise. Relay that line as it is; do not paraphrase it, since it is also what the installation log has just recorded.
 
-## 4. Poser le serveur MCP du Vault (accès disque du Pilot)
+## 4. Lay down the Vault's MCP server (the Pilot's disk access)
 
-Une fois le verdict de l'installeur relayé, rends l'accès disque du Pilot, qui ne vient que du Vault :
+Once the installer's verdict has been relayed, provide the Pilot's disk access, which comes only from the Vault:
 
-1. Lance `bash "<clone>/tools/install-vault-mcp.sh" "<workspace>" --lang <langue>` (sous Windows, par le `bash` de Git). Le script détecte ce qui est présent — `claude` (Claude Code), `codex`, l'application de bureau Claude à son dossier de configuration mesuré — et y déclare le serveur `second-brain-vault` (`claude mcp add`, `codex mcp add`, fusion dans `claude_desktop_config.json` qui garde les autres serveurs). Dossier autorisé : la racine du workspace. Python est vérifié par `uv`. Un second passage ne change rien.
-2. Vérifie la contenance pour le premier projet : `bash "<clone>/tools/check-mcp-containment.sh" <configuration> "<workspace>/<projet>"` doit rendre `VERDICT: PASS` (projet et Vault sous un dossier autorisé).
-3. Relaie le geste restant que le script imprime : **redémarrer l'application Claude** (et relancer Claude Code ou Codex). Le rôle Pilot exige l'application de bureau : le serveur MCP n'existe pas dans le navigateur.
-4. Relaie le bloc à consommer du premier projet (Projet à créer, prompt commun à coller, premier message = chemin du projet) ; le canari de ce projet est dans son `<projet>/state/PILOT-PROMPT.md`.
+1. Launch `bash "<clone>/tools/install-vault-mcp.sh" "<workspace>" --lang <langue>` (on Windows, through Git's `bash`). The script detects what is present — `claude` (Claude Code), `codex`, the Claude desktop application at its measured configuration folder — and declares the `second-brain-vault` server there (`claude mcp add`, `codex mcp add`, merge into `claude_desktop_config.json` that keeps the other servers). Authorized folder: the root of the workspace. Python is checked by `uv`. A second pass changes nothing.
+2. Check the containment for the first project: `bash "<clone>/tools/check-mcp-containment.sh" <configuration> "<workspace>/<projet>"` must return `VERDICT: PASS` (project and Vault under an authorized folder).
+3. Relay the remaining gesture that the script prints: **restart the Claude application** (and relaunch Claude Code or Codex). The Pilot role requires the desktop application: the MCP server does not exist in the browser.
+4. Relay the first project's block to consume (Project to create, common prompt to paste, first message = path of the project); the canary of this project is in its `<projet>/state/PILOT-PROMPT.md`.
 
-Ce geste écrit dans les configurations de l'outil de la personne : il ne se joue que dans une installation réelle, jamais en `-TestMode`/`--test-mode`.
+This gesture writes into the configurations of the person's tool: it is run only in a real installation, never in `-TestMode`/`--test-mode`.
 
-## 5. Ce que ce skill ne fait jamais
+## 5. What this skill never does
 
-- Ne réimplémente aucune étape de l'installeur (prérequis, clonage, gardiens, générateur d'assistant, déploiement des skills, profil) — tout cela reste le travail d'`install.ps1`/`install.sh`, inchangé.
-- N'écrase jamais une installation existante et complète sans un « oui, quelque chose a changé » explicite de la personne.
-- Ne pousse rien, ne supprime rien, ne touche rien hors du workspace qu'il installe.
-- N'invente jamais de réponse à une question destinée à un humain — en reprise, il lit les réponses déjà enregistrées, il n'en fabrique jamais de nouvelles.
+- Reimplements no step of the installer (prerequisites, cloning, guardians, assistant generator, skills deployment, profile) — all of that remains the work of `install.ps1`/`install.sh`, unchanged.
+- Never overwrites an existing, complete installation without an explicit « oui, quelque chose a changé » ["yes, something has changed"] from the person.
+- Pushes nothing, deletes nothing, touches nothing outside the workspace it installs.
+- Never invents an answer to a question intended for a human — on resume, it reads the answers already recorded, it never fabricates new ones.
 
 ## Liens
 
 - `see also` — [install.ps1](../../install.ps1)
 - `see also` — [install.sh](../../install.sh)
 - `see also` — [AGENTS.md](../../AGENTS.md)
-- `see also` — [Décision — Initiation et adoption de projet, serveur MCP embarqué](../../decisions/DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md)
+- `see also` — [Decision — Project initiation and adoption, embedded MCP server](../../decisions/DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md)

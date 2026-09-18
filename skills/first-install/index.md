@@ -13,8 +13,8 @@ Index généré automatiquement. Ne pas éditer à la main : régénérer via `t
 ## Contenu
 
 - `SKILL` · inconnu · (sans titre) · `SKILL.md`
-- `install-checklist` · active · Liste d'installation, une mesure par item · `install-checklist.md`
-- `install-report-template` · active · Gabarit — Rapport d'installation du Vault sur un poste · `install-report-template.md`
+- `install-checklist` · active · Installation checklist, one measurement per item · `install-checklist.md`
+- `install-report-template` · active · Template — Report of the Vault's installation on a machine · `install-report-template.md`
 
 ## Liens
 

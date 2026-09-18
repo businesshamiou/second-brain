@@ -1,54 +1,54 @@
 ---
 name: session-start
-description: "Open a work session: read the state files in order (Pilot: digest, handoff, Git refs; Executor: also repo and guardian state), and announce role and readiness. Use at the start of any session, or when asked to (re)open, resume, or check readiness. Triggers on: « nouvelle session », « nouvelle session pilote », « ouvre la session », « ouverture », « open the session »."
+description: "Open a work session: read the state files in order (Pilot: digest, handoff, Git refs; Executor: also repo and guardian state), and announce role and readiness. Use at the start of any session, or when asked to (re)open, resume, or check readiness. Triggers on: « nouvelle session », « nouvelle session pilote », « ouvre la session », « ouverture », \"open the session\"."
 license: "MIT"
 metadata:
   vault-implements: "(historique de l'atelier, non distribué), (historique de l'atelier, non distribué), rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md"
   vault-validated: "2026-09-07T21:32:10-04:00"
 ---
 
-Ouvre une session de travail : mesure l'état du poste, lis les fichiers d'état dans l'ordre, annonce le rôle et le verdict de préparation. Ce skill est **en lecture seule** : il ne dépose rien, ne commite rien, ne déplace rien — jamais, sur aucune surface. Seule exception : un ordre d'initiation reçu, qu'il fait exécuter par `tools/project-bootstrap.sh --order` (§1 bis) ; l'écriture appartient alors au bootstrap, bornée au dossier cible et au registre du Vault. Il complète le prompt d'ouverture de l'Owner, il ne le remplace pas : ce que le prompt a déjà fait lire, ne le relis pas — vérifie que c'est fait et comble les manques seulement.
+Opens a work session: measures the state of the machine, reads the state files in order, announces the role and the readiness verdict. This skill is **read-only**: it files nothing, commits nothing, moves nothing — never, on any surface. Sole exception: an initiation order received, which it has executed by `tools/project-bootstrap.sh --order` (§1 bis); the writing then belongs to the bootstrap, bounded to the target folder and to the Vault's registry. It complements the Owner's opening prompt, it does not replace it: what the prompt has already had read, do not read again — check that it is done and fill in the gaps only.
 
-## 1. Détermine ta surface, mécaniquement
+## 1. Determine your surface, mechanically
 
-Tente un geste shell inoffensif (`git --version`). Il répond → branche **Executor**. Pas de shell (chat, MCP seul) → branche **Pilot**. La capacité mesurée décide ; ne te déclare jamais un rôle que tu n'as pas mesuré.
+Try a harmless shell gesture (`git --version`). It answers → **Executor** branch. No shell (chat, MCP only) → **Pilot** branch. The measured capability decides; never declare for yourself a role you have not measured.
 
-## 1 bis. Le dossier est-il adopté ?
+## 1 bis. Is the folder adopted?
 
-**Executor** : remonte depuis le dossier courant jusqu'à un acte de naissance (`.pre-commit-config.yaml` dont la première ligne est `# second-brain-birth-certificate: v1`) ; `bash <Vault>/tools/resolve-vault.sh <dossier>` rend le Vault ou un refus nommé.
+**Executor**: walk up from the current folder to a birth certificate (`.pre-commit-config.yaml` whose first line is `# second-brain-birth-certificate: v1`); `bash <Vault>/tools/resolve-vault.sh <dossier>` returns the Vault or a named refusal.
 
-- **Acte trouvé** : continue.
-- **Pas d'acte, mais un ordre d'initiation reçu** (mini-prompt de type `initiation`) : écris l'ordre dans un fichier temporaire, lance `bash <Vault>/tools/project-bootstrap.sh --order <fichier>`, relaie sa sortie (dont le bloc à consommer), puis continue l'ouverture sur le projet adopté.
-- **Ni acte ni ordre** : ne l'adopte pas. Lance `bash <Vault>/tools/project-bootstrap.sh order <dossier>`, rends l'ordre à remplir tel qu'il sort, et arrête-toi : `NOT-READY (dossier non adopté, ordre d'initiation rendu)`.
+- **Certificate found**: continue.
+- **No certificate, but an initiation order received** (mini-prompt of type `initiation`): write the order into a temporary file, launch `bash <Vault>/tools/project-bootstrap.sh --order <fichier>`, relay its output (including the block to consume), then continue the opening on the adopted project.
+- **Neither certificate nor order**: do not adopt it. Launch `bash <Vault>/tools/project-bootstrap.sh order <dossier>`, return the order to fill in as it comes out, and stop: `NOT-READY (dossier non adopté, ordre d'initiation rendu)` [folder not adopted, initiation order returned].
 
-**Pilot** : le serveur MCP d'abord — `list_allowed_directories` doit contenir le chemin du projet donné au premier message ; puis `<projet>/state/PILOT-PROMPT.md` du projet, dont tu rends le canari. Sans ce fichier, le projet n'est pas adopté : propose l'ordre d'initiation (gabarit `templates/initiation-order-template.md`), n'en présume rien.
+**Pilot**: the MCP server first — `list_allowed_directories` must contain the path of the project given in the first message; then the project's `<projet>/state/PILOT-PROMPT.md`, whose canary you return. Without this file, the project is not adopted: propose the initiation order (template `templates/initiation-order-template.md`), presume nothing about it.
 
-## 2. Lis la liste de lecture de ton rôle
+## 2. Read your role's reading list
 
-Ouvre `reading-list.md` dans le dossier de ce skill et exécute les lectures de ta section, dans son ordre. Si ce fichier porte une ligne `amended by`, lis aussi l'amendement et applique-le : c'est lui la source du protocole d'ouverture, pas ce corps.
+Open `reading-list.md` in this skill's folder and perform the readings of your section, in its order. If this file carries an `amended by` line, also read the amendment and apply it: it is the source of the opening protocol, not this body.
 
-## 3. Mesure le canari de ta branche
+## 3. Measure your branch's canary
 
-**Pilot** : la racine MCP répond (un `get_file_info` sur `<projet>/state/DIGEST.md` (forme de référence : depuis la racine du workspace)) ; le digest est lisible, passe le test de fraîcheur de `reading-list.md` et nomme le dernier handoff ; ce handoff existe, est lisible et daté ; les quatre refs Git sont lisibles.
+**Pilot**: the MCP root answers (a `get_file_info` on `<projet>/state/DIGEST.md` (reference form: from the root of the workspace)); the digest is readable, passes the freshness test of `reading-list.md` and names the last handoff; that handoff exists, is readable and dated; the four Git refs are readable.
 
-**Executor** : conscience de position d'abord (répertoire courant, dépôt, chemins relatifs vers la racine du Vault — trouvée en remontant jusqu'au marqueur `VAULT-ROOT.md`, jamais un dossier nommé `vault` en dur — et vers le dépôt du projet). Puis les trois mesures : (a) `rev:` du `.pre-commit-config.yaml` du projet comparé à la tête du Vault (`.git/refs/heads/main` à sa racine) — un écart signifie des gardiens épinglés en retard, non applicable à une épingle `repo: local` (T01, projets nés après le ticket 02 de la Mission 168) ; (b) le hook natif présent (`.githooks/pre-commit` à la racine du Vault) et `core.hooksPath` qui pointe dessus ; (c) chaque script gardien nommé par le hook présent dans `tools/` à la racine du Vault. Enfin `git status -sb` des deux dépôts, collé tel quel.
+**Executor**: awareness of position first (current directory, repository, relative paths to the root of the Vault — found by walking up to the `VAULT-ROOT.md` marker, never a hard-coded folder named `vault` — and to the project's repository). Then the three measurements: (a) `rev:` of the project's `.pre-commit-config.yaml` compared with the head of the Vault (`.git/refs/heads/main` at its root) — a gap means guardians pinned behind, not applicable to a `repo: local` pin (T01, projects born after ticket 02 of Mission 168); (b) the native hook present (`.githooks/pre-commit` at the root of the Vault) and `core.hooksPath` pointing to it; (c) each guardian script named by the hook present in `tools/` at the root of the Vault. Finally `git status -sb` of the two repositories, pasted as it is.
 
-**Budget d'appels** : 8 en session de chat (Décision 140714) ; **12 sur la surface Executor**, où la sonde de rôle et le shell coûtent des appels que le budget chat ne prévoyait pas (Mission 154, mesure du rapport 153 : forme correcte en 13 appels).
+**Call budget**: 8 in a chat session (Decision 140714); **12 on the Executor surface**, where the role probe and the shell cost calls that the chat budget did not provide for (Mission 154, measurement of report 153: correct form in 13 calls).
 
-## 4. Rends le verdict, puis arrête-toi
+## 4. Return the verdict, then stop
 
-**Rien avant le verdict.** Pas de salutation, pas de « voici la synthèse », pas de tableau, pas de récapitulatif des lectures : le premier caractère de la réponse est le `R` de `READY` ou le `N` de `NOT-READY`. Tout ce qui explique vient après (Mission 153, faute mesurée au rapport 152 : verdict juste, rendu après deux mille caractères de préambule). **Une anomalie trouvée pendant l'ouverture est le motif du `NOT-READY`**, jamais un paragraphe avant lui (Mission 154, faute mesurée au rapport 153 : réponse ouvrant sur `**ANOMALY détectée**`).
+**Nothing before the verdict.** No greeting, no « voici la synthèse » ["here is the summary"], no table, no recap of the readings: the first character of the answer is the `R` of `READY` or the `N` of `NOT-READY`. Everything that explains comes after (Mission 153, fault measured in report 152: correct verdict, returned after two thousand characters of preamble). **An anomaly found during the opening is the reason for the `NOT-READY`**, never a paragraph before it (Mission 154, fault measured in report 153: answer opening on `**ANOMALY détectée**`).
 
-Format, dans cet ordre : la ligne `READY` ou `NOT-READY (<motif mesuré, verbatim>)`, **première ligne de prose de la réponse** ; l'annonce `[role: <pilot|executor> · <plan|implement|validate> · open]` ; un état en cinq lignes chiffrées maximum (têtes des dépôts, avance sur origin, portes ouvertes, dernier handoff, écarts de `git status`), chaque valeur portant `VERIFIED` (mesurée dans cette session, source nommée), `DECLARED` (recopiée du digest ou du handoff, horodatage de la source) ou `ANOMALY` (désaccord entre deux sources, nommé). Pilot : les écarts de `git status` sont toujours `DECLARED`. Puis une rubrique « Ouverture / budget » : nombre d'appels d'outil avant le verdict, octets rapportés par `get_file_info` seulement — digest et journal —, les autres lectures nommées avec la mention « taille non rapportée », jamais estimées, recherches d'outils jouées (Décision 140714, point 6).
+Format, in this order: the line `READY` or `NOT-READY (<motif mesuré, verbatim>)`, **first line of prose of the answer**; the announcement `[role: <pilot|executor> · <plan|implement|validate> · open]`; a state in five lines with figures at most (heads of the repositories, lead over origin, open doors, last handoff, `git status` gaps), each value carrying `VERIFIED` (measured in this session, source named), `DECLARED` (copied from the digest or the handoff, timestamp of the source) or `ANOMALY` (disagreement between two sources, named). Pilot: the `git status` gaps are always `DECLARED`. Then an "Opening / budget" [« Ouverture / budget »] rubric: number of tool calls before the verdict, bytes reported by `get_file_info` only — digest and journal —, the other readings named with the mention "size not reported" [« taille non rapportée »], never estimated, tool searches run (Decision 140714, point 6).
 
-`NOT-READY` a une seule conséquence, non négociable : **Executor — aucun geste** (ni écriture ni commit de toute la fenêtre) ; **Pilot — aucun dépôt** de toute la session. Lire et discuter restent permis. La réparation est une Mission ou un arbitrage Owner, jamais un geste de ce skill.
+`NOT-READY` has a single consequence, non-negotiable: **Executor — no gesture** (neither writing nor commit for the whole window); **Pilot — no filing** for the whole session. Reading and discussing remain allowed. The repair is a Mission or an Owner arbitration, never a gesture of this skill.
 
-## Ce que ce skill ne fait pas
+## What this skill does not do
 
-La clôture (`session-close`) · l'installation ou la réparation du poste (`first-install`, `project-bootstrap`) · la pose du hook (bootstrap) · la moindre écriture hors d'un ordre d'initiation reçu, y compris une ligne de journal — l'annonce vit dans la conversation · la recherche : tu lis une liste fixée, tu ne fouilles pas.
+The close (`session-close`) · the installation or repair of the machine (`first-install`, `project-bootstrap`) · laying down the hook (bootstrap) · the slightest writing outside an initiation order received, including a journal line — the announcement lives in the conversation · search: you read a fixed list, you do not rummage.
 
 ## Liens
 
-- `see also` — [Liste de lecture d'ouverture de session, par rôle](./reading-list.md)
-- `see also` — [Charte des rôles et détermination de session](../../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
-- `see also` — [Gabarit — ordre d'initiation](../../templates/initiation-order-template.md)
+- `see also` — [Session opening reading list, by role](./reading-list.md)
+- `see also` — [Role charter and session determination](../../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
+- `see also` — [Template — initiation order](../../templates/initiation-order-template.md)

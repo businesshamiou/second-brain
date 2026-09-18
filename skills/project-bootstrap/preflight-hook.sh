@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
-# executor-preflight -- hook PreToolUse pose par le skill project-bootstrap
-# (DECISION-2026-09-01-144931 S1 : "executor-preflight n'est pas un skill,
-# c'est un hook"). Rejoue, avant chaque outil d'ecriture, les trois mesures
-# (a)(b)(c) du canari de session-start, ni plus ni moins. Lecture seule :
-# n'ecrit rien, ne corrige rien. Un ecart = une ligne de refus + le verbatim
-# de l'ecart sur stderr, exit 2 (le seul code qui bloque un PreToolUse dans
-# Claude Code -- arbitrage Owner du 2026-09-01) ; zero ecart = exit 0, silence.
+# executor-preflight -- PreToolUse hook laid down by the project-bootstrap skill
+# (DECISION-2026-09-01-144931 S1: "executor-preflight n'est pas un skill,
+# c'est un hook" ["executor-preflight is not a skill, it is a hook"]). Replays,
+# before each writing tool, the three measurements (a)(b)(c) of the
+# session-start canary, no more, no less. Read-only: writes nothing, corrects
+# nothing. A gap = one refusal line + the verbatim of the gap on stderr,
+# exit 2 (the only code that blocks a PreToolUse in Claude Code -- Owner
+# arbitration of 2026-09-01); zero gap = exit 0, silence.
 #
-# usage: preflight-hook.sh            (invoque par .claude/settings.json, cf.
-#                                      settings-hook.json ; testable a la main)
-# env  : PREFLIGHT_PROJECT_DIR  racine du projet (defaut : CLAUDE_PROJECT_DIR,
-#                               sinon le repertoire courant)
-#        PREFLIGHT_VAULT_DIR    racine du Vault (defaut : lue dans VAULT-ROOT.md
-#                               en remontant depuis le projet -- aucun nom de
-#                               dossier en dur, ticket 02 Mission 168)
+# usage: preflight-hook.sh            (invoked by .claude/settings.json, cf.
+#                                      settings-hook.json; testable by hand)
+# env  : PREFLIGHT_PROJECT_DIR  root of the project (default: CLAUDE_PROJECT_DIR,
+#                               otherwise the current directory)
+#        PREFLIGHT_VAULT_DIR    root of the Vault (default: read in VAULT-ROOT.md
+#                               walking up from the project -- no hard-coded
+#                               folder name, ticket 02 Mission 168)
 
 set -u
 
@@ -25,8 +26,8 @@ PROJECT_DIR="$(cd "$PROJECT_DIR" 2>/dev/null && pwd)" || {
   exit "$REFUSE_EXIT"
 }
 
-# --- Localisation du Vault : marqueur VAULT-ROOT.md (etage workspace,
-# DECISION-2026-08-31-210731 point 1) en remontant depuis le projet ---
+# --- Locating the Vault: VAULT-ROOT.md marker (workspace tier,
+# DECISION-2026-08-31-210731 point 1) walking up from the project ---
 find_vault() {
   local dir="$PROJECT_DIR" rel
   while [ -n "$dir" ] && [ "$dir" != "/" ]; do
@@ -53,16 +54,16 @@ VAULT_DIR="$(cd "$VAULT_DIR" 2>/dev/null && pwd)" || {
 ECARTS=0
 ecart() { ECARTS=$((ECARTS + 1)); echo "  ($1) $2" >&2; }
 
-# --- (a) rev: de <projet>/.pre-commit-config.yaml compare a la tete poussee
-# du Vault (origin/main ; a defaut de remote, la tete locale main) ---
+# --- (a) rev: of <projet>/.pre-commit-config.yaml compared with the pushed head
+# of the Vault (origin/main; failing a remote, the local main head) ---
 CONFIG="$PROJECT_DIR/.pre-commit-config.yaml"
 if [ ! -f "$CONFIG" ]; then
   ecart a "epingle absente : $CONFIG introuvable"
 elif grep -qE '^[[:space:]]*-?[[:space:]]*repo:[[:space:]]*local[[:space:]]*$' "$CONFIG"; then
-  # Epingle repo: local (T01, ticket 02 Mission 168) : forme des projets nes
-  # de project-bootstrap sur ce Vault voisin. Aucun rev: a comparer -- le pin
-  # suit toujours le contenu courant du Vault trouve par le marqueur ; on
-  # verifie a la place que chaque entry: cite un script qui existe reellement.
+  # repo: local pin (T01, ticket 02 Mission 168): form of the projects born
+  # from project-bootstrap on this neighbouring Vault. No rev: to compare -- the
+  # pin always follows the current content of the Vault found by the marker;
+  # instead we check that each entry: cites a script that really exists.
   MISSING_ENTRIES=""
   while IFS= read -r ENTRY; do
     [ -z "$ENTRY" ] && continue
@@ -89,7 +90,7 @@ else
   fi
 fi
 
-# --- (b) hook natif du Vault present et core.hooksPath pointant dessus ---
+# --- (b) the Vault's native hook present and core.hooksPath pointing to it ---
 HOOK="$VAULT_DIR/.githooks/pre-commit"
 if [ ! -f "$HOOK" ]; then
   ecart b "hook natif absent : $HOOK"
@@ -98,7 +99,7 @@ else
   [ "$HP" = ".githooks" ] || ecart b "core.hooksPath du Vault = '${HP:-<vide>}' au lieu de '.githooks'"
 fi
 
-# --- (c) chaque script gardien nomme par le hook present dans tools/ du Vault ---
+# --- (c) each guardian script named by the hook present in the Vault's tools/ ---
 if [ -f "$HOOK" ]; then
   for S in $(grep -oE '\$VAULT_ROOT/tools/[A-Za-z0-9_.-]+\.sh' "$HOOK" | sed 's#^\$VAULT_ROOT/##' | sort -u); do
     [ -f "$VAULT_DIR/$S" ] || ecart c "gardien nomme par le hook, absent : $VAULT_DIR/$S"

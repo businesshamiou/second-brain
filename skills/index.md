@@ -1,27 +1,27 @@
 ---
 type: index
-title: "Skills du Vault"
-description: "Comportements d'agent au format Agent Skills."
+title: "Vault skills"
+description: "Agent behaviours in the Agent Skills format."
 created_at: 2026-08-19T11:53:06-04:00
 timezone: America/Montreal
 status: active
 ---
 
-# Skills du Vault
+# Vault skills
 
-Comportements d'agent au format Agent Skills.
+Agent behaviours in the Agent Skills format.
 
-## Contenu
+## Contents
 
-- `external/` — bibliothèque de 40 skills externes en forme standard Agent Skills (six champs, provenance sous `metadata:`), construite depuis le paquet du projet `skills-warehouse` — voir [PROVENANCE.md](./external/PROVENANCE.md).
-- `ecriture-de-mission/` — rédige un fichier Mission et son mini-prompt Executor depuis le gabarit, liens mesurés, section Contexte obligatoire — voir [SKILL.md](./ecriture-de-mission/SKILL.md).
-- `first-install/` — installe le Vault sur un poste pour la première fois, ou complète une installation partielle sans écraser ce qui existe — voir [SKILL.md](./first-install/SKILL.md).
-- `project-bootstrap/` — fait prendre conscience du Vault à un projet, à l'un des trois étages (registre, gardiens, hook de préflight) — voir [SKILL.md](./project-bootstrap/SKILL.md).
-- `recherche-interne/` — recherche disciplinée dans le Vault et le corpus projet : index et description d'abord, jamais un chemin non mesuré — voir [SKILL.md](./recherche-interne/SKILL.md).
-- `session-close/` — clôt une session de travail : inventaire des trous, refus de clore tant qu'il en reste, handoff ou commit de clôture — voir [SKILL.md](./session-close/SKILL.md).
-- `session-start/` — ouvre une session de travail : mesure l'état du dépôt et des gardiens, annonce le rôle — voir [SKILL.md](./session-start/SKILL.md).
+- `external/` — library of 40 external skills in the standard Agent Skills form (six fields, provenance under `metadata:`), built from the package of the `skills-warehouse` project — see [PROVENANCE.md](./external/PROVENANCE.md).
+- `ecriture-de-mission/` — drafts a Mission file and its Executor mini-prompt from the template, measured links, mandatory Context section — see [SKILL.md](./ecriture-de-mission/SKILL.md).
+- `first-install/` — installs the Vault on a machine for the first time, or completes a partial installation without overwriting what exists — see [SKILL.md](./first-install/SKILL.md).
+- `project-bootstrap/` — makes a project aware of the Vault, at one of the three tiers (registry, guardians, preflight hook) — see [SKILL.md](./project-bootstrap/SKILL.md).
+- `recherche-interne/` — disciplined search in the Vault and the project corpus: index and description first, never an unmeasured path — see [SKILL.md](./recherche-interne/SKILL.md).
+- `session-close/` — closes a work session: inventory of the holes, refusal to close as long as any remain, handoff or closing commit — see [SKILL.md](./session-close/SKILL.md).
+- `session-start/` — opens a work session: measures the state of the repository and of the guardians, announces the role — see [SKILL.md](./session-start/SKILL.md).
 
 ## Liens
 
-- `prescribed by` — [Standard de liens entre documents](../rules/RULES-2026-08-21-115658-document-linking-standard.md)
-- `source` — [Provenance — bibliothèque de skills externes](./external/PROVENANCE.md)
+- `prescribed by` — [Standard for links between documents](../rules/RULES-2026-08-21-115658-document-linking-standard.md)
+- `source` — [Provenance — external skills library](./external/PROVENANCE.md)

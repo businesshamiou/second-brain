@@ -13,7 +13,7 @@ Index généré automatiquement. Ne pas éditer à la main : régénérer via `t
 ## Contenu
 
 - `SKILL` · inconnu · (sans titre) · `SKILL.md`
-- `closing-checklist` · active · Liste des trous de clôture, une mesure par ligne · `closing-checklist.md`
+- `closing-checklist` · active · List of closing holes, one measurement per line · `closing-checklist.md`
 
 ## Liens
 

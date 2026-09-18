@@ -1,53 +1,53 @@
 ---
 name: project-bootstrap
-description: "Make a project aware of the Vault at one of its three tiers: register it, pin the Vault guardians, install the pre-tool preflight hook, and propose (never impose) the seven-function layout. Use when adopting an existing project or starting a new one under the Vault."
+description: "Make a project aware of the Vault at one of its three tiers: register it, pin the Vault guardians, install the pre-tool preflight hook, and propose (never impose) the seven-function layout. Use when adopting an existing project or starting a new one under the Vault. Triggers on: « adopte ce projet », « nouveau projet », \"adopt this project\", \"new project\"."
 license: "MIT"
 metadata:
   vault-implements: "(historique de l'atelier, non distribué), (historique de l'atelier, non distribué), (historique de l'atelier, non distribué)"
   vault-validated: "2026-09-01T21:02:20-04:00"
 ---
 
-Rend un projet conscient du Vault à l'un de ses trois étages (DECISION-210731) : l'enregistre, épingle les gardiens, pose le hook `executor-preflight`, et **propose** la mise en sept fonctions sans jamais l'imposer. **Surface Executor seulement** (fichiers, Git local, hook). Ce skill ne se lance que sur prescription d'une Mission, ordre d'initiation daté par l'Owner ou arbitrage Owner : adopter écrit dans le registre du Vault (DECISION-210731 point 2, amendé par la Décision 000545 A3). La source de comportement est la Décision 210731, **à lire intégralement avant le premier geste** ; ce corps ne la paraphrase pas.
+Makes a project aware of the Vault at one of its three tiers (DECISION-210731): registers it, pins the guardians, lays down the `executor-preflight` hook, and **proposes** the seven-function layout without ever imposing it. **Executor surface only** (files, local Git, hook). This skill is launched only on the prescription of a Mission, an initiation order dated by the Owner or an Owner arbitration: adopting writes into the Vault's registry (DECISION-210731 point 2, amended by Decision 000545 A3). The source of behaviour is Decision 210731, **to be read in full before the first gesture**; this body does not paraphrase it.
 
-## 1. Mesure l'étage actuel et dis-le
+## 1. Measure the current tier and say it
 
-Depuis la racine du projet : **machine** — un fichier global par outil existe (`~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`) et nomme le marqueur ; **workspace** — `VAULT-ROOT.md` trouvé en remontant, sa ligne « Chemin relatif du Vault » lue ; **projet** — présence de `AGENTS.md`/`CLAUDE.md` pointant la charte, de `.pre-commit-config.yaml` épinglé (`repo: local`, sur le Vault voisin — T01), de `.claude/settings.json` avec le hook `PreToolUse`, d'une ligne au registre `projects/PROJECT-REGISTRY.md` du Vault, d'une fiche `projects/PROJECT-<id>.md` du Vault. Rends l'étage mesuré. **Ne dégrade jamais un étage** : rien n'est retiré, rien n'est réécrit.
+From the root of the project: **machine** — a global file per tool exists (`~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`) and names the marker; **workspace** — `VAULT-ROOT.md` found by walking up, its line « Chemin relatif du Vault » ["Relative path of the Vault"] read; **project** — presence of `AGENTS.md`/`CLAUDE.md` pointing to the charter, of a pinned `.pre-commit-config.yaml` (`repo: local`, on the neighbouring Vault — T01), of `.claude/settings.json` with the `PreToolUse` hook, of a line in the Vault's `projects/PROJECT-REGISTRY.md` registry, of a Vault sheet `projects/PROJECT-<id>.md`. Return the measured tier. **Never degrade a tier**: nothing is removed, nothing is rewritten.
 
-## 2. Mode adopter — projet existant
+## 2. Adopt mode — existing project
 
-`bash <Vault>/tools/project-bootstrap.sh adopt <projet> [nom] --vcs none|git [--lang FR|EN|ES]` (ou `--order <fichier>` pour un ordre d'initiation). Le script n'écrit que ce qui manque, **sans toucher à aucun fichier existant du projet** (un fichier présent, même incomplet, est laissé tel quel et signalé) :
-1. **Acte de naissance et épingle** `.pre-commit-config.yaml` : bloc de commentaires en tête (`vault_id`, `vault_origin`, `vault_ref`, `vcs`, `baseline`), puis `repo: local` sur ce Vault par chemin relatif mesuré, quatre hooks (`vault-check-secrets`, `vault-check-indexes-fresh`, `vault-check-index-weight`, `vault-check-links`). Une épingle déjà présente sans acte n'est pas modifiée : le bloc à ajouter est rendu.
-2. **Ligne de base datée** (`.vault-baseline-<date>.tsv`, nommée par l'acte) : les fichiers existants et leur empreinte. Les gardiens ne jugent que le nouveau et le touché ; un fichier gravé puis touché doit devenir conforme (cliquet). Les liens cassés d'avant : `tools/propose-link-repairs.sh <projet>` rend un plan ; `--apply` n'existe que sous Mission.
-3. **Fichiers de pointage** `AGENTS.md` et `CLAUDE.md`, prompt Pilot `<projet>/state/PILOT-PROMPT.md` (canari), `.gitignore` des liens, index absents : absents seulement.
-4. **Ligne au registre** (colonne `vcs`) et **fiche v2** du Vault ; `conformity` mesurée par `tools/check-project-conformity.sh <projet>` (sept fonctions, registre, acte, épingle, hook Git si `vcs: git`, cohérence des fichiers de pointage avec l'acte).
-5. **Git** : `vcs: git` → dépôt créé s'il manque, `pre-commit install` ; `vcs: none` → aucun hook, contrôles par commande (`tools/check-links.sh <projet>`, `check-secrets.sh`, `check-indexes-fresh.sh`, `check-index-weight.sh`, `check-project-conformity.sh`). `adopt --git` plus tard fait passer le projet à `vcs: git`.
+`bash <Vault>/tools/project-bootstrap.sh adopt <projet> [nom] --vcs none|git [--lang FR|EN|ES]` (or `--order <fichier>` for an initiation order). The script writes only what is missing, **without touching any existing file of the project** (a file present, even incomplete, is left as it is and flagged):
+1. **Birth certificate and pin** `.pre-commit-config.yaml`: comment block at the head (`vault_id`, `vault_origin`, `vault_ref`, `vcs`, `baseline`), then `repo: local` on this Vault by measured relative path, four hooks (`vault-check-secrets`, `vault-check-indexes-fresh`, `vault-check-index-weight`, `vault-check-links`). A pin already present without a certificate is not modified: the block to add is returned.
+2. **Dated baseline** (`.vault-baseline-<date>.tsv`, named by the certificate): the existing files and their fingerprint. The guardians judge only what is new and what is touched; an engraved file that is then touched must become compliant (ratchet). Broken links from before: `tools/propose-link-repairs.sh <projet>` returns a plan; `--apply` exists only under a Mission.
+3. **Pointer files** `AGENTS.md` and `CLAUDE.md`, Pilot prompt `<projet>/state/PILOT-PROMPT.md` (canary), `.gitignore` of the links, absent indexes: only if absent.
+4. **Line in the registry** (`vcs` column) and the Vault's **v2 sheet**; `conformity` measured by `tools/check-project-conformity.sh <projet>` (seven functions, registry, certificate, pin, Git hook if `vcs: git`, consistency of the pointer files with the certificate).
+5. **Git**: `vcs: git` → repository created if missing, `pre-commit install`; `vcs: none` → no hook, checks by command (`tools/check-links.sh <projet>`, `check-secrets.sh`, `check-indexes-fresh.sh`, `check-index-weight.sh`, `check-project-conformity.sh`). `adopt --git` later moves the project to `vcs: git`.
 
-Le hook `executor-preflight` (compagnon `preflight-hook.sh`, fragment `settings-hook.json`) reste un geste de ce skill : copie le hook dans `.claude/hooks/` s'il manque ; un `.claude/settings.json` existant n'est jamais modifié, le fragment est rendu.
+The `executor-preflight` hook (companion `preflight-hook.sh`, fragment `settings-hook.json`) remains a gesture of this skill: copy the hook into `.claude/hooks/` if it is missing; an existing `.claude/settings.json` is never modified, the fragment is returned.
 
-## 3. Mode nouveau — projet à naître
+## 3. New mode — project to be born
 
-`bash <Vault>/tools/project-bootstrap.sh create <chemin-cible> <display_name> --vcs none|git` (ou l'appel historique sans sous-commande) : squelette des sept fonctions, README, journal, index, acte de naissance et épingle, prompt Pilot, fiche v2, ligne de registre, dépôt et hook si `vcs: git`. `--ask` pose d'abord nom, emplacement et Git. Le script finit par le **bloc à consommer** (Projet à créer, prompt commun à coller, premier message = chemin du projet, canari).
+`bash <Vault>/tools/project-bootstrap.sh create <chemin-cible> <display_name> --vcs none|git` (or the historical call without a subcommand): skeleton of the seven functions, README, journal, index, birth certificate and pin, Pilot prompt, v2 sheet, registry line, repository and hook if `vcs: git`. `--ask` first asks for name, location and Git. The script ends with the **block to consume** (Project to create, common prompt to paste, first message = path of the project, canary).
 
-## 4. Propose la réorganisation, n'applique jamais seul
+## 4. Propose the reorganization, never apply it alone
 
-En fin de course, sur un projet adopté : présente le **plan de réorganisation** en sept fonctions (`README.md`, `rules/`, `state/`, `missions/`, `decisions/`, `proposals/`, `knowledge/`, `handoffs/` — RULES-142800 §2) : la liste des déplacements, ce qui bougerait et où, **aucun exécuté**. Elle ne s'applique que sur un « oui » catégorique de l'Owner **écrit dans la Mission** qui lance ce skill — jamais sur un oui de conversation. Sans ce oui : le projet reste tel quel, adopté mais non réorganisé, et la fiche v2 le dit.
+At the end of the run, on an adopted project: present the **reorganization plan** into seven functions (`README.md`, `rules/`, `state/`, `missions/`, `decisions/`, `proposals/`, `knowledge/`, `handoffs/` — RULES-142800 §2): the list of moves, what would move and where, **none executed**. It is applied only on a categorical "yes" from the Owner **written in the Mission** that launches this skill — never on a conversational yes. Without that yes: the project stays as it is, adopted but not reorganized, and the v2 sheet says so.
 
 ## 5. Verdict
 
-Étage avant → étage après ; liste des fichiers ajoutés ; **rien de modifié** — preuve : `git status --porcelain` du projet ne montre que des `??` (ou des `A`), aucun ` M` ; sortie de `check-project-conformity.sh` collée ; le plan de réorganisation proposé ; les gestes humains restants.
+Tier before → tier after; list of the files added; **nothing modified** — proof: the project's `git status --porcelain` shows only `??` (or `A`), no ` M`; output of `check-project-conformity.sh` pasted; the proposed reorganization plan; the remaining human gestures.
 
-## Ce que ce skill ne fait pas
+## What this skill does not do
 
-Ouvrir ou clore une session (`session-start`, `session-close`) · pousser · modifier ou déplacer un fichier existant du projet · appliquer les sept fonctions sans le oui écrit dans la Mission · adopter (historique de l'atelier, non distribué), le Vault ou un entrepôt sans Mission dédiée · installer le poste (`first-install`) · dégrader un étage.
+Open or close a session (`session-start`, `session-close`) · push · modify or move an existing file of the project · apply the seven functions without the yes written in the Mission · adopt (workshop history, not distributed), the Vault or a warehouse without a dedicated Mission · install the machine (`first-install`) · degrade a tier.
 
 ## Liens
 
-- `see also` — [Hook executor-preflight, à copier dans le projet](./preflight-hook.sh)
-- `see also` — [Fragment PreToolUse à fusionner dans .claude/settings.json](./settings-hook.json)
-- `applies` — Décision — Prise de conscience du Vault par un projet, trois étages (historique de l'atelier, non distribué) (hors Vault)
-- `applies` — Décision — Fin de passe skills V1 (historique de l'atelier, non distribué) (hors Vault)
-- `applies` — Décision — Consolidation du soir, standard de projet et plan (historique de l'atelier, non distribué) (hors Vault)
-- `see also` — [Standard de structure de projet, sept fonctions](../../rules/RULES-2026-08-26-142800-project-structure-standard.md)
-- `see also` — [Gabarit du registre des projets](../../templates/project-registry-template.md)
-- `see also` — [Registre des projets](../../projects/PROJECT-REGISTRY.md)
-- `applies` — [Décision — Initiation et adoption de projet, acte de naissance](../../decisions/DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md)
+- `see also` — [executor-preflight hook, to be copied into the project](./preflight-hook.sh)
+- `see also` — [PreToolUse fragment to merge into .claude/settings.json](./settings-hook.json)
+- `applies` — Decision — Awareness of the Vault by a project, three tiers (workshop history, not distributed) (hors Vault)
+- `applies` — Decision — End of the skills V1 pass (workshop history, not distributed) (hors Vault)
+- `applies` — Decision — Evening consolidation, project standard and plan (workshop history, not distributed) (hors Vault)
+- `see also` — [Project structure standard, seven functions](../../rules/RULES-2026-08-26-142800-project-structure-standard.md)
+- `see also` — [Project registry template](../../templates/project-registry-template.md)
+- `see also` — [Project registry](../../projects/PROJECT-REGISTRY.md)
+- `applies` — [Decision — Project initiation and adoption, birth certificate](../../decisions/DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md)
