@@ -662,6 +662,33 @@ try {
         else {
             [Console]::Error.WriteLine((Format-CatalogText -Catalog $catalog -Key 'install.vaultOrigin.fallback' -FormatArgs @($sourceAbs)))
         }
+        # A fresh clone is a new Vault (Mission 191-C01): it never inherits a
+        # generated identity its source may carry (the laboratory Vault,
+        # Decision 152251 A2, carries its own). The identity step below
+        # generates this installation's.
+        $identityFile = Join-Path $clonePath 'VAULT-IDENTITY.md'
+        if ((Test-Path $identityFile) -and (Select-String -Path $identityFile -Pattern '^status: generated\s*$' -Quiet)) {
+            Remove-Item -LiteralPath $identityFile -Force
+        }
+    }
+    else {
+        # An installation is already there (Decision 152251 B3, Mission
+        # 191-C01): if it does not contain the version this line brings, the
+        # line does not reinstall over it -- it names the update command.
+        # Nothing is touched.
+        $sourceHeadLines = @(& git -C $sourceAbs rev-parse HEAD)
+        $sourceHead = ''
+        if ($LASTEXITCODE -eq 0 -and $sourceHeadLines.Count -gt 0) { $sourceHead = "$($sourceHeadLines[0])".Trim() }
+        if ($sourceHead) {
+            & git -C $clonePath merge-base --is-ancestor $sourceHead HEAD 2>$null
+            if ($LASTEXITCODE -ne 0) {
+                $versionLines = @(& git -C $sourceAbs describe --tags --exact-match HEAD 2>$null)
+                $sourceVersion = $sourceHead
+                if ($LASTEXITCODE -eq 0 -and $versionLines.Count -gt 0) { $sourceVersion = "$($versionLines[0])".Trim() }
+                Write-Output (Format-CatalogText -Catalog $catalog -Key 'install.existingInstall' -FormatArgs @($clonePath, $sourceVersion, "powershell -File $(Join-Path $sourceAbs 'tools\second-brain-update.ps1') $sourceVersion -Vault $clonePath"))
+                exit 1
+            }
+        }
     }
     Set-CarnetStep -Carnet $carnet -Name 'cloned'
     # The notebook is born here (T06 complement 2: this is where the

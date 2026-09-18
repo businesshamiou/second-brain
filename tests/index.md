@@ -17,6 +17,14 @@ This file is kept by hand: `tools/build-indexes.sh` indexes only Markdown docume
 
 Each test returns a closed verdict — `PASS`, `FAIL`, or `SKIP (cause, platform)` — and carries its own negative control: the same measurement, on a case built to fail. A test without a control does not prove it can fail.
 
+### One MCP server per Vault, and the update — Mission 191-C01 (v0.1.8)
+
+- `test-install-vault-mcp-name-per-vault.sh` (W / U / M) — two Vaults, two servers named after their identity; idempotent; former name migrated; crossed identity refused.
+- `test-check-mcp-containment-per-vault.sh` (W / U / M) — containment finds the server of the project's own Vault.
+- `test-project-instructions-name-server.sh` (W / U / M) — Project instructions and Pilot prompt name this Vault's server.
+- `test-agents-language-line.sh` (U) — `AGENTS.md` and `CLAUDE.md`: corpus in English, the participant's language from `USER.md`.
+- `test-update-installed-vault.sh` (W / U / M) and `.ps1` (W) — `second-brain update` from v0.1.7 to v0.1.8 over local commits; conflict, altered identity, temporary origin and the install line on an existing workspace all refused with nothing touched.
+
 ### Windows shards and tag checkout — Mission 189 (v0.1.7)
 
 - `test-shards-cover-suite.sh` (U) — the three Windows shards play every W line once.

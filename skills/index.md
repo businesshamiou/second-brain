@@ -20,6 +20,7 @@ Agent behaviours in the Agent Skills format.
 - `recherche-interne/` — disciplined search in the Vault and the project corpus: index and description first, never an unmeasured path — see [SKILL.md](./recherche-interne/SKILL.md).
 - `session-close/` — closes a work session: inventory of the holes, refusal to close as long as any remain, handoff or closing commit — see [SKILL.md](./session-close/SKILL.md).
 - `session-start/` — opens a work session: measures the state of the repository and of the guardians, announces the role — see [SKILL.md](./session-start/SKILL.md).
+- `update/` — updates an installed Second Brain to a published version without reinstalling: merge over the participant's commits, clean refusal on a conflict — see [SKILL.md](./update/SKILL.md).
 
 ## Liens
 

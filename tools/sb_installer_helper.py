@@ -963,6 +963,27 @@ def cmd_merge_mcp_json(args):
     return 0
 
 
+def cmd_remove_mcp_json(args):
+    """Removes one server from a desktop-application configuration (the
+    former fixed name, Mission 191-C01); other servers and keys kept."""
+    if not os.path.exists(args.config):
+        print("ABSENT")
+        return 0
+    data = _load_json_config(args.config)
+    servers = data.get("mcpServers")
+    if not isinstance(servers, dict) or args.name not in servers:
+        print("ABSENT")
+        return 0
+    del servers[args.name]
+    data["mcpServers"] = servers
+    tmp = args.config + ".tmp"
+    with open(tmp, "w", encoding="utf-8", newline="\n") as f:
+        f.write(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
+    os.replace(tmp, args.config)
+    print("REMOVED")
+    return 0
+
+
 def cmd_mcp_server_args(args):
     if not os.path.exists(args.config):
         return 1
@@ -1102,6 +1123,11 @@ def build_parser():
     p.add_argument("command")
     p.add_argument("server_args", nargs=argparse.REMAINDER)
     p.set_defaults(func=cmd_merge_mcp_json)
+
+    p = sub.add_parser("remove-mcp-json")
+    p.add_argument("config")
+    p.add_argument("name")
+    p.set_defaults(func=cmd_remove_mcp_json)
 
     p = sub.add_parser("mcp-server-args")
     p.add_argument("config")

@@ -5,7 +5,7 @@ Before any action: determine your role. Read [the role charter](./rules/RULES-20
 - The Vault's files are the source of truth. Read the linked sources before any modification.
 - The model's memory is never a source of state or of hypothesis: what has not been read in a file during the session is not known. Not asking oneself whether a file exists is a form of assertion.
 - Without an active filesystem MCP server or shell access: ask the Owner for the files and produce nothing from memory.
-- Write prose in French. Use idiomatic English for machine identifiers, slugs, keys and folder names.
+- Files in this repository are written in English. Speak to the participant in the language of USER.md. Use idiomatic English for machine identifiers, slugs, keys and folder names.
 - Record every structuring decision explicitly. Never silently turn a proposal into a decision.
 - Apply the [context lifecycle V2](./rules/RULES-2026-08-17-111018-context-lifecycle-v2.md) selectively: capture only what will be durably useful, and create a proposal only when an important option must wait for an arbitration.
 - Apply the [rule on versioning Missions and generated outputs](./rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md) when a project uses Missions or a `generated/` landing zone.
@@ -33,4 +33,5 @@ Before any action: determine your role. Read [the role charter](./rules/RULES-20
 - `applies` — [Document linking standard](./rules/RULES-2026-08-21-115658-document-linking-standard.md)
 - `applies` — [Relay between roles through mini-prompts with fixed rubrics](./rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md)
 - `applies` — [Decision — Relay and delegation, one rule in one place](./decisions/DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md)
+- `applies` — Decision — Corpus language: English, the participant keeps their language (workshop history, not distributed) (hors Vault)
 - `applies` — [Decision — Permanent deletion is an Owner gesture](./decisions/DECISION-2026-08-29-110852-deletion-is-owner-gesture-trash-zone.md)

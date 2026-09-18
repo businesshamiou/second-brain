@@ -3,7 +3,8 @@
 # trigger them stay in both languages -- a French-speaking participant still
 # says « wrap » or « clôture ».
 #
-# Oracle (PASS expected): the `description` of each of the six skills below
+# Oracle (PASS expected): the `description` of each of the skills below
+#   (six from Mission 187, `update` added by Mission 191-C01)
 #   (front matter of skills/<name>/SKILL.md, read by the harnesses to
 #   trigger a skill) carries every French and every English trigger phrase
 #   listed for it here -- a closed list, one line per skill.
@@ -25,7 +26,8 @@ first-install|installe Second Brain;installer Second Brain|install Second Brain
 project-bootstrap|adopte ce projet;nouveau projet|adopt this project;new project
 recherche-interne|où est;trouve;cherche dans le Vault;quel fichier|where is
 session-close|wrap;on ferme;clôture;clos la session|wrap;close
-session-start|nouvelle session;nouvelle session pilote;ouvre la session;ouverture|open the session'
+session-start|nouvelle session;nouvelle session pilote;ouvre la session;ouverture|open the session
+update|mets à jour second-brain;mise à jour;nouvelle version|update second-brain;new version'
 
 description_of() {
   # $1 = SKILL.md. The value of the front-matter `description` line.

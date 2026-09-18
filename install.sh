@@ -686,6 +686,25 @@ if [ ! -d "$CLONE_PATH/.git" ]; then
   else
     catalog_get "install.vaultOrigin.fallback" "$SOURCE_ABS" >&2
   fi
+  # A fresh clone is a new Vault (Mission 191-C01): it never inherits a
+  # generated identity its source may carry -- a published tree carries the
+  # skeleton, but the laboratory Vault, where the product is developed
+  # (Decision 152251 A2), carries its own. The identity step below
+  # generates this installation's.
+  if [ "$(bash "$CLONE_PATH/tools/vault-identity.sh" get status "$CLONE_PATH" 2>/dev/null)" = "generated" ]; then
+    rm -f "$CLONE_PATH/VAULT-IDENTITY.md"
+  fi
+else
+  # An installation is already there (Decision 152251 B3, Mission 191-C01):
+  # if it does not contain the version this line brings, the line does not
+  # reinstall over it -- it names the update command, which merges the
+  # version over the participant's own commits. Nothing is touched.
+  SOURCE_HEAD="$(git -C "$SOURCE_ABS" rev-parse HEAD 2>/dev/null)"
+  if [ -n "$SOURCE_HEAD" ] && ! git -C "$CLONE_PATH" merge-base --is-ancestor "$SOURCE_HEAD" HEAD >/dev/null 2>&1; then
+    SOURCE_VERSION="$(git -C "$SOURCE_ABS" describe --tags --exact-match HEAD 2>/dev/null || printf '%s' "$SOURCE_HEAD")"
+    catalog_get "install.existingInstall" "$CLONE_PATH" "$SOURCE_VERSION" "bash $SOURCE_ABS/tools/second-brain-update.sh $SOURCE_VERSION --vault $CLONE_PATH"
+    exit 1
+  fi
 fi
 mark_step "cloned"
 save_carnet

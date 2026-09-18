@@ -6,6 +6,24 @@ status: active
 
 # RELEASE NOTES
 
+## v0.1.8
+
+The version you will not have to reinstall: from now on, a new version is received by an update.
+
+**What this version brings.**
+
+- **Update without reinstalling.** `tools/second-brain-update.sh <version>` (and `second-brain-update.ps1` on Windows, skill `update`) merges a published version into your installation: your profile, your Vault's identity, your projects and your history are kept, the indexes are regenerated, one merge commit goes through the Vault's guardians. A conflict, an identity that would change or an uncommitted change is refused, with nothing touched. Run from an installation at v0.1.7 or earlier, the installation line of this version no longer installs over it: it prints the update command.
+- **One MCP server per Vault.** The Pilot's server is named after the Vault's identity (`second-brain-vault-<8 characters>`). Two Second Brains on one machine keep two servers side by side; the former fixed name is migrated when it pointed to the same Vault, and never replaced when it points to another. The containment check and the instructions of each Project name the server of their own Vault.
+- **The agents' instructions say which language to use.** `AGENTS.md` and `CLAUDE.md` now say: files in English, and speak to you in the language of your `USER.md` (they still said "Write prose in French").
+- **A CI round takes about 15 minutes.** The Windows acceptance runs in parallel with the Windows shards again; it only waits for what it really needs.
+- **A copy of a Vault is a new Vault.** An installation, like a throwaway test Vault, never inherits an identity its source may carry. The identity file an installation generates (`VAULT-IDENTITY.md`) is now written in English, like the rest of the corpus; an identity already generated is never rewritten.
+
+**How it is proven.** Named tests, each with its negative control, chained in the public CI; the inventory is in [`tests/index.md`](./tests/index.md).
+
+**What this version does not promise.** The limits of v0.1.7 remain valid. An installation from before v0.1.4 (its origin is the installer's temporary folder) cannot be updated: it is reinstalled.
+
+**What remains to be done on your side.** If you installed v0.1.7 or earlier: run the installation line above; it prints the update command. Then run `tools/install-vault-mcp.sh` again so the Claude app knows the server under its new name, and restart the app.
+
 ## v0.1.7
 
 Maintenance version: compared with v0.1.6, the only installed file that changes is `AGENTS.md` (one paragraph, below); the rest is the proof around it.

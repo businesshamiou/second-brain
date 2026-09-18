@@ -21,13 +21,13 @@ This repository contains Second Brain: a durable memory and a cross-project oper
 **Windows (PowerShell, a standard account is enough):**
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.7/bootstrap.ps1)))"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.8/bootstrap.ps1)))"
 ```
 
 **macOS / Linux (Terminal):**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.7/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.8/bootstrap.sh | bash
 ```
 
 The line downloads a bootstrap script (`bootstrap.ps1` or `bootstrap.sh`, at the root of this repository) that requires nothing installed: it sets up Git in your profile if needed, verifies its fingerprint, fetches the repository at the indicated version, then launches the installer (`install.ps1` or `install.sh`). No elevation prompt, no writing outside your profile.
@@ -53,7 +53,7 @@ Each step is noted in a logbook (`.install/state.json`, at the root of your clon
 
 ## 4. The MCP server
 
-The installer writes nothing into your profile. **The Pilot's disk access (desktop application)** is set up afterwards by `/first-install` (or by hand, line below): it detects Claude Code, Codex and the Claude desktop application, declares the `second-brain-vault` server in them with your workspace as the only authorized folder, checks Python through `uv`, then asks you to restart the application. `check-mcp-containment.sh <configuration> <projet>` verifies that the project and Second Brain are indeed within the authorized perimeter.
+The installer writes nothing into your profile. **The Pilot's disk access (desktop application)** is set up afterwards by `/first-install` (or by hand, line below): it detects Claude Code, Codex and the Claude desktop application, declares **this Vault's server** in them — `second-brain-vault-<8 characters of its identity>`, read in `VAULT-IDENTITY.md` — with your workspace as the only authorized folder, checks Python through `uv`, then asks you to restart the application. Two Second Brains on one machine (a laboratory and a company, for instance) therefore have two servers side by side: the script never replaces another Vault's server, and it migrates the former fixed name `second-brain-vault` (up to v0.1.7) when it pointed to this Vault. `check-mcp-containment.sh <configuration> <projet>` verifies that the project and Second Brain are indeed within the authorized perimeter.
 
 By hand, from the root of your `second-brain` clone:
 
@@ -86,6 +86,22 @@ bash second-brain/tools/project-bootstrap.sh adopt /chemin/du/dossier --vcs git
 ```
 
 The script adds only what is missing (birth certificate, pointer files, Pilot prompt, line in the registry) and reorganizes nothing without confirmation. Complete details (baseline, `--vcs none`, initiation order) in ["Adopt an existing folder" in the README](./README.md).
+
+## 7. Update to a new version
+
+An installed Second Brain receives a new version **without being reinstalled**: the version is merged over your own commits — your profile (`USER.md`), your Vault's identity, your projects' sheets and registry — which stay as they are; the indexes are regenerated. Nothing else is touched: not your projects, not your profile, not your tools' configuration.
+
+From **v0.1.8 on**, from your workspace:
+
+```bash
+bash second-brain/tools/second-brain-update.sh v0.1.9
+```
+
+Under Windows, in PowerShell: `powershell -File second-brain\tools\second-brain-update.ps1 v0.1.9`.
+
+From **v0.1.7 or earlier** (the tool is not in your installation yet): run the installation line of the new version (section 2). It sees that Second Brain is already installed, installs nothing, and prints the exact update command to run, which uses the new version's tool.
+
+The last line says what happened: `VERDICT: UPDATED`, `VERDICT: UP-TO-DATE` or `VERDICT: REFUSED`. A refusal changes nothing and names its cause: changes not committed yet, a conflict with a local edit of a file of the method (named), an installation from before v0.1.4 (its origin is the installer's temporary folder: reinstall it in a new folder). If the message says the MCP server may have changed, run `tools/install-vault-mcp.sh` again (section 4) and restart the application.
 
 ## License
 

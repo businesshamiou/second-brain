@@ -30,13 +30,13 @@ The complete glossary of the product's terms lives in [CONTEXT.md](./CONTEXT.md)
 **Windows (PowerShell, a standard account is enough):**
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.7/bootstrap.ps1)))"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.8/bootstrap.ps1)))"
 ```
 
 **macOS / Linux (Terminal):**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.7/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.8/bootstrap.sh | bash
 ```
 
 Nothing needs to be installed beforehand: the bootstrap script sets up Git in your profile if it is missing, fetches this repository, then launches the installer (details in [INSTALL.md](./INSTALL.md)).
@@ -64,7 +64,7 @@ Nothing is installed at a machine-wide location (system registry, shared folder)
 
 ## The MCP server
 
-The Pilot role (thinking, arbitrating, writing the Missions) is played in **the Claude desktop application**: that is where Second Brain's MCP server (`second-brain-vault`) lives, which gives the Pilot disk access bounded to your workspace. It does not exist in the browser.
+The Pilot role (thinking, arbitrating, writing the Missions) is played in **the Claude desktop application**: that is where Second Brain's MCP server lives — `second-brain-vault-<8 characters of your Vault's identity>`, one per Vault, so two Second Brains on one machine keep two servers side by side — which gives the Pilot disk access bounded to your workspace. It does not exist in the browser.
 
 From Claude Code or Codex, `/first-install` sets up this server (`tools/install-vault-mcp.sh`) in the tools it finds — Claude Code, Codex, the desktop application — with your workspace as the only authorized folder. Then restart the application. By hand, from the root of your clone:
 
@@ -112,7 +112,7 @@ If the installation is interrupted (accidental closing, network failure while fe
 
 Rerunning the installer on an already-installed machine switches to **update mode**: your current answers are displayed, a question asks you whether something has changed, and `USER.md` is cleanly rewritten with its new date if you confirm a change.
 
-**This mode never touches the code.** This version installs as is, and no mechanism brings a more recent version into an existing installation: to get one, reinstall from the published repository (in a new folder, or in this one after having backed up your `USER.md` and your projects).
+**This mode never touches the code.** A more recent version is received by the **update** (from v0.1.8 on): `bash second-brain/tools/second-brain-update.sh <version>` merges the published version over your own commits — profile, identity, projects and history kept, indexes regenerated — and refuses cleanly, with nothing touched, on a conflict or an uncommitted change. From v0.1.7 or earlier, run the installation line of the new version: it prints the update command instead of installing. Details in [INSTALL.md, section 7](./INSTALL.md).
 
 ## Uninstallation
 

@@ -383,6 +383,10 @@ done
 vid_ensure "$VAULT_ROOT"
 VAULT_ID="$(vid_get "$VAULT_ROOT" vault_id)"
 VAULT_ORIGIN="$(vid_get "$VAULT_ROOT" vault_origin)"
+# Name of THIS Vault's MCP server (Decision 152251 C, Mission 191-C01):
+# written in the Pilot prompt and rendered in the Project instructions.
+MCP_SERVER="$(vid_server_name "$VAULT_ROOT")"
+VAULT_SHORT_ID="${MCP_SERVER#second-brain-vault-}"
 
 # --- Registry missing: created from the template before any line is written
 # (Mission 118, batch 5). The template is at the same depth as the registry
@@ -643,6 +647,7 @@ status: generated
 project_id: $PROJECT_ID
 canary: "$CANARY"
 vault_id: "$VAULT_ID"
+mcp_server: "$MCP_SERVER"
 vault_ref: "$VAULT_REF"
 generated_at: "$TS"
 ---
@@ -653,13 +658,14 @@ Généré par \`tools/project-bootstrap.sh\`. Ne pas éditer à la main : le pro
 
 - Chemin du projet : \`$TARGET_NATIVE\`
 - Vault : \`$VAULT_ID\`, construit au commit \`$VAULT_REF\`
+- Serveur MCP de ce Vault : \`$MCP_SERVER\`
 - Canari : \`$CANARY\`
 
 ## Ouverture Pilot
 
 Le rôle Pilot exige l'application de bureau : le serveur MCP du Vault n'existe pas dans le navigateur.
 
-1. Appelle \`list_allowed_directories\` du serveur \`second-brain-vault\` : la liste doit contenir le chemin du projet ci-dessus. Compare le commit du Vault qu'il rend à celui ci-dessus ; un écart se dit, il ne bloque pas.
+1. Appelle \`list_allowed_directories\` du serveur \`$MCP_SERVER\` : la liste doit contenir le chemin du projet ci-dessus. Compare le commit du Vault qu'il rend à celui ci-dessus ; un écart se dit, il ne bloque pas.
 2. Lis ce fichier et rends le canari \`$CANARY\` : c'est la preuve que la lecture a eu lieu.
 3. Applique le [prompt commun]($REL_PROMPT_TEMPLATE) et la [charte des rôles]($REL_CHARTER_FROM_STATE).
 
@@ -1041,6 +1047,9 @@ $B
   # extraction BEFORE any output of this block: a template without its two
   # markers must produce no partial display.
   PROMPT_COMMON_BLOCK="$(extract_prompt_common_block "$PILOT_PROMPT_TEMPLATE")" || exit 1
+  # The trunk names the server of THIS Vault (Decision 152251 C): its only
+  # placeholder is rendered here, nothing else of the trunk changes.
+  PROMPT_COMMON_BLOCK="$(printf '%s\n' "$PROMPT_COMMON_BLOCK" | sed "s/{{VAULT_SHORT_ID}}/$VAULT_SHORT_ID/g")"
   CONSUME_PURPOSE="${ORDER_PURPOSE:-$DISPLAY_NAME}"
 
   CATALOG "projectBootstrap.consume.header"

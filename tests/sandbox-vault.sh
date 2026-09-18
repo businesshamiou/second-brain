@@ -89,6 +89,13 @@ sandbox_vault() {
     tar -cf - -T "$dest/.sandbox-files" | (cd "$dest" && tar -xf -)
   ) || return 1
   rm -f "$dest/.sandbox-files"
+  # A throwaway Vault is a new Vault: it never keeps the generated identity
+  # its source may carry (the laboratory Vault carries its own, Decision
+  # 152251 A2 -- measured in Mission 190: two sandboxes built from it shared
+  # one vault_id). `ensure` below then generates this one's.
+  if [ "$(bash "$dest/tools/vault-identity.sh" get status "$dest" 2>/dev/null)" = "generated" ]; then
+    rm -f "$dest/VAULT-IDENTITY.md"
+  fi
   (
     cd "$dest" || exit 1
     git init -q -b main 2>/dev/null || git init -q
@@ -107,6 +114,14 @@ sandbox_vault() {
       [ "$n" -ge 5 ] && exit 1
       sleep 1
     done
-    git commit -q -m "sandbox vault" >/dev/null 2>&1
+    # The same transient refusal hits the commit too (Mission 190: one
+    # sandbox in four failed at its commit, the same commit replayed by hand
+    # passed): same bounded retry.
+    n=0
+    until git commit -q -m "sandbox vault" >/dev/null 2>&1; do
+      n=$((n + 1))
+      [ "$n" -ge 5 ] && exit 1
+      sleep 1
+    done
   ) || return 1
 }

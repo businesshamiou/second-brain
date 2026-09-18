@@ -89,7 +89,12 @@ TEMPLATE="$V/templates/session-opening-prompt-template.md"
 VID="$(bash "$V/tools/vault-identity.sh" get vault_id "$V")"
 VREF="$(git -C "$V" rev-parse HEAD)"
 
-EXPECTED_BLOCK="$(extract_expected_block "$TEMPLATE")"
+# Mission 191-C01 (Decision 152251 C): the trunk names the server of THIS
+# Vault; its only placeholder is rendered with this Vault's short identity,
+# every other byte of the trunk stays the template's.
+VSHORT="$(bash "$V/tools/vault-identity.sh" get server_name "$V")"
+VSHORT="${VSHORT#second-brain-vault-}"
+EXPECTED_BLOCK="$(extract_expected_block "$TEMPLATE" | sed "s/{{VAULT_SHORT_ID}}/$VSHORT/g")"
 if [ -n "$EXPECTED_BLOCK" ]; then
   pass "tronc commun extrait du gabarit jetable (non vide)"
 else

@@ -396,6 +396,8 @@ skills/session-close/index.md	DISTRIBUABLE
 skills/session-start/SKILL.md	DISTRIBUABLE
 skills/session-start/index.md	DISTRIBUABLE
 skills/session-start/reading-list.md	DISTRIBUABLE
+skills/update/SKILL.md	DISTRIBUABLE
+skills/update/index.md	DISTRIBUABLE
 skills/superseded-files.txt	DISTRIBUABLE
 superseded-files.txt	DISTRIBUABLE
 templates/capture-template.md	DISTRIBUABLE
@@ -472,6 +474,8 @@ tools/project-bootstrap.sh	DISTRIBUABLE
 tools/questionnaire.ps1	DISTRIBUABLE
 tools/resolve-bash-exe.ps1	DISTRIBUABLE
 tools/sb_installer_helper.py	DISTRIBUABLE
+tools/second-brain-update.ps1	DISTRIBUABLE
+tools/second-brain-update.sh	DISTRIBUABLE
 tools/session-preflight.sh	DISTRIBUABLE
 tools/session-start-role.sh	DISTRIBUABLE
 tools/start-executor.sh	DISTRIBUABLE
@@ -592,3 +596,9 @@ tests/test-shards-cover-suite.sh	DISTRIBUABLE
 tests/test-suite-on-detached-head.sh	DISTRIBUABLE
 tests/index-archive-2026-09.md	DISTRIBUABLE
 tests/fixtures/corpus-link-targets-changes.tsv	DISTRIBUABLE
+tests/test-install-vault-mcp-name-per-vault.sh	DISTRIBUABLE
+tests/test-check-mcp-containment-per-vault.sh	DISTRIBUABLE
+tests/test-project-instructions-name-server.sh	DISTRIBUABLE
+tests/test-agents-language-line.sh	DISTRIBUABLE
+tests/test-update-installed-vault.sh	DISTRIBUABLE
+tests/test-update-installed-vault.ps1	DISTRIBUABLE

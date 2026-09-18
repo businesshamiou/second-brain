@@ -3,3 +3,4 @@
 # the reference it compares with is the fixture plus these lines; an undeclared change still fails.
 +	AGENTS.md	./decisions/DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md	M189 -- AGENTS.md aligned on Decision 201623 A, which it now names
 +	tests/index.md	./index-archive-2026-09.md	M189 -- tests/index.md split into live index and frozen archive at its 8,000-byte cap
++	skills/index.md	./update/SKILL.md	M191-C01 -- the new update skill is listed in the skills index

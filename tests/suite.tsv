@@ -75,3 +75,9 @@ tests/test-skill-triggers-bilingual.sh	-	bash	U	blocking	+M187 T3 -- the six ski
 tests/test-published-line-ref.sh	-	bash	U	blocking	+M187 -- the published install line and the bootstraps default ref name the same tag	-
 tests/test-shards-cover-suite.sh	-	bash	U	blocking	+M189 T1 -- the Windows CI shards cover the suite exactly (union = W lines, matrix = shards, longest tests apart)	-
 tests/test-suite-on-detached-head.sh	-	bash	U	blocking	+M189 T2 -- the suite plays with no blocking red on a detached HEAD with no branch (a tag event)	-
+tests/test-install-vault-mcp-name-per-vault.sh	-	bash	WUM	blocking	+M191-C01 T1 -- one MCP server per Vault: two Vaults, two servers, idempotent, former name migrated, crossed identity refused	1
+tests/test-check-mcp-containment-per-vault.sh	-	bash	WUM	blocking	+M191-C01 T2 -- containment finds the server of the project's own Vault, by identity	2
+tests/test-project-instructions-name-server.sh	-	bash	WUM	blocking	+M191-C01 T3 -- Project instructions and Pilot prompt name the server of this Vault	3
+tests/test-agents-language-line.sh	-	bash	U	blocking	+M191-C01 T4 -- AGENTS.md and CLAUDE.md: corpus in English, the participant's language from USER.md	-
+tests/test-update-installed-vault.sh	-	bash	WUM	blocking	+M191-C01 T5 -- second-brain update: v0.1.7 to v0.1.8 over local commits, refusals leave everything as it was	2
+tests/test-update-installed-vault.ps1	-	ps1	W	blocking	+M191-C01 T5 -- second-brain-update.ps1 runs the one implementation and keeps its verdict	3

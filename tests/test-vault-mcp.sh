@@ -228,6 +228,9 @@ export STUB_LOG="$(N "$TMP/h/calls.log")"
 export PATH="$TMP/h/bin:$PATH"
 check "(h) substituts en tete du PATH (jamais les vrais outils)" sh -c "[ \"\$(command -v claude)\" = '$TMP/h/bin/claude' ] && [ \"\$(command -v codex)\" = '$TMP/h/bin/codex' ]"
 
+# Mission 191-C01 (Decision 152251 C): the server is named after THIS
+# Vault's identity; the oracle reads that name, never the former fixed one.
+SERVER_H="$(bash "$V/tools/vault-identity.sh" get server_name "$V")"
 OUT_H1="$(bash "$V/tools/install-vault-mcp.sh" "$WS" --lang FR 2>&1)"
 check "(h) premier passage rend 0" [ "$?" = "0" ]
 # Form written by the injection: the system's native path (C:\... under Windows).
@@ -236,9 +239,9 @@ if command -v cygpath >/dev/null 2>&1; then
 else
   WS_H_N="$WS"
 fi
-CL="$(uv run --no-project "$V/tools/sb_installer_helper.py" mcp-server-args "$(N "$PROFILE/.claude.json")" second-brain-vault 2>/dev/null | tr -d '\r' | tr '\n' ' ')"
-CX="$(uv run --no-project "$V/tools/sb_installer_helper.py" mcp-server-args "$(N "$PROFILE/.codex/config.toml")" second-brain-vault 2>/dev/null | tr -d '\r' | tr '\n' ' ')"
-DK="$(uv run --no-project "$V/tools/sb_installer_helper.py" mcp-server-args "$(N "$DESKTOP_CONFIG")" second-brain-vault 2>/dev/null | tr -d '\r' | tr '\n' ' ')"
+CL="$(uv run --no-project "$V/tools/sb_installer_helper.py" mcp-server-args "$(N "$PROFILE/.claude.json")" "$SERVER_H" 2>/dev/null | tr -d '\r' | tr '\n' ' ')"
+CX="$(uv run --no-project "$V/tools/sb_installer_helper.py" mcp-server-args "$(N "$PROFILE/.codex/config.toml")" "$SERVER_H" 2>/dev/null | tr -d '\r' | tr '\n' ' ')"
+DK="$(uv run --no-project "$V/tools/sb_installer_helper.py" mcp-server-args "$(N "$DESKTOP_CONFIG")" "$SERVER_H" 2>/dev/null | tr -d '\r' | tr '\n' ' ')"
 check "(h) Claude Code : serveur declare, dossier autorise = espace de travail" has "$CL" "--allow $WS_H_N"
 check "(h) Codex : serveur declare, dossier autorise = espace de travail" has "$CX" "--allow $WS_H_N"
 check "(h) application de bureau (chemin mesure) : serveur declare" has "$DK" "--allow $WS_H_N"
@@ -256,10 +259,10 @@ check "(h) second passage : diff 0 sur les trois configurations" [ "$S1" = "$S2"
 check "(h) second passage : aucun nouvel ajout ($ADDS1 puis $ADDS2)" [ "$ADDS1" = "$ADDS2" ]
 check "(h) second passage : « déjà configuré » dit trois fois" [ "$(printf '%s\n' "$OUT_H2" | grep -c 'déjà configuré')" = "3" ]
 
-uv run --no-project python -c "import json,sys; p=sys.argv[1]; d=json.load(open(p,encoding='utf-8')); d['mcpServers']['second-brain-vault']['args'][-1]='ailleurs'; json.dump(d,open(p,'w',encoding='utf-8'))" "$(N "$DESKTOP_CONFIG")"
+uv run --no-project python -c "import json,sys; p=sys.argv[1]; d=json.load(open(p,encoding='utf-8')); d['mcpServers'][sys.argv[2]]['args'][-1]='ailleurs'; json.dump(d,open(p,'w',encoding='utf-8'))" "$(N "$DESKTOP_CONFIG")" "$SERVER_H"
 S3="$(sha_of "$DESKTOP_CONFIG")"
 bash "$V/tools/install-vault-mcp.sh" "$WS" >/dev/null 2>&1
-DK3="$(uv run --no-project "$V/tools/sb_installer_helper.py" mcp-server-args "$(N "$DESKTOP_CONFIG")" second-brain-vault 2>/dev/null | tr -d '\r' | tr '\n' ' ')"
+DK3="$(uv run --no-project "$V/tools/sb_installer_helper.py" mcp-server-args "$(N "$DESKTOP_CONFIG")" "$SERVER_H" 2>/dev/null | tr -d '\r' | tr '\n' ' ')"
 check "(h) temoin : une configuration alteree est vue (empreinte changee) puis retablie" sh -c "[ '$S3' != '$(printf '%s' "$S2" | awk '{print $3}')' ] && case \"\$1\" in *'--allow $WS_H_N'*) exit 0;; *) exit 1;; esac" _ "$DK3"
 export HOME="$REAL_HOME"
 REAL_FP_AFTER="$(sha_of "$REAL_HOME/.codex/config.toml") $(sha_of "$REAL_DESKTOP")"

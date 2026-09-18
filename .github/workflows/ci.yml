@@ -155,8 +155,11 @@ jobs:
 
   acceptance-windows:
     name: Windows -- acceptance, 11 lines, S9 under a standard account
-    # Mission 189: waits for the three Windows shards, like the smoke test.
-    needs: [windows]
+    # Mission 191-C01 (porte open-188): no `needs:`. The acceptance plays
+    # the published line pinned to this commit on its own throwaway runner;
+    # it reads nothing the shards produce, so waiting for them (Mission 189)
+    # only added its 11 minutes after theirs. In parallel, the round is
+    # bounded by the longest job again (about 15 minutes).
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4

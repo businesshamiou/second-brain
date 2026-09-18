@@ -10,7 +10,7 @@
 #
 # usage (execute):
 #   vault-identity.sh ensure [<vault-root>]   generates if missing, idempotent
-#   vault-identity.sh get <key> [<vault-root>] vault_id | vault_origin | vault_ref
+#   vault-identity.sh get <key> [<vault-root>] vault_id | vault_origin | vault_ref | server_name
 # usage (source):
 #   . tools/vault-identity.sh
 #   vid_ensure "$VAULT_ROOT" ; vid_get "$VAULT_ROOT" vault_id ; vid_ref "$VAULT_ROOT"
@@ -44,6 +44,23 @@ vid_get() {
         exit
       }
     }'
+}
+
+# vid_server_name <root>: name of THIS Vault's MCP server (Decision 152251 C,
+# Mission 191-C01): `second-brain-vault-` followed by the first 8 characters
+# of vault_id after its `sb-` prefix (the prefix is the same for every Vault
+# and would leave only 5 distinguishing characters). Derived from the
+# identity, never from a path. Empty (code 1) when the Vault has no generated
+# identity: the caller refuses, it never falls back to the fixed name.
+VID_SERVER_PREFIX="second-brain-vault"
+vid_server_name() {
+  local id short
+  id="$(vid_get "$1" vault_id)"
+  [ -n "$id" ] || return 1
+  short="${id#sb-}"
+  short="$(printf '%s' "$short" | cut -c1-8)"
+  [ -n "$short" ] || return 1
+  printf '%s-%s\n' "$VID_SERVER_PREFIX" "$short"
 }
 
 # vid_ref <root>: current commit of the Vault, "unknown" without Git.
@@ -86,26 +103,26 @@ vid_ensure() {
   cat > "$f" <<EOF
 ---
 type: vault-identity
-title: "Identité de ce Vault"
-description: "Identité générée à l'installation : un projet vérifie qu'il parle au bon Vault en comparant vault_id à son acte de naissance."
+title: "Identity of this Vault"
+description: "Identity generated at installation: a project checks that it talks to the right Vault by comparing vault_id with its birth certificate."
 status: generated
 vault_id: "$id"
 vault_origin: "$origin"
 created_at: "$created"
 ---
 
-# IDENTITÉ DE CE VAULT
+# IDENTITY OF THIS VAULT
 
-Ce fichier est généré une fois, à l'installation, par \`tools/vault-identity.sh ensure\`. Il n'est jamais édité à la main.
+This file is generated once, at installation, by \`tools/vault-identity.sh ensure\`. It is never edited by hand.
 
-- \`vault_id\` : identifiant de ce Vault, recopié dans l'acte de naissance de chaque projet (\`.pre-commit-config.yaml\`).
-- \`vault_origin\` : origine du clone.
+- \`vault_id\`: identifier of this Vault, copied into the birth certificate of each project (\`.pre-commit-config.yaml\`), and the source of the name of its MCP server.
+- \`vault_origin\`: origin of the clone.
 
-Un projet dont l'acte nomme un autre \`vault_id\` est refusé par la résolution (\`tools/resolve-vault.sh\`), qui nomme les deux identités.
+A project whose certificate names another \`vault_id\` is refused by the resolution (\`tools/resolve-vault.sh\`), which names both identities.
 
 ## Liens
 
-- \`see also\` — [Décision — Initiation et adoption de projet, acte de naissance](./decisions/DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md)
+- \`see also\` — [Decision — Project initiation and adoption, birth certificate](./decisions/DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md)
 EOF
 }
 
@@ -121,6 +138,8 @@ if [ "${BASH_SOURCE[0]}" = "$0" ]; then
       [ -n "${2:-}" ] || { echo "usage: vault-identity.sh get <cle> [<racine-du-vault>]" >&2; exit 1; }
       if [ "$2" = "vault_ref" ]; then
         vid_ref "${3:-$VID_SELF_ROOT}"
+      elif [ "$2" = "server_name" ]; then
+        vid_server_name "${3:-$VID_SELF_ROOT}"
       else
         vid_get "${3:-$VID_SELF_ROOT}" "$2"
       fi
