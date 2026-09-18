@@ -1,16 +1,16 @@
 ---
 type: template
-title: "Gabarit — Project Registry"
-description: "Gabarit vide du Project Registry du Vault : en-têtes de colonnes et contrat d'écriture conservés, aucune ligne de données. Destiné à être instancié par le futur skill first-install (non construit par ce lot)."
+title: "Template — Project Registry"
+description: "Blank template of the Vault's Project Registry: column headers and write contract kept, no data row. Meant to be instantiated by the future first-install skill (not built by this batch)."
 status: active
 write_contract: "executor-only — voir DECISION project-registry-v1"
 ---
 
-# GABARIT — PROJECT REGISTRY
+# TEMPLATE — PROJECT REGISTRY
 
-Gabarit vide du [Project Registry](../projects/PROJECT-REGISTRY.md) : index des projets connus du Vault. Le Vault connaît l'adresse des projets, pas leur contenu — chaque projet reste la source canonique de sa propre mémoire. Le détail de chaque projet vit dans sa fiche `PROJECT-<project_id>.md`.
+Blank template of the [Project Registry](../projects/PROJECT-REGISTRY.md): index of the projects known to the Vault. The Vault knows the address of the projects, not their content — each project remains the canonical source of its own memory. The detail of each project lives in its sheet `PROJECT-<project_id>.md`.
 
-Les chemins sont relatifs au parent du Vault. La colonne `vcs` vaut `git` ou `none` (Décision 000545, A2).
+Paths are relative to the Vault's parent. The `vcs` column is `git` or `none` (Decision 000545, A2).
 
 ## Active
 
@@ -19,13 +19,13 @@ Les chemins sont relatifs au parent du Vault. La colonne `vcs` vaut `git` ou `no
 
 ## Paused
 
-Aucun projet.
+No project.
 
 ## Archived
 
-Aucun projet.
+No project.
 
 ## Liens
 
-- `see also` — [Project Registry — index des projets connus du Vault](../projects/PROJECT-REGISTRY.md)
+- `see also` — [Project Registry — index of the projects known to the Vault](../projects/PROJECT-REGISTRY.md)
 - `source` — [Decision — Project Registry V1](../decisions/DECISION-2026-08-19-115306-project-registry-v1.md)

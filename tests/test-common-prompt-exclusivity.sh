@@ -41,11 +41,12 @@ check_exclusivity() {
   BLOCK="$(prompt_block "$1")"
   [ -n "$BLOCK" ] || return 1
   printf '%s' "$BLOCK" | grep -q 'second-brain-vault' || return 1
-  printf '%s' "$BLOCK" | grep -q 'hors périmètre' || return 1
+  printf '%s' "$BLOCK" | grep -q 'outside the perimeter' || return 1
   # Les deux moities de la phrase doivent vivre sur la MEME ligne : le nom
   # du serveur apparait deja ailleurs dans le bloc, et « hors perimetre »
-  # seul ne dit pas de quel outil on parle.
-  printf '%s' "$BLOCK" | grep 'second-brain-vault' | grep -q 'hors périmètre' || return 1
+  # seul ne dit pas de quel outil on parle. Depuis la Mission 187 le gabarit
+  # est en anglais : la phrase cherchee est sa traduction exacte.
+  printf '%s' "$BLOCK" | grep 'second-brain-vault' | grep -q 'outside the perimeter' || return 1
   return 0
 }
 
@@ -73,7 +74,7 @@ fi
 
 # --- Temoin negatif : la meme mesure, sur une copie amputee ---------------
 WITNESS="$TMP/session-opening-prompt-template.md"
-grep -v 'hors périmètre' "$TEMPLATE" > "$WITNESS"
+grep -v 'outside the perimeter' "$TEMPLATE" > "$WITNESS"
 if check_exclusivity "$WITNESS"; then
   fail "temoin : une copie sans la phrase passe quand meme le controle"
 else

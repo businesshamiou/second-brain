@@ -12,7 +12,7 @@ Index généré automatiquement. Ne pas éditer à la main : régénérer via `t
 
 ## Contenu
 
-- `2026-09-11-193500` · AUTHORIZED · Organiser la rencontre d'octobre des Pages Suspendues (exemple fictif) · `MISSION-2026-09-11-193500-organize-the-october-meeting.md`
+- `2026-09-11-193500` · AUTHORIZED · Organize the October meeting of Les Pages Suspendues (fictional example) · `MISSION-2026-09-11-193500-organize-the-october-meeting.md`
 
 ## Liens
 

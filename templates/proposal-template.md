@@ -1,45 +1,45 @@
 ---
 type: proposal
-title: "<titre de la proposition>"
+title: "<proposal title>"
 created_at: "YYYY-MM-DDTHH:MM:SS±HH:MM"
 timezone: America/Montreal
 status: proposed
 owner_gate: required
 ---
 
-# PROPOSAL — <titre>
+# PROPOSAL — <title>
 
-## Statut
+## Status
 
 `PROPOSED`
 
-Cette proposition conserve une option en attente d'arbitrage. Elle ne constitue pas une décision.
+This proposal keeps an option pending arbitration. It does not constitute a decision.
 
-## Contexte
+## Context
 
-<Situation qui justifie de conserver cette option.>
+<Situation that justifies keeping this option.>
 
-## Proposition
+## Proposal
 
-<Option soumise à arbitrage.>
+<Option submitted to arbitration.>
 
-## Raison
+## Reason
 
-<Pourquoi cette option mérite d'être considérée.>
+<Why this option deserves to be considered.>
 
-## Impact attendu
+## Expected impact
 
-<Effets attendus si la proposition est acceptée.>
+<Expected effects if the proposal is accepted.>
 
-## Alternatives importantes
+## Important alternatives
 
-- <Alternative réellement utile, si nécessaire.>
+- <Genuinely useful alternative, if necessary.>
 
-## Liens associés
+## Associated links
 
-- Source ou artefact : `<chemin relatif>`
+- Source or artifact: `<relative path>`
 
 ## Liens
 
-- `prescribed by` — [Cycle de contexte V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
-- (à compléter : type — titre — chemin relatif, voir le standard de liens)
+- `prescribed by` — [Context cycle V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
+- (to be completed: type — title — relative path, see the linking standard)

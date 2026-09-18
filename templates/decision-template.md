@@ -1,53 +1,53 @@
 ---
 type: decision
-title: "<titre de la décision>"
+title: "<decision title>"
 created_at: "YYYY-MM-DDTHH:MM:SS±HH:MM"
 timezone: America/Montreal
 status: proposed
 owner_gate: required
 ---
 
-# DÉCISION — <titre>
+# DECISION — <title>
 
 ## Date
 
 <YYYY-MM-DD>
 
-## Statut
+## Status
 
 `PROPOSED`
 
-Ne remplacer ce statut par `ARBITRATED` qu’après un human gate explicite.
+Replace this status with `ARBITRATED` only after an explicit human gate.
 
-## Décision
+## Decision
 
-<Décrire précisément le choix proposé ou arbitré.>
+<Describe precisely the choice proposed or arbitrated.>
 
-Si ce choix provient d'une proposal, conserver celle-ci et la référencer ci-dessous au lieu de la renommer ou de la transformer.
+If this choice comes from a proposal, keep the proposal and reference it below instead of renaming or transforming it.
 
-## Raison
+## Reason
 
-<Expliquer pourquoi ce choix est nécessaire.>
+<Explain why this choice is necessary.>
 
 ## Impact
 
-<Décrire les conséquences sur le système ou le travail.>
+<Describe the consequences on the system or the work.>
 
-## Alternatives importantes
+## Important alternatives
 
-- <Alternative considérée et raison de son rejet ou de son maintien ouvert.>
+- <Alternative considered and the reason it was rejected or kept open.>
 
 ## Human gate
 
-- Validation : <en attente | accordée>
-- Référence : `<chemin relatif vers la preuve d’arbitrage>`
+- Validation: <pending | granted>
+- Reference: `<relative path to the proof of arbitration>`
 
-## Artefacts liés
+## Related artifacts
 
-- Proposal source, si applicable : `<chemin relatif>`
-- Source ou artefact : `<chemin relatif>`
+- Source proposal, if applicable: `<relative path>`
+- Source or artifact: `<relative path>`
 
 ## Liens
 
-- `prescribed by` — [Cycle de contexte V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
-- (à compléter : type — titre — chemin relatif, voir le standard de liens)
+- `prescribed by` — [Context cycle V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
+- (to be completed: type — title — relative path, see the linking standard)

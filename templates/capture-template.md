@@ -1,6 +1,6 @@
 ---
 type: capture
-title: "<titre concis>"
+title: "<concise title>"
 created_at: "YYYY-MM-DDTHH:MM:SS±HH:MM"
 timezone: America/Montreal
 status: draft
@@ -8,35 +8,35 @@ knowledge_kind: "<fact | observation | learning | open-question>"
 certainty: "<confirmed | observed | inferred | uncertain>"
 ---
 
-# CAPTURE — <titre>
+# CAPTURE — <title>
 
-Cette capture conserve une connaissance durable utile. Elle documente un fait, une observation, un apprentissage ou une question ouverte, mais ne constitue ni une proposal ni une décision.
+This capture keeps a useful piece of durable knowledge. It documents a fact, an observation, a learning or an open question, but constitutes neither a proposal nor a decision.
 
-## Contexte
+## Context
 
-<Pourquoi cette information mérite-t-elle de survivre à la session ?>
+<Why does this information deserve to survive the session?>
 
-## Information capturée
+## Captured information
 
-<Fait, observation, apprentissage ou question ouverte.>
+<Fact, observation, learning or open question.>
 
-## Niveau de certitude
+## Level of certainty
 
-<Indiquer le niveau retenu et la preuve ou la source disponible.>
+<State the level chosen and the proof or source available.>
 
-## Impact éventuel
+## Possible impact
 
-<Conséquence possible, ou « Aucun impact identifié ».>
+<Possible consequence, or "No impact identified".>
 
-## Artefacts liés
+## Related artifacts
 
-- Source ou artefact : `<chemin relatif>`
+- Source or artifact: `<relative path>`
 
-## Limite
+## Limit
 
-Cette capture ne doit pas être requalifiée silencieusement. Si une option doit attendre un arbitrage, créer une `PROPOSAL`; si un choix est arbitré, créer un artefact `DECISION` distinct avec le statut et le human gate appropriés.
+This capture must not be silently requalified. If an option must wait for an arbitration, create a `PROPOSAL`; if a choice is arbitrated, create a separate `DECISION` artifact with the appropriate status and human gate.
 
 ## Liens
 
-- `prescribed by` — [Cycle de contexte V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
-- (à compléter : type — titre — chemin relatif, voir le standard de liens)
+- `prescribed by` — [Context cycle V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
+- (to be completed: type — title — relative path, see the linking standard)

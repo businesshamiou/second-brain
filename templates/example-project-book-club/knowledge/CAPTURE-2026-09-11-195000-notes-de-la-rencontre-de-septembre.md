@@ -1,6 +1,6 @@
 ---
 type: capture
-title: "Notes de la rencontre de septembre (exemple fictif)"
+title: "Notes from the September meeting (fictional example)"
 created_at: "2026-09-11T19:50:00-04:00"
 timezone: America/Montreal
 status: draft
@@ -9,16 +9,16 @@ certainty: "observed"
 scope: example-project-book-club
 ---
 
-# CAPTURE — NOTES DE LA RENCONTRE DE SEPTEMBRE
+# CAPTURE — NOTES FROM THE SEPTEMBER MEETING
 
-_Capture fictive, propre à ce projet d'exemple — voir la [note d'ensemble](../README.md)._
+_Fictional capture, specific to this example project — see the [overview note](../README.md)._
 
-## Information capturée
+## Captured information
 
-Huit personnes présentes sur dix membres. Deux ont mentionné préférer la non-fiction et trouver le club trop orienté fiction ces derniers mois — d'où la [Décision d'alterner les genres](../decisions/DECISION-2026-09-11-194000-alternate-genres-every-two-months.md). Deux autres ont suggéré une lecture à voix haute en fin de rencontre — voir la [proposition correspondante](../proposals/PROPOSAL-2026-09-11-194500-read-aloud-at-end-of-meeting.md).
+Eight people present out of ten members. Two mentioned preferring non-fiction and finding the club too fiction-oriented in recent months — hence the [Decision to alternate genres](../decisions/DECISION-2026-09-11-194000-alternate-genres-every-two-months.md). Two others suggested reading aloud at the end of the meeting — see the [corresponding proposal](../proposals/PROPOSAL-2026-09-11-194500-read-aloud-at-end-of-meeting.md).
 
 ## Liens
 
 - `see also` — [Les Pages Suspendues](../README.md)
-- `see also` — [Décision — alterner les genres](../decisions/DECISION-2026-09-11-194000-alternate-genres-every-two-months.md)
-- `see also` — [Proposal — lecture à voix haute](../proposals/PROPOSAL-2026-09-11-194500-read-aloud-at-end-of-meeting.md)
+- `see also` — [Decision — alternate genres](../decisions/DECISION-2026-09-11-194000-alternate-genres-every-two-months.md)
+- `see also` — [Proposal — reading aloud](../proposals/PROPOSAL-2026-09-11-194500-read-aloud-at-end-of-meeting.md)

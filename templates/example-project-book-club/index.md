@@ -12,7 +12,7 @@ Index généré automatiquement. Ne pas éditer à la main : régénérer via `t
 
 ## Contenu
 
-- `README` · active · Les Pages Suspendues — projet d'exemple · `README.md`
+- `README` · active · Les Pages Suspendues — example project · `README.md`
 
 ## Liens
 

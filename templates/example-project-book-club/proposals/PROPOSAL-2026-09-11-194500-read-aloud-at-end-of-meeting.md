@@ -1,25 +1,25 @@
 ---
 type: proposal
-title: "Lecture à voix haute en fin de rencontre (exemple fictif)"
+title: "Reading aloud at the end of the meeting (fictional example)"
 created_at: "2026-09-11T19:45:00-04:00"
 timezone: America/Montreal
 status: proposed
 scope: example-project-book-club
 ---
 
-# PROPOSAL — LECTURE À VOIX HAUTE EN FIN DE RENCONTRE
+# PROPOSAL — READING ALOUD AT THE END OF THE MEETING
 
-_Proposition fictive, propre à ce projet d'exemple — voir la [note d'ensemble](../README.md). Une option en attente d'arbitrage n'est pas une décision : voir la [Décision — alterner les genres](../decisions/DECISION-2026-09-11-194000-alternate-genres-every-two-months.md) pour un exemple de ce que devient une proposition une fois tranchée._
+_Fictional proposal, specific to this example project — see the [overview note](../README.md). An option pending arbitration is not a decision: see the [Decision — alternate genres](../decisions/DECISION-2026-09-11-194000-alternate-genres-every-two-months.md) for an example of what a proposal becomes once settled._
 
-## Proposition
+## Proposal
 
-Terminer chaque rencontre par dix minutes de lecture à voix haute d'un passage choisi par la personne qui anime.
+End each meeting with ten minutes of reading aloud a passage chosen by the person facilitating.
 
-## Raison
+## Reason
 
-Deux membres l'ont suggéré à la rencontre de septembre ; personne n'a encore tranché.
+Two members suggested it at the September meeting; no one has settled it yet.
 
 ## Liens
 
 - `see also` — [Les Pages Suspendues](../README.md)
-- `see also` — [Décision — alterner les genres](../decisions/DECISION-2026-09-11-194000-alternate-genres-every-two-months.md)
+- `see also` — [Decision — alternate genres](../decisions/DECISION-2026-09-11-194000-alternate-genres-every-two-months.md)

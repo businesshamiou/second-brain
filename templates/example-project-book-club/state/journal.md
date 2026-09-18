@@ -1,7 +1,7 @@
-# Journal — Les Pages Suspendues (exemple fictif)
+# Journal — Les Pages Suspendues (fictional example)
 
-2026-09-05 — ETAT: rencontre de septembre tenue, huit personnes présentes, livre du mois discuté (voir la capture dans knowledge/).
-2026-09-05 — PROCHAIN: proposer trois titres pour octobre avant le 20.
+2026-09-05 — ETAT: September meeting held, eight people present, book of the month discussed (see the capture in knowledge/).
+2026-09-05 — PROCHAIN: propose three titles for October before the 20th.
 
 ## Liens
 

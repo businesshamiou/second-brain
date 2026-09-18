@@ -12,19 +12,19 @@ Index généré automatiquement. Ne pas éditer à la main : régénérer via `t
 
 ## Contenu
 
-- `capture-template` · draft · <titre concis> · `capture-template.md`
-- `current-state-template` · active · État courant — <nom du projet> · `current-state-template.md`
-- `decision-template` · proposed · <titre de la décision> · `decision-template.md`
-- `handoff-template` · active · <objet de la passation> · `handoff-template.md`
-- `initiation-order-template` · active · Gabarit — ordre d'initiation · `initiation-order-template.md`
-- `mission-index-template` · active · Registre de Missions · `mission-index-template.md`
-- `mission-template` · AUTHORIZED           # autorisation à la création — figé, jamais retouché ensuite · <titre de la Mission> · `mission-template.md`
-- `pilot-contract-template` · active · Gabarit — Contrat du Pilot · `pilot-contract-template.md`
-- `project-registry-template` · active · Gabarit — Project Registry · `project-registry-template.md`
-- `proposal-template` · proposed · <titre de la proposition> · `proposal-template.md`
-- `report-template` · FINAL · Rapport d'exécution — Mission <NNN> · `report-template.md`
-- `session-opening-prompt-template` · active · Gabarit — prompt d'ouverture minimal de session Pilot · `session-opening-prompt-template.md`
-- `vault-root-template` · active · {{VAULT_NAME}} — marqueur de racine de travail · `vault-root-template.md`
+- `capture-template` · draft · <concise title> · `capture-template.md`
+- `current-state-template` · active · Current state — <project name> · `current-state-template.md`
+- `decision-template` · proposed · <decision title> · `decision-template.md`
+- `handoff-template` · active · <subject of the handoff> · `handoff-template.md`
+- `initiation-order-template` · active · Template — initiation order · `initiation-order-template.md`
+- `mission-index-template` · active · Mission register · `mission-index-template.md`
+- `mission-template` · AUTHORIZED           # authorization at creation — frozen, never touched afterwards · <Mission title> · `mission-template.md`
+- `pilot-contract-template` · active · Template — Pilot contract · `pilot-contract-template.md`
+- `project-registry-template` · active · Template — Project Registry · `project-registry-template.md`
+- `proposal-template` · proposed · <proposal title> · `proposal-template.md`
+- `report-template` · FINAL · Execution report — Mission <NNN> · `report-template.md`
+- `session-opening-prompt-template` · active · Template — minimal opening prompt for a Pilot session · `session-opening-prompt-template.md`
+- `vault-root-template` · active · {{VAULT_NAME}} — working-root marker · `vault-root-template.md`
 
 ## Liens
 

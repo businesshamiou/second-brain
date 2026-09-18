@@ -1,6 +1,6 @@
 ---
 type: report
-title: "Rapport d'exécution — Mission <NNN>"
+title: "Execution report — Mission <NNN>"
 created_at: "YYYY-MM-DDTHH:MM:SS±HH:MM"
 timezone: America/Montreal
 mission_id: "<NNN>"
@@ -10,58 +10,58 @@ related_prompt: "<chemin relatif vers le Prompt>"
 status: FINAL
 ---
 
-# RAPPORT D'EXÉCUTION — MISSION <NNN>
+# EXECUTION REPORT — MISSION <NNN>
 
 ## 1. Gates
 
-- Push : <fait | non fait>, dans <quel dépôt>.
-- <Autre gate mesuré : version système, appel modèle, garde-fou touché ou non.>
+- Push: <done | not done>, in <which repository>.
+- <Other gate measured: system version, model call, guardrail touched or not.>
 
-## 2. Fichiers créés et modifiés
+## 2. Files created and modified
 
-**Vault :**
-- <Créé | Modifié> : `<chemin relatif>`
+**Vault:**
+- <Created | Modified>: `<relative path>`
 
-**\<projet\> :**
-- <Créé | Modifié> : `<chemin relatif>`
+**\<project\>:**
+- <Created | Modified>: `<relative path>`
 
 ## 3. Commits
 
-- Vault : `<SHA>` — "<message>"
-- \<projet\> : `<SHA>` — "<message>"
+- Vault: `<SHA>` — "<message>"
+- \<project\>: `<SHA>` — "<message>"
 
-Le SHA du commit Vault et les `git status -sb` finaux sont mesurés **avant** le staging de ce rapport. Le SHA du commit du projet qui contient ce rapport ne peut pas être connu avant ce commit (le rapport s'auto-référencerait) ; il est donné en chat, jamais laissé en emplacement vide ici.
+The SHA of the Vault commit and the final `git status -sb` are measured **before** this report is staged. The SHA of the project commit that contains this report cannot be known before that commit (the report would reference itself); it is given in the chat, never left as an empty placeholder here.
 
-## 4. Impact sur l'installation
+## 4. Impact on the installation
 
-<Changement système, environnement, runbook, ou « Aucun changement ».>
+<System, environment or runbook change, or "No change".>
 
-## 5. État final mesuré
+## 5. Final state measured
 
-<Mesure directe, commande à l'appui, distinguée VERIFIED / DECLARED selon les niveaux de preuve.>
+<Direct measurement, backed by a command, distinguished VERIFIED / DECLARED according to the levels of proof.>
 
-## 6. Écarts
+## 6. Deviations
 
-- <Écart avec le Prompt, ou « Aucun écart ».>
+- <Deviation from the Prompt, or "No deviation".>
 
-## 7. Remesure finale, arrêt
+## 7. Final remeasurement, stop
 
 ```
-<commande de remesure et résultat>
+<remeasurement command and result>
 ```
 
-Cette remesure est faite **avant** le staging de ce rapport, jamais laissée en emplacement du type « rempli après commit ». Aucun emplacement `<…>` ne doit subsister dans un rapport final.
+This remeasurement is made **before** this report is staged, never left as a placeholder of the "filled in after commit" kind. No `<…>` placeholder may remain in a final report.
 
-Arrêt de la Mission ici.
+Mission stopped here.
 
-## Bloc RELAY
+## RELAY block
 
-Ce bloc est rempli **en dernier** et affiché **tel quel** en fin de fenêtre Executor, à la grammaire fixe (rubriques, dont `Poussées`, et plafond de cinq lignes pour `Résumé`) de la [règle du relais entre rôles, RULES-2026-08-23-124937](../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md) — seule source de cette grammaire (`DECISION-2026-09-17-201623`, volet B1) : ni les rubriques ni le nombre de lignes ne sont redits ici.
+This block is filled in **last** and displayed **as it is** at the end of the Executor window, following the fixed grammar (rubrics, including `Poussées`, and the five-line cap for `Résumé`) of the [rule of relay between roles, RULES-2026-08-23-124937](../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md) — the single source of that grammar (`DECISION-2026-09-17-201623`, part B1): neither the rubrics nor the number of lines are restated here.
 
 ## Liens
 
-- `prescribed by` — [Canal de rapport d'exécution](../decisions/DECISION-2026-08-21-000236-execution-report-channel.md)
-- `prescribed by` — [Relais entre rôles par mini-prompts à rubriques fixes](../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md)
-- `source` — [Décision — Rubrique « Résumé » dans le bloc RELAY du sens retour](../decisions/DECISION-2026-08-23-180500-relay-summary-rubric.md)
-- `amended by` — [Décision — Relais et délégation, une règle un seul endroit](../decisions/DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md)
-- (à compléter : type — titre — chemin relatif, voir le standard de liens)
+- `prescribed by` — [Execution report channel](../decisions/DECISION-2026-08-21-000236-execution-report-channel.md)
+- `prescribed by` — [Relay between roles through mini-prompts with fixed rubrics](../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md)
+- `source` — [Decision — « Résumé » rubric in the RELAY block of the return direction](../decisions/DECISION-2026-08-23-180500-relay-summary-rubric.md)
+- `amended by` — [Decision — Relay and delegation, one rule in one place](../decisions/DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md)
+- (to be completed: type — title — relative path, see the linking standard)

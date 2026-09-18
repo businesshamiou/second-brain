@@ -61,8 +61,8 @@ check_exclusivity() {
   BLOCK="$(prompt_block "$1")"
   [ -n "$BLOCK" ] || return 1
   printf '%s' "$BLOCK" | grep -q 'second-brain-vault' || return 1
-  printf '%s' "$BLOCK" | grep -q 'hors périmètre' || return 1
-  printf '%s' "$BLOCK" | grep 'second-brain-vault' | grep -q 'hors périmètre' || return 1
+  printf '%s' "$BLOCK" | grep -q 'outside the perimeter' || return 1
+  printf '%s' "$BLOCK" | grep 'second-brain-vault' | grep -q 'outside the perimeter' || return 1
   return 0
 }
 

@@ -12,7 +12,7 @@ Index généré automatiquement. Ne pas éditer à la main : régénérer via `t
 
 ## Contenu
 
-- `2026-09-11-195000` · draft · Notes de la rencontre de septembre (exemple fictif) · `CAPTURE-2026-09-11-195000-notes-de-la-rencontre-de-septembre.md`
+- `2026-09-11-195000` · draft · Notes from the September meeting (fictional example) · `CAPTURE-2026-09-11-195000-notes-de-la-rencontre-de-septembre.md`
 
 ## Liens
 

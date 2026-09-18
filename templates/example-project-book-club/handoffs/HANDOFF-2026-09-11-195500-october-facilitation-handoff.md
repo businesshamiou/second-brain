@@ -1,29 +1,29 @@
 ---
 type: handoff
-title: "Passation de l'animation à octobre (exemple fictif)"
+title: "Handover of the facilitation for October (fictional example)"
 created_at: "2026-09-11T19:55:00-04:00"
 timezone: America/Montreal
 status: active
 scope: example-project-book-club
 ---
 
-# HANDOFF — PASSATION DE L'ANIMATION D'OCTOBRE
+# HANDOFF — HANDOVER OF THE OCTOBER FACILITATION
 
-_Passation fictive, propre à ce projet d'exemple — voir la [note d'ensemble](../README.md)._
+_Fictional handover, specific to this example project — see the [overview note](../README.md)._
 
-## Objectif
+## Objective
 
-Passer l'animation du club à la personne qui prend le relais pour la rencontre d'octobre.
+Hand the club's facilitation over to the person taking over for the October meeting.
 
-## État actuel
+## Current state
 
-Date et salle à confirmer (voir la [Mission d'organisation](../missions/MISSION-2026-09-11-193500-organize-the-october-meeting.md)) ; le livre du mois n'est pas encore choisi.
+Date and room to be confirmed (see the [organization Mission](../missions/MISSION-2026-09-11-193500-organize-the-october-meeting.md)); the book of the month is not chosen yet.
 
-## Prochaine action recommandée
+## Recommended next action
 
-Relancer les membres pour des propositions de titre avant le 20, puis tenir le vote.
+Remind the members to propose titles before the 20th, then hold the vote.
 
 ## Liens
 
 - `see also` — [Les Pages Suspendues](../README.md)
-- `see also` — [Mission — organiser la rencontre d'octobre](../missions/MISSION-2026-09-11-193500-organize-the-october-meeting.md)
+- `see also` — [Mission — organize the October meeting](../missions/MISSION-2026-09-11-193500-organize-the-october-meeting.md)

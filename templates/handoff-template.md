@@ -1,49 +1,49 @@
 ---
 type: handoff
-title: "<objet de la passation>"
+title: "<subject of the handoff>"
 created_at: "YYYY-MM-DDTHH:MM:SS±HH:MM"
 timezone: America/Montreal
 status: active
 ---
 
-# HANDOFF — <objet>
+# HANDOFF — <subject>
 
-Ce handoff est une passation historique datée créée pour permettre une reprise fiable après une interruption ou un transfert. Il résume le nécessaire et pointe vers les sources sans recopier tout le projet. Ne pas le maintenir comme un second current state.
+This handoff is a dated historical handover, created to allow a reliable resume after an interruption or a transfer. It summarizes what is necessary and points to the sources without copying the whole project. Do not maintain it as a second current state.
 
-## Objectif
+## Objective
 
-<Résultat actuellement poursuivi.>
+<Result currently being pursued.>
 
-## État actuel
+## Current state
 
-<Photographie courte de la situation au moment de la passation.>
+<Short snapshot of the situation at the moment of the handover.>
 
-## Terminé
+## Done
 
-- <Élément terminé et vérifié.>
+- <Item done and verified.>
 
-## Décisions actives
+## Active decisions
 
-- Décision : `<chemin relatif>` — <effet sur la reprise>
+- Decision: `<relative path>` — <effect on the resume>
 
-## Points ouverts
+## Open points
 
-- <Question, risque ou hypothèse encore ouverte.>
+- <Question, risk or hypothesis still open.>
 
-## Prochaine action recommandée
+## Recommended next action
 
-<Une action précise et immédiatement exécutable.>
+<One precise, immediately executable action.>
 
-## Contraintes et interdictions
+## Constraints and prohibitions
 
-- <Contrainte à respecter pendant la reprise.>
+- <Constraint to respect during the resume.>
 
-## Artefacts à lire en priorité
+## Artifacts to read first
 
-1. Source principale : `<chemin relatif>`
-2. État courant : `<chemin relatif vers current-state.md>`
+1. Main source: `<relative path>`
+2. Current state: `<relative path to current-state.md>`
 
 ## Liens
 
-- `prescribed by` — [Cycle de contexte V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
-- (à compléter : type — titre — chemin relatif, voir le standard de liens)
+- `prescribed by` — [Context cycle V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
+- (to be completed: type — title — relative path, see the linking standard)

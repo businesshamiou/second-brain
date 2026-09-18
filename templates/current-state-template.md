@@ -1,46 +1,46 @@
 ---
 type: current-state
-title: "État courant — <nom du projet>"
+title: "Current state — <project name>"
 updated_at: "YYYY-MM-DDTHH:MM:SS±HH:MM"
 timezone: America/Montreal
 status: active
 ---
 
-# ÉTAT COURANT — <nom du projet>
+# CURRENT STATE — <project name>
 
-Ce fichier est l'état vivant et court utilisé pour reprendre un projet. Le conserver dans le projet concerné sous le nom `<projet>/current-state.md` et le mettre à jour en place plutôt que d’empiler des copies historiques.
+This file is the living, short state used to resume a project. Keep it in the project concerned under the name `<projet>/current-state.md` and update it in place rather than piling up historical copies.
 
-## Objectif actuel
+## Current objective
 
-<Résultat poursuivi maintenant.>
+<Result being pursued now.>
 
-## État
+## State
 
-<Situation actuelle en quelques lignes.>
+<Current situation in a few lines.>
 
-Remesurer les hashes, compteurs et états techniques lorsqu'ils sont nécessaires au lieu de les recopier comme vérité durable.
+Remeasure hashes, counters and technical states when they are needed instead of copying them as durable truth.
 
-## Dernière avancée validée
+## Last validated progress
 
-<Dernier résultat vérifié ou arbitré.>
+<Last verified or arbitrated result.>
 
-## Prochain pas
+## Next step
 
-<Une action précise et immédiatement exécutable.>
+<One precise, immediately executable action.>
 
-## Blocages
+## Blockers
 
-- <Blocage réel, ou « Aucun ».>
+- <Real blocker, or "None".>
 
-## Décisions récentes pertinentes
+## Relevant recent decisions
 
-- Décision : `<chemin relatif>` — <impact actuel>
+- Decision: `<relative path>` — <current impact>
 
-## Artefacts de référence
+## Reference artifacts
 
-- Source canonique : `<chemin relatif>`
+- Canonical source: `<relative path>`
 
 ## Liens
 
-- `prescribed by` — [Cycle de contexte V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
-- (à compléter : type — titre — chemin relatif, voir le standard de liens)
+- `prescribed by` — [Context cycle V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
+- (to be completed: type — title — relative path, see the linking standard)

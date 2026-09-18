@@ -1,26 +1,28 @@
 ---
 type: marker
-title: "{{VAULT_NAME}} — marqueur de racine de travail"
-description: "Marqueur remonté : identifie la racine de travail et localise le Vault depuis n'importe quel dossier de projet."
+title: "{{VAULT_NAME}} — working-root marker"
+description: "Marker found by walking up: identifies the working root and locates the Vault from any project folder."
 status: active
 generated_by: tools/write-marker.sh
 ---
 
 # {{VAULT_NAME}}
 
-Marqueur de racine de travail. Un fichier posé ici permet à tout dossier de
-projet de retrouver le Vault en remontant les dossiers parents jusqu'à le
-trouver — même principe que la détection d'un dépôt Git par son dossier
-`.git`. [arbitrage : Decision sept arbitrages du 2026-08-23, §1]
+Working-root marker. A file placed here lets any project folder
+find the Vault again by walking up the parent folders until it
+finds it — same principle as detecting a Git repository by its
+`.git` folder. [arbitration: Decision seven arbitrations of 2026-08-23, §1]
 
-## Contrat de rôle
+## Role contract
 
-- **Ce qu'il contient** : le transversal — règles, décisions, gabarits, connaissances durables, outillage commun à tous les projets frères.
-- **Ce qu'il ne fait pas** : il ne porte aucune personnalité (voix, ton, manière de répondre) ; il ne stocke aucun secret, clé ou credential ; il ne remplace pas le contexte propre à chaque projet.
-- **Comment on l'interroge** : par lecture directe des fichiers liés (chemin cité, jamais une affirmation sans source) ; par `tools/find-in-vault.sh` pour la recherche par contenu ; par la fiche d'état du projet en cours (`<projet>/state/STATE.md`).
-- **Comment on l'alimente** : uniquement par Mission exécutée dans le Vault ; toute décision structurante passe par une Decision gravée dans `decisions/`, jamais par écriture directe hors Mission. **Précision (2026-08-26, Mission 066)** : cette alimentation passe par l'Executor en Mission, depuis une position d'ouverture désormais libre — « Une session peut s'ouvrir n'importe où dans le workspace, et s'ouvre typiquement dans le dossier du projet en cours de développement » (Decision — Répertoire d'ouverture d'une session, 2026-08-25, point 2) ; le Pilot, qui « écrit désormais ses artefacts neufs directement à leur emplacement canonique, après annonce de la porte » (Decision : taxonomie PIV et langue système anglaise, §A5), dépose ce faisant dans les dossiers d'artefacts du projet en cours — jamais dans le Vault.
+- **What it contains**: what is cross-cutting — rules, decisions, templates, durable knowledge, tooling common to all sibling projects.
+- **What it does not do**: it carries no personality (voice, tone, way of answering); it stores no secret, key or credential; it does not replace the context specific to each project.
+- **How it is queried**: by direct reading of the linked files (path cited, never an assertion without a source); by `tools/find-in-vault.sh` for search by content; by the state sheet of the current project (`<projet>/state/STATE.md`).
+- **How it is fed**: only by a Mission executed in the Vault; every structuring decision goes through a Decision set in stone in `decisions/`, never by direct writing outside a Mission. **Clarification (2026-08-26, Mission 066)**: this feeding goes through the Executor on a Mission, from an opening position that is now free — "A session may open anywhere in the workspace, and typically opens in the folder of the project under development" (Decision — Opening directory of a session, 2026-08-25, point 2; quoted, translated from French); the Pilot, who "now writes its new artifacts directly at their canonical location, after announcing the door" (Decision: PIV taxonomy and English system language, §A5; quoted, translated from French), thereby deposits into the artifact folders of the current project — never into the Vault.
 
-## Localisation
+## Location
+
+The three field lines below keep their French labels, which tools read exactly as written (relative path of the Vault from this working root; identity of the Vault; origin of the Vault).
 
 Chemin relatif du Vault depuis cette racine de travail : `{{VAULT_RELATIVE_PATH}}`
 
@@ -28,13 +30,13 @@ Identité du Vault : `{{VAULT_ID}}`
 
 Origine du Vault : `{{VAULT_ORIGIN}}`
 
-Un projet nomme son Vault par son acte de naissance (`vault_id` dans `.pre-commit-config.yaml`) ; ce marqueur ne résout seul que s'il n'y a qu'un Vault candidat dans cet espace de travail.
+A project names its Vault through its birth certificate (`vault_id` in `.pre-commit-config.yaml`); this marker resolves on its own only if there is a single candidate Vault in this workspace.
 
 ---
 
-Généré automatiquement par `tools/write-marker.sh` à partir de ce gabarit. Ne pas éditer `VAULT-ROOT.md` à la main : régénérer.
+Generated automatically by `tools/write-marker.sh` from this template. Do not edit `VAULT-ROOT.md` by hand: regenerate it.
 
 ## Liens
 
-- `prescribed by` — [Sept arbitrages de session du 2026-08-23](../decisions/DECISION-2026-08-23-124848-seven-arbitrations-2026-08-23.md)
-- `amended by` — [Décision — Initiation et adoption de projet, acte de naissance](../decisions/DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md)
+- `prescribed by` — [Seven session arbitrations of 2026-08-23](../decisions/DECISION-2026-08-23-124848-seven-arbitrations-2026-08-23.md)
+- `amended by` — [Decision — Project initiation and adoption, birth certificate](../decisions/DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md)

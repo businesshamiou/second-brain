@@ -1,17 +1,19 @@
 ---
 type: index
-title: "Registre de Missions"
-description: "Registre vivant du projet : au minimum l'identifiant, l'objectif, la version active, le statut et le chemin de la Mission active de chaque lignée (RULES-2026-08-17-211522 §6), plus le chemin du rapport de clôture. Instancié vide à la création du projet par tools/project-bootstrap.sh."
+title: "Mission register"
+description: "Living register of the project: at a minimum the identifier, the objective, the active version, the status and the path of the active Mission of each lineage (RULES-2026-08-17-211522 §6), plus the path of the closing report. Instantiated blank at the project's creation by tools/project-bootstrap.sh."
 status: active
 ---
 
-# REGISTRE DES MISSIONS
+# MISSION REGISTER
 
-Ce registre porte, pour chaque lignée de Mission de ce projet, au minimum l'identifiant, l'objectif, la version active, le statut et le chemin de la Mission active — le registre ne recopie aucune mesure technique périssable. Une colonne supplémentaire, le rapport, est gardée pour la navigation directe vers la pièce de clôture. Une ligne par lignée de Mission.
+For each Mission lineage of this project, this register carries at a minimum the identifier, the objective, the active version, the status and the path of the active Mission — the register copies no perishable technical measurement. One additional column, the report, is kept for direct navigation to the closing document. One row per Mission lineage.
 
-| ID | Objectif | Version active | Statut | Chemin | Rapport |
+The status column keeps its French header `Statut` [status], exactly as written: `tools/build-digest.sh` finds the column by that name.
+
+| ID | Objective | Active version | Statut | Path | Report |
 |---|---|---|---|---|---|
 
 ## Liens
 
-- `see also` — [README du projet](../README.md)
+- `see also` — [Project README](../README.md)
