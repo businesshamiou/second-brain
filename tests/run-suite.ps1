@@ -4,7 +4,10 @@
 # GitHub's `shell: bash` uses (Mission 188). Same manifest, same verdicts and
 # same summary as tests/run-suite.sh.
 #
-# usage: powershell -NoProfile -ExecutionPolicy Bypass -File tests/run-suite.ps1 [-Manifest <file>] [-List]
+# usage: powershell -NoProfile -ExecutionPolicy Bypass -File tests/run-suite.ps1 [-Manifest <file>] [-Shard k/n] [-List]
+#
+# -Shard k/n (Mission 189) plays only the lines whose shard column is k, and
+# refuses when the manifest's highest Windows shard is not n.
 #
 # Every line for Windows is played, even after a red one; exit code 1 if a
 # blocking line is red, 0 otherwise. A test exiting 77 reports SKIP. The exit
@@ -13,6 +16,7 @@
 
 param(
     [string]$Manifest,
+    [string]$Shard,
     [switch]$List
 )
 
@@ -24,6 +28,28 @@ if (-not (Test-Path -LiteralPath $Manifest)) {
     exit 2
 }
 Set-Location -LiteralPath $RepoRoot
+
+$shardK = ''
+if ($Shard) {
+    if ($Shard -notmatch '^([0-9]+)/([0-9]+)$') {
+        Write-Output "REFUS : -Shard expects k/n, got '$Shard'"
+        exit 2
+    }
+    $shardK = $Matches[1]
+    $shardN = [int]$Matches[2]
+    $maxShard = 0
+    foreach ($l in (Get-Content -LiteralPath $Manifest -Encoding UTF8)) {
+        if ($l -eq '' -or $l.StartsWith('#')) { continue }
+        $g = $l.Split("`t")
+        if ($g.Count -ge 7 -and $g[3].Contains('W') -and $g[6] -match '^[0-9]+$') {
+            if ([int]$g[6] -gt $maxShard) { $maxShard = [int]$g[6] }
+        }
+    }
+    if ($maxShard -ne $shardN) {
+        Write-Output "REFUS : -Shard $Shard, but the manifest splits platform W into $maxShard shard(s)"
+        exit 2
+    }
+}
 
 # Git for Windows' bash, never System32\bash.exe (WSL).
 $bash = $null
@@ -54,6 +80,7 @@ foreach ($line in (Get-Content -LiteralPath $Manifest -Encoding UTF8)) {
     if ($f.Count -lt 6) { Write-Output "REFUS : malformed manifest line: $line"; exit 2 }
     $path = $f[0]; $argText = $f[1]; $interp = $f[2]; $platforms = $f[3]; $severity = $f[4]; $origin = $f[5]
     if (-not $platforms.Contains('W')) { continue }
+    if ($shardK -and ($f.Count -lt 7 -or $f[6] -ne $shardK)) { continue }
     $lineArgs = @()
     if ($argText -ne '-') { $lineArgs = @($argText.Split(' ') | Where-Object { $_ -ne '' }) }
     $total++
@@ -91,7 +118,9 @@ foreach ($line in (Get-Content -LiteralPath $Manifest -Encoding UTF8)) {
 if ($List) { exit 0 }
 
 Write-Output ''
-Write-Output "=== SUITE (W, $(Split-Path -Leaf $Manifest)) ==="
+$shardLabel = ''
+if ($Shard) { $shardLabel = ", shard $Shard" }
+Write-Output "=== SUITE (W$shardLabel, $(Split-Path -Leaf $Manifest)) ==="
 foreach ($v in $verdicts) { Write-Output $v }
 Write-Output "RESULT: $passed/$total PASS ($skipped SKIP, $failBlocking FAIL blocking, $failInfo FAIL informational)"
 if ($total -eq 0) {

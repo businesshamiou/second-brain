@@ -28,7 +28,10 @@
 #      delegable.
 #
 # Perimeter: rules/, skills/, templates/, README.md, INSTALL.md, tools/,
-# i18n/ -- files tracked by Git (git grep), so .git/ is already excluded
+# i18n/, and since Mission 189 the root instructions every agent reads first
+# -- AGENTS.md, CLAUDE.md, .claude/, .codex/ (AGENTS.md still carried the
+# "verbatim and dated" authorization of Decision 154553 after 201623) --
+# files tracked by Git (git grep), so .git/ is already excluded
 # mechanically. EXPLICITLY outside the perimeter, never scanned:
 #   - decisions/*.md -- frozen historical mentions (RULES-211522); they
 #     MAY legitimately carry « j'ordonne le push » or « verbatim » as
@@ -79,6 +82,10 @@ INCLUDE_PATHSPECS=(
   'INSTALL.md'
   'tools'
   'i18n'
+  'AGENTS.md'
+  'CLAUDE.md'
+  '.claude'
+  '.codex'
 )
 
 # « Meme paragraphe » ["same paragraph"] for patterns B and C is NOT a fixed
@@ -283,6 +290,11 @@ EOF_CEN
 Absolute prohibitions: no git push, no model call, no deletion.
 EOF_DEN
 
+  # Root witness (Mission 189): the AGENTS.md line as it stood at 599f3db,
+  # before its alignment on Decision 201623.
+  printf '%s
+' "- The push may be delegated to an Executor window by a verbatim and dated Owner authorization (Decision 154553); without that exact line, the Executor refuses." > AGENTS.md
+
   git add -A
   git commit -q -m "fixture" >/dev/null
 )
@@ -335,6 +347,14 @@ for twin in "A:$NEG_A:witness-a-en.md" "C:$NEG_C:witness-c-en.md" "D:$NEG_D:witn
     *) echo "  FAIL - motif $label, forme anglaise, non detecte ($file)"; NEG_FAIL=1 ;;
   esac
 done
+
+# The root of the perimeter is scanned too (Mission 189): the old AGENTS.md
+# line must be caught by pattern B, named.
+NEG_ROOT="$(REPO_ROOT="$SANDBOX"; scan_pattern_proximity 'verbatim' 'verbatim' AGENTS.md)"
+case "$NEG_ROOT" in
+  *"AGENTS.md"*) echo "  PASS - racine : l'ancienne ligne d'AGENTS.md (autorisation verbatim) est detectee" ;;
+  *) echo "  FAIL - racine : l'ancienne ligne d'AGENTS.md n'est pas detectee"; NEG_FAIL=1 ;;
+esac
 
 assert_true "$NEG_FAIL" "les quatre motifs sont chacun detectes sur un fichier fabrique, jamais ecrit dans ce depot"
 

@@ -3,7 +3,11 @@
 # participant's machine, on the Executor's and in CI (Mission 188). CI calls
 # this runner (tests/run-suite.ps1 on Windows) instead of listing tests.
 #
-# usage: bash tests/run-suite.sh [--manifest <file>] [--platform W|U|M] [--list]
+# usage: bash tests/run-suite.sh [--manifest <file>] [--platform W|U|M] [--shard k/n] [--list]
+#
+# --shard k/n (Mission 189) plays only the lines whose shard column is k;
+# it refuses when the manifest's highest shard for this platform is not n,
+# so a shard can never be left unplayed by a CI that runs fewer.
 #
 # Every line for this platform is played, even after a red one; the run ends
 # with one verdict line per test, then
@@ -18,13 +22,15 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 MANIFEST="$REPO_ROOT/tests/suite.tsv"
 PLATFORM="${SB_SUITE_PLATFORM:-}"
 LIST_ONLY=0
+SHARD=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
     --manifest) MANIFEST="$2"; shift 2 ;;
     --platform) PLATFORM="$2"; shift 2 ;;
     --list) LIST_ONLY=1; shift ;;
-    *) echo "usage: bash tests/run-suite.sh [--manifest <file>] [--platform W|U|M] [--list]" >&2; exit 2 ;;
+    --shard) SHARD="$2"; shift 2 ;;
+    *) echo "usage: bash tests/run-suite.sh [--manifest <file>] [--platform W|U|M] [--shard k/n] [--list]" >&2; exit 2 ;;
   esac
 done
 
@@ -40,6 +46,16 @@ case "$PLATFORM" in
   *) echo "REFUS : platform '$PLATFORM' is not W, U or M" >&2; exit 2 ;;
 esac
 [ -f "$MANIFEST" ] || { echo "REFUS : manifest not found: $MANIFEST" >&2; exit 2; }
+SHARD_K=""
+if [ -n "$SHARD" ]; then
+  SHARD_K="${SHARD%/*}"; SHARD_N="${SHARD#*/}"
+  case "$SHARD_K$SHARD_N" in *[!0-9]*|"") echo "REFUS : --shard expects k/n, got '$SHARD'" >&2; exit 2 ;; esac
+  MAX_SHARD="$(awk -F'	' -v p="$PLATFORM" '!/^#/ && NF && index($4, p) && $7 ~ /^[0-9]+$/ && $7 + 0 > m { m = $7 + 0 } END { print m + 0 }' "$MANIFEST")"
+  if [ "$MAX_SHARD" != "$SHARD_N" ]; then
+    echo "REFUS : --shard $SHARD, but the manifest splits platform $PLATFORM into $MAX_SHARD shard(s)" >&2
+    exit 2
+  fi
+fi
 
 cd "$REPO_ROOT" || exit 2
 
@@ -76,9 +92,10 @@ VERDICTS=""
 IN_CI=0
 [ "${GITHUB_ACTIONS:-}" = "true" ] && IN_CI=1
 
-while IFS="$TAB" read -r path args interp platforms severity origin <&3; do
+while IFS="$TAB" read -r path args interp platforms severity origin shard <&3; do
   case "$path" in ''|'#'*) continue ;; esac
   case "$platforms" in *"$PLATFORM"*) ;; *) continue ;; esac
+  [ -n "$SHARD_K" ] && [ "${shard:-}" != "$SHARD_K" ] && continue
   [ "$args" = "-" ] && args=""
   TOTAL=$((TOTAL + 1))
   label="$path${args:+ $args}"
@@ -120,7 +137,7 @@ done 3< "$MANIFEST"
 [ "$LIST_ONLY" -eq 1 ] && exit 0
 
 echo ""
-echo "=== SUITE ($PLATFORM, $(basename "$MANIFEST")) ==="
+echo "=== SUITE ($PLATFORM${SHARD:+, shard $SHARD}, $(basename "$MANIFEST")) ==="
 printf '%s' "$VERDICTS"
 echo "RESULT: $PASSED/$TOTAL PASS ($SKIPPED SKIP, $FAIL_BLOCKING FAIL blocking, $FAIL_INFO FAIL informational)"
 if [ "$TOTAL" -eq 0 ]; then

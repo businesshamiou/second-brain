@@ -26,9 +26,18 @@ permissions:
   contents: read
 
 jobs:
+  # Mission 189: the Windows suite (about 2,300 s of tests played one after
+  # the other) is split into three shards run in parallel, balanced on the
+  # durations measured in run 35349101214 (column "shard" of
+  # tests/suite.tsv). fail-fast off: every shard runs to the end, and any red
+  # shard turns the run red, as the single job did.
   windows:
-    name: Windows -- install.ps1, full suite
+    name: Windows -- suite, shard ${{ matrix.shard }}/3
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
     steps:
       - uses: actions/checkout@v4
 
@@ -39,10 +48,10 @@ jobs:
       # Every Windows line of tests/suite.tsv, from a PowerShell parent as the
       # former powershell steps ran them, bash lines through Git's bash. All
       # lines run even after a red one; the summary names the red ones.
-      - name: Suite -- tests/suite.tsv, Windows lines
+      - name: Suite -- tests/suite.tsv, Windows lines, shard ${{ matrix.shard }}/3
         shell: powershell
         run: |
-          powershell -NoProfile -ExecutionPolicy Bypass -File tests/run-suite.ps1
+          powershell -NoProfile -ExecutionPolicy Bypass -File tests/run-suite.ps1 -Shard "${{ matrix.shard }}/3"
           exit $LASTEXITCODE
 
   ubuntu:
@@ -146,6 +155,8 @@ jobs:
 
   acceptance-windows:
     name: Windows -- acceptance, 11 lines, S9 under a standard account
+    # Mission 189: waits for the three Windows shards, like the smoke test.
+    needs: [windows]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4

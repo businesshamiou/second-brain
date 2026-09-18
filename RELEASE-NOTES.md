@@ -6,6 +6,24 @@ status: active
 
 # RELEASE NOTES
 
+## v0.1.7
+
+Maintenance version: compared with v0.1.6, the only installed file that changes is `AGENTS.md` (one paragraph, below); the rest is the proof around it.
+
+**Why it replaces v0.1.6.** v0.1.6 stays published as it is, but its tag run in the public CI went red on a test defect (a test that assumed a `main` branch, which a tag checkout does not have); v0.1.7 carries the corrected test and is published only on a commit whose CI is green on `main` and on the tag.
+
+**What this version brings.**
+
+- **The agents' instructions say how a push is delegated today.** `AGENTS.md` still asked for a verbatim, dated authorization line; it now says what the role charter says: a clear sentence from you, naming what to push, is enough. The test that guards this wording now reads `AGENTS.md`, `CLAUDE.md`, `.claude/` and `.codex/` too.
+- **The whole test suite is proven on a tag checkout.** A test replays the suite on a detached HEAD with no branch — the state a tag gives the CI — so a test that silently assumes `main` is caught before a release.
+- **A CI round takes less time.** The Windows suite, about 38 minutes played one test after the other, is split into three shards run in parallel, balanced on measured durations; a test proves that the three shards together play every Windows test exactly once.
+
+**How it is proven.** Named tests, each with its negative control, chained in the public CI; the inventory is in [`tests/index.md`](./tests/index.md).
+
+**What this version does not promise.** The limits of v0.1.6 remain valid.
+
+**What remains to be done on your side.** Nothing urgent if you installed v0.1.6: only the push-delegation paragraph of `AGENTS.md` differs. To have it, or if you installed an earlier version, run the line above.
+
 ## v0.1.6
 
 Language version: what Second Brain is made of is now written in English; what it says to you stays in the language you chose. One fix for everyone who installed v0.1.5.

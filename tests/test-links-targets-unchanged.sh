@@ -20,6 +20,10 @@ export LC_ALL=C
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 FIXTURE="$REPO_ROOT/tests/fixtures/corpus-link-targets-653910c.tsv"
+# Changes made on purpose after the fixture, each declared with its Mission
+# (Mission 189): the reference is the frozen fixture plus these lines, so an
+# undeclared change still fails and the fixture itself is never rewritten.
+CHANGES="$REPO_ROOT/tests/fixtures/corpus-link-targets-changes.tsv"
 
 FAILURES=0
 TMP="$(mktemp -d "${TMPDIR:-/tmp}/m187-links-XXXXXX")"
@@ -62,10 +66,24 @@ compare() {
   LOST="$(comm -23 "$1" "$2")"
   ADDED="$(comm -13 "$1" "$2")"
 }
-compare "$FIXTURE" "$TMP/now-compared"
+reference() {
+  # $1 = fixture. Prints the fixture with the declared changes applied.
+  { cat "$1"
+    [ -f "$CHANGES" ] && awk -F'	' '!/^#/ && $1 == "+" { print $2 "	" $3 }' "$CHANGES"
+  } | sort -u > "$TMP/ref.add"
+  if [ -f "$CHANGES" ]; then
+    awk -F'	' '!/^#/ && $1 == "-" { print $2 "	" $3 }' "$CHANGES" | sort -u > "$TMP/ref.del"
+    comm -23 "$TMP/ref.add" "$TMP/ref.del"
+  else
+    cat "$TMP/ref.add"
+  fi
+}
+reference "$FIXTURE" > "$TMP/reference"
+DECLARED="$(grep -vc '^#' "$CHANGES" 2>/dev/null || echo 0)"
+compare "$TMP/reference" "$TMP/now-compared"
 N="$(wc -l < "$FIXTURE" | tr -d ' ')"
 if [ -z "$LOST" ] && [ -z "$ADDED" ]; then
-  echo "  PASS - $N {file, target} pairs, 0 lost, 0 added"
+  echo "  PASS - $N {file, target} pairs frozen, $DECLARED declared change(s), 0 lost, 0 added"
 else
   [ -n "$LOST" ] && { echo "  FAIL - lost:"; printf '%s\n' "$LOST" | sed 's/^/    /'; }
   [ -n "$ADDED" ] && { echo "  FAIL - added:"; printf '%s\n' "$ADDED" | sed 's/^/    /'; }

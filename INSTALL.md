@@ -21,13 +21,13 @@ This repository contains Second Brain: a durable memory and a cross-project oper
 **Windows (PowerShell, a standard account is enough):**
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.6/bootstrap.ps1)))"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.7/bootstrap.ps1)))"
 ```
 
 **macOS / Linux (Terminal):**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.6/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.7/bootstrap.sh | bash
 ```
 
 The line downloads a bootstrap script (`bootstrap.ps1` or `bootstrap.sh`, at the root of this repository) that requires nothing installed: it sets up Git in your profile if needed, verifies its fingerprint, fetches the repository at the indicated version, then launches the installer (`install.ps1` or `install.sh`). No elevation prompt, no writing outside your profile.

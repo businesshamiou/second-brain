@@ -588,3 +588,7 @@ tests/test-links-targets-unchanged.sh	DISTRIBUABLE
 tests/test-skill-triggers-bilingual.sh	DISTRIBUABLE
 tests/fixtures/corpus-link-targets-653910c.tsv	DISTRIBUABLE
 tests/test-published-line-ref.sh	DISTRIBUABLE
+tests/test-shards-cover-suite.sh	DISTRIBUABLE
+tests/test-suite-on-detached-head.sh	DISTRIBUABLE
+tests/index-archive-2026-09.md	DISTRIBUABLE
+tests/fixtures/corpus-link-targets-changes.tsv	DISTRIBUABLE
