@@ -1,33 +1,33 @@
 #!/usr/bin/env bash
-# Gardien des chemins affirmes : confronte au systeme de fichiers les chemins
-# cites en prose (entre accents graves simples) par le corpus normatif vivant
-# de ce depot. Lecture seule : ne corrige jamais un defaut trouve, se
-# contente de refuser et de le lister. Est cable sur .githooks/pre-commit
-# (mesure 2026-09-04, build history) -- l'en-tete precedente affirmait a tort
-# l'absence de cablage (build history) ; execution manuelle possible
-# aussi, resultat rapporte par l'appelant dans ce cas.
+# Asserted-paths guardian: checks against the file system the paths
+# cited in prose (between single backticks) by the living normative corpus
+# of this repository. Read-only: never fixes a defect it finds, only
+# refuses and lists it. Is wired into .githooks/pre-commit
+# (measured 2026-09-04, build history) -- the previous header wrongly asserted
+# that it was not wired (build history); manual run possible
+# too, result reported by the caller in that case.
 #
-# Perimetre : fichiers .md suivis de ce depot dont le front-matter `type`
-# vaut `rules` ou `decision`, ou qui vivent sous knowledge/, templates/, ou
-# a la racine du depot -- et dont le `status` n'est pas `superseded`.
+# Perimeter: tracked .md files of this repository whose front-matter `type`
+# is `rules` or `decision`, or which live under knowledge/, templates/, or
+# at the repository root -- and whose `status` is not `superseded`.
 #
-# Un jeton n'est examine que s'il nomme un fichier (extension presente dans
-# son dernier segment, y compris la forme point-fichier des dotfiles comme
-# .graphifyignore) : un dossier nu (`captures/`, `missions/`, ...) n'est
-# jamais examine -- c'est la regle qui laisse intactes les citations
-# prescriptives d'un gabarit ou d'un standard generique.
+# A token is examined only if it names a file (extension present in
+# its last segment, including the dot-file form of dotfiles such as
+# .graphifyignore): a bare folder (`captures/`, `missions/`, ...) is
+# never examined -- this is the rule that leaves untouched the prescriptive
+# citations of a template or of a generic standard.
 #
-# Un jeton immediatement suivi, dans la prose, de la marque litterale
-# `(supprimé, Mission NNN)` ou `(supprimé)` est accepte sans resolution.
+# A token immediately followed, in the prose, by the literal mark
+# `(supprimé, Mission NNN)` or `(supprimé)` is accepted without resolution.
 #
 # usage: check-asserted-paths.sh
 
 set -u
 
-# Garde Git (Mission 125, meme raison qu'a check-secrets.sh) : refus
-# explicite hors d'un depot, plutot qu'un $VAULT_ROOT vide qui rendait ce
-# gardien lecture-seule silencieusement inoffensif (0 fichier examine, faux
-# PASS) au lieu de refuser -- mesure au rapport 124.
+# Git guard (Mission 125, same reason as in check-secrets.sh): explicit
+# refusal outside a repository, rather than an empty $VAULT_ROOT that made this
+# read-only guardian silently harmless (0 files examined, false
+# PASS) instead of refusing -- measured in report 124.
 VAULT_ROOT="$(git rev-parse --show-toplevel)" || {
   echo "REFUS : hors d'un depot Git : gardien non executable." >&2
   exit 1
@@ -40,8 +40,8 @@ WORKSPACE_ROOT="$(cd "$VAULT_ROOT/.." && pwd)"
 # resolved against the sibling now simply falls through to the other
 # candidate roots, same as before this repo ever existed).
 . "$(dirname "$0")/resolve-sibling-repo.sh"
-# Tableaux associatifs portables (Mission 181) : `declare -A` n'existe pas
-# dans le bash 3.2 livre par Apple.
+# Portable associative arrays (Mission 181): `declare -A` does not exist
+# in the bash 3.2 shipped by Apple.
 . "$(dirname "$0")/kvmap.sh"
 resolve_declared_sibling "$WORKSPACE_ROOT"
 
@@ -54,33 +54,33 @@ GIT_IGNORED=0
 EXTERNE_CONNU=0
 DEFECT_COUNT=0
 
-# Tabulation calculee une seule fois (Mission 127) : evite de relancer un
-# processus printf a chaque iteration du while ci-dessous (meme cout que
-# celui mesure et corrige dans check-distribution-manifest.sh).
+# Tab computed only once (Mission 127): avoids relaunching a
+# printf process at each iteration of the while below (same cost as
+# the one measured and fixed in check-distribution-manifest.sh).
 TAB="$(printf '\t')"
 
-# --- 1. Selection des fichiers du perimetre ---
+# --- 1. Selecting the files of the perimeter ---
 ALL_MD="$(git -C "$VAULT_ROOT" ls-files -- '*.md')"
 
-# Pre-passe groupee (Mission 127) : un seul processus awk pour tout le corpus
-# au lieu d'un awk par fichier dans is_in_perimeter()/is_superseded() -- sur
-# ce poste (Git Bash/Windows) le fork de processus est le cout dominant, pas
-# le traitement lui-meme (meme diagnostic et meme patron que
-# tools/build-indexes.sh list_fields() : FNR==1 reinitialise l'etat par
-# fichier dans un unique appel awk, une ligne emise par fichier).
-# Emission au changement de fichier et en END plutot que par ENDFILE :
-# ENDFILE est une extension gawk, que l'awk d'Apple lit comme une variable
-# nulle -- aucune ligne, table vide, et ce gardien passait sans rien
-# verifier (Mission 181). Un fichier vide n'emet plus de ligne : ses deux
-# champs valaient deja la chaine vide, que la consultation rend aussi.
-# Comportement inchange : memes deux champs (type/status) lus dans le meme
-# bloc front-matter --- ... --- au meme sens, mesure par l'oracle de la
-# Mission 127 (sortie byte-identique avant/apres).
-# Chemins prefixes en bash, jamais par `sed "s#^#$VAULT_ROOT/#"` : sed
-# reinterprete la racine comme un remplacement -- un `&` y devient le texte
-# trouve, un antislash un echappement (GNU sed : `\U` met tout en
-# majuscules). Table vide, perimetre 105 -> 42 et faux refus au commit de
-# l'installeur (Mission 181, reprise de l'etape 6, smoke test).
+# Grouped pre-pass (Mission 127): a single awk process for the whole corpus
+# instead of one awk per file in is_in_perimeter()/is_superseded() -- on
+# this machine (Git Bash/Windows) process forking is the dominant cost, not
+# the processing itself (same diagnosis and same pattern as
+# tools/build-indexes.sh list_fields(): FNR==1 resets the state per
+# file within a single awk call, one line emitted per file).
+# Emission on change of file and in END rather than via ENDFILE:
+# ENDFILE is a gawk extension, which Apple's awk reads as a null
+# variable -- no line, empty table, and this guardian passed without checking
+# anything (Mission 181). An empty file no longer emits a line: its two
+# fields were already the empty string, which the lookup also returns.
+# Behaviour unchanged: same two fields (type/status) read in the same
+# front-matter block --- ... --- in the same sense, measured by the oracle of
+# Mission 127 (byte-identical output before/after).
+# Paths prefixed in bash, never via `sed "s#^#$VAULT_ROOT/#"`: sed
+# reinterprets the root as a replacement -- an `&` in it becomes the matched
+# text, a backslash an escape (GNU sed: `\U` turns everything to
+# upper case). Empty table, perimeter 105 -> 42 and false refusal at the
+# installer's commit (Mission 181, resumption of step 6, smoke test).
 FM_TABLE="$(printf '%s\n' "$ALL_MD" | while IFS= read -r p; do
   [ -n "$p" ] && printf '%s/%s\0' "$VAULT_ROOT" "$p"
 done | xargs -0 awk '
@@ -106,7 +106,7 @@ is_in_perimeter() {
   local rel="$1"
   case "$rel" in
     */*) : ;;
-    *) return 0 ;;  # a la racine du depot
+    *) return 0 ;;  # at the repository root
   esac
   case "$rel" in
     knowledge/*|templates/*) return 0 ;;
@@ -136,22 +136,22 @@ done <<EOF_ALLMD
 $ALL_MD
 EOF_ALLMD
 
-# --- 2. Extraction et verification, fichier par fichier ---
-# Un jeton "nomme un fichier" si son dernier segment (apres / ou \) commence
-# par un point (dotfile, ex. .graphifyignore -- toujours examine, quelle que
-# soit la liste blanche), ou si ce dernier segment se termine par l'une des
-# extensions de la liste blanche ci-dessous. La liste blanche est mesuree,
-# pas inventee : extensions distinctes portees par les fichiers suivis de
-# vault et workshop-build (git ls-files), Mission 092. Remplace l'ancienne
-# heuristique "un point suivi d'au moins un caractere", qui comptait des
-# non-chemins (numero de version, cle de configuration Git) parmi les
-# defauts (mesure Mission 091).
-# Exception, meme principe que les dossiers nus (ci-dessous) : un jeton
-# reduit a un point suivi d'une seule extension de la liste blanche, sans
-# autre segment ni autre point (ex. `.md`), nomme un format et non un
-# fichier -- il n'est jamais examine, quel que soit son contenu (Mission
-# 100). Distinct d'un dotfile comme .graphifyignore, qui n'a pas de
-# segment "nom" separe de son extension.
+# --- 2. Extraction and verification, file by file ---
+# A token "names a file" if its last segment (after / or \) starts
+# with a dot (dotfile, e.g. .graphifyignore -- always examined, whatever
+# the allowlist), or if that last segment ends with one of the
+# extensions of the allowlist below. The allowlist is measured,
+# not invented: distinct extensions carried by the tracked files of
+# vault and workshop-build (git ls-files), Mission 092. Replaces the former
+# heuristic "a dot followed by at least one character", which counted
+# non-paths (version number, Git configuration key) among the
+# defects (measured Mission 091).
+# Exception, same principle as bare folders (below): a token
+# reduced to a dot followed by a single allowlist extension, with no
+# other segment nor other dot (e.g. `.md`), names a format and not a
+# file -- it is never examined, whatever its content (Mission
+# 100). Distinct from a dotfile such as .graphifyignore, which has no
+# "name" segment separate from its extension.
 names_a_file() {
   local base="$1"
   base="${base%%/}"
@@ -160,11 +160,11 @@ names_a_file() {
   case "$base" in
     .md|.yaml|.sh|.txt|.py|.json|.svg|.js|.html|.example|.cjs) return 1 ;;
   esac
-  # `.` et `..` sont des jetons de navigation, jamais un nom de fichier --
-  # mesure Mission 168 (second-brain) : un `..` illustratif en prose faisait
-  # avorter silencieusement tout le lot `git check-ignore --stdin` ("is
-  # outside repository"), perdant le statut ignore de tous les autres jetons
-  # du meme lot (dont `.env`).
+  # `.` and `..` are navigation tokens, never a file name --
+  # measured Mission 168 (second-brain): an illustrative `..` in prose silently
+  # aborted the whole `git check-ignore --stdin` batch ("is
+  # outside repository"), losing the ignored status of all the other tokens
+  # of the same batch (including `.env`).
   case "$base" in
     .|..) return 1 ;;
   esac
@@ -177,13 +177,13 @@ names_a_file() {
   return 1
 }
 
-# --- Regle 1 (Mission 142, lot 6) : chemin inter-depot ----------------------
-# Un chemin affirme dont la resolution quitte VAULT_ROOT vise un depot frere,
-# absent d'un Vault pose seul : il n'est pas verifiable ici, donc ni resolu ni
-# compte en defaut. Deux formes mesurees dans le corpus : le prefixe `../` qui
-# remonte au-dessus de la racine apres normalisation, et le chemin dont le
-# premier segment nomme le depot frere declare ($SIBLING_NAME). Tout chemin
-# restant sous la racine est verifie comme avant.
+# --- Rule 1 (Mission 142, batch 6): cross-repository path -------------------
+# An asserted path whose resolution leaves VAULT_ROOT targets a sibling repository,
+# absent from a Vault installed alone: it cannot be verified here, so it is neither resolved nor
+# counted as a defect. Two forms measured in the corpus: the `../` prefix that
+# climbs above the root after normalisation, and the path whose
+# first segment names the declared sibling repository ($SIBLING_NAME). Every path
+# remaining under the root is checked as before.
 outside_root() {
   local token="$1" source_dir="$2"
 
@@ -209,23 +209,23 @@ outside_root() {
   return 1
 }
 
-# --- Regle 2 (Mission 142, lots 6 et 7) : chemin ignore par Git -------------
-# Un chemin que `git check-ignore` reconnait est non versionne par conception
-# (.env, caches, sorties de build) : son absence d'un clone frais est
-# attendue, jamais un defaut.
+# --- Rule 2 (Mission 142, batches 6 and 7): path ignored by Git -------------
+# A path that `git check-ignore` recognises is unversioned by design
+# (.env, caches, build outputs): its absence from a fresh clone is
+# expected, never a defect.
 #
-# Lot 7 : un SEUL `git check-ignore -z --stdin` pour tout le corpus, au lieu
-# d'un fork par jeton -- la forme par jeton coutait 18,7 s dans un clone
-# froid contre 1,9 s avant la regle (mesure Mission 142), meme patron de fork
-# par entree que la Mission 137-B avait elimine sur le gardien de fraicheur.
-# La pre-passe remplit la carte GIT_IGNORED_SET (tools/kvmap.sh) ; le
-# parcours ne fait plus qu'une consultation en memoire.
+# Batch 7: a SINGLE `git check-ignore -z --stdin` for the whole corpus, instead
+# of one fork per token -- the per-token form cost 18.7 s in a cold
+# clone against 1.9 s before the rule (measured Mission 142), same pattern of fork
+# per entry that Mission 137-B had removed from the freshness guardian.
+# The pre-pass fills the map GIT_IGNORED_SET (tools/kvmap.sh); the
+# walk now only does an in-memory lookup.
 
 prime_git_ignored() {
   local tokens
-  # Un seul jeton hors depot fait avorter tout le lot ("is outside
-  # repository") : les chemins remontants, absolus ou du depot frere sont
-  # ecartes ici. Aucune perte -- outside_root les traite avant git_ignored.
+  # A single token outside the repository aborts the whole batch ("is outside
+  # repository"): climbing, absolute or sibling-repository paths are
+  # set aside here. No loss -- outside_root handles them before git_ignored.
   tokens="$(printf '%s\n' "$PERIMETER_FILES" | while IFS= read -r r; do
     [ -z "$r" ] && continue
     grep -o '`[^`]*`' "$VAULT_ROOT/$r" 2>/dev/null | tr -d '`'
@@ -243,33 +243,33 @@ git_ignored() {
   kv_has GIT_IGNORED_SET "$1"
 }
 
-# Jetons externes connus (ticket 02, avance ici seulement -- Mission 168,
-# arbitrage Owner 2026-09-11) : artefacts machine-locaux ou proposes par une
-# Decision historique sans jamais avoir ete construits sous ce nom, jamais
-# resolubles depuis un checkout de depot quel qu'il soit -- meme statut que
-# la marque `(hors Vault)` deja portee par la ligne. Liste mesuree sur les 30
-# defauts restants apres l'alias `vault/` et la recherche par nom de fichier,
-# jamais etendue par confort :
-#   VAULT-ROOT.md, MISSION-INDEX.md, .pre-commit-config.yaml -- artefacts du
-#     depot frere workshop-build ou generes a l'installation, absents par
-#     conception de tout checkout de second-brain ;
-#   ~/.codex/AGENTS.md, ~/.claude/CLAUDE.md -- fichiers du profil utilisateur,
-#     jamais versionnes ;
+# Known external tokens (ticket 02, brought forward here only -- Mission 168,
+# Owner arbitration 2026-09-11): machine-local artefacts or ones proposed by a
+# historical Decision without ever having been built under that name, never
+# resolvable from a checkout of any repository -- same status as
+# the `(hors Vault)` mark already carried by the line. List measured on the 30
+# defects remaining after the `vault/` alias and the search by file name,
+# never extended for convenience:
+#   VAULT-ROOT.md, MISSION-INDEX.md, .pre-commit-config.yaml -- artefacts of the
+#     sibling repository workshop-build or generated at installation, absent by
+#     design from any checkout of second-brain;
+#   ~/.codex/AGENTS.md, ~/.claude/CLAUDE.md -- user-profile files,
+#     never versioned;
 #   claude_desktop_config.json, %APPDATA%\Claude\claude_desktop_config.json --
-#     configuration de l'application de bureau Claude, meme categorie que les
-#     deux precedents (fichier du profil utilisateur, jamais versionne dans ce
-#     depot) ; cite par la FAQ participant de README.md (Mission 186, T5) ;
-#   policy.yaml -- nomme par une Decision comme geste a faire, jamais
-#     construit sous ce nom (explicitement rejete, DECISION-2026-08-23-220049) ;
-#   build-package.sh -- outil de fabrication INTERNE (manifeste), jamais
-#     distribue ;
-#   SKILL.md -- nom de fichier partage par toutes les skills (167 occurrences
-#     suivies) : une citation nue ne peut jamais se resoudre sans ambiguite.
-# Residu corrige (ticket 02, rapport 168 §16.7) : check-project-conformity.sh
-# et project-bootstrap.sh retires -- les deux fichiers existent reellement
-# dans second-brain (noms uniques), la recherche par nom de fichier (point 3
-# ci-dessus) les resout deja sans ambiguite ; le commentaire qui les decrivait
-# ici comme "jamais construits sous ce nom" etait inexact.
+#     configuration of the Claude desktop application, same category as the
+#     two previous ones (user-profile file, never versioned in this
+#     repository); cited by the participant FAQ of README.md (Mission 186, T5);
+#   policy.yaml -- named by a Decision as a gesture to make, never
+#     built under that name (explicitly rejected, DECISION-2026-08-23-220049);
+#   build-package.sh -- INTERNAL build tool (manifest), never
+#     distributed;
+#   SKILL.md -- file name shared by all skills (167 tracked
+#     occurrences): a bare citation can never resolve without ambiguity.
+# Residue fixed (ticket 02, report 168 §16.7): check-project-conformity.sh
+# and project-bootstrap.sh removed -- both files really exist
+# in second-brain (unique names), the search by file name (point 3
+# above) already resolves them without ambiguity; the comment that described them
+# here as "never built under that name" was inaccurate.
 KNOWN_EXTERNAL_TOKENS=" VAULT-ROOT.md MISSION-INDEX.md .pre-commit-config.yaml ~/.codex/AGENTS.md ~/.claude/CLAUDE.md policy.yaml build-package.sh tools/build-package.sh SKILL.md claude_desktop_config.json %APPDATA%\Claude\claude_desktop_config.json "
 
 known_external() {
@@ -286,29 +286,29 @@ resolve_token() {
       return 0
     fi
   done
-  # Racine par le marqueur (ticket 02, avance ici seulement -- Mission 168,
-  # arbitrage Owner 2026-09-11) : ce depot absorbe desormais a sa propre
-  # racine ce qu'un jeton `vault/...` designait depuis le depot frere
-  # workshop-build. `vault/` n'est plus un sous-dossier ni un sibling : c'est
-  # ce depot lui-meme. Un jeton ainsi prefixe se resout donc aussi contre
-  # VAULT_ROOT une fois le prefixe retire.
+  # Root by the marker (ticket 02, brought forward here only -- Mission 168,
+  # Owner arbitration 2026-09-11): this repository now absorbs at its own
+  # root what a `vault/...` token designated from the sibling repository
+  # workshop-build. `vault/` is no longer a subfolder nor a sibling: it is
+  # this repository itself. A token so prefixed therefore also resolves against
+  # VAULT_ROOT once the prefix is removed.
   case "$token" in
     vault/*)
       local aliased="${token#vault/}"
       [ -e "$VAULT_ROOT/$aliased" ] && return 0
       ;;
   esac
-  # jeton deja absolu
+  # token already absolute
   case "$token" in
     /*|[A-Za-z]:\\*|[A-Za-z]:/*)
       [ -e "$token" ] && return 0
       ;;
   esac
-  # Recherche par nom de fichier (ticket 02, avance ici seulement) : un
-  # jeton nu (sans "/") qui ne nomme qu'un seul fichier suivi dans tout le
-  # depot se resout sans ambiguite -- l'ancienne citation courte comptait sur
-  # une colocalisation qui n'existe plus une fois le contenu rapatrie.
-  # Jamais joue si le jeton correspond a plus d'un fichier (ex. SKILL.md).
+  # Search by file name (ticket 02, brought forward here only): a
+  # bare token (without "/") that names only one tracked file in the whole
+  # repository resolves without ambiguity -- the former short citation relied on
+  # a co-location that no longer exists once the content was brought home.
+  # Never applied if the token matches more than one file (e.g. SKILL.md).
   case "$token" in
     */*) ;;
     *)
@@ -328,9 +328,9 @@ prime_git_ignored
 while IFS= read -r rel; do
   [ -z "$rel" ] && continue
   FULL="$VAULT_ROOT/$rel"
-  # dirname pur bash (Mission 127) : $FULL est toujours un chemin absolu
-  # avec au moins un "/", la substitution est donc toujours equivalente ;
-  # remplace un processus dirname par fichier du perimetre.
+  # Pure-bash dirname (Mission 127): $FULL is always an absolute path
+  # with at least one "/", so the substitution is always equivalent;
+  # replaces one dirname process per file of the perimeter.
   SOURCE_DIR="${FULL%/*}"
 
   IN_FENCE=0
@@ -351,11 +351,11 @@ while IFS= read -r rel; do
 
     case "$line" in
       '#'*)
-        # Extraction de titre pure bash (Mission 127), meme technique deja
-        # utilisee pour LTRIM ci-dessus : ${var%%pattern} isole le plus long
-        # prefixe compose uniquement du caractere vise (# puis espace),
-        # ${var#"$prefixe"} le retire -- equivalent a sed -E 's/^#+[[:space:]]*//'
-        # sans lancer de processus par ligne de titre.
+        # Pure-bash heading extraction (Mission 127), same technique already
+        # used for LTRIM above: ${var%%pattern} isolates the longest
+        # prefix made only of the targeted character (# then space),
+        # ${var#"$prefixe"} removes it -- equivalent to sed -E 's/^#+[[:space:]]*//'
+        # without launching a process per heading line.
         SECTION="$line"
         HASHRUN="${SECTION%%[!#]*}"
         SECTION="${SECTION#"$HASHRUN"}"
@@ -364,7 +364,7 @@ while IFS= read -r rel; do
         ;;
     esac
 
-    # Ne traite que les lignes portant au moins un span backtick.
+    # Only processes lines carrying at least one backtick span.
     case "$line" in
       *'`'*'`'*) : ;;
       *) continue ;;
@@ -401,13 +401,13 @@ while IFS= read -r rel; do
           ;;
       esac
 
-      # Marque `(hors Vault)` portee par la LIGNE (Mission 142, arbitrage
-      # Owner 2026-09-05) : le lien vise un depot frere, absent d'un Vault
-      # pose seul. La marque est deja la convention du standard de liens pour
-      # les cibles hors depot ; elle vaut ici declaration, donc ni resolution
-      # ni defaut. Elle se lit sur la ligne entiere et non juste apres le
-      # jeton, parce qu'elle suit le lien Markdown complet, pas le span.
-      # Tout chemin NON marque reste refuse : le gardien ne perd rien.
+      # `(hors Vault)` mark carried by the LINE (Mission 142, Owner
+      # arbitration 2026-09-05): the link targets a sibling repository, absent from a Vault
+      # installed alone. The mark is already the linking standard's convention for
+      # targets outside the repository; here it counts as a declaration, so neither resolution
+      # nor defect. It is read on the whole line and not just after the
+      # token, because it follows the complete Markdown link, not the span.
+      # Every path NOT marked stays refused: the guardian loses nothing.
       case "$line" in
         *'(hors Vault)'*)
           ACCEPTED_MARKED=$((ACCEPTED_MARKED + 1))

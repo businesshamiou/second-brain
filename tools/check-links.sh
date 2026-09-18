@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Controle de liens sur les fichiers .md stages.
-# Shell portable : aucune dependance a Python, meme structure que check-secrets.sh.
-# Le refus est la position par defaut : toute condition anormale bloque.
+# Link check on staged .md files.
+# Portable shell: no dependency on Python, same structure as check-secrets.sh.
+# Refusal is the default position: any abnormal condition blocks.
 #
-# (build history) : le balayage de liens (regles 2/3 ci-dessous) reconnait la
-# couche dans laquelle il lit -- un exemple pedagogique a l'interieur d'un
-# bloc de code cloture (``` ou ~~~) ou d'un span de code inline (backticks
-# apparies, meme imbrique comme un span `` `x` `` a deux niveaux) n'est plus
-# balaye comme un lien reel. Additif seulement : la regle 1 (section
-# "## Liens" obligatoire, juste en dessous) garde son mecanisme exact,
-# inchange, et n'est pas affaiblie.
+# (build history): the link sweep (rules 2/3 below) recognises the
+# layer in which it reads -- a teaching example inside a
+# fenced code block (``` or ~~~) or an inline code span (paired
+# backticks, even nested like a two-level `` `x` `` span) is no longer
+# swept as a real link. Additive only: rule 1 (mandatory
+# "## Liens" section, just below) keeps its exact mechanism,
+# unchanged, and is not weakened.
 
 set -u
 
@@ -17,9 +17,9 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$SCRIPT_DIR/relpath.sh"
 . "$SCRIPT_DIR/project-baseline.sh"
 
-# usage: check-links.sh             (depot courant, fichiers stages)
-#        check-links.sh <projet>    (mode dossier, sans Git : tous les .md du
-#                                    projet -- vcs: none, Decision 000545 A4)
+# usage: check-links.sh             (current repository, staged files)
+#        check-links.sh <projet>    (folder mode, without Git: all .md files of the
+#                                    project -- vcs: none, Decision 000545 A4)
 if [ -n "${1:-}" ]; then
   if [ ! -d "$1" ]; then
     echo "REFUS : dossier de projet introuvable : $1" >&2
@@ -28,21 +28,21 @@ if [ -n "${1:-}" ]; then
   VAULT_ROOT="$(cd "$1" && pwd)"
   STAGED="$(pb_list_files "$VAULT_ROOT" | grep -E '\.md$' || true)"
 else
-  # Garde Git (Mission 125, meme raison qu'a check-secrets.sh) : refus
-  # explicite hors d'un depot, plutot qu'un $VAULT_ROOT vide qui rendrait un
-  # faux PASS silencieux plus loin.
+  # Git guard (Mission 125, same reason as in check-secrets.sh): explicit
+  # refusal outside a repository, rather than an empty $VAULT_ROOT that would give a
+  # silent false PASS further on.
   VAULT_ROOT="$(git rev-parse --show-toplevel)" || {
     echo "REFUS : hors d'un depot Git : gardien non executable." >&2
     exit 1
   }
   STAGED="$(git diff --cached --name-only --diff-filter=AM -- '*.md' || true)"
 fi
-# Racine du workspace (parent du depot courant) : sert a identifier le depot
-# cible d'un lien sortant (DECISION-2026-09-02-005041) -- ../../<depot>/...
+# Workspace root (parent of the current repository): used to identify the target
+# repository of an outgoing link (DECISION-2026-09-02-005041) -- ../../<repo>/...
 WORKSPACE_ROOT="$(dirname "$VAULT_ROOT")"
 
-# Ligne de base (Decision 000545, A4) : un fichier grave a l'adoption et non
-# touche n'est jamais juge ; touche, il est juge entier, comme un neuf.
+# Baseline (Decision 000545, A4): a file engraved at adoption and not
+# touched is never judged; once touched, it is judged in full, like a new one.
 pb_load "$VAULT_ROOT"
 if [ -n "$PB_FILE" ] && [ -n "$STAGED" ]; then
   KEPT=""
@@ -61,9 +61,9 @@ if [ -z "$STAGED" ]; then
   exit 0
 fi
 
-# Retire tout span de code inline d'une ligne avant le balayage de liens :
-# backticks apparies par longueur de delimiteur egale (regle CommonMark des
-# spans de code), un run non apparie est laisse tel quel (texte litteral).
+# Removes every inline code span from a line before the link sweep:
+# backticks paired by equal delimiter length (CommonMark rule for code
+# spans), an unpaired run is left as is (literal text).
 strip_inline_code() {
   awk '
     {
@@ -120,14 +120,14 @@ while IFS= read -r file; do
 
   DIR="$(dirname "$FULLPATH")"
 
-  # --- 1. Section "## Liens" obligatoire -- bornee au corpus documentaire,
-  # jamais au materiel adopte de skills/external/ (corps verbatim garanti
-  # par empreintes, hors du graphe de citations du corpus). La resolution
-  # des liens (regles 2/3 ci-dessous) reste globale, external/ compris.
-  # DECISION-2026-08-28-203627. skills-warehouse/ ajoute (Mission 168,
-  # arbitrage Owner 2026-09-11, option b -- meme principe que
-  # DECISION-203627 : sous-arbre adopte tel quel, T24, ses propres standards
-  # de provenance en tiennent lieu, jamais la convention de liens du Vault). ---
+  # --- 1. Mandatory "## Liens" section -- limited to the documentary corpus,
+  # never to the adopted material of skills/external/ (verbatim body guaranteed
+  # by fingerprints, outside the corpus's citation graph). The resolution
+  # of links (rules 2/3 below) remains global, external/ included.
+  # DECISION-2026-08-28-203627. skills-warehouse/ added (Mission 168,
+  # Owner arbitration 2026-09-11, option b -- same principle as
+  # DECISION-203627: subtree adopted as is, T24, its own provenance
+  # standards stand in for it, never the Vault's linking convention). ---
   case "$file" in
     skills/external/*|skills-warehouse/*) : ;;
     *)
@@ -138,7 +138,7 @@ while IFS= read -r file; do
       ;;
   esac
 
-  # --- 2/3. Liens relatifs : cible resolue, ou avertissement si aucun lien interne ---
+  # --- 2/3. Relative links: target resolved, or warning if no internal link ---
   HAS_INTERNAL=0
   LINE_NO=0
   IN_FENCE=0
@@ -146,10 +146,10 @@ while IFS= read -r file; do
   while IFS= read -r line || [ -n "$line" ]; do
     LINE_NO=$((LINE_NO + 1))
 
-    # --- couche : bloc de code cloture (Mission 060) -- retire l'indentation
-    # eventuelle par expansion de parametre bash pure (aucun sous-processus,
-    # contrairement a `sed` : le cout par ligne doit rester nul pour les gros
-    # fichiers) avant de tester le delimiteur de cloture ---
+    # --- layer: fenced code block (Mission 060) -- removes any
+    # indentation by pure bash parameter expansion (no subprocess,
+    # unlike `sed`: the per-line cost must stay nil for large
+    # files) before testing the fence delimiter ---
     LTRIM="${line#"${line%%[![:space:]]*}"}"
     case "$LTRIM" in
       '```'*|'~~~'*)
@@ -161,20 +161,20 @@ while IFS= read -r file; do
       continue
     fi
 
-    # Filtre rapide sur la ligne brute, identique au comportement d'avant
-    # la Mission 060 : evite de payer le cout d'un sous-processus awk par
-    # ligne (strip_inline_code) pour l'immense majorite des lignes qui ne
-    # contiennent aucune sous-chaine candidate -- la performance sur les
-    # gros fichiers ne doit pas se degrader.
+    # Quick filter on the raw line, identical to the behaviour before
+    # Mission 060: avoids paying the cost of an awk subprocess per
+    # line (strip_inline_code) for the vast majority of lines that
+    # contain no candidate substring -- performance on
+    # large files must not degrade.
     case "$line" in
       *'](./'*|*'](../'*) : ;;
       *) continue ;;
     esac
 
-    # --- couche : code inline (Mission 060) -- le balayage qui suit porte
-    # sur SCAN_LINE (spans de code retires), jamais sur $line brute. Seules
-    # les lignes qui ont deja passe le filtre rapide ci-dessus paient ce
-    # cout. ---
+    # --- layer: inline code (Mission 060) -- the sweep that follows works
+    # on SCAN_LINE (code spans removed), never on raw $line. Only
+    # the lines that have already passed the quick filter above pay this
+    # cost. ---
     SCAN_LINE="$(printf '%s' "$line" | strip_inline_code)"
 
     case "$SCAN_LINE" in
@@ -182,10 +182,10 @@ while IFS= read -r file; do
       *) continue ;;
     esac
 
-    # Note (DECISION-2026-09-02-005041) : la mention "(hors <depot>)" est
-    # pour le lecteur seulement ; le gardien decide desormais par le chemin
-    # resolu (interne au depot courant, ou sortant vers un depot frere),
-    # jamais par la presence ou l'absence de cette mention sur la ligne.
+    # Note (DECISION-2026-09-02-005041): the mention "(hors <depot>)" is
+    # for the reader only; the guardian now decides by the resolved
+    # path (internal to the current repository, or outgoing to a sibling repository),
+    # never by the presence or absence of this mention on the line.
 
     TARGETS="$(printf '%s' "$SCAN_LINE" | grep -oE '\]\(\.{1,2}/[^)]*\)' | sed -E 's/^\]\((.*)\)$/\1/')"
     [ -z "$TARGETS" ] && continue
@@ -208,8 +208,8 @@ while IFS= read -r file; do
 
       case "$RESOLVED" in
         "$VAULT_ROOT"/*)
-          # --- lien interne au depot courant : comportement inchange,
-          # absente = refus. ---
+          # --- link internal to the current repository: behaviour unchanged,
+          # missing = refusal. ---
           if [ -f "$RESOLVED" ]; then
             HAS_INTERNAL=1
           else
@@ -218,10 +218,10 @@ while IFS= read -r file; do
           fi
           ;;
         *)
-          # --- lien sortant (DECISION-2026-09-02-005041) : controle plein
-          # seulement si le depot cible (premier segment sous la racine du
-          # workspace) est present sur disque ; sinon avertissement, jamais
-          # de refus -- morts par construction dans un paquet autonome. ---
+          # --- outgoing link (DECISION-2026-09-02-005041): full check
+          # only if the target repository (first segment under the workspace
+          # root) is present on disk; otherwise a warning, never
+          # a refusal -- dead by construction in a standalone package. ---
           REL_TO_WS="${RESOLVED#"$WORKSPACE_ROOT"/}"
           if [ "$REL_TO_WS" = "$RESOLVED" ]; then
             echo "LIENS: avertissement (depot cible non determinable depuis l'espace de travail, lien non verifie) : $file:$LINE_NO -> $TARGET" >&2

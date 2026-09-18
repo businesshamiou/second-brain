@@ -1,25 +1,25 @@
 #!/usr/bin/env bash
-# Refuse toute mention, dans la documentation suivie de ce depot, de la
-# commande Claude Code `/agents`. Corrigee au defaut 4 de l'audit (Mission
-# 171-C01, etape 9) : la doctrine du Vault est d'appeler l'assistant en le
-# nommant ("demande a Brian : ...") plutot que par cette commande, qui n'a
-# pas de sens hors de l'outil Claude Code lui-meme. Ce gardien evite qu'une
-# future edition la reintroduise sans le remarquer.
+# Refuses any mention, in the tracked documentation of this repository, of the
+# Claude Code command `/agents`. Fixed in audit defect 4 (Mission
+# 171-C01, step 9): the Vault's doctrine is to call the assistant by
+# naming it ("demande a Brian : ..." ["ask Brian: ..."]) rather than by this command, which has
+# no meaning outside the Claude Code tool itself. This guardian prevents a
+# future edit from reintroducing it without noticing.
 #
-# Perimetre : tous les fichiers *.md suivis par Git (git ls-files), y compris
-# skills-warehouse/ et skills/external/ -- une mention de cette commande y
-# serait tout aussi fausse. Ce script et son test de non-regression sont
-# exclus du balayage (meme raison qu'a check-private-patterns.sh : ils citent
-# le motif en clair pour le definir et le tester).
+# Perimeter: all *.md files tracked by Git (git ls-files), including
+# skills-warehouse/ and skills/external/ -- a mention of this command there
+# would be just as wrong. This script and its non-regression test are
+# excluded from the sweep (same reason as in check-private-patterns.sh: they cite
+# the pattern in clear to define and test it).
 #
-# Distinction avec un chemin de fichier legitime (ex.
-# `skills/external/ask-matt/agents/openai.yaml`, un DOSSIER nomme "agents") :
-# une vraie mention de commande n'est jamais suivie d'un autre "/" -- c'est
-# le seul critere retenu, mesure sur le corpus reel (aucun dossier "agents"
-# suivi d'autre chose qu'un "/" dans ce depot).
+# Distinction from a legitimate file path (e.g.
+# `skills/external/ask-matt/agents/openai.yaml`, a FOLDER named "agents"):
+# a real mention of the command is never followed by another "/" -- it is
+# the only criterion kept, measured on the real corpus (no "agents" folder
+# followed by anything other than a "/" in this repository).
 #
 # usage: tools/check-no-slash-agents.sh
-# exit 0 si 0 occurrence hors exception ; exit 1 sinon, cause imprimee.
+# exit 0 if 0 occurrences outside the exception; exit 1 otherwise, cause printed.
 
 set -u
 
@@ -31,22 +31,22 @@ git -C "$REPO_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
   exit 1
 }
 
-# Meme principe d'auto-exclusion que check-private-patterns.sh : la paire
-# definition/test cite le motif en clair, jamais un vrai document livre.
+# Same self-exclusion principle as check-private-patterns.sh: the
+# definition/test pair cites the pattern in clear, never a real delivered document.
 EXCLUDE_PATHSPECS=(
   ":(exclude)tools/check-no-slash-agents.sh"
   ":(exclude)tests/test-check-no-slash-agents.sh"
 )
 
-# `/agents` suivi d'un caractere qui n'est ni un mot ni un "/" (espace, fin de
-# ligne, backtick, ponctuation) : couvre l'invocation nue et son usage entre
-# backticks ; exclut le segment de chemin `.../agents/<fichier>`.
+# `/agents` followed by a character that is neither a word character nor a "/" (space, end of
+# line, backtick, punctuation): covers the bare invocation and its use between
+# backticks; excludes the path segment `.../agents/<file>`.
 PATTERN='/agents([^A-Za-z0-9_/]|$)'
 
-# Case sensible a dessein : la commande Claude Code s'ecrit en minuscules
-# ("/agents"), distincte du fichier `AGENTS.md` (majuscules) cite partout en
-# lien -- un balayage insensible a la casse confondrait les deux (mesure sur
-# ce depot : premiere version de ce script refusait a tort sur `./AGENTS.md`).
+# Case-sensitive by design: the Claude Code command is written in lower case
+# ("/agents"), distinct from the file `AGENTS.md` (upper case) cited everywhere as a
+# link -- a case-insensitive sweep would confuse the two (measured on
+# this repository: the first version of this script wrongly refused on `./AGENTS.md`).
 HITS="$(git -C "$REPO_ROOT" grep -In --no-color -E -- "$PATTERN" -- '*.md' "${EXCLUDE_PATHSPECS[@]}" 2>/dev/null || true)"
 
 if [ -n "$HITS" ]; then

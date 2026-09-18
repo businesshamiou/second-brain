@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Controle de contenance du serveur MCP du Vault (Decision 2026-09-17-000545,
-# A6) : le projet ET son Vault doivent se trouver sous un dossier autorise du
-# serveur `second-brain-vault` declare dans une configuration d'outil
+# Containment check for the Vault's MCP server (Decision 2026-09-17-000545,
+# A6): the project AND its Vault must lie under an allowed folder of the
+# `second-brain-vault` server declared in a tool configuration
 # (claude_desktop_config.json, ~/.claude.json, ~/.codex/config.toml).
 #
 # usage: check-mcp-containment.sh <configuration> <projet>
-# Sortie : une ligne PASS/FAIL par chemin, puis le verdict. Code 0 = PASS,
-# 1 = FAIL (y compris configuration illisible, serveur absent, Vault non
-# resolu). Lecture seule.
+# Output: one PASS/FAIL line per path, then the verdict. Exit 0 = PASS,
+# 1 = FAIL (including unreadable configuration, server absent, Vault not
+# resolved). Read-only.
 
 set -u
 

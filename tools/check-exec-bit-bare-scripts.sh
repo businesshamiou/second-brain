@@ -1,30 +1,30 @@
 #!/usr/bin/env bash
-# Refuse tout .sh suivi dont le bit d'execution est absent de l'INDEX GIT
-# alors qu'il est invoque nu (sans `bash`/`sh` devant) quelque part dans
-# ce depot. Trois causes de CI rouge distinctes ont partage exactement ce
-# defaut, jamais visible sur NTFS
-# (ce poste, tout poste Windows -- le bit n'existe pas sur ce systeme de
-# fichiers) : chaque fois decouvert un run Ubuntu a la fois, plutot que
-# tous ensemble. Ce gardien balaie la famille entiere au lieu d'attendre
-# le prochain script que la CI atteindra pour la premiere fois.
+# Refuses any tracked .sh whose execute bit is missing from the GIT INDEX
+# while it is invoked bare (without `bash`/`sh` in front) somewhere in
+# this repository. Three distinct causes of red CI shared exactly this
+# defect, never visible on NTFS
+# (this machine, any Windows machine -- the bit does not exist on that file
+# system): each time discovered one Ubuntu run at a time, rather than
+# all together. This guardian sweeps the whole family instead of waiting for
+# the next script that CI will reach for the first time.
 #
-# Deux sites de bare-invocation mesures sur ce depot (aucun autre trouve
-# par balayage complet, Mission 177 etape 2, 4e reprise) :
-#   1. un jeton `"$VAR/.../nom.sh"` en tete de commande (debut de ligne,
-#      apres `(`, `$(`, `&&`, `||` ou `;`) dans un .sh suivi -- la forme
-#      exacte de install.sh:410/413/722/803.
-#   2. `entry: chemin.sh` sous `language: script` dans
-#      .pre-commit-hooks.yaml -- le framework pre-commit invoque ce
-#      chemin nu (meme raison que check-links.sh, premiere reprise).
+# Two bare-invocation sites measured in this repository (no other found
+# by a complete sweep, Mission 177 step 2, 4th resumption):
+#   1. a `"$VAR/.../name.sh"` token at the head of a command (start of line,
+#      after `(`, `$(`, `&&`, `||` or `;`) in a tracked .sh -- the exact
+#      form of install.sh:410/413/722/803.
+#   2. `entry: path.sh` under `language: script` in
+#      .pre-commit-hooks.yaml -- the pre-commit framework invokes that
+#      path bare (same reason as check-links.sh, first resumption).
 #
-# Troisieme famille (Mission 181) : tout fichier suivi sous .githooks/,
-# quelle que soit son extension -- un hook n'est pas appele nu par un
-# script du depot, il est appele par Git, qui refuse d'executer un hook
-# sans bit d'execution (« hint: The '.githooks/pre-commit' hook was ignored
-# because it's not set as executable »). Les trois hooks du produit etaient
-# suivis en 100644 : chez un participant macOS ou Linux, aucun gardien ne
-# tournait au commit, et rien ne le signalait. Couverts par leur role (le
-# dossier que core.hooksPath designe), jamais par leur extension.
+# Third family (Mission 181): every tracked file under .githooks/,
+# whatever its extension -- a hook is not called bare by a
+# script of the repository, it is called by Git, which refuses to execute a hook
+# without the execute bit (« hint: The '.githooks/pre-commit' hook was ignored
+# because it's not set as executable »). The product's three hooks were
+# tracked as 100644: for a macOS or Linux participant, no guardian
+# ran at commit, and nothing reported it. Covered by their role (the
+# folder that core.hooksPath designates), never by their extension.
 #
 # usage: tools/check-exec-bit-bare-scripts.sh
 

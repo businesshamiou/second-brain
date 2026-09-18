@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# Ajoute une ligne horodatee en fin de journal d'un projet.
-# N'ouvre jamais le fichier en lecture ; ne reecrit jamais une ligne existante.
-# Cree le fichier et son dossier s'ils n'existent pas.
+# Appends a timestamped line at the end of a project's journal.
+# Never opens the file for reading; never rewrites an existing line.
+# Creates the file and its folder if they do not exist.
 #
 # usage: append-journal.sh <chemin-projet> "<texte>"
 #
-# --- Cablage memoire externe : retire (Mission 147) ------------------------------
-# Un cablage fail-open alimentait une banque memoire externe apres l'ecriture de
-# la ligne (Mission 122). Il est retire : le benchmark de la Mission 146 a mesure
-# l'outil sur dix questions et un corpus fige, la Decision 113850 a tranche le
-# retrait. Le comportement de ce script est inchange par ce retrait : meme ligne
-# ecrite, meme code de sortie -- invariance prouvee par diff a la Mission 147.
-# L'ecriture memoire n'a jamais ete une source d'etat : le journal l'est.
+# --- External memory wiring: removed (Mission 147) ------------------------------
+# A fail-open wiring fed an external memory bank after the line was written
+# (Mission 122). It is removed: the Mission 146 benchmark measured the tool
+# on ten questions and a frozen corpus, Decision 113850 decided the
+# removal. This script's behaviour is unchanged by the removal: same line
+# written, same exit code -- invariance proven by diff in Mission 147.
+# The memory write was never a source of state: the journal is.
 
 set -u
 
@@ -23,12 +23,12 @@ if [ -z "$PROJECT" ] || [ -z "$TEXT" ]; then
   exit 1
 fi
 
-# --- Butee 300 caracteres (Decision 191407, Mission 123) ------------------------
-# Fail-closed, avant toute ecriture : le texte fourni par l'appelant (hors
-# horodatage, prefixe par ce script lui-meme plus bas) ne doit jamais depasser
-# MAX_LINE_CHARS. Comptage en caracteres (wc -m), pas en octets -- coherent
-# avec la convention deja mesuree aux Missions 121/122 sur la ligne STATE:.
-# Refus sans rien ecrire.
+# --- 300-character stop (Decision 191407, Mission 123) --------------------------
+# Fail-closed, before any write: the text supplied by the caller (excluding the
+# timestamp, which this script itself prefixes further down) must never exceed
+# MAX_LINE_CHARS. Counted in characters (wc -m), not in bytes -- consistent
+# with the convention already measured in Missions 121/122 on the STATE: line.
+# Refusal without writing anything.
 MAX_LINE_CHARS=300
 
 TEXT_LEN="$(printf '%s' "$TEXT" | wc -m)"
@@ -43,12 +43,12 @@ JOURNAL="$STATE_DIR/journal.md"
 mkdir -p "$STATE_DIR"
 
 if [ ! -f "$JOURNAL" ]; then
-  # Mission 168, ticket 03 : section "## Liens" ajoutee des la creation --
-  # tools/check-links.sh l'exige sur tout .md hors skills/external et
+  # Mission 168, ticket 03: "## Liens" section added at creation --
+  # tools/check-links.sh requires it on every .md outside skills/external and
   # skills-warehouse (RULES-2026-08-21-115658-document-linking-standard.md).
-  # Le lien pointe vers le README du projet lui-meme : toujours present (ecrit
-  # par project-bootstrap.sh avant cet appel) et independant de la geometrie
-  # du workspace (aucune hypothese sur un depot voisin).
+  # The link points to the project's own README: always present (written
+  # by project-bootstrap.sh before this call) and independent of the workspace
+  # geometry (no assumption about a neighbouring repository).
   PROJECT_NAME="$(basename "$PROJECT")"
   printf '# Journal — %s\n\nJournal en ajout seul. Genere/alimente par tools/append-journal.sh, jamais edite a la main.\n\n## Liens\n\n- `see also` — [%s](../README.md)\n\n' "$PROJECT_NAME" "$PROJECT_NAME" > "$JOURNAL"
 fi
@@ -57,6 +57,6 @@ TS="$(date +"%Y-%m-%dT%H:%M:%S%:z")"
 printf '%s %s\n' "$TS" "$TEXT" >> "$JOURNAL"
 APPEND_STATUS=$?
 
-# Capture explicite du code de sortie de l'ecriture, pour ne pas laisser la
-# derniere commande du fichier decider du code de sortie du script.
+# Explicit capture of the write's exit code, so as not to let the
+# last command of the file decide the script's exit code.
 exit "$APPEND_STATUS"

@@ -1,97 +1,97 @@
 #!/usr/bin/env python3
-# Generateur d'index (Mission 080, reecrit en Python par la Mission 140 pour
-# appliquer la DECISION-2026-09-05-124647). Regenere un index.md par dossier
-# eligible, sous chaque racine passee en argument. Genere uniquement : ne
-# jamais editer un index.md a la main.
+# Index generator (Mission 080, rewritten in Python by Mission 140 to
+# apply DECISION-2026-09-05-124647). Regenerates one index.md per eligible
+# folder, under each root passed as argument. Generated only: never
+# edit an index.md by hand.
 #
 # usage: build_indexes.py [-v|--verbose] [--only-missing] <racine...>
 #
-# --only-missing (Decision 2026-09-17-000545, A4 -- adoption d'un dossier
-# existant) : n'ecrit un index que dans un dossier qui n'en porte aucun
-# (ni index.md ni archive) ; ne reecrit, ne retire et ne scinde jamais un
-# index existant, ne touche a superseded-files.txt que s'il est absent.
+# --only-missing (Decision 2026-09-17-000545, A4 -- adoption of an existing
+# folder): writes an index only in a folder that carries none
+# (neither index.md nor archive); never rewrites, removes or splits an
+# existing index, touches superseded-files.txt only if it is absent.
 #
 # Mission 172, audit defect 3: quiet by default (one summary line per
 # invocation) since Mission 172; -v/--verbose restores the full per-file
 # detail this file used to always print.
 #
-# SEMANTIQUE CONSERVEE de tools/build-indexes.sh (lu en entier avant
-# reecriture) : parcours du WORKTREE (jamais de l'arbre stage -- c'est le
-# gardien de fraicheur qui lit l'arbre stage), memes noms de dossiers elagues,
-# .md de profondeur 1 par dossier hors index.md, tri par chemin, marquage
-# "REMPLACE par" depuis le champ supersedes, ecriture de superseded-files.txt
-# par racine (supprime s'il serait vide, Mission 127), meme front-matter
-# d'index, meme section Liens avec chemin relatif et suffixe "(hors Vault)".
+# SEMANTICS KEPT from tools/build-indexes.sh (read in full before the
+# rewrite): walks the WORKTREE (never the staged tree -- it is the
+# freshness guardian that reads the staged tree), same pruned folder names,
+# depth-1 .md per folder excluding index.md, sort by path, marking
+# "REMPLACE par" from the supersedes field, writing of superseded-files.txt
+# per root (deleted if it would be empty, Mission 127), same index
+# front-matter, same Liens section with relative path and suffix "(hors Vault)".
 #
-# CE QUI CHANGE (DECISION-2026-09-05-124647) :
-#   point 1 -- une ligne d'index est un LOCALISATEUR, jamais une description :
+# WHAT CHANGES (DECISION-2026-09-05-124647):
+#   point 1 -- an index line is a LOCATOR, never a description:
 #              "- `<identifiant>` · <statut> · <titre court> · `<nom>`".
-#              La description du front-matter n'est plus reprise : elle vit
-#              dans le fichier pointe.
-#   point 4 -- si l'index d'un dossier depasse WEIGHT_CAP octets, il est
-#              scinde : index.md garde les N entrees les plus recentes,
-#              index-archive.md porte le reste. N est CALCULE ici a chaque
-#              generation, jamais fixe a la main.
+#              The front-matter description is no longer carried over: it lives
+#              in the file pointed to.
+#   point 4 -- if a folder's index exceeds WEIGHT_CAP bytes, it is
+#              split: index.md keeps the N most recent entries,
+#              index-archive.md carries the rest. N is COMPUTED here at each
+#              generation, never set by hand.
 #
-# CHOIX DELEGUES PAR LA MISSION 140 ET PRECISION OWNER DU 2026-09-05, fixes
-# ici une fois pour toutes et documentes :
-#   1. Titre court : TITLE_MAX = 80 caracteres, troncature a l'ellipse.
-#   2. Archives NUMEROTEES sur une cle STABLE, jamais recalculee : une entree
-#      ne change jamais de fichier d'archive.
-#        - dossiers dont les noms portent un numero de Mission (missions/,
-#          reports/, prompt-archive/) : tranches fixes de ARCHIVE_SLICE
-#          numeros, fichier index-archive-<debut>-<fin>.md ;
-#        - autres dossiers dates : par periode close, granularite
-#          ARCHIVE_PERIOD, fichier index-archive-<AAAA-MM>.md.
-#      Seule la derniere tranche grandit ; les precedentes sont figees.
-#   3. Taille de tranche CALCULEE sur les donnees reelles (Mission 140,
-#      2026-09-05), la tranche la plus dense devant tenir sous WEIGHT_CAP :
-#        tranche 10 -> 16 archives, plus dense 2 768 o
-#        tranche 20 ->  9 archives, plus dense 4 685 o (missions/)
-#                       7 archives, plus dense 6 306 o (reports/)
-#        tranche 25 ->  7 archives, plus dense 5 681 o / 7 029 o
-#        tranche 50 ->  4 archives, plus dense 10 403 o  DEPASSE
-#      Retenu : 20, la marge la plus sure (21 % au pire) pour un nombre
-#      d'archives raisonnable. Periode : le mois (pire cas mesure 5 811 o,
-#      captures/ 2026-08) ; le trimestre et la semaine depassent sur reports/.
-#   4. Interpretation du point 4 de la Decision, consignee : les archives
-#      forment une partition EXHAUSTIVE et STABLE de toutes les entrees ;
-#      l'index vivant est une VUE des N entrees les plus recentes (N calcule
-#      a chaque generation pour tenir sous le plafond), en doublon assume
-#      avec la derniere archive. "Ouvert/clos" n'est pas derivable du
-#      front-matter -- le status d'une Mission est fige a AUTHORIZED par
-#      doctrine du gabarit, et la notion n'a pas de sens pour reports/ ou
-#      decisions/ ; "les plus recentes" en tient lieu, le tri par nom etant
-#      chronologique.
+# CHOICES DELEGATED BY MISSION 140 AND OWNER CLARIFICATION OF 2026-09-05, fixed
+# here once and for all and documented:
+#   1. Short title: TITLE_MAX = 80 characters, truncated with an ellipsis.
+#   2. Archives NUMBERED on a STABLE key, never recomputed: an entry
+#      never changes archive file.
+#        - folders whose names carry a Mission number (missions/,
+#          reports/, prompt-archive/): fixed slices of ARCHIVE_SLICE
+#          numbers, file index-archive-<start>-<end>.md;
+#        - other dated folders: by closed period, granularity
+#          ARCHIVE_PERIOD, file index-archive-<YYYY-MM>.md.
+#      Only the last slice grows; the earlier ones are frozen.
+#   3. Slice size COMPUTED on the real data (Mission 140,
+#      2026-09-05), the densest slice having to fit under WEIGHT_CAP:
+#        slice 10 -> 16 archives, densest 2 768 B
+#        slice 20 ->  9 archives, densest 4 685 B (missions/)
+#                     7 archives, densest 6 306 B (reports/)
+#        slice 25 ->  7 archives, densest 5 681 B / 7 029 B
+#        slice 50 ->  4 archives, densest 10 403 B  EXCEEDS
+#      Chosen: 20, the safest margin (21 % at worst) for a reasonable
+#      number of archives. Period: the month (worst case measured 5 811 B,
+#      captures/ 2026-08); the quarter and the week exceed on reports/.
+#   4. Interpretation of point 4 of the Decision, recorded: the archives
+#      form an EXHAUSTIVE and STABLE partition of all entries;
+#      the live index is a VIEW of the N most recent entries (N computed
+#      at each generation to fit under the cap), a deliberate duplicate
+#      of the last archive. "Open/closed" cannot be derived from the
+#      front-matter -- a Mission's status is frozen at AUTHORIZED by
+#      the template's doctrine, and the notion makes no sense for reports/ or
+#      decisions/; "the most recent" stands in for it, sorting by name being
+#      chronological.
 
 import os
 import re
 import sys
 
 WEIGHT_CAP = 8000  # DECISION-2026-09-05-124647 point 3
-TITLE_MAX = 80  # choix delegue 1
-ARCHIVE_SLICE = 20  # choix delegue 3 : tranche de numeros, calculee
-ARCHIVE_PERIOD = "mois"  # choix delegue 3 : granularite des dossiers dates
+TITLE_MAX = 80  # delegated choice 1
+ARCHIVE_SLICE = 20  # delegated choice 3: slice of numbers, computed
+ARCHIVE_PERIOD = "mois"  # delegated choice 3: granularity of dated folders
 ARCHIVE_PREFIX = "index-archive-"
 
-# Bloc Bash l.18 : memes noms elagues, a n'importe quelle profondeur.
-# `skills-warehouse` ajoute (ticket 02, Mission 168, meme motif et arbitrage
-# Owner que la correction deja appliquee a tools/check_indexes_fresh.py,
-# ticket 01 §16.3) : ce sous-arbre ne suit pas la convention d'index du
-# Vault (un seul index.md natif, skill-collections/index.md), jamais un par
-# dossier -- generer ici y creerait de nouveau les ~155 fichiers fantomes
-# supprimes a la main lors du ticket 01, cette fois de facon reproductible.
-# ".agents" ajoute (ticket 06, Mission 168) : meme motif que ".claude" et
-# ".codex" deja presents -- emplacement officiel des skills et sous-agents
-# Codex (T11), un dossier machine-lu par un outil tiers, jamais un contenu
-# du corpus documentaire indexe par ce script.
-# "_trash" ajoute (Mission 175, etape 7) : corbeille du produit, contenu
-# retire de la distribution et fige (Decision 110852) -- jamais navigue par
-# l'ordre de recherche par index (assistant/ASSISTANT.md), donc jamais
-# indexe, meme motif que "state".
-# "web-package" ajoute (Mission 183-C01) : paquet genere pour un Projet web,
-# dont le README annonce chaque fichier a televerser ; un index.md genere
-# ici y etait un fichier de trop, annonce nulle part (rapport 182).
+# Bash block l.18: same pruned names, at any depth.
+# `skills-warehouse` added (ticket 02, Mission 168, same reason and Owner
+# arbitration as the fix already applied to tools/check_indexes_fresh.py,
+# ticket 01 §16.3): this subtree does not follow the Vault's index convention
+# (a single native index.md, skill-collections/index.md), never one per
+# folder -- generating here would recreate there the ~155 phantom files
+# deleted by hand during ticket 01, this time reproducibly.
+# ".agents" added (ticket 06, Mission 168): same reason as ".claude" and
+# ".codex" already present -- official location of Codex skills and
+# sub-agents (T11), a folder machine-read by a third-party tool, never content
+# of the documentary corpus indexed by this script.
+# "_trash" added (Mission 175, step 7): the product's `_trash/` zone, content
+# removed from distribution and frozen (Decision 110852) -- never browsed by
+# the index-based search order (assistant/ASSISTANT.md), so never
+# indexed, same reason as "state".
+# "web-package" added (Mission 183-C01): package generated for a web Project,
+# whose README announces every file to upload; an index.md generated
+# here was one file too many there, announced nowhere (report 182).
 PRUNE_NAMES = {
     ".git", ".githooks", ".claude", ".codex", ".agents", "graphify-out",
     "tools", "patterns", "node_modules", "state", ".venv", "venv",
@@ -102,17 +102,17 @@ ARCHIVE_RE = re.compile(r"^index-archive-.+\.md$")
 
 
 def is_index_name(name):
-    """Les index generes ne s'indexent jamais eux-memes."""
+    """Generated indexes never index themselves."""
     return name == "index.md" or bool(ARCHIVE_RE.match(name))
 
 
 def read_text(path):
-    # Le worktree peut porter des CRLF (4 fichiers .md du vault, mesure
-    # Mission 142) la ou l'arbre stage rend des LF : sans cette
-    # normalisation, la ligne d'ouverture du front-matter vaut "---\r", le
-    # front-matter n'est pas reconnu, et l'entree tombe en "(sans titre)" /
-    # "inconnu" -- regression mesuree contre l'awk d'origine, qui lisait ces
-    # memes fichiers correctement.
+    # The worktree may carry CRLF (4 .md files of the vault, measured
+    # Mission 142) where the staged tree gives LF: without this
+    # normalisation, the front-matter opening line is "---\r", the
+    # front-matter is not recognised, and the entry falls to "(sans titre)" /
+    # "inconnu" -- a regression measured against the original awk, which read these
+    # same files correctly.
     with open(path, "rb") as fh:
         raw = fh.read().decode("utf-8", errors="surrogateescape")
     return raw.replace("\r\n", "\n")
@@ -123,7 +123,7 @@ def write_text(path, text):
         fh.write(text.encode("utf-8", errors="surrogateescape"))
 
 
-# --- Bloc Bash l.25-40 : list_fields, meme grammaire de champ ---------------
+# --- Bash block l.25-40: list_fields, same field grammar -------------------
 FIELD_RE = {
     k: re.compile(r"^%s:[ \t\r\f\v]*(.*)$" % k)
     for k in ("title", "type", "status", "description")
@@ -131,9 +131,9 @@ FIELD_RE = {
 
 
 def front_matter(text):
-    """title/type/status/description, meme traitement des guillemets que l'awk
-    d'origine (retrait d'un guillemet en tete et en fin), aucune valeur de
-    repli ici -- les defauts sont appliques par l'appelant."""
+    """title/type/status/description, same quote handling as the original
+    awk (removal of one leading and one trailing quote), no fallback
+    value here -- defaults are applied by the caller."""
     out = {"title": "", "type": "", "status": "", "description": ""}
     lines = text.split("\n")
     infm = False
@@ -155,14 +155,14 @@ def front_matter(text):
     return out
 
 
-# --- Bloc Bash l.46-68 : extract_supersedes_raw ----------------------------
+# --- Bash block l.46-68: extract_supersedes_raw ----------------------------
 SUPERSEDES_RE = re.compile(r"^supersedes:[ \t\r\f\v]*(.*)$")
 LIST_ITEM_RE = re.compile(r"^[ \t]+-[ \t]*(.*)$")
 MD_NAME_RE = re.compile(r"([A-Za-z0-9._-]+\.md)")
 
 
 def supersedes_values(text):
-    """Valeurs du champ supersedes : scalaire ou items d'une liste YAML."""
+    """Values of the supersedes field: scalar or items of a YAML list."""
     vals = []
     lines = text.split("\n")
     infm = False
@@ -193,9 +193,9 @@ def supersedes_values(text):
     return vals
 
 
-# --- Bloc Bash l.85 et l.127-135 : parcours du worktree --------------------
+# --- Bash block l.85 and l.127-135: worktree walk --------------------------
 def walk_dirs(root_abs):
-    """Dossiers sous la racine, elagage identique au find -prune du Bash."""
+    """Folders under the root, pruning identical to the Bash find -prune."""
     for dirpath, dirnames, _ in os.walk(root_abs):
         dirnames[:] = [d for d in dirnames if d not in PRUNE_NAMES]
         if any(part in PRUNE_NAMES for part in dirpath.replace("\\", "/").split("/")):
@@ -204,7 +204,7 @@ def walk_dirs(root_abs):
 
 
 def md_files_of(dirpath):
-    """.md de profondeur 1, hors index generes, tries par octets comme sort."""
+    """Depth-1 .md, excluding generated indexes, sorted by bytes like sort."""
     try:
         names = os.listdir(dirpath)
     except OSError:
@@ -220,7 +220,7 @@ def md_files_of(dirpath):
 
 
 def short_title(title):
-    """Titre court, choix delegue 1. Troncature sur la longueur en caracteres."""
+    """Short title, delegated choice 1. Truncation on the length in characters."""
     t = title if title else "(sans titre)"
     if len(t) > TITLE_MAX:
         t = t[: TITLE_MAX - 1].rstrip() + "…"
@@ -228,14 +228,14 @@ def short_title(title):
 
 
 def identifier(name, fields):
-    """Identifiant de l'entree (DECISION point 1 : numero, horodatage ou nom).
-    Derive du nom de fichier, jamais saisi : numero de Mission ou de rapport
-    quand le nom en porte un (140, 137-B), sinon l'horodatage, sinon le nom
-    sans extension."""
-    # Variante d'une lignee : suffixe court et type seulement (132-A, 137-B,
-    # 002-C01, 128-bis). Un mot de slug qui suit le numero n'en est pas une :
-    # sans cette restriction, 133-vault-entry-chain rendrait "133-vault"
-    # (mesure Mission 140, 2026-09-05, sur les 157 entrees reelles).
+    """Identifier of the entry (DECISION point 1: number, timestamp or name).
+    Derived from the file name, never typed in: Mission or report number
+    when the name carries one (140, 137-B), otherwise the timestamp, otherwise the name
+    without extension."""
+    # Variant of a lineage: short, typed suffix only (132-A, 137-B,
+    # 002-C01, 128-bis). A slug word following the number is not one:
+    # without this restriction, 133-vault-entry-chain would give "133-vault"
+    # (measured Mission 140, 2026-09-05, on the 157 real entries).
     m = re.match(
         r"^(?:MISSION|REPORT|PROMPT)-\d{4}-\d{2}-\d{2}-\d{6}-"
         r"(\d+(?:-(?:[A-Z]{1,2}|C\d+|bis|ter))?)(?:-|$)",
@@ -253,9 +253,9 @@ def identifier(name, fields):
 
 
 def entry_line(name, fields, superseded_by):
-    """Ligne d'index en localisateur (DECISION point 1).
-    Forme exacte : "- `<id>` · <statut> · <titre court> · `<nom>`", suivie
-    de " — REMPLACE par <nom>" quand le fichier est remplace."""
+    """Index line as a locator (DECISION point 1).
+    Exact form: "- `<id>` · <statut> · <titre court> · `<nom>`", followed
+    by " — REMPLACE par <nom>" when the file is superseded."""
     ident = identifier(name, fields)
     status = fields["status"] if fields["status"] else (
         fields["type"] if fields["type"] else "inconnu"
@@ -268,15 +268,15 @@ def entry_line(name, fields, superseded_by):
     return line
 
 
-# --- Cle d'archive STABLE (precision Owner 2026-09-05) ---------------------
+# --- STABLE archive key (Owner clarification 2026-09-05) -------------------
 NUM_RE = re.compile(r"^[A-Z-]+-\d{4}-\d{2}-\d{2}-\d{6}-(\d+)")
 DATE_RE = re.compile(r"^[A-Z-]+-(\d{4})-(\d{2})-\d{2}-")
 
 
 def archive_key(name):
-    """Cle d'archive d'une entree : figee par le nom du fichier, jamais
-    recalculee d'une generation a l'autre. Rend (cle_de_tri, suffixe) ou None
-    si l'entree n'a pas de cle stable (elle reste alors dans l'index vivant)."""
+    """Archive key of an entry: fixed by the file name, never
+    recomputed from one generation to the next. Returns (sort_key, suffix) or None
+    if the entry has no stable key (it then stays in the live index)."""
     m = NUM_RE.match(name)
     if m:
         n = int(m.group(1))
@@ -293,7 +293,7 @@ def archive_key(name):
     return None
 
 
-# --- Bloc Bash l.152-185 : rendu d'un index --------------------------------
+# --- Bash block l.152-185: rendering an index ------------------------------
 def render(title, entries, rel_std, hors_suffix, archive_note=""):
     parts = [
         "---",
@@ -366,7 +366,7 @@ def main(argv):
             continue
         root_abs = os.path.abspath(root)
 
-        # Carte des remplacements, portee a cette racine (bloc Bash l.88-96).
+        # Map of supersessions, scoped to this root (Bash block l.88-96).
         superseded_by = {}
         all_md = []
         for dirpath in walk_dirs(root_abs):
@@ -382,7 +382,7 @@ def main(argv):
                 if m:
                     superseded_by[m.group(1)] = os.path.basename(path)
 
-        # superseded-files.txt de la racine (bloc Bash l.110-125).
+        # superseded-files.txt of the root (Bash block l.110-125).
         listed = sorted(
             (
                 os.path.relpath(p, root_abs).replace("\\", "/")
@@ -422,9 +422,9 @@ def main(argv):
 
             index_path = os.path.join(dirpath, "index.md")
 
-            # Archives existantes de ce dossier, pour retirer celles qui ne
-            # sont plus produites (aucune suppression de contenu : le fichier
-            # n'existe que s'il porte des entrees).
+            # Existing archives of this folder, to remove those that are
+            # no longer produced (no content deletion: the file
+            # exists only if it carries entries).
             existing_archives = {
                 n for n in os.listdir(dirpath) if ARCHIVE_RE.match(n)
             }
@@ -440,8 +440,8 @@ def main(argv):
                 emit(index_path + "\n")
                 continue
 
-            # --- Scission (DECISION point 4, precision Owner 2026-09-05) ---
-            # Archives : partition EXHAUSTIVE et STABLE par cle figee.
+            # --- Split (DECISION point 4, Owner clarification 2026-09-05) ---
+            # Archives: EXHAUSTIVE and STABLE partition by frozen key.
             buckets = {}
             no_key = []
             for name, line in zip(names, entries):
@@ -474,7 +474,7 @@ def main(argv):
             for stale in existing_archives - produced:
                 os.remove(os.path.join(dirpath, stale))
 
-            # Index vivant : vue des N entrees les plus recentes, N calcule.
+            # Live index: view of the N most recent entries, N computed.
             arch_list = ", ".join(
                 "[`%s%s.md`](./%s%s.md)" % (ARCHIVE_PREFIX, s, ARCHIVE_PREFIX, s)
                 for (_, s) in sorted(buckets, key=lambda k: k[0])

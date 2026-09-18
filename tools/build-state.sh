@@ -1,25 +1,25 @@
 #!/usr/bin/env bash
-# Regenere <projet>/state/STATE.md a partir du journal, de l'etat Git et du
-# listing des fichiers. Fiche generee : ne jamais l'editer a la main.
+# Regenerates <projet>/state/STATE.md from the journal, the Git state and the
+# file listing. Generated sheet: never edit it by hand.
 #
-# Convention de tags reconnue dans les lignes du journal (texte apres l'horodatage) :
-#   ETAT:<texte>     -> etat courant (derniere occurrence retenue)
-#   PROCHAIN:<texte> -> prochaine action (derniere occurrence retenue)
-#   REPRISE:<texte>  -> note de reprise ; doit etre la derniere ligne du journal
-# Depuis Mission 038, double reconnaissance : STATE:/NEXT:/RESUME: (anglais) en plus des tags francais ci-dessus.
+# Tag convention recognised in journal lines (text after the timestamp):
+#   ETAT:<text>     -> current state (last occurrence kept)
+#   PROCHAIN:<text> -> next action (last occurrence kept)
+#   REPRISE:<text>  -> resume note; must be the last line of the journal
+# Since Mission 038, dual recognition: STATE:/NEXT:/RESUME: (English) in addition to the French tags above.
 #
-# Portes (depuis Mission 051) : une-porte-une-ligne-une-clé.
-#   OUVERT:<clé> -- <texte>   -> ouvre/reouvre une porte (francais, historique seulement)
-#   OPEN:<clé> -- <texte>     -> ouvre/reouvre une porte (anglais, nouvelles ecritures)
-#   CLOSE:<clé> -- <reference> -> ferme une porte ; aucun equivalent francais, tag de fermeture unique
-#   <clé> ~ ^(open|frozen)-[a-z0-9-]+ ; separateur " -- " obligatoire entre la clé et le texte.
-#   Etat affiche = pour chaque clé, la derniere occurrence dans le journal (ordre d'ajout, journal en
-#   ajout seul donc chronologique) : si c'est un OUVERT:/OPEN:, la porte est affichee avec son texte ;
-#   si c'est un CLOSE: posterieur de la meme clé, la porte est retiree. Une reouverture ulterieure la
-#   fait reapparaitre.
-#   Lignes OUVERT:/OPEN: sans clé conforme = legacy (anterieures a la baseline arbitree du 2026-08-25,
-#   voir DECISION-2026-08-25-110935) : exclues de la liste des portes, comptees en une ligne unique.
-# Une ligne sans tag reconnu n'alimente aucune rubrique ci-dessus.
+# Doors (since Mission 051): one-door-one-line-one-key.
+#   OUVERT:<key> -- <text>   -> opens/reopens a door (French, historical only)
+#   OPEN:<key> -- <text>     -> opens/reopens a door (English, new writes)
+#   CLOSE:<key> -- <reference> -> closes a door; no French equivalent, single closing tag
+#   <key> ~ ^(open|frozen)-[a-z0-9-]+ ; separator " -- " mandatory between the key and the text.
+#   Displayed state = for each key, its last occurrence in the journal (order of appending, the journal
+#   being append-only and so chronological): if it is an OUVERT:/OPEN:, the door is shown with its text;
+#   if it is a later CLOSE: of the same key, the door is removed. A later reopening makes it
+#   reappear.
+#   OUVERT:/OPEN: lines without a conforming key = legacy (earlier than the baseline arbitrated on 2026-08-25,
+#   see DECISION-2026-08-25-110935): excluded from the list of doors, counted in a single line.
+# A line with no recognised tag feeds none of the sections above.
 #
 # usage: build-state.sh <chemin-projet>
 
@@ -43,9 +43,9 @@ STANDARD_RULE="$VAULT_ROOT/rules/RULES-2026-08-26-142800-project-structure-stand
 REL_STANDARD="$(rel_path "$STATE_DIR" "$STANDARD_RULE" 2>/dev/null)"
 [ -z "$REL_STANDARD" ] && REL_STANDARD="$STANDARD_RULE"
 
-# --- 0. Contrat du Pilot, recopie depuis le gabarit, jamais redige ici ---
-# Plafond arbitre : exactement sept lignes (Mission 029). Echec explicite,
-# fiche non ecrite, si le gabarit s'ecarte de ce plafond.
+# --- 0. Pilot contract, copied from the template, never written here ---
+# Arbitrated cap: exactly seven lines (Mission 029). Explicit failure,
+# sheet not written, if the template departs from this cap.
 CONTRACT_LINES="$(awk '
   /<!-- CONTRACT:BEGIN -->/ { f=1; next }
   /<!-- CONTRACT:END -->/   { f=0 }
@@ -69,9 +69,9 @@ fi
 
 mkdir -p "$STATE_DIR"
 
-# --- 0bis. Références de session (catalogue fixe, depuis Mission 053) ---
-# Chemins relatifs calcules depuis $STATE_DIR (jamais recopiés en dur) : la
-# fiche est un catalogue de pointeurs, aucun contenu normatif n'est recopié.
+# --- 0bis. Session references (fixed catalogue, since Mission 053) ---
+# Relative paths computed from $STATE_DIR (never hard-coded): the
+# sheet is a catalogue of pointers, no normative content is copied.
 session_ref_line() {
   local target="$1" desc="$2" rel
   rel="$(rel_path "$STATE_DIR" "$target" 2>/dev/null)"
@@ -100,7 +100,7 @@ get_field() {
   ' "$1" 2>/dev/null
 }
 
-# --- 1. Lecture des balises du journal ---
+# --- 1. Reading the journal tags ---
 LAST_TS=""
 LAST_LINE=""
 ETAT="Aucune entree ETAT: dans le journal."
@@ -120,17 +120,17 @@ if [ -f "$JOURNAL" ]; then
     P="$(printf '%s\n' "$DATED" | grep -E 'PROCHAIN:|NEXT:' | tail -n 1 | sed -E 's/^.*(PROCHAIN|NEXT):[[:space:]]*//')"
     [ -n "$P" ] && PROCHAIN="$P"
 
-    # Portes a clé : traitement en ordre d'ajout du journal (ajout seul donc
-    # chronologique) -- la derniere occurrence par clé (OUVERT:/OPEN: ou
-    # CLOSE:) determine l'etat net. Sortie : lignes "D<TAB>texte" pour les
-    # portes affichees, une ligne "L<TAB>n" pour le compte legacy.
+    # Keyed doors: processed in the journal's order of appending (append-only, so
+    # chronological) -- the last occurrence per key (OUVERT:/OPEN: or
+    # CLOSE:) determines the net state. Output: lines "D<TAB>text" for the
+    # displayed doors, one line "L<TAB>n" for the legacy count.
     DOORS_RAW="$(printf '%s\n' "$DATED" | awk '
       {
         line = $0
-        # Le tag doit suivre immediatement lhorodatage (premier champ) : une
-        # occurrence de "OPEN:"/"OUVERT:" en prose ailleurs sur la ligne (ex.
-        # une ligne STATE: qui documente la convention) ne doit pas etre
-        # prise pour une porte.
+        # The tag must immediately follow the timestamp (first field): an
+        # occurrence of "OPEN:"/"OUVERT:" in prose elsewhere on the line (e.g.
+        # a STATE: line that documents the convention) must not be
+        # taken for a door.
         tsend = index(line, " ")
         after_ts = substr(line, tsend + 1)
         if (after_ts ~ /^(OUVERT|OPEN):[[:space:]]*/) {
@@ -188,11 +188,11 @@ if [ -f "$JOURNAL" ]; then
   fi
 fi
 
-# --- 2. Catalogue des documents recents (mtime desc, limite 15) ---
-# `ls -t` plutot que `find -printf '%T@ %p'` : `-printf` est une extension
-# GNU absente du find de BSD (macOS), ou la liste sortait vide en silence --
-# la fiche y perdait sa section « Documents recents » sans le dire
-# (Mission 180). `ls -t` trie par date de modification des deux cotes.
+# --- 2. Catalogue of recent documents (mtime desc, limit 15) ---
+# `ls -t` rather than `find -printf '%T@ %p'`: `-printf` is a GNU
+# extension missing from BSD find (macOS), where the list came out empty silently --
+# the sheet lost its « Documents recents » section there without saying so
+# (Mission 180). `ls -t` sorts by modification date on both sides.
 RECENTS="$(find "$PROJECT_ROOT" -type f -name '*.md' -exec ls -t {} + 2>/dev/null | head -n 15)"
 
 DOC_LIST=""
@@ -211,7 +211,7 @@ else
   DOC_LIST="Aucun document .md trouve."
 fi
 
-# --- 3. Etat des depots ---
+# --- 3. Repository state ---
 VAULT_STATUS="$(git -C "$VAULT_ROOT" status -sb 2>/dev/null || echo "non mesurable")"
 PROJECT_GIT_ROOT="$(git -C "$PROJECT_ROOT" rev-parse --show-toplevel 2>/dev/null || true)"
 if [ -n "$PROJECT_GIT_ROOT" ]; then
@@ -220,7 +220,7 @@ else
   PROJECT_STATUS="non mesurable (pas un depot Git)"
 fi
 
-# --- 4. Ecriture ---
+# --- 4. Write ---
 GEN_REL="$(rel_path "$STATE_DIR" "$SCRIPT_DIR/build-state.sh")"
 {
   echo "---"

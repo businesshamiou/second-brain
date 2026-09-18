@@ -1,41 +1,41 @@
 #!/usr/bin/env python3
-# Gardien de poids des index (Mission 140, DECISION-2026-09-05-124647
-# point 3) : refuse un commit dont un index stage depasse WEIGHT_CAP octets,
-# ou dont une ligne d'entree du registre des Missions depasse LINE_CAP
-# caracteres (DECISION-2026-09-02-191407, mecanisee ici sur le registre).
-# Lecture seule : ne corrige jamais, se contente de refuser et de lister.
-# Le refus est la position par defaut.
+# Index-weight guardian (Mission 140, DECISION-2026-09-05-124647
+# point 3): refuses a commit in which a staged index exceeds WEIGHT_CAP bytes,
+# or in which an entry line of the Mission register exceeds LINE_CAP
+# characters (DECISION-2026-09-02-191407, mechanised here on the register).
+# Read-only: never fixes, only refuses and lists.
+# Refusal is the default position.
 #
-# Fichiers controles, dans l'arbre STAGE (jamais le worktree) : tout
-# index.md, tout index-archive-*.md, et missions/MISSION-INDEX.md. Un seul
-# appel Git, jamais un par fichier.
+# Files checked, in the STAGED tree (never the worktree): every
+# index.md, every index-archive-*.md, and missions/MISSION-INDEX.md. A single
+# Git call, never one per file.
 
 import os
 import re
 import subprocess
 import sys
 
-# Mode dossier et ligne de base (Decision 2026-09-17-000545, A4) : meme
-# bibliotheque que tools/check_indexes_fresh.py.
+# Folder mode and baseline (Decision 2026-09-17-000545, A4): same
+# library as tools/check_indexes_fresh.py.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import project_baseline  # noqa: E402
 
 WEIGHT_CAP = 8000  # DECISION-2026-09-05-124647 point 3
 LINE_CAP = 300  # DECISION-2026-09-02-191407
-# Chemin relatif a la racine du DEPOT COURANT (celui qui commite), pas un
-# chemin d'atelier en dur : meme defaut, meme correction que
-# tools/check_indexes_fresh.py (Mission 175, etape 2) -- residu non traite
-# alors dans ce fichier jumeau, trouve par la Mission 177. Sans ce
-# changement, la butee de 300 caracteres par ligne ne se declenchait jamais
-# sur un projet reel (missions/MISSION-INDEX.md, pas
-# workshop-production/missions/MISSION-INDEX.md). Aucun dossier missions/ a
-# la racine de second-brain lui-meme : la severite ne change pour aucun
-# contenu reel de ce depot.
+# Path relative to the root of the CURRENT REPOSITORY (the one committing), not a
+# hard-coded workshop path: same defect, same fix as
+# tools/check_indexes_fresh.py (Mission 175, step 2) -- residue not handled
+# at the time in this twin file, found by Mission 177. Without this
+# change, the 300-characters-per-line stop never triggered
+# on a real project (missions/MISSION-INDEX.md, not
+# workshop-production/missions/MISSION-INDEX.md). No missions/ folder at
+# the root of second-brain itself: the severity changes for no
+# real content of this repository.
 MISSION_INDEX_PATH = "missions/MISSION-INDEX.md"
 
-# Non retroactif, meme discipline que la butee existante de
-# check_indexes_fresh.py : seules les lignes de Mission au-dela de cette
-# baseline sont verifiees.
+# Not retroactive, same discipline as the existing stop of
+# check_indexes_fresh.py: only the Mission lines beyond this
+# baseline are checked.
 MISSION_INDEX_LINE_CAP_BASELINE = 122
 
 ARCHIVE_RE = re.compile(r"(?:^|/)index-archive-.+\.md$")
@@ -65,7 +65,7 @@ def git_out(args, payload=None):
 
 
 def dir_mode_batch(root, targets):
-    # Meme forme que la sortie de `git cat-file --batch`, lue sur le disque.
+    # Same shape as the output of `git cat-file --batch`, read from disk.
     out = b""
     for path in targets:
         try:
@@ -82,7 +82,7 @@ def main():
     global FAIL
 
     if len(sys.argv) > 1:
-        # Mode dossier (vcs: none) : tous les fichiers du projet.
+        # Folder mode (vcs: none): all the project's files.
         root = os.path.abspath(sys.argv[1])
         if not os.path.isdir(root):
             err("REFUS : dossier de projet introuvable : %s" % sys.argv[1])
@@ -91,14 +91,14 @@ def main():
         top = root
     else:
         root = None
-        # Appel Git 1 : les fichiers stages de ce commit.
+        # Git call 1: the staged files of this commit.
         raw = git_out(
             ["diff", "--cached", "--name-only", "--diff-filter=ACMR"]
         ).decode("utf-8", errors="surrogateescape")
         staged = [p for p in raw.split("\n") if p]
         top = os.getcwd()
 
-    # Ligne de base : un index grave a l'adoption et non touche n'est pas juge.
+    # Baseline: an index engraved at adoption and not touched is not judged.
     baseline = project_baseline.Baseline(top)
 
     targets = [
@@ -112,7 +112,7 @@ def main():
     if root:
         out = dir_mode_batch(root, targets)
     else:
-        # Appel Git 2 : leur contenu depuis l'arbre stage, en une passe.
+        # Git call 2: their content from the staged tree, in one pass.
         payload = ("\n".join(":" + p for p in targets) + "\n").encode(
             "utf-8", errors="surrogateescape"
         )
@@ -131,13 +131,13 @@ def main():
         blob = out[pos:pos + size]
         pos += size + 1
 
-        # Mission 163 : exemption de la Mission 161 RETIREE. Le point 2 de la
-        # DECISION-2026-09-05-124647 est livre -- le registre des Missions est
-        # passe a quatre colonnes -- donc le plafond du point 3, qui vise
-        # "genere ou registre", lui redevient applicable sans exception. Le
-        # registre vivant est scinde par tranches ; les archives portent un nom
-        # distinct de celui des archives generees. La butee LINE_CAP reste
-        # appliquee au registre seul, plus bas.
+        # Mission 163: Mission 161's exemption REMOVED. Point 2 of
+        # DECISION-2026-09-05-124647 is delivered -- the Mission register has
+        # moved to four columns -- so the cap of point 3, which targets
+        # "genere ou registre" ["generated or register"], applies to it again without exception. The
+        # live register is split into slices; the archives carry a name
+        # distinct from that of the generated archives. The LINE_CAP stop remains
+        # applied to the register only, further down.
         if size > WEIGHT_CAP:
             report(
                 path,

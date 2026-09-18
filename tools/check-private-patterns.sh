@@ -1,45 +1,45 @@
 #!/usr/bin/env bash
-# Verifie qu'aucun motif prive (categorie P4, build history, ticket 01 --
-# build history) ne subsiste dans l'arbre de travail et, en mode complet,
-# dans l'historique de ce depot. Ticket 10 : "gardien hors ligne" secondaire
-# manquant -- aucun outil existant (tools/check-secrets.sh ne couvre que les
-# identifiants de service, jamais les chemins-machine ou les noms de depots
-# prives) ne rejouait la verification manuelle faite une fois au ticket 01 ;
-# ce script la rend repetable et l'attache a la CI (build history, Validation 2 :
-# "Motifs P4 : -> 0 dans l'arbre et dans l'historique").
+# Checks that no private pattern (category P4, build history, ticket 01 --
+# build history) remains in the working tree and, in full mode,
+# in the history of this repository. Ticket 10: missing secondary "offline
+# guardian" -- no existing tool (tools/check-secrets.sh covers only
+# service credentials, never machine paths or the names of private
+# repositories) replayed the manual check made once in ticket 01;
+# this script makes it repeatable and attaches it to CI (build history, Validation 2:
+# "Motifs P4 : -> 0 dans l'arbre et dans l'historique" ["P4 patterns: -> 0 in the tree and in the history"]).
 #
-# Modes :
-#   (par defaut)   scanne l'arbre suivi ET l'historique complet (--all).
-#   --tree-only    scanne seulement l'arbre suivi, jamais l'historique.
+# Modes:
+#   (default)      scans the tracked tree AND the full history (--all).
+#   --tree-only    scans only the tracked tree, never the history.
 #
-# Motif du mode --tree-only (trouve en revue de code, ticket 10) : un
-# historique Git est immuable, donc un motif prive une fois committe dans un
-# fichier quelconque continue pour toujours a faire refuser le mode complet,
-# meme si l'arbre courant est propre -- seule une reecriture d'historique (ou
-# une republication depuis zero) l'efface, geste structurant reserve a
-# l'Owner, jamais pris par un Executor de sa propre initiative. La CI (qui
-# doit rester capable de reussir sur du contenu neuf propre) invoque donc
-# --tree-only comme gardien bloquant ; le mode complet reste disponible ici
-# pour mesurer l'historique separement.
+# Reason for the --tree-only mode (found in code review, ticket 10): a
+# Git history is immutable, so a private pattern once committed in any
+# file keeps making the full mode refuse forever,
+# even if the current tree is clean -- only a history rewrite (or
+# a republication from scratch) erases it, a structural gesture reserved to
+# the Owner, never taken by an Executor on its own initiative. CI (which
+# must remain able to succeed on clean new content) therefore invokes
+# --tree-only as the blocking guardian; the full mode remains available here
+# to measure the history separately.
 #
-# Exclusion (Mission 178, meme cause que le self-exclusion du mode arbre,
-# trouve en relisant ce script apres reduction d'historique) : la recherche
-# d'historique n'appliquait PAS EXCLUDE_PATHSPECS, contrairement a la
-# recherche d'arbre -- ce script et son test nomment les quatre motifs en
-# clair, donc tout commit qui les ajoute (y compris le tout premier commit
-# d'un historique par ailleurs propre) faisait refuser le mode complet sur
-# ses propres lignes, jamais sur la fuite de quelqu'un d'autre. Corrige en
-# passant les memes exclusions de chemin aux deux recherches d'historique
-# ci-dessous ; une vraie fuite ailleurs dans l'historique reste detectee
-# (cas 2, 4 et 5 de tests/test-check-private-patterns.sh).
+# Exclusion (Mission 178, same cause as the tree mode's self-exclusion,
+# found while rereading this script after history reduction): the history
+# search did NOT apply EXCLUDE_PATHSPECS, unlike the
+# tree search -- this script and its test name the four patterns in
+# clear, so any commit that adds them (including the very first commit
+# of an otherwise clean history) made the full mode refuse on
+# its own lines, never on someone else's leak. Fixed by
+# passing the same path exclusions to the two history searches
+# below; a real leak elsewhere in the history is still detected
+# (cases 2, 4 and 5 of tests/test-check-private-patterns.sh).
 #
-# Shell portable : aucune dependance a Python, aucune dependance a `grep -P`
-# (PCRE) -- le cas "hamio" substring de "businesshamiou" (compte GitHub public
-# qui heberge ce depot, hors P4) est exclu par un second grep plutot qu'un
-# lookaround, pour rester compatible avec un grep POSIX minimal.
+# Portable shell: no dependency on Python, no dependency on `grep -P`
+# (PCRE) -- the case of "hamio" as a substring of "businesshamiou" (public GitHub account
+# that hosts this repository, outside P4) is excluded by a second grep rather than a
+# lookaround, to stay compatible with a minimal POSIX grep.
 #
 # usage: tools/check-private-patterns.sh [--tree-only]
-# exit 0 si 0 occurrence hors exception ; exit 1 sinon, cause imprimee.
+# exit 0 if 0 occurrences outside the exception; exit 1 otherwise, cause printed.
 
 set -u
 
@@ -56,28 +56,28 @@ git -C "$REPO_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
   exit 1
 }
 
-# Ce script, et son test de non-regression, citent en clair les quatre
-# motifs qu'ils verifient (liste de motifs, appels, message PASS pour l'un ;
-# fixtures et assertions sur les messages de refus pour l'autre) -- les deux
-# sont donc exclus de ce balayage d'arbre par pathspec, jamais par une
-# exception de contenu (qui masquerait un vrai motif prive ecrit ailleurs).
-# Trouve en revue de code (ticket 10) : sans l'exclusion du script lui-meme,
-# le gardien se refusait toujours lui-meme ; en ajoutant son test de
-# non-regression au depot, le meme defaut est apparu sur ce second fichier,
-# pour la meme raison structurelle -- corrige de la meme facon, pas par une
-# troisieme exception ad hoc. Toute fixture de test qui a besoin d'un motif
-# litteral l'ecrit dans un fichier jetable sous un depot Git sandbox
-# (`mktemp -d`), jamais dans un autre fichier suivi de ce depot -- seule la
-# paire definition/test elle-meme est exemptee.
+# This script, and its non-regression test, cite in clear the four
+# patterns they check (pattern list, calls, PASS message for the one;
+# fixtures and assertions on the refusal messages for the other) -- both
+# are therefore excluded from this tree sweep by pathspec, never by a
+# content exception (which would mask a real private pattern written elsewhere).
+# Found in code review (ticket 10): without excluding the script itself,
+# the guardian always refused itself; when its non-regression test was
+# added to the repository, the same defect appeared on that second file,
+# for the same structural reason -- fixed the same way, not by a
+# third ad hoc exception. Any test fixture that needs a literal
+# pattern writes it in a throwaway file under a sandbox Git repository
+# (`mktemp -d`), never in another tracked file of this repository -- only the
+# definition/test pair itself is exempted.
 EXCLUDE_PATHS=(
   "tools/check-private-patterns.sh"
   "tests/test-check-private-patterns.sh"
 )
 
-# Motifs fixes, memes categories que le rapport 167 Table 3 / rapport Mission
-# 168 S14 : chemin-machine (hamio, aios-production, WIN-AE600DJQCF6) et
-# depot-prive (glintbloom). "businesshamiou" (identite/hote GitHub public de
-# ce depot) n'est jamais un motif P4 -- seule exception, traitee a part.
+# Fixed patterns, same categories as report 167 Table 3 / report of Mission
+# 168 S14: machine path (hamio, aios-production, WIN-AE600DJQCF6) and
+# private repository (glintbloom). "businesshamiou" (public GitHub identity/host of
+# this repository) is never a P4 pattern -- the only exception, handled separately.
 PLAIN_PATTERNS=(
   "aios-production"
   "WIN-AE600DJQCF6"
@@ -115,8 +115,8 @@ check_plain "aios-production"
 check_plain "WIN-AE600DJQCF6"
 check_plain "glintbloom"
 
-# "hamio" : exclusion de la sous-chaine "businesshamiou" par filtrage, jamais
-# par PCRE (portabilite du grep du runner CI, Windows et Ubuntu).
+# "hamio": the substring "businesshamiou" is excluded by filtering, never
+# by PCRE (portability of the CI runner's grep, Windows and Ubuntu).
 tree_hamio="$(git -C "$REPO_ROOT" grep -Iin --no-color -- "hamio" -- . "${EXCLUDE_PATHSPECS[@]}" 2>/dev/null | grep -vi -- "businesshamiou" || true)"
 if [ -n "$tree_hamio" ]; then
   echo "REFUS : motif prive 'hamio' (hors businesshamiou) dans l'arbre :" >&2

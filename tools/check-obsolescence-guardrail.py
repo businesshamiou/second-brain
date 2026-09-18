@@ -28,16 +28,16 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-# Vocabulaire de liens anglais seul (build history). Le francais a ete migre
-# dans tout le corpus indexe (residu documente : 7 fichiers a lien mort R3
-# preexistant, geles, hors mandat de reparation de cette Mission) ; toute
-# etiquette francaise rencontree desormais n'est plus reconnue et ne
-# satisfait plus la reciprocite R1.
+# English-only link vocabulary (build history). French was migrated
+# across the whole indexed corpus (documented residue: 7 files with a
+# pre-existing dead R3 link, frozen, outside this Mission's repair mandate); any
+# French label met from now on is no longer recognised and no longer
+# satisfies R1 reciprocity.
 KNOWN_LINK_TYPES = {"applies", "supersedes", "amends", "source", "prescribed by", "see also"}
 ACTIVE_STATUS_VALUES = {"active", "actif"}
 HORS_MARKERS = ("(hors Vault)",)
 
-# Relation front-matter <-> types de lien acceptes <-> inverses acceptes
+# Front-matter relation <-> accepted link types <-> accepted inverses
 RECIPROCAL_RELATIONS = (
     ("supersedes", ("supersedes",), ("superseded by",)),
     ("amends", ("amends",), ("amended by",)),
@@ -47,12 +47,12 @@ OVERRIDE_FILENAME = ".obsolescence-guardrail-override"
 
 LIENS_HEADING_RE = re.compile(r"^## Liens\s*$")
 LIENS_ENTRY_RE = re.compile(r"^-\s*`([^`]+)`\s*[—-]+\s*\[[^\]]*\]\(([^)]+)\)(.*)$")
-# Cles de front-matter : lettres, chiffres, trait d'union, trait bas -- le
-# standard YAML/Agent Skills adopte, jamais le sous-ensemble improvise qui
-# rejetait tout trait d'union (DECISION-2026-08-28-193624).
+# Front-matter keys: letters, digits, hyphen, underscore -- the
+# adopted YAML/Agent Skills standard, never the improvised subset that
+# rejected any hyphen (DECISION-2026-08-28-193624).
 FM_KEY_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$")
 FM_LIST_ITEM_RE = re.compile(r"^\s{2}-\s*(.*)$")
-# Sous-cle d'un niveau : meme grammaire que FM_KEY_RE, deux espaces (Mission 107).
+# One-level sub-key: same grammar as FM_KEY_RE, two spaces (Mission 107).
 FM_DICT_ITEM_RE = re.compile(r"^\s{2}([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$")
 CODE_FENCE_RE = re.compile(r"^\s*(```|~~~)")
 
@@ -75,14 +75,14 @@ def _unquote(value: str) -> str:
 
 
 def parse_front_matter(text: str):
-    """Lecteur de front-matter propre a l'outil : cle: valeur a plat, plus
-    listes ou dictionnaires d'un niveau (paires chaine -> chaine) a deux
-    espaces d'indentation. Toute autre forme (melange, profondeur
-    superieure, sous-cle vide) rend le front-matter illisible (None, None) :
-    le refus est la position par defaut."""
+    """The tool's own front-matter reader: flat key: value, plus
+    one-level lists or dictionaries (string -> string pairs) with two
+    spaces of indentation. Any other form (mixture, greater
+    depth, empty sub-key) makes the front-matter unreadable (None, None):
+    refusal is the default position."""
     lines = text.splitlines()
     if not lines or lines[0].strip() != "---":
-        return {}, text  # pas de front-matter : ce n'est pas une erreur
+        return {}, text  # no front-matter: this is not an error
     fm: dict[str, object] = {}
     i = 1
     n = len(lines)
@@ -124,14 +124,14 @@ def parse_front_matter(text: str):
         fm[key] = _unquote(val)
         i += 1
     if i >= n:
-        return None, None  # bloc jamais ferme
+        return None, None  # block never closed
     body = "\n".join(lines[i + 1 :])
     return fm, body
 
 
 def _is_full_line_inline_code(stripped: str) -> bool:
-    """Une ligne entierement enfermee dans une seule paire de backticks est
-    du code inline (exemple pedagogique), pas de la prose analysable."""
+    """A line entirely enclosed in a single pair of backticks is
+    inline code (teaching example), not analysable prose."""
     return (
         len(stripped) >= 2
         and stripped[0] == "`"
@@ -141,12 +141,12 @@ def _is_full_line_inline_code(stripped: str) -> bool:
 
 
 def extract_liens_entries(body: str):
-    """Etiquette systeme != prose pedagogique (Mission 059, etape 3) : tout
-    contenu a l'interieur d'un bloc de code cloture (``` / ~~~) est ignore,
-    qu'il s'agisse d'un faux titre `## Liens` ou d'une fausse entree ; une
-    ligne entierement en code inline (un seul span de backticks) l'est
-    aussi. La frontiere ne coupe jamais un bloc de code ouvert par une
-    detection de section en cours de route."""
+    """System label != teaching prose (Mission 059, step 3): all
+    content inside a fenced code block (``` / ~~~) is ignored,
+    whether it is a fake `## Liens` heading or a fake entry; a
+    line entirely in inline code (a single backtick span) is
+    too. The boundary never cuts a code block opened by a
+    section detection along the way."""
     entries = []
     in_section = False
     in_fence = False
@@ -176,10 +176,10 @@ def extract_liens_entries(body: str):
 
 
 def resolve_target(source_dir: Path, raw_target: str):
-    """Resolution purement filesystem : aucune dependance a une racine de
-    depot. Une cible dans un depot frere quelconque du meme workspace
-    (`../../<depot>/…`) se resout ici exactement comme une cible locale
-    (Mission 059, etape 2)."""
+    """Purely filesystem resolution: no dependency on a repository
+    root. A target in any sibling repository of the same workspace
+    (`../../<repo>/…`) resolves here exactly like a local target
+    (Mission 059, step 2)."""
     if not raw_target:
         return None
     candidate = (source_dir / raw_target).resolve()
@@ -187,9 +187,9 @@ def resolve_target(source_dir: Path, raw_target: str):
 
 
 def display_path(path: Path, root: Path, workspace_root: Path) -> str:
-    """Chemin d'affichage pour les messages : relatif a la racine du depot
-    quand la cible y vit ; sinon relatif au workspace (prefixe `../`) pour
-    une cible du depot frere ; sinon chemin absolu, en dernier recours."""
+    """Display path for messages: relative to the repository root
+    when the target lives there; otherwise relative to the workspace (prefix `../`) for
+    a target of the sibling repository; otherwise absolute path, as a last resort."""
     try:
         return str(path.relative_to(root)).replace("\\", "/")
     except ValueError:
@@ -245,10 +245,10 @@ def check_files(root: Path, rel_paths: list[str]) -> list[Violation]:
         liens_entries = extract_liens_entries(body)
         source_dir = full.parent
 
-        # --- R3 : toute relation typee (vocabulaire ferme) doit resoudre ---
-        # Cible cross-depot (depot frere du meme workspace) resolue comme
-        # une cible locale ; seule une cible introuvable nulle part produit
-        # ce refus (Mission 059, etape 2).
+        # --- R3: every typed relation (closed vocabulary) must resolve ---
+        # Cross-repository target (sibling repository of the same workspace) resolved like
+        # a local target; only a target found nowhere produces
+        # this refusal (Mission 059, step 2).
         for entry in liens_entries:
             if entry["type"] not in KNOWN_LINK_TYPES or entry["hors"]:
                 continue
@@ -261,7 +261,7 @@ def check_files(root: Path, rel_paths: list[str]) -> list[Violation]:
                     )
                 )
 
-        # --- R1 (coherence + reciprocite) et R2 (statut) ---
+        # --- R1 (consistency + reciprocity) and R2 (status) ---
         for fm_field, link_types, inverse_types in RECIPROCAL_RELATIONS:
             fm_resolved: set[Path] = set()
             for raw in _fm_targets(fm, fm_field):
@@ -387,7 +387,7 @@ def main() -> int:
                 check=True,
             ).stdout.strip()
         )
-    except Exception as exc:  # noqa: BLE001 - le refus est la position par defaut
+    except Exception as exc:  # noqa: BLE001 - refusal is the default position
         print(f"REFUS : impossible de determiner la racine git : {exc}", file=sys.stderr)
         return 1
 
@@ -402,9 +402,9 @@ def main() -> int:
 
     try:
         violations = check_files(root, staged)
-    except Exception as exc:  # noqa: BLE001 - le refus est la position par defaut ;
-        # filet de securite generique : plus aucune trace Python brute ne
-        # doit atteindre l'appelant, meme pour un defaut non anticipe ici.
+    except Exception as exc:  # noqa: BLE001 - refusal is the default position;
+        # generic safety net: no raw Python trace may reach the
+        # caller any more, even for a defect not anticipated here.
         print(f"REFUS : defaut du garde-fou d'obsolescence : {exc}", file=sys.stderr)
         return 1
     if not violations:

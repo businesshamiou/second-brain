@@ -1,32 +1,32 @@
 #!/usr/bin/env bash
-# Regenere <projet>/state/DIGEST.md : lecture d'ouverture plafonnee du Pilot,
-# sur le modele de build-state.sh (memes conventions d'appel et de calcul de
-# racines). Bash pur, aucun appel reseau, aucun appel modele.
+# Regenerates <projet>/state/DIGEST.md: the Pilot's capped opening read,
+# modelled on build-state.sh (same calling conventions and same root
+# computation). Pure Bash, no network call, no model call.
 #
-# Plafond fail-closed (Mission 121) : DIGEST_CAP_BYTES octets, constante ci-
-# dessous. Le digest est ecrit sur un fichier temporaire dans le meme
-# dossier, sa taille est mesuree, puis :
-#   - taille <= plafond -> le fichier temporaire remplace state/DIGEST.md ;
-#   - taille >  plafond -> code de sortie != 0, DIGEST.md n'est ni ecrit ni
-#     ecrase, le fichier temporaire est retire.
-# Chaque section du digest est elle-meme tronquee a une part fixe du plafond
-# avant assemblage (repartition ci-dessous) : la mesure finale reste le seul
-# garde-fou qui fait foi, jamais contournee.
+# Fail-closed cap (Mission 121): DIGEST_CAP_BYTES bytes, constant be-
+# low. The digest is written to a temporary file in the same
+# folder, its size is measured, then:
+#   - size <= cap -> the temporary file replaces state/DIGEST.md;
+#   - size >  cap -> exit code != 0, DIGEST.md is neither written nor
+#     overwritten, the temporary file is removed.
+# Each section of the digest is itself truncated to a fixed share of the cap
+# before assembly (split below): the final measurement remains the only
+# guardrail that counts, never bypassed.
 #
-# Contenu, dans l'ordre (Mission 121, Objectif/Instructions point 2) :
-#   1. En-tete       : horodatage de generation, derniere entree du journal.
-#   2. Etat des depots : refs vault/projet (8 premiers caracteres), avance
-#      ahead/behind calculee, nombre de lignes porcelain (compte, pas liste).
-#   3. Journal        : tail 3, chaque ligne tronquee a 300 caracteres avec
-#      marqueur "[...]".
-#   4. Portes ouvertes : identifiants seuls, un par ligne.
-#   5. Derniere Mission : numero et statut court depuis MISSION-INDEX.md.
-#   6. Pointeurs      : noms de fichiers seuls (dernier handoff, dernier
-#      rapport).
+# Content, in order (Mission 121, Objective/Instructions point 2):
+#   1. Header        : generation timestamp, last journal entry.
+#   2. Repository state : vault/project refs (first 8 characters), computed
+#      ahead/behind, number of porcelain lines (a count, not a list).
+#   3. Journal        : tail 3, each line truncated to 300 characters with
+#      marker "[...]".
+#   4. Open doors     : identifiers only, one per line.
+#   5. Last Mission   : number and short status from MISSION-INDEX.md.
+#   6. Pointers       : file names only (last handoff, last
+#      report).
 #
 # usage: build-digest.sh <chemin-projet>
-# override de test (Validation 3, Mission 121) : BUILD_DIGEST_CAP_OVERRIDE=<n>
-# reduit le plafond sans editer ce script -- absent en usage normal.
+# test override (Validation 3, Mission 121): BUILD_DIGEST_CAP_OVERRIDE=<n>
+# lowers the cap without editing this script -- absent in normal use.
 
 set -u
 
@@ -56,11 +56,11 @@ READING_LIST="$VAULT_ROOT/skills/session-start/reading-list.md"
 
 mkdir -p "$STATE_DIR"
 
-# --- Repartition du plafond entre les six sections. Une reserve fixe est
-# retiree d'abord pour l'enveloppe markdown (front-matter, titres, section
-# headers) qui n'est pas elle-meme donnee a tronquer. Parts arbitraires mais
-# fixes : a ajuster ici seulement si une section deborde en usage reel --
-# jamais en desactivant la mesure finale. ---
+# --- Split of the cap among the six sections. A fixed reserve is
+# taken off first for the markdown envelope (front-matter, titles, section
+# headers), which is not itself subject to truncation. Arbitrary but
+# fixed shares: to be adjusted here only if a section overflows in real use --
+# never by disabling the final measurement. ---
 CHROME_RESERVE=600
 USABLE=$((CAP_BYTES - CHROME_RESERVE))
 [ "$USABLE" -lt 60 ] && USABLE=60
@@ -80,8 +80,8 @@ BUDGET_MISSION=$((USABLE * PART_MISSION / 100))
 BUDGET_POINTERS=$((USABLE * PART_POINTERS / 100))
 
 truncate_bytes() {
-  # $1 = contenu, $2 = budget en octets. Sous le budget : inchange. Au-dessus :
-  # coupe a la derniere fin de ligne tenue par le budget, marqueur ajoute.
+  # $1 = content, $2 = budget in bytes. Under the budget: unchanged. Above:
+  # cut at the last line end that fits in the budget, marker added.
   local content="$1" budget="$2" size cut
   size="$(printf '%s' "$content" | wc -c)"
   if [ "$size" -le "$budget" ]; then
@@ -95,7 +95,7 @@ truncate_bytes() {
   printf '%s\n[…] (section tronquée à %s octets)' "$cut" "$budget"
 }
 
-# --- 1. En-tete ---
+# --- 1. Header ---
 GEN_TS="$(date +"%Y-%m-%dT%H:%M:%S%:z")"
 LAST_JOURNAL_TS="aucune"
 if [ -f "$JOURNAL" ]; then
@@ -106,7 +106,7 @@ HEADER_CONTENT="Généré : $GEN_TS
 Dernière entrée journal : $LAST_JOURNAL_TS
 Photo prise avant le commit de clôture (session-close §3) : tête et porcelain peuvent avoir un commit de retard, les refs Git font foi."
 
-# --- 2. Etat des depots ---
+# --- 2. Repository state ---
 repo_line() {
   local name="$1" root="$2" head_sha origin_sha counts ahead behind dirty
   head_sha="$(git -C "$root" rev-parse --short=8 HEAD 2>/dev/null || echo "????????")"
@@ -129,7 +129,7 @@ else
 $(basename "$PROJECT_ROOT") : non mesurable (pas un depot Git)"
 fi
 
-# --- 3. Dernieres lignes du journal (tail 3, 300 caracteres/ligne) ---
+# --- 3. Last lines of the journal (tail 3, 300 characters/line) ---
 JOURNAL_CONTENT="Aucune entrée."
 if [ -f "$JOURNAL" ]; then
   DATED="$(grep -E '^[0-9]{4}-[0-9]{2}-[0-9]{2}T' "$JOURNAL" || true)"
@@ -145,9 +145,9 @@ if [ -f "$JOURNAL" ]; then
   fi
 fi
 
-# --- 4. Portes ouvertes (identifiants seuls) -- meme grammaire de tags que
-# build-state.sh (OUVERT:/OPEN:/CLOSE:, cle ^(open|frozen)-[a-z0-9-]+),
-# sortie reduite a la cle. ---
+# --- 4. Open doors (identifiers only) -- same tag grammar as
+# build-state.sh (OUVERT:/OPEN:/CLOSE:, key ^(open|frozen)-[a-z0-9-]+),
+# output reduced to the key. ---
 DOORS_CONTENT="Aucune."
 if [ -f "$JOURNAL" ]; then
   DATED="$(grep -E '^[0-9]{4}-[0-9]{2}-[0-9]{2}T' "$JOURNAL" || true)"
@@ -192,17 +192,17 @@ if [ -f "$JOURNAL" ]; then
   fi
 fi
 
-# --- 5. Derniere Mission (numero + statut court) ---
-# Mission 163 : la colonne Statut est trouvee par son EN-TETE, jamais par sa
-# position. Le registre distribue d'un projet (gabarit
+# --- 5. Last Mission (number + short status) ---
+# Mission 163: the Statut column is found by its HEADER, never by its
+# position. A project's distributed register (template
 # templates/mission-index-template.md, Mission 177, RULES-2026-08-17-211522
-# §6) a six colonnes -- ID, Objectif, Version active, Statut, Chemin, Rapport
-# -- la porte en 4e ; le registre a quatre colonnes de la
-# DECISION-2026-09-05-124647 point 2 (ID, Statut, Date, Rapport), propre au
-# registre de cet atelier, la porte en 2e. Lire par position afficherait un
-# nom de rapport comme statut sur l'un des deux formats. Cette recherche fait
-# fonctionner le digest sur les deux, donc aussi sur un projet dont le
-# registre n'est pas encore converti.
+# §6) has six columns -- ID, Objective, Active version, Statut, Path, Report
+# -- and carries it 4th; the four-column register of
+# DECISION-2026-09-05-124647 point 2 (ID, Statut, Date, Rapport), specific to
+# this workshop's register, carries it 2nd. Reading by position would show a
+# report name as the status on one of the two formats. This lookup makes
+# the digest work on both, and so also on a project whose
+# register is not yet converted.
 MISSION_CONTENT="Aucune."
 if [ -f "$MISSION_INDEX" ]; then
   LAST_ROW="$(grep -E '^\| `[0-9]+` \|' "$MISSION_INDEX" | tail -n 1 || true)"
@@ -221,7 +221,7 @@ if [ -f "$MISSION_INDEX" ]; then
   fi
 fi
 
-# --- 6. Pointeurs (noms de fichiers seuls) ---
+# --- 6. Pointers (file names only) ---
 last_file() {
   local dir="$1" prefix="$2" f
   [ -d "$dir" ] || return 0
@@ -235,7 +235,7 @@ LAST_REPORT="$(last_file "$REPORTS_DIR" "REPORT")"
 POINTERS_CONTENT="Dernier handoff : $LAST_HANDOFF
 Dernier rapport : $LAST_REPORT"
 
-# --- Troncature par section ---
+# --- Per-section truncation ---
 HEADER_TRUNC="$(truncate_bytes "$HEADER_CONTENT" "$BUDGET_HEADER")"
 REPOS_TRUNC="$(truncate_bytes "$REPOS_CONTENT" "$BUDGET_REPOS")"
 JOURNAL_TRUNC="$(truncate_bytes "$JOURNAL_CONTENT" "$BUDGET_JOURNAL")"
@@ -243,11 +243,11 @@ DOORS_TRUNC="$(truncate_bytes "$DOORS_CONTENT" "$BUDGET_DOORS")"
 MISSION_TRUNC="$(truncate_bytes "$MISSION_CONTENT" "$BUDGET_MISSION")"
 POINTERS_TRUNC="$(truncate_bytes "$POINTERS_CONTENT" "$BUDGET_POINTERS")"
 
-# --- Ecriture fail-closed : fichier temporaire, mesure, puis move ---
+# --- Fail-closed write: temporary file, measurement, then move ---
 GEN_REL="$(rel_path "$STATE_DIR" "$SCRIPT_DIR/build-digest.sh")"
 REL_READING_LIST="$(rel_path "$STATE_DIR" "$READING_LIST" 2>/dev/null)"
-# Repli sur le chemin absolu (jamais un nombre de "../" et un nom de dossier
-# devines) si le calcul relatif echoue -- ticket 02, Mission 168.
+# Fall back to the absolute path (never a guessed number of "../" and a guessed
+# folder name) if the relative computation fails -- ticket 02, Mission 168.
 [ -z "$REL_READING_LIST" ] && REL_READING_LIST="$READING_LIST"
 
 TMP_FILE="$(mktemp "$STATE_DIR/.DIGEST.XXXXXX")"

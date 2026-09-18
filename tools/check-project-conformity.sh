@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
-# Constate la conformite d'un projet au standard de structure de projet
-# (sept fonctions, RULES-2026-08-26-142800-project-structure-standard.md) et
-# a l'etage projet de la prise de conscience du Vault (DECISION-2026-08-31-
-# 210731 point 4, Decision 2026-09-17-000545 A1) : acte de naissance,
-# epingle des gardiens, hook Git, coherence des fichiers de pointage.
-# Jamais bloquant, jamais correcteur : mesure et rapporte, ne corrige rien
-# (registry v1 D4 point 3 et D6).
+# Records the conformity of a project to the project structure standard
+# (seven functions, RULES-2026-08-26-142800-project-structure-standard.md) and
+# to the project tier of Vault awareness (DECISION-2026-08-31-
+# 210731 point 4, Decision 2026-09-17-000545 A1): birth certificate,
+# guardian pin, Git hook, consistency of the pointer files.
+# Never blocking, never correcting: measures and reports, fixes nothing
+# (registry v1 D4 point 3 and D6).
 #
 # usage: check-project-conformity.sh [chemin-projet]
-# Par defaut : repertoire courant.
+# Default: current directory.
 #
-# Le Vault est resolu par tools/resolve-vault.sh (acte d'abord, marqueur
-# ensuite, jamais la proximite). Sortie stdout : "CONFORME" ou
-# "ÉCART: <manque1, manque2, ...>". Code retour : 0 dans les deux cas de
-# verdict rendu ; non nul seulement si la mesure elle-meme echoue (chemin
-# projet inexistant, Vault non resolu).
+# The Vault is resolved by tools/resolve-vault.sh (certificate first, marker
+# next, never proximity). Stdout output: "CONFORME" or
+# "ÉCART: <missing1, missing2, ...>". Exit code: 0 in both cases of a
+# verdict given; non-zero only if the measurement itself fails (project
+# path does not exist, Vault not resolved).
 
 set -u
 
@@ -44,14 +44,14 @@ add_missing() {
   MISSING="$MISSING${MISSING:+, }$1"
 }
 
-# --- 1. Sept fonctions : squelette de la RULES-2026-08-26-142800, S2 ---
+# --- 1. Seven functions: skeleton of RULES-2026-08-26-142800, S2 ---
 for ITEM in README.md rules state missions decisions proposals knowledge handoffs; do
   if [ ! -e "$PROJECT_ABS/$ITEM" ]; then
     add_missing "$ITEM"
   fi
 done
 
-# --- 2. Inscription au registre (chemin relatif au dossier du marqueur) ---
+# --- 2. Entry in the register (path relative to the marker's folder) ---
 if [ ! -f "$REGISTRY" ]; then
   add_missing "registre introuvable ($REGISTRY)"
 elif [ -z "$RV_WORKSPACE" ]; then
@@ -63,7 +63,7 @@ else
   fi
 fi
 
-# --- 3. Acte de naissance (Decision 000545, A1) ---
+# --- 3. Birth certificate (Decision 000545, A1) ---
 VCS=""
 if bc_file_has_certificate "$CONFIG"; then
   for KEY in vault_id vault_origin vault_ref; do
@@ -82,7 +82,7 @@ else
   add_missing "acte de naissance absent"
 fi
 
-# --- 4. Epingle des gardiens : repo: local, quatre ids, entrees resolues ---
+# --- 4. Guardian pin: repo: local, four ids, entries resolved ---
 if [ -f "$CONFIG" ] && tr -d '\r' < "$CONFIG" | grep -qE '^[[:space:]]*-?[[:space:]]*repo:[[:space:]]*local[[:space:]]*$'; then
   PIN_MISSING=""
   for ID in vault-check-secrets vault-check-indexes-fresh vault-check-index-weight vault-check-links; do
@@ -98,7 +98,7 @@ else
   add_missing "épingle des gardiens absente"
 fi
 
-# --- 5. Hook Git : exige si vcs: git, jamais pose si vcs: none ---
+# --- 5. Git hook: required if vcs: git, never installed if vcs: none ---
 if [ "$VCS" = "git" ]; then
   if [ ! -e "$PROJECT_ABS/.git" ]; then
     add_missing "dépôt Git absent (vcs: git)"
@@ -114,8 +114,8 @@ if [ "$VCS" = "git" ]; then
   fi
 fi
 
-# --- 6. Fichiers de pointage : presents, et tout chemin vers le Vault qu'ils
-# portent est celui de l'acte (jamais une proximite supposee) ---
+# --- 6. Pointer files: present, and any path to the Vault that they
+# carry is the certificate's (never an assumed proximity) ---
 for GUIDE in AGENTS.md CLAUDE.md; do
   if [ ! -f "$PROJECT_ABS/$GUIDE" ]; then
     add_missing "fichier de pointage absent ($GUIDE)"

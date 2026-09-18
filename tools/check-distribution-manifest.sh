@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
-# Verifie distribution-manifest.txt (a la racine de ce depot) contre l'etat reel du depot.
-# Lecture seule : ne corrige jamais un defaut trouve, se contente de refuser
-# et de le lister. N'est cable sur aucun hook (Mission 073, arbitrage C) --
-# execution manuelle uniquement, resultat rapporte par l'appelant.
+# Checks distribution-manifest.txt (at the root of this repository) against the real state of the repository.
+# Read-only: never fixes a defect it finds, only refuses
+# and lists it. Wired into no hook (Mission 073, arbitration C) --
+# manual run only, result reported by the caller.
 #
-# Refuse (exit 1) si l'une de ces conditions se verifie :
-#   1. un fichier de `git ls-files` est absent du manifeste ;
-#   2. un chemin du manifeste n'existe plus dans `git ls-files` ;
-#   3. un chemin figure deux fois dans le manifeste ;
-#   4. un verdict n'est ni DISTRIBUABLE ni INTERNE ;
-#   5. un fichier porte `distributable: false` en front-matter alors que le
-#      manifeste le classe DISTRIBUABLE, ou l'inverse (`distributable: true`
-#      alors que le manifeste le classe INTERNE).
+# Refuses (exit 1) if any of these conditions holds:
+#   1. a file of `git ls-files` is missing from the manifest;
+#   2. a path of the manifest no longer exists in `git ls-files`;
+#   3. a path appears twice in the manifest;
+#   4. a verdict is neither DISTRIBUABLE nor INTERNE;
+#   5. a file carries `distributable: false` in front-matter while the
+#      manifest classes it DISTRIBUABLE, or the reverse (`distributable: true`
+#      while the manifest classes it INTERNE).
 #
 # usage: check-distribution-manifest.sh
 
 set -u
 
-# Garde Git (Mission 125, meme raison qu'a check-secrets.sh) : refus
-# explicite hors d'un depot, plutot qu'un $VAULT_ROOT vide.
+# Git guard (Mission 125, same reason as in check-secrets.sh): explicit
+# refusal outside a repository, rather than an empty $VAULT_ROOT.
 VAULT_ROOT="$(git rev-parse --show-toplevel)" || {
   echo "REFUS : hors d'un depot Git : gardien non executable." >&2
   exit 1
@@ -34,10 +34,10 @@ FAIL=0
 DISTRIBUABLE_COUNT=0
 INTERNE_COUNT=0
 
-# Tabulation calculee une seule fois (Mission 127) : "IFS=\"\$(printf '\t')\""
-# repete dans la condition d'un while relance ce sous-processus a CHAQUE
-# iteration (~400 lignes de manifeste) -- mesure comme le second cout
-# dominant une fois le pipeline par ligne de l'etape 4/5 elimine.
+# Tab computed only once (Mission 127): "IFS=\"\$(printf '\t')\""
+# repeated in the condition of a while relaunches that subprocess at EACH
+# iteration (~400 manifest lines) -- measured as the second dominant
+# cost once the per-line pipeline of step 4/5 was removed.
 TAB="$(printf '\t')"
 
 TRACKED_FILE="$(mktemp)"
@@ -45,31 +45,31 @@ MANIFEST_PATHS_FILE="$(mktemp)"
 FM_DIST_FILE="$(mktemp)"
 trap 'rm -f "$TRACKED_FILE" "$MANIFEST_PATHS_FILE" "$FM_DIST_FILE"' EXIT
 
-# `skills-warehouse/` hors perimetre (Mission 168, arbitrage Owner
-# 2026-09-11, option c) : sous-arbre adopte tel quel (T24), jamais soumis au
-# manifeste de distribution du Vault -- ses propres standards de provenance
-# (AGENTS.md, PROVENANCE.md par paquet) en tiennent lieu.
+# `skills-warehouse/` outside the perimeter (Mission 168, Owner arbitration
+# 2026-09-11, option c): subtree adopted as is (T24), never subject to the
+# Vault's distribution manifest -- its own provenance standards
+# (AGENTS.md, PROVENANCE.md per package) stand in for it.
 #
-# Fiches de projet (`projects/PROJECT-<date>-<code>.md`) hors perimetre
-# (Mission 168, ticket 03) : ecrites par tools/project-bootstrap.sh apres
-# l'installation, une par projet cree sur le poste de chaque utilisateur --
-# jamais un contenu du depot distribue lui-meme. Le manifeste decrit l'etat
-# au moment de la distribution (registry v1 D1b) ; le registre et l'index de
-# `projects/` restent, eux, des lignes reelles du manifeste (squelettes
-# distribues, ticket 01) -- seules les fiches nees APRES coup en sont
-# exemptees, meme principe que l'exemption skills-warehouse ci-dessus.
+# Project sheets (`projects/PROJECT-<date>-<code>.md`) outside the perimeter
+# (Mission 168, ticket 03): written by tools/project-bootstrap.sh after
+# installation, one per project created on each user's machine --
+# never content of the distributed repository itself. The manifest describes the state
+# at the time of distribution (registry v1 D1b); the register and the index of
+# `projects/` do remain real lines of the manifest (distributed
+# skeletons, ticket 01) -- only the sheets born AFTERWARDS are
+# exempted, same principle as the skills-warehouse exemption above.
 #
-# Formes de l'assistant (Mission 168, ticket 06) : tools/generate-assistant.ps1
-# ecrit .claude/agents/<slug>.md, .agents/skills/<slug>/ et
-# web-package/<slug>/ a l'installation, sous un identifiant derive du nom
-# choisi par le participant -- jamais un chemin fixe que le manifeste
-# pourrait lister a l'avance (le nom, donc le slug, n'existe pas avant que
-# quelqu'un installe). Un renommage deplace ces memes formes, sous l'ancien
-# slug, vers _trash/assistant-rename-<ancien slug>-<horodatage>/ (Move-
-# AssistantFormsToTrash, meme ticket) : meme motif, exempte de la meme facon.
-# Meme principe et meme motif que l'exemption projects/PROJECT-*.md
-# ci-dessus : contenu ne au poste de l'utilisateur, jamais un contenu du
-# depot distribue lui-meme.
+# Assistant forms (Mission 168, ticket 06): tools/generate-assistant.ps1
+# writes .claude/agents/<slug>.md, .agents/skills/<slug>/ and
+# web-package/<slug>/ at installation, under an identifier derived from the name
+# chosen by the participant -- never a fixed path that the manifest
+# could list in advance (the name, hence the slug, does not exist before
+# someone installs). A rename moves these same forms, under the old
+# slug, to _trash/assistant-rename-<old slug>-<timestamp>/ (Move-
+# AssistantFormsToTrash, same ticket): same reason, exempted the same way.
+# Same principle and same reason as the projects/PROJECT-*.md exemption
+# above: content born on the user's machine, never content of the
+# distributed repository itself.
 git -C "$VAULT_ROOT" ls-files \
   | grep -v '^skills-warehouse/' \
   | grep -vE '^projects/PROJECT-[0-9]{4}-[0-9]{2}-[0-9]{2}-.*\.md$' \
@@ -80,14 +80,14 @@ git -C "$VAULT_ROOT" ls-files \
   | sort > "$TRACKED_FILE"
 cut -f1 "$MANIFEST" | sort > "$MANIFEST_PATHS_FILE"
 
-# Pre-passe groupee (Mission 127) : un seul processus awk sur tous les
-# fichiers existants du manifeste, au lieu d'un pipeline head|grep|awk|tr par
-# ligne (jusqu'a ~400 x 4 processus) -- le fork de processus domine le cout
-# sous Git Bash/Windows, meme diagnostic et meme patron que
-# tools/build-indexes.sh. Comportement identique : mêmes 20 premières lignes
-# de chaque fichier, même motif exact `^distributable:[[:space:]]*(true|false)[[:space:]]*$`,
-# même premier match retenu (grep -m1) -- mesure par l'oracle de la Mission 127
-# (sortie byte-identique avant/apres).
+# Grouped pre-pass (Mission 127): a single awk process over all the
+# existing files of the manifest, instead of a head|grep|awk|tr pipeline per
+# line (up to ~400 x 4 processes) -- process forking dominates the cost
+# under Git Bash/Windows, same diagnosis and same pattern as
+# tools/build-indexes.sh. Identical behaviour: same first 20 lines
+# of each file, same exact pattern `^distributable:[[:space:]]*(true|false)[[:space:]]*$`,
+# same first match kept (grep -m1) -- measured by the oracle of Mission 127
+# (byte-identical output before/after).
 EXISTING_PATHS=""
 while IFS= read -r p; do
   [ -z "$p" ] && continue
@@ -114,18 +114,18 @@ done | xargs -0 awk '
   END { flush() }
 ' > "$FM_DIST_FILE" 2>/dev/null
 
-# Une ligne par fichier, emise au changement de fichier et en END : ENDFILE
-# est une extension gawk que l'awk d'Apple ignore -- table vide, et la
-# coherence front-matter/manifeste n'etait plus verifiee (Mission 181).
-# Carte portable (tools/kvmap.sh) : `declare -A` n'existe pas dans le
-# bash 3.2 livre par Apple.
+# One line per file, emitted on change of file and in END: ENDFILE
+# is a gawk extension that Apple's awk ignores -- empty table, and the
+# front-matter/manifest consistency was no longer checked (Mission 181).
+# Portable map (tools/kvmap.sh): `declare -A` does not exist in the
+# bash 3.2 shipped by Apple.
 . "$(dirname "$0")/kvmap.sh"
 while IFS="$TAB" read -r fpath fdist; do
   [ -z "$fpath" ] && continue
   kv_set FM_DIST "${fpath#"$VAULT_ROOT"/}" "$fdist"
 done < "$FM_DIST_FILE"
 
-# --- 1. fichier suivi absent du manifeste ---
+# --- 1. tracked file missing from the manifest ---
 MISSING_FROM_MANIFEST="$(comm -23 "$TRACKED_FILE" "$MANIFEST_PATHS_FILE")"
 if [ -n "$MISSING_FROM_MANIFEST" ]; then
   FAIL=1
@@ -135,7 +135,7 @@ if [ -n "$MISSING_FROM_MANIFEST" ]; then
   done
 fi
 
-# --- 2. chemin du manifeste qui n'existe plus dans git ls-files ---
+# --- 2. manifest path that no longer exists in git ls-files ---
 STALE_IN_MANIFEST="$(comm -13 "$TRACKED_FILE" "$MANIFEST_PATHS_FILE")"
 if [ -n "$STALE_IN_MANIFEST" ]; then
   FAIL=1
@@ -145,7 +145,7 @@ if [ -n "$STALE_IN_MANIFEST" ]; then
   done
 fi
 
-# --- 3. chemin en double dans le manifeste ---
+# --- 3. duplicate path in the manifest ---
 DUPLICATES="$(cut -f1 "$MANIFEST" | sort | uniq -d)"
 if [ -n "$DUPLICATES" ]; then
   FAIL=1
@@ -155,7 +155,7 @@ if [ -n "$DUPLICATES" ]; then
   done
 fi
 
-# --- 4/5. verdict et coherence distributable: ---
+# --- 4/5. verdict and distributable: consistency ---
 LINE_NO=0
 while IFS="$TAB" read -r REL_PATH VERDICT || [ -n "$REL_PATH" ]; do
   LINE_NO=$((LINE_NO + 1))
