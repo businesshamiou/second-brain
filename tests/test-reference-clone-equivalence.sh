@@ -46,9 +46,14 @@ echo "=== T4 : reference clone = clone made without it ==="
 echo "  TestRoot: $TMP   HEAD: $HEAD"
 
 prepare_source() {
-  # $1 = source dir. Same branch name, same commit, same remote for every
-  # source, so only where the objects came from differs.
+  # $1 = source dir. Same branch name, same commit, same remote and the
+  # same main branch for every source, so only where the objects came from
+  # differs. `main` matters: on a tag event CI checks out a detached HEAD
+  # with no branch at all, so a clone of this checkout has no main while a
+  # network clone has one, and the installed project's digest names
+  # origin/main (measured on the v0.1.6 run 35343370838).
   git -C "$1" -c advice.detachedHead=false checkout --quiet -B sb-under-test "$HEAD" >/dev/null 2>&1 || return 1
+  git -C "$1" branch --quiet -f main "$HEAD" >/dev/null 2>&1 || return 1
   git -C "$1" remote set-url origin "$DECLARED_ORIGIN" >/dev/null 2>&1 \
     || git -C "$1" remote add origin "$DECLARED_ORIGIN" >/dev/null 2>&1
 }
@@ -186,8 +191,11 @@ git clone --quiet -- "$STALE" "$TMP/stale-work" >/dev/null 2>&1
     && git config commit.gpgsign false \
     && printf '\nA line from another commit.\n' >> README.md \
     && git add README.md && git commit -q -m "another commit" \
-    && git push -q origin HEAD >/dev/null 2>&1
+    && git push -q origin HEAD:refs/heads/stale-tip >/dev/null 2>&1
 )
+# Move the bare repository's HEAD itself, whether it names a branch or, on a
+# tag event in CI, is detached (a plain `push origin HEAD` cannot run there).
+git -C "$STALE" update-ref --no-deref HEAD refs/heads/stale-tip >/dev/null 2>&1
 STALE_HEAD="$(git -C "$STALE" rev-parse HEAD)"
 if [ "$STALE_HEAD" = "$HEAD" ]; then
   fail "control not built: the stale reference still sits at HEAD"
