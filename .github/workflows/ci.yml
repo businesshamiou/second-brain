@@ -71,8 +71,9 @@ jobs:
       # job used to measure a developer's Mac: bash-4 and GNU-only
       # constructs passed here and broke -- or silently checked nothing --
       # on a participant's. From here on every step sees Apple's system
-      # directories only, plus what a step installs for itself (uv), and the
-      # next step proves it rather than assuming it. Chosen over pointing a
+      # directories only, plus what the setup-test-env action installs under
+      # $RUNNER_TEMP (uv, a managed Python, pre-commit), and the next step
+      # proves it rather than assuming it. Chosen over pointing a
       # single `bash` at /bin/bash: that would still leave Homebrew's awk,
       # sed or xargs in front, and a hook or tool calls those too.
       - name: Apple's own tools only (what a new Mac ships)
