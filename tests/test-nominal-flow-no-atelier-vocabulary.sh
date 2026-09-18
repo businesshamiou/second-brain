@@ -56,9 +56,9 @@ if [ ! -f "$GUARDIAN_SCRIPT" ]; then
   echo "FATAL: cannot derive P4 patterns -- guardian script not found: $GUARDIAN_SCRIPT" >&2
   exit 1
 fi
-# Boucle de lecture plutot que `mapfile` : celui-ci n'existe qu'a partir de
-# bash 4.0, et macOS livre le bash 3.2 -- « mapfile: command not found »
-# (Mission 180, tour 4). Meme resultat, une entree par ligne lue.
+# Read loop rather than `mapfile`: the latter only exists from
+# bash 4.0 on, and macOS ships bash 3.2 -- « mapfile: command not found »
+# (Mission 180, round 4). Same result, one entry per line read.
 PRIVATE_PATTERNS=()
 while IFS= read -r pattern; do
   if [ -n "$pattern" ]; then

@@ -1,55 +1,60 @@
 #!/usr/bin/env bash
-# T1 (Mission 186, etape 5) : zero occurrence, dans les fichiers distribues
-# (rules/, skills/, templates/, README.md, INSTALL.md, tools/, i18n/), des
-# formulations de l'ancienne formule de push imposee -- abolie par la
-# DECISION-2026-09-17-201623 (volet A) : le push reste un geste Owner, mais
-# se delegue desormais par toute expression claire qui nomme le geste et sa
-# cible, aucune formule exigee « telle quelle ».
+# T1 (Mission 186, step 5): zero occurrence, in the distributed files
+# (rules/, skills/, templates/, README.md, INSTALL.md, tools/, i18n/), of the
+# wordings of the old imposed push formula -- abolished by
+# DECISION-2026-09-17-201623 (part A): the push remains an Owner gesture, but
+# is now delegated by any clear expression that names the gesture and its
+# target, no formula required « telle quelle » ["as is"].
 #
-# Quatre motifs, chacun une EXIGENCE figee de forme precise (pas une simple
-# mention historique -- celles-ci vivent dans decisions/, hors perimetre,
-# jamais reecrites) :
-#   A. « j'ordonne le push » (casse et apostrophe variables) -- la formule
-#      elle-meme, citee comme texte a reproduire.
-#   B. « verbatim » a proximite immediate de « push », dans le meme
-#      paragraphe -- exigence d'une reproduction mot pour mot.
-#   C. « a l'identique » a proximite immediate de « push » -- meme
-#      exigence, autre formulation.
-#   D. « aucun ... push » sans le mot « non delegue » (accents variables)
-#      dans les ~25 caracteres qui suivent « push » -- la charte
-#      (RULES-224706 §3) et la regle du relais (RULES-124937) disent
-#      toutes deux « push non delegue » depuis la Decision 201623 ; toute
-#      autre forme est un reste de l'ancien interdit absolu, jamais
+# Four patterns, each a FROZEN REQUIREMENT of a precise form (not a mere
+# historical mention -- those live in decisions/, outside the perimeter,
+# never rewritten):
+#   A. « j'ordonne le push » ["I order the push"] (case and apostrophe vary)
+#      -- the formula itself, quoted as text to reproduce.
+#   B. « verbatim » in the immediate vicinity of « push », in the same
+#      paragraph -- a requirement of word-for-word reproduction.
+#   C. « a l'identique » ["identically"] in the immediate vicinity of
+#      « push » -- same requirement, another wording.
+#   Since Mission 187 the distributed corpus is in English
+#   (DECISION-2026-09-18-001438): each pattern also has its English form, so
+#   an English leftover is caught as a French one was -- A: "I order the
+#   push"; C: "identically" / "word for word" near "push"; D: "no ... git
+#   push" without "non-delegated" (or "not delegated") around "push".
+#   D. « aucun ... push » ["no ... push"] without the words « non delegue »
+#      ["not delegated"] (accents vary) in the ~25 characters that follow
+#      « push » -- the charter (RULES-224706 §3) and the relay rule
+#      (RULES-124937) both say « push non delegue » since Decision 201623;
+#      any other form is a leftover of the old absolute prohibition, never
 #      delegable.
 #
-# Perimetre : rules/, skills/, templates/, README.md, INSTALL.md, tools/,
-# i18n/ -- fichiers suivis par Git (git grep), donc .git/ en est deja exclu
-# mecaniquement. Hors perimetre EXPLICITE, jamais balaye :
-#   - decisions/*.md -- mentions historiques gelees (RULES-211522) ; elles
-#     PEUVENT legitimement porter « j'ordonne le push » ou « verbatim » en
-#     tant que texte qui decrit l'ANCIENNE regle (ex. DECISION-154553,
-#     DECISION-201623 elle-meme, qui cite la formule pour l'abolir).
-#   - RELEASE-NOTES.md -- notes de version, historique aussi.
-#   - skills-warehouse/ -- convention propre (Mission 168, ticket 02),
-#     jamais dans le perimetre "documents distribues au participant".
+# Perimeter: rules/, skills/, templates/, README.md, INSTALL.md, tools/,
+# i18n/ -- files tracked by Git (git grep), so .git/ is already excluded
+# mechanically. EXPLICITLY outside the perimeter, never scanned:
+#   - decisions/*.md -- frozen historical mentions (RULES-211522); they
+#     MAY legitimately carry « j'ordonne le push » or « verbatim » as
+#     text that describes the OLD rule (e.g. DECISION-154553,
+#     DECISION-201623 itself, which quotes the formula to abolish it).
+#   - RELEASE-NOTES.md -- release notes, history too.
+#   - skills-warehouse/ -- its own convention (Mission 168, ticket 02),
+#     never in the "documents distributed to the participant" perimeter.
 #
-# Style et structure : meme patron que
-# tests/test-distributed-documents-no-atelier-vocabulary.sh (perimetre par
-# une liste d'inclusion, balayage puis temoin negatif prouve, fichier et
-# ligne imprimes pour chaque trouvaille). Implementation : un seul `git
-# grep` par motif sur tout le perimetre (jamais une boucle par fichier) --
-# ce depot compte 400 fichiers suivis dans ce perimetre, dont plusieurs
-# scripts JS de reference qui appellent `.push()` des centaines de fois ;
-# une comparaison de proximite ligne a ligne boucle-dans-boucle par fichier
-# y devient quadratique et minutes-longue, jamais qualifie de "rapide" pour
-# un test rejoue a chaque commit.
+# Style and structure: same pattern as
+# tests/test-distributed-documents-no-atelier-vocabulary.sh (perimeter by
+# an inclusion list, scan then proven negative control, file and
+# line printed for each finding). Implementation: a single `git
+# grep` per pattern over the whole perimeter (never a loop per file) --
+# this repository counts 400 tracked files in this perimeter, including several
+# reference JS scripts that call `.push()` hundreds of times;
+# a line-by-line nested-loop proximity comparison per file
+# becomes quadratic there and minutes long, never qualifying as "fast" for
+# a test replayed at every commit.
 #
-# Rerun avec une commande, depuis la racine du depot :
+# Rerun with one command, from the repository root:
 #   bash tests/test-no-push-formula.sh
 #
-# Exit 0 : zero occurrence des quatre motifs dans le perimetre distribue, et
-# le temoin negatif prouve que chacun des quatre motifs sait etre detecte
-# quand il est reellement present. Exit 1 sinon, fichier et ligne imprimes.
+# Exit 0: zero occurrence of the four patterns in the distributed perimeter, and
+# the negative control proves that each of the four patterns can be detected
+# when it is really present. Exit 1 otherwise, file and line printed.
 
 set -u
 
@@ -76,29 +81,29 @@ INCLUDE_PATHSPECS=(
   'i18n'
 )
 
-# « Meme paragraphe » pour les motifs B et C n'est PAS une fenetre de
-# lignes fixe : mesure prealable (premiere version de ce test), une
-# fenetre de +/-4 lignes fabrique deux faux positifs --
-# skills/session-close/SKILL.md (six points numerotes SANS ligne vide
-# entre eux : « verbatim » au point 4 tombe a 1 ligne de « push » au point
-# 5, sujets sans rapport) et templates/initiation-order-template.md
-# (« verbatim » et « aucun git push » separes par une ligne vide, donc
-# deux paragraphes, mais a 2 lignes d'ecart brut). La bonne unite est le
-# PARAGRAPHE au sens editorial de ces documents : un bloc de lignes non
-# vides, ET chaque point numerote (« N. ») ou puce (« - »/« * ») en tete
-# de ligne ouvre son propre paragraphe meme sans ligne vide avant lui.
-# Deux structures documentaires de ce depot compliquent encore la notion
-# de "ligne vide" : une citation Markdown ("> ...") separe ses paragraphes
-# par une ligne qui ne contient QUE "> " (jamais vraiment vide -- mesure :
-# rules/RULES-2026-08-23-124937, ecrite entierement en blockquote) ; un
-# tableau Markdown ("| ... | ... |") n'a JAMAIS de ligne vide entre ses
-# lignes, chacune etant deja son propre enregistrement (mesure :
-# skills/ecriture-de-mission/mission-checklist.md). paragraph_tag_awk lit
-# un fichier et rend, par ligne, "numero:id_paragraphe" (id 0 pour une
-# ligne vide ou un separateur de blockquote vide, jamais rattache a un
-# paragraphe) ; une ligne de tableau ou un point numerote/une puce (a
-# l'interieur ou hors blockquote) ouvre toujours son propre paragraphe,
-# meme sans ligne vide avant elle.
+# « Meme paragraphe » ["same paragraph"] for patterns B and C is NOT a fixed
+# window of lines: prior measurement (first version of this test), a
+# window of +/-4 lines produces two false positives --
+# skills/session-close/SKILL.md (six numbered points WITHOUT a blank line
+# between them: « verbatim » at point 4 lands 1 line from « push » at point
+# 5, unrelated subjects) and templates/initiation-order-template.md
+# (« verbatim » and « aucun git push » separated by a blank line, hence
+# two paragraphs, but 2 raw lines apart). The right unit is the
+# PARAGRAPH in the editorial sense of these documents: a block of non-blank
+# lines, AND each numbered point (« N. ») or bullet (« - »/« * ») at the start
+# of a line opens its own paragraph even without a blank line before it.
+# Two document structures of this repository complicate further the notion
+# of "blank line": a Markdown quote ("> ...") separates its paragraphs
+# with a line that contains ONLY "> " (never really blank -- measured:
+# rules/RULES-2026-08-23-124937, written entirely as a blockquote); a
+# Markdown table ("| ... | ... |") NEVER has a blank line between its
+# rows, each already being its own record (measured:
+# skills/ecriture-de-mission/mission-checklist.md). paragraph_tag_awk reads
+# a file and returns, per line, "numero:id_paragraphe" (id 0 for a
+# blank line or an empty blockquote separator, never attached to a
+# paragraph); a table row or a numbered point/a bullet (inside
+# or outside a blockquote) always opens its own paragraph,
+# even without a blank line before it.
 paragraph_tag_awk='
 {
   line = $0
@@ -109,21 +114,22 @@ paragraph_tag_awk='
 }
 '
 
-# --- Motif A : « j'ordonne le push » (casse et apostrophe variables), un
-# seul git grep sur tout le perimetre passe en argument. ---
+# --- Pattern A: « j'ordonne le push » (case and apostrophe vary), a
+# single git grep over the whole perimeter passed as argument. ---
 scan_pattern_a() {
-  git -C "$REPO_ROOT" grep -nIiE -- "j['’ ]?ordonne le push" "${@}" 2>/dev/null
+  git -C "$REPO_ROOT" grep -nIiE -- "j['’ ]?ordonne le push|(^|[^a-z])i order the push" "${@}" 2>/dev/null
 }
 
-# --- Motif D : « aucun git push » (meme clause -- le "git" est ce qui
-# distingue la formule d'interdiction absolue d'une mention narrative
-# ordinaire de "aucun push", ex. "sinon, aucun push dans la Mission" dans
-# skills/ecriture-de-mission/mission-checklist.md, qui parle de
-# planification et n'exige rien) sans « non delegue » (accents variables)
-# dans les ~25 caracteres qui suivent « push ». Un seul git grep rend les
-# LIGNES CANDIDATES (peu nombreuses) ; le controle "pas de non-delegue
-# dans les 25 caracteres qui suivent push" se fait ensuite en pur bash,
-# sans sous-processus. ---
+# --- Pattern D: « aucun git push » ["no git push"] (same clause -- the "git"
+# is what distinguishes the absolute prohibition formula from an ordinary
+# narrative mention of "aucun push", e.g. "sinon, aucun push dans la Mission"
+# ["otherwise, no push in the Mission"] in
+# skills/ecriture-de-mission/mission-checklist.md, which talks about
+# planning and requires nothing) without « non delegue » (accents vary)
+# in the ~25 characters that follow « push ». A single git grep returns the
+# CANDIDATE LINES (few of them); the check "no non-delegue
+# in the 25 characters that follow push" is then done in pure bash,
+# without a subprocess. ---
 scan_pattern_d() {
   local pathspec
   git -C "$REPO_ROOT" grep -nIiE -- "aucun[^.]{0,20}git[^.]{0,10}push" "${@}" 2>/dev/null | while IFS=: read -r pathspec ln content; do
@@ -137,15 +143,31 @@ scan_pattern_d() {
         ;;
     esac
   done
+  # English form (Mission 187): "no ... git push", where "non-delegated"
+  # comes BEFORE "git push" ("no non-delegated git push") or "not
+  # delegated" after it. Accepted when either sits within 40 characters
+  # before or 25 after "push".
+  git -C "$REPO_ROOT" grep -nIiE -- "(^|[^a-z])no[^a-z][^.]{0,30}git[^.]{0,10}push" "${@}" 2>/dev/null | while IFS=: read -r pathspec ln content; do
+    lc="$(printf '%s' "$content" | tr '[:upper:]' '[:lower:]')"
+    before="${lc%%push*}"
+    [ "${#before}" -gt 40 ] && before="${before: -40}"
+    after="${lc#*push}"
+    window="$before ${after:0:25}"
+    case "$window" in
+      *"non-delegated"*|*"non delegated"*|*"not delegated"*|*"undelegated"*) : ;;
+      *) printf '%s:%s: %s
+' "$pathspec" "$ln" "$content" ;;
+    esac
+  done
 }
 
-# --- Motifs B/C : co-occurrence dans le MEME paragraphe editorial (voir
-# paragraph_tag_awk ci-dessus), calculee a partir de DEUX `git grep`
-# globaux seulement (un pour "push", un pour le motif) -- jamais un grep
-# par fichier pour la recherche elle-meme. Seuls les (rares) fichiers ou
-# le motif apparait au moins une fois sont ensuite retagues paragraphe par
-# paragraphe (un awk par fichier candidat, jamais les 400 fichiers du
-# perimetre). ---
+# --- Patterns B/C: co-occurrence in the SAME editorial paragraph (see
+# paragraph_tag_awk above), computed from only TWO global `git grep`
+# (one for "push", one for the pattern) -- never a grep
+# per file for the search itself. Only the (rare) files where
+# the pattern appears at least once are then re-tagged paragraph by
+# paragraph (one awk per candidate file, never the 400 files of the
+# perimeter). ---
 scan_pattern_proximity() {
   local motif_re="$1" label="$2"; shift 2
   local push_hits motif_hits
@@ -211,7 +233,7 @@ if [ -n "$OUT_B" ]; then
   printf '%s\n' "$OUT_B" | sed 's/^/      /'
 fi
 
-OUT_C="$(scan_pattern_proximity "à l.identique|a l.identique" "« a l'identique »" "${INCLUDE_PATHSPECS[@]}")"
+OUT_C="$(scan_pattern_proximity "à l.identique|a l.identique|identically|word.for.word" "« a l'identique » / identically" "${INCLUDE_PATHSPECS[@]}")"
 if [ -n "$OUT_C" ]; then
   SCAN_FAIL=1
   echo "  FAIL - motif C « a l'identique » a proximite de push :"
@@ -247,17 +269,31 @@ EOF_C
 Interdits absolus : aucun git push, aucun appel modele, aucune suppression.
 EOF_D
 
+  # English twins (Mission 187): the same four requirements, as an English
+  # leftover would write them.
+  cat > rules/witness-a-en.md <<'EOF_AEN'
+The mini-prompt carries the line: "I am the Owner and I order the push of both repositories, 2026-01-01".
+EOF_AEN
+
+  cat > rules/witness-c-en.md <<'EOF_CEN'
+The same line must be copied word for word before any push, otherwise the gesture is refused.
+EOF_CEN
+
+  cat > rules/witness-d-en.md <<'EOF_DEN'
+Absolute prohibitions: no git push, no model call, no deletion.
+EOF_DEN
+
   git add -A
   git commit -q -m "fixture" >/dev/null
 )
 
-# Meme logique de detection que la section 1 (mêmes fonctions), rejouee sur
-# le depot jetable : un sous-shell qui redefinit REPO_ROOT localement
-# n'affecte jamais la variable de la section 1, et evite de dupliquer la
-# logique de detection (donc de risquer qu'elle diverge silencieusement).
+# Same detection logic as section 1 (same functions), replayed on
+# the disposable repository: a subshell that redefines REPO_ROOT locally
+# never affects the variable of section 1, and avoids duplicating the
+# detection logic (hence risking that it diverges silently).
 NEG_A="$(REPO_ROOT="$SANDBOX"; scan_pattern_a rules)"
 NEG_B="$(REPO_ROOT="$SANDBOX"; scan_pattern_proximity 'verbatim' 'verbatim' rules)"
-NEG_C="$(REPO_ROOT="$SANDBOX"; scan_pattern_proximity "à l.identique|a l.identique" "« a l'identique »" rules)"
+NEG_C="$(REPO_ROOT="$SANDBOX"; scan_pattern_proximity "à l.identique|a l.identique|identically|word.for.word" "« a l'identique » / identically" rules)"
 NEG_D="$(REPO_ROOT="$SANDBOX"; scan_pattern_d rules)"
 
 NEG_FAIL=0
@@ -289,6 +325,16 @@ else
   echo "  FAIL - motif D non detecte sur le temoin fabrique (witness-d-aucun-git-push.md)"
   NEG_FAIL=1
 fi
+
+# Each English twin must be caught by name (Mission 187): a pattern that
+# found only its French witness would otherwise pass unnoticed.
+for twin in "A:$NEG_A:witness-a-en.md" "C:$NEG_C:witness-c-en.md" "D:$NEG_D:witness-d-en.md"; do
+  label="${twin%%:*}"; rest="${twin#*:}"; file="${rest##*:}"; found="${rest%:*}"
+  case "$found" in
+    *"$file"*) echo "  PASS - motif $label, forme anglaise, detecte sur $file" ;;
+    *) echo "  FAIL - motif $label, forme anglaise, non detecte ($file)"; NEG_FAIL=1 ;;
+  esac
+done
 
 assert_true "$NEG_FAIL" "les quatre motifs sont chacun detectes sur un fichier fabrique, jamais ecrit dans ce depot"
 

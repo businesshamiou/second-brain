@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
-# Essai de non-regression (build history) pour le defaut de lecture du
-# front-matter dans tools/link-graph-drone-view.sh : un champ `status:`
-# present mais vide decalait les colonnes lues ensuite (voir la note de
-# correction en tete du script reparé).
+# Non-regression test (build history) for the front-matter reading defect
+# in tools/link-graph-drone-view.sh: a `status:` field
+# present but empty shifted the columns read afterwards (see the correction
+# note at the top of the repaired script).
 #
-# Methode : sandbox jetable (aucun fichier du vrai corpus touche), copie
-# verbatim du script courant de tools/, executee sur un mini corpus
-# synthetique contenant exactement l'entree fautive decrite (build history)
-# (`status:` present, vide). Le signal observe est le titre affiche par
-# la vue Mermaid complete pour le document fautif : avant correction, le
-# decalage de colonnes vide le champ titre lu (repli sur le nom de fichier,
-# "DOC-A") ; apres correction, le vrai titre ("Test Doc A") est lu.
+# Method: disposable sandbox (no file of the real corpus touched), verbatim
+# copy of the current script from tools/, run on a synthetic mini corpus
+# containing exactly the faulty entry described (build history)
+# (`status:` present, empty). The observed signal is the title displayed by
+# the complete Mermaid view for the faulty document: before the fix, the
+# column shift empties the title field read (fallback to the file name,
+# "DOC-A"); after the fix, the real title ("Test Doc A") is read.
 #
 # usage: tests/test-link-graph-drone-view-empty-status-field.sh
-# sortie : "PASS" (exit 0) ou "FAIL: <raison>" (exit 1)
+# output: "PASS" (exit 0) or "FAIL: <raison>" (exit 1)
 
 set -u
 
@@ -31,9 +31,9 @@ trap 'rm -rf "$TMP"' EXIT
 mkdir -p "$TMP/vault/tools" "$TMP/workshop-build/workshop-production/state"
 
 cp "$REAL_SCRIPT" "$TMP/vault/tools/link-graph-drone-view.sh"
-# Meme motif : l outil source tools/relpath.sh depuis son dossier.
+# Same reason: the tool sources tools/relpath.sh from its own folder.
 cp "$SCRIPT_DIR/../tools/relpath.sh" "$TMP/vault/tools/relpath.sh"
-# Et tools/kvmap.sh, ses tableaux associatifs portables (Mission 181).
+# And tools/kvmap.sh, its portable associative arrays (Mission 181).
 cp "$SCRIPT_DIR/../tools/kvmap.sh" "$TMP/vault/tools/kvmap.sh"
 chmod +x "$TMP/vault/tools/link-graph-drone-view.sh"
 
@@ -52,8 +52,8 @@ mesure 3 n'a pas besoin d'atteindre le mini-corpus pour cet essai).
 
 EOF
 
-# Document fautif : `status:` present, sans valeur (entree exacte demandee
-# par la Mission 043, etape 4).
+# Faulty document: `status:` present, without a value (exact entry required
+# by Mission 043, step 4).
 cat > "$TMP/vault/DOC-A.md" <<'EOF'
 ---
 type: rules
@@ -92,8 +92,8 @@ OUTPUT="$(cd "$TMP/vault/tools" && SECOND_BRAIN_SIBLING_REPO=workshop-build bash
 STDERR_CONTENT="$(cat /tmp/test-lgdv-stderr.$$ 2>/dev/null)"
 rm -f /tmp/test-lgdv-stderr.$$
 
-# Le libelle Mermaid de DOC-A, dans la vue complete : node_label() imprime
-# le titre s'il est non vide, sinon le nom de fichier sans extension.
+# The Mermaid label of DOC-A, in the complete view: node_label() prints
+# the title if it is non-empty, otherwise the file name without extension.
 COMPLETE_BLOCK="$(printf '%s\n' "$OUTPUT" | awk '/=== VUE MERMAID — COMPLETE ===/{f=1} f{print} /=== VUE MERMAID — DOCUMENTS ACTIFS/{exit}')"
 DOC_A_LINE="$(printf '%s\n' "$COMPLETE_BLOCK" | grep -m1 'DOC_A\[')"
 

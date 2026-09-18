@@ -1,29 +1,29 @@
 #!/usr/bin/env bash
-# T7, moitie shell (Mission 185-C01, porte 9 de la capture
-# 2026-09-17-144137) : les chemins rendus au Pilot et au participant sont
-# dans la forme que LEUR systeme comprend.
+# T7, shell half (Mission 185-C01, door 9 of capture
+# 2026-09-17-144137): the paths handed to the Pilot and to the participant are
+# in the form THEIR system understands.
 #
-# Defaut mesure sur le poste de l'Owner : `state/PILOT-PROMPT.md` portait
-# le chemin du projet dans la forme de Git Bash -- lettre de lecteur en
-# tete et barres obliques -- alors
-# que le serveur MCP, l'application de bureau et le participant lisent
-# `C:\Users\...`. Le Pilot a du raisonner « dossier parent » pour s'en
-# sortir ; rien ne garantissait qu'il y arrive.
+# Defect measured on the Owner's machine: `state/PILOT-PROMPT.md` carried
+# the project path in Git Bash form -- drive letter at the
+# start and forward slashes -- while
+# the MCP server, the desktop application and the participant read
+# `C:\Users\...`. The Pilot had to reason « dossier parent » ["parent folder"]
+# to get by; nothing guaranteed it would manage.
 #
-# Ce fichier est le jumeau shell de
-# tests/test-project-bootstrap-native-paths.ps1 : il porte le TEMOIN sur
-# macOS et Linux -- la ou `cygpath` n'existe pas, le chemin POSIX doit
-# rester rigoureusement inchange (aucune transformation, aucune invention)
-# -- et rejoue l'oracle sous Git Bash, ou `cygpath` existe.
+# This file is the shell twin of
+# tests/test-project-bootstrap-native-paths.ps1: it carries the CONTROL on
+# macOS and Linux -- where `cygpath` does not exist, the POSIX path must
+# stay rigorously unchanged (no transformation, no invention)
+# -- and replays the oracle under Git Bash, where `cygpath` exists.
 #
-# Trois surfaces mesurees, celles de la porte 9 : `state/PILOT-PROMPT.md`,
-# la fiche `projects/PROJECT-*.md`, et le bloc a consommer rendu sur la
-# sortie.
+# Three surfaces measured, those of door 9: `state/PILOT-PROMPT.md`,
+# the record `projects/PROJECT-*.md`, and the block to consume printed on the
+# output.
 #
-# Ecrit seulement dans un dossier temporaire (prefixe m185).
+# Writes only in a temporary folder (prefix m185).
 #
 # usage: bash tests/test-project-bootstrap-native-paths.sh
-# Code 0 : tous les cas PASS. Code 1 sinon.
+# Exit 0: all cases PASS. Exit 1 otherwise.
 
 set -u
 
@@ -72,12 +72,12 @@ FICHE="$(printf '%s\n' "$OUT" | tail -n 1)"
 
 SURFACES="$PILOT_PROMPT $FICHE"
 
-# posix_drive_form : la forme Git Bash d'un chemin Windows, /c/... . C'est
-# exactement ce qui ne doit jamais sortir sous Windows.
+# posix_drive_form: the Git Bash form of a Windows path, /c/... . This is
+# exactly what must never come out under Windows.
 POSIX_DRIVE='/[a-zA-Z]/'
 
 if [ "$HAS_CYGPATH" = "1" ]; then
-  # --- Oracle, sous Git Bash ------------------------------------------
+  # --- Oracle, under Git Bash -----------------------------------------
   NATIVE="$(cygpath -w "$(cd "$P" && pwd)")"
   for F in $SURFACES; do
     if grep -qF -- "$NATIVE" "$F"; then
@@ -97,9 +97,9 @@ if [ "$HAS_CYGPATH" = "1" ]; then
     fail "bloc a consommer : chemin non natif"
   fi
 else
-  # --- Temoin, sur macOS et Linux --------------------------------------
-  # Sans cygpath, native_path rend son argument tel quel : le chemin POSIX
-  # doit se retrouver a l'identique, ni transforme ni reecrit.
+  # --- Control, on macOS and Linux -------------------------------------
+  # Without cygpath, native_path returns its argument as is: the POSIX path
+  # must be found identically, neither transformed nor rewritten.
   POSIX="$(cd "$P" && pwd)"
   case "$POSIX" in
     /*) pass "controle : le chemin du projet est POSIX ($POSIX)" ;;

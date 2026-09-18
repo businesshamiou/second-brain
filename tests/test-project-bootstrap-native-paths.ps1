@@ -64,8 +64,8 @@ try {
     New-Item -ItemType Directory -Force -Path $workspace | Out-Null
     $vault = Join-Path $workspace 'second-brain'
 
-    # Vault jetable construit a partir de l'ARBRE DE TRAVAIL (jamais un
-    # clone, qui jouerait le code committe) : meme aide que les tests shell.
+    # Disposable Vault built from the WORKING TREE (never a
+    # clone, which would run the committed code): same helper as the shell tests.
     $sandbox = To-Posix (Join-Path $RepoRoot 'tests\sandbox-vault.sh')
     $srcPosix = To-Posix $RepoRoot
     $vaultPosix = To-Posix $vault
@@ -94,7 +94,7 @@ try {
     Assert-True (Test-Path $pilotPrompt) "state\PILOT-PROMPT.md existe"
     Assert-True ($fiche.Count -eq 1) "la fiche de projet existe"
 
-    # La forme native attendue, telle que Windows l'ecrit.
+    # The expected native form, as Windows writes it.
     $nativeProject = (Resolve-Path $project).Path
 
     $surfaces = @()
@@ -106,9 +106,9 @@ try {
         $name = $s[0]
         $text = "$($s[1])"
         Assert-True ($text.Contains($nativeProject)) "$name porte le chemin natif ($nativeProject)"
-        # /c/Users, /c/Windows, /d/... : la forme Git Bash d'un chemin de
-        # lecteur. Cherchee telle quelle, jamais par un motif large qui
-        # confondrait un lien relatif avec un chemin absolu.
+        # /c/Users, /c/Windows, /d/...: the Git Bash form of a drive
+        # path. Searched as is, never by a broad pattern that
+        # would confuse a relative link with an absolute path.
         $posixDrive = [regex]::IsMatch($text, '(?<![A-Za-z0-9_.-])/[A-Za-z]/(Users|Windows|Temp|home)')
         Assert-True (-not $posixDrive) "$name ne porte aucun chemin /c/..."
     }

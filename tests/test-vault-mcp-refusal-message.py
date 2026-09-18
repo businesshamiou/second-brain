@@ -1,27 +1,27 @@
 #!/usr/bin/env python3
-# T6 (Mission 185-C01, porte 3 de la capture 2026-09-17-144137) : un refus
-# du serveur MCP du Vault est LISIBLE dans l'application de bureau.
+# T6 (Mission 185-C01, door 3 of capture 2026-09-17-144137): a refusal
+# by the Vault's MCP server is READABLE in the desktop application.
 #
-# Defaut mesure sur le poste de l'Owner : une lecture hors perimetre par
-# `second-brain-vault` s'affichait « <error>Tool execution failed</error> »,
-# sans chemin ni raison. Cause lue dans le code : l'echec remontait comme
-# une erreur JSON-RPC, que l'application replie en cette phrase unique. La
-# specification MCP reserve l'erreur JSON-RPC aux defauts de protocole et
-# demande qu'un echec d'EXECUTION d'outil soit un resultat porteur de
-# `isError: true` -- c'est ce contenu-la que l'application rend tel quel.
+# Defect measured on the Owner's machine: a read outside the perimeter through
+# `second-brain-vault` was displayed as « <error>Tool execution failed</error> »,
+# with neither path nor reason. Cause read in the code: the failure came up as
+# a JSON-RPC error, which the application folds into that single sentence. The
+# MCP specification reserves the JSON-RPC error for protocol defects and
+# requires that a tool EXECUTION failure be a result carrying
+# `isError: true` -- it is that content that the application displays as is.
 #
-# Oracle (PASS attendu) : `tools/call read_text_file` sur un chemin hors
-# perimetre rend un RESULTAT avec `isError: true`, dont le texte contient le
-# chemin demande ET la liste des dossiers autorises ; idem pour un lien qui
-# s'echappe du perimetre.
-# Temoin negatif (dans ce meme fichier) : le meme appel sur un chemin
-# DEDANS ne porte pas `isError` et rend le contenu du fichier.
+# Oracle (PASS expected): `tools/call read_text_file` on a path outside the
+# perimeter returns a RESULT with `isError: true`, whose text contains the
+# requested path AND the list of authorized folders; the same for a link that
+# escapes the perimeter.
+# Negative control (in this same file): the same call on a path
+# INSIDE does not carry `isError` and returns the file's content.
 #
-# Rien ne sort d'un dossier temporaire (prefixe m185) ; aucun appel reseau,
-# aucun appel modele.
+# Nothing leaves a temporary folder (prefix m185); no network call,
+# no model call.
 #
 # usage: uv run --no-project tests/test-vault-mcp-refusal-message.py
-# Code 0 : tous les cas PASS (ou SKIP nomme). Code 1 sinon.
+# Exit 0: all cases PASS (or named SKIP). Exit 1 otherwise.
 
 import io
 import json
@@ -64,7 +64,7 @@ def check(condition, name, detail=""):
 
 
 def uv_exe():
-    """uv, sur le PATH ou aux deux emplacements que les runners utilisent."""
+    """uv, on the PATH or at the two locations the runners use."""
     found = shutil.which("uv")
     if found:
         return found
@@ -80,7 +80,7 @@ def uv_exe():
 
 
 def play(requests, allowed):
-    """Envoie les requetes au serveur, rend la liste des messages JSON."""
+    """Sends the requests to the server, returns the list of JSON messages."""
     args = [UV, "run", "--no-project", SERVER, "--vault", REPO_ROOT]
     for a in allowed:
         args += ["--allow", a]
@@ -141,9 +141,9 @@ try:
     with io.open(os.path.join(outside, "s.txt"), "w", encoding="utf-8") as f:
         f.write("dehors\n")
 
-    # Un lien qui s'echappe : jonction sous Windows, lien symbolique
-    # ailleurs. Non creable partout (droits) -- alors SKIP nomme, jamais un
-    # PASS silencieux.
+    # A link that escapes: junction under Windows, symbolic link
+    # elsewhere. Not creatable everywhere (permissions) -- then a named SKIP, never a
+    # silent PASS.
     escape = os.path.join(proj, "esc")
     link_kind = ""
     if os.name == "nt":
@@ -176,7 +176,7 @@ try:
     ]
     messages, raw, err = play(requests, [ws])
 
-    # --- Temoin negatif, dans ce meme fichier : le chemin DEDANS ---------
+    # --- Negative control, in this same file: the path INSIDE ------------
     inside_msg = messages.get(2)
     check(inside_msg is not None and not is_error(inside_msg),
           "temoin : chemin dans le perimetre -- isError absent",
@@ -185,7 +185,7 @@ try:
           "temoin : chemin dans le perimetre -- le contenu est rendu",
           result_text(inside_msg)[:200])
 
-    # --- Oracle : le chemin DEHORS ---------------------------------------
+    # --- Oracle: the path OUTSIDE ----------------------------------------
     outside_msg = messages.get(3)
     check(outside_msg is not None and "error" not in (outside_msg or {}),
           "lecture hors perimetre : ce n'est PAS une erreur JSON-RPC",
@@ -199,7 +199,7 @@ try:
     check(os.path.abspath(ws) in text,
           "lecture hors perimetre : le texte nomme les dossiers autorises", text[:300])
 
-    # --- Oracle : le lien qui s'echappe ----------------------------------
+    # --- Oracle: the link that escapes -----------------------------------
     if link_kind:
         escape_msg = messages.get(4)
         check(is_error(escape_msg),
@@ -212,23 +212,23 @@ try:
     else:
         skip("lien non creable sur ce systeme", "lien qui s'echappe")
 
-    # --- L'ecriture refusee n'ecrit rien ---------------------------------
+    # --- The refused write writes nothing --------------------------------
     write_msg = messages.get(5)
     check(is_error(write_msg) and not os.path.exists(os.path.join(outside, "w.txt")),
           "ecriture hors perimetre : refus lisible, rien d'ecrit",
           json.dumps(write_msg, ensure_ascii=False)[:300])
 
-    # --- Un defaut de PROTOCOLE reste une erreur JSON-RPC ----------------
+    # --- A PROTOCOL defect remains a JSON-RPC error ----------------------
     unknown = messages.get(6)
     check(((unknown or {}).get("error") or {}).get("code") == -32601,
           "outil inconnu : reste une erreur JSON-RPC (-32601), pas un resultat",
           json.dumps(unknown, ensure_ascii=False)[:300])
 
-    # --- La sortie standard ne porte que du JSON-RPC ---------------------
+    # --- Standard output carries only JSON-RPC ---------------------------
     stray = [l for l in raw.splitlines() if l.strip() and not l.strip().startswith('{"jsonrpc"')]
     check(not stray, "sortie standard : seulement du JSON-RPC", " | ".join(stray[:3]))
 
-    # --- Temoin : le meme appel, dehors AUTORISE, passe ------------------
+    # --- Control: the same call, outside AUTHORIZED, passes --------------
     messages2, _, _ = play(requests, [ws, outside])
     check(not is_error(messages2.get(3)) and "dehors" in result_text(messages2.get(3)),
           "temoin : dehors autorise, la meme lecture passe sans isError",

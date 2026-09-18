@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
-# Serveur MCP du Vault, injection et contenance (Mission 184, Decision
+# The Vault's MCP server, injection and containment (Mission 184, Decision
 # 2026-09-17-000545 A6).
 #
-#   (g) serveur  : initialize, tools/list, list_allowed_directories (commit du
-#                  Vault = git rev-parse HEAD), lecture et ecriture dedans,
-#                  refus dehors, refus d'un lien qui s'echappe (jonction sous
-#                  Windows, lien symbolique ailleurs). Temoin : le meme
-#                  serveur, dehors autorise, lit ce qu'il refusait.
-#   (h) injection sur un profil SIMULE (HOME, APPDATA, LOCALAPPDATA rediriges,
-#                  `claude` et `codex` remplaces par des substituts en tete du
-#                  PATH) : trois configurations au chemin mesure, autres
-#                  serveurs conserves, second passage sans aucun changement.
-#                  Temoin : une configuration alteree est vue et retablie.
-#   (i) contenance : PASS pour un projet de l'espace de travail, FAIL pour un
-#                  projet hors de lui et pour une configuration sans serveur.
+#   (g) server   : initialize, tools/list, list_allowed_directories (Vault
+#                  commit = git rev-parse HEAD), read and write inside,
+#                  refusal outside, refusal of a link that escapes (junction under
+#                  Windows, symbolic link elsewhere). Control: the same
+#                  server, with outside authorized, reads what it refused.
+#   (h) injection on a SIMULATED profile (HOME, APPDATA, LOCALAPPDATA redirected,
+#                  `claude` and `codex` replaced by stand-ins at the head of the
+#                  PATH): three configurations at the measured path, other
+#                  servers kept, second pass without any change.
+#                  Control: an altered configuration is seen and restored.
+#   (i) containment: PASS for a project of the workspace, FAIL for a
+#                  project outside it and for a configuration without the server.
 #
-# Jamais le profil reel : tout vit sous un dossier temporaire (prefixe m184).
+# Never the real profile: everything lives under a temporary folder (prefix m184).
 #
 # usage: bash tests/test-vault-mcp.sh
-# Code 0 : tous les cas PASS (ou SKIP nomme). Code 1 sinon.
+# Exit 0: all cases PASS (or named SKIP). Exit 1 otherwise.
 
 set -u
 
@@ -54,8 +54,8 @@ if [ -n "${APPDATA:-}" ]; then
     REAL_DESKTOP="$APPDATA/Claude/claude_desktop_config.json"
   fi
 fi
-# uv garde ses Pythons et son cache hors du profil simule (sinon il en
-# telechargerait un neuf dans le dossier redirige).
+# uv keeps its Pythons and its cache outside the simulated profile (otherwise it
+# would download a fresh one into the redirected folder).
 UV_PYTHON_INSTALL_DIR="$(uv python dir 2>/dev/null | tr -d '\r')"
 UV_CACHE_DIR="$(uv cache dir 2>/dev/null | tr -d '\r')"
 export UV_PYTHON_INSTALL_DIR UV_CACHE_DIR
@@ -116,12 +116,12 @@ done
 check "(g) tools/list : dix outils${MISSING_TOOLS:+ (manquants :$MISSING_TOOLS)}" [ -z "$MISSING_TOOLS" ]
 check "(g) list_allowed_directories : commit du Vault = git rev-parse HEAD" has "$(line_of 3)" "Vault commit: $HEAD_SHA"
 check "(g) lecture dedans : PASS" has "$(line_of 4)" '"text": "dedans'
-# Mission 185-C01, porte 3 : un echec d'EXECUTION d'outil n'est plus une
-# erreur JSON-RPC (-32001) mais un RESULTAT porteur de isError, dont le
-# texte nomme le chemin ET les dossiers autorises -- c'est la seule forme
-# que l'application de bureau rend telle quelle. L'oracle se resserre :
-# il exige desormais les deux faits, pas seulement un code.
-# tests/test-vault-mcp-refusal-message.py mesure la forme en detail.
+# Mission 185-C01, door 3: a tool EXECUTION failure is no longer a
+# JSON-RPC error (-32001) but a RESULT carrying isError, whose
+# text names the path AND the authorized folders -- it is the only form
+# that the desktop application displays as is. The oracle tightens:
+# it now requires both facts, not just a code.
+# tests/test-vault-mcp-refusal-message.py measures the form in detail.
 check "(g) lecture dehors : resultat isError nommant le chemin et le perimetre" sh -c 'case "$1" in *"s.txt"*"Dossiers autorisés"*"\"isError\": true"*) exit 0;; *) exit 1;; esac' _ "$(line_of 5)"
 if [ -n "$LINK_KIND" ]; then
   check "(g) $LINK_KIND qui s'echappe : refus" sh -c 'case "$1" in *"\"isError\": true"*) exit 0;; *) exit 1;; esac' _ "$(line_of 6)"
@@ -174,8 +174,8 @@ printf '{\n  "mcpServers": {\n    "autre": {"command": "autre", "args": ["x"]}\n
 printf 'model = "garde"\n\n[mcp_servers.autre]\ncommand = "autre"\nargs = ["x"]\n' > "$PROFILE/.codex/config.toml"
 printf '{"mcpServers": {"autre": {"type": "stdio", "command": "autre", "args": ["x"], "env": {}}}, "numStartups": 3}\n' > "$PROFILE/.claude.json"
 
-# Substituts : `claude mcp get|add|remove` et `codex mcp get|add|remove`,
-# ecrivant la configuration utilisateur simulee et journalisant chaque appel.
+# Stand-ins: `claude mcp get|add|remove` and `codex mcp get|add|remove`,
+# writing the simulated user configuration and logging each call.
 cat > "$TMP/h/stub.py" <<'PY'
 import json, os, sys
 tool = sys.argv[1]
@@ -230,7 +230,7 @@ check "(h) substituts en tete du PATH (jamais les vrais outils)" sh -c "[ \"\$(c
 
 OUT_H1="$(bash "$V/tools/install-vault-mcp.sh" "$WS" --lang FR 2>&1)"
 check "(h) premier passage rend 0" [ "$?" = "0" ]
-# Forme ecrite par l'injection : chemin natif du systeme (C:\... sous Windows).
+# Form written by the injection: the system's native path (C:\... under Windows).
 if command -v cygpath >/dev/null 2>&1; then
   WS_H_N="$(cygpath -w "$WS")"
 else

@@ -1,37 +1,37 @@
 #!/usr/bin/env bash
-# T2 (Mission 185-C01, porte 2 de la capture 2026-09-17-144137) :
-# l'origine gravee par l'installation est l'origine REELLE du depot, jamais
-# le dossier temporaire par lequel il est passe.
+# T2 (Mission 185-C01, door 2 of capture 2026-09-17-144137):
+# the origin engraved by the installation is the REAL origin of the repository, never
+# the temporary folder it passed through.
 #
-# Defaut mesure sur le poste de l'Owner : `vault_origin` -- dans
-# VAULT-IDENTITY.md, dans le marqueur VAULT-ROOT.md et dans l'acte de
-# naissance de chaque projet -- valait
-# C:\Users\...\AppData\Local\Temp\second-brain-install, comme `origin` du
-# clone installe. Cause : le bootstrap clone dans un dossier temporaire,
-# l'installeur clone DEPUIS ce dossier, et personne ne reparlait de l'ou
-# tout vient. Un Vault qui ne sait pas d'ou il vient ne peut ni se mettre a
-# jour ni prouver sa provenance.
+# Defect measured on the Owner's machine: `vault_origin` -- in
+# VAULT-IDENTITY.md, in the VAULT-ROOT.md marker and in each project's birth
+# certificate -- was
+# C:\Users\...\AppData\Local\Temp\second-brain-install, like `origin` of the
+# installed clone. Cause: the bootstrap clones into a temporary folder,
+# the installer clones FROM that folder, and nobody spoke again of where
+# everything comes from. A Vault that does not know where it comes from can neither
+# update itself nor prove its provenance.
 #
-# Oracle (PASS attendu) : source portant un remote -> `vault_origin` dans
-# VAULT-IDENTITY.md, dans le marqueur et dans l'acte du premier projet vaut
-# l'URL de ce remote ; `git -C <clone installe> remote get-url origin` rend
-# la meme URL.
-# Temoin negatif (dans ce meme fichier) : source SANS remote -> repli sur
-# le chemin de la source, et le message est RENDU au participant, jamais
-# pose en silence.
+# Oracle (PASS expected): source carrying a remote -> `vault_origin` in
+# VAULT-IDENTITY.md, in the marker and in the first project's certificate equals
+# the URL of that remote; `git -C <installed clone> remote get-url origin` returns
+# the same URL.
+# Negative control (in this same file): source WITHOUT a remote -> fallback to
+# the source's path, and the message is SHOWN to the participant, never
+# set silently.
 #
-# Ecrit seulement dans un dossier temporaire (prefixe m185), avec un profil
-# simule (--test-mode --test-root) : rien n'atteint le profil reel. Aucun
-# reseau vers GitHub -- l'URL du remote est declaree, jamais jointe.
+# Writes only in a temporary folder (prefix m185), with a simulated
+# profile (--test-mode --test-root): nothing reaches the real profile. No
+# network to GitHub -- the remote's URL is declared, never reached.
 #
 # usage: bash tests/test-install-vault-origin.sh
-# Code 0 : tous les cas PASS. Code 1 sinon.
+# Exit 0: all cases PASS. Exit 1 otherwise.
 
-# La source de chaque cas est un CLONE de ce depot, jamais une copie de
-# l'arbre de travail : un clone conserve les modes de l'index (le bit
-# d'execution des gardiens, absent de NTFS) et porte VAULT-IDENTITY.md a son
-# etat de squelette -- les deux conditions d'une installation qui va au
-# bout. Ce test mesure donc l'arbre COMMITTE, comme
+# The source of each case is a CLONE of this repository, never a copy of
+# the working tree: a clone keeps the index modes (the execute
+# bit of the guardians, absent from NTFS) and carries VAULT-IDENTITY.md in its
+# skeleton state -- the two conditions of an installation that goes all the
+# way. This test therefore measures the COMMITTED tree, like
 # tests/test-install-e2e.sh.
 
 set -u
@@ -57,21 +57,21 @@ TMP="$(cd "$TMP" && pwd)"
 echo "=== T2 : l'origine gravee est l'origine reelle ==="
 echo "  TestRoot: $TMP"
 
-# L'URL declaree comme remote de la source. Jamais jointe : `git remote add`
-# n'ouvre aucune connexion, et l'installeur clone depuis le DOSSIER.
+# The URL declared as the source's remote. Never reached: `git remote add`
+# opens no connection, and the installer clones from the FOLDER.
 DECLARED_ORIGIN="https://github.com/businesshamiou/second-brain.git"
 
 run_install() {
-  # $1 = racine du cas, $2 = source. Rend la sortie complete (les deux
-  # flux), le code dans $LAST_RC.
+  # $1 = root of the case, $2 = source. Returns the full output (both
+  # streams), the code in $LAST_RC.
   mkdir -p "$1"
   sed "s#\"workspacePath\": \"[^\"]*\"#\"workspacePath\": \"$1/workspace\"#" \
     "$REPO_ROOT/tests/fixtures/install-answers.sample.json" > "$1/answers.json"
   LAST_OUT="$(bash "$REPO_ROOT/install.sh" --source "$2" --answers-file "$1/answers.json" \
     --test-mode --test-root "$1" 2>&1)"
   LAST_RC=$?
-  # uv pose par l'installeur sous son propre profil de test : remis sur le
-  # PATH de ce processus pour les mesures qui suivent (meme motif que
+  # uv installed by the installer under its own test profile: put back on
+  # this process's PATH for the measurements that follow (same reason as
   # tests/test-install-e2e.sh).
   [ -d "$1/profile/.local/bin" ] && PATH="$1/profile/.local/bin:$PATH" && export PATH
   return "$LAST_RC"
@@ -81,9 +81,9 @@ run_install() {
 echo ""
 echo "=== (a) oracle : source portant un remote ==="
 SRC_A="$TMP/source-a"
-# Mission 188 : copie du clone de reference partage, au meme commit que ce
-# depot (HEAD remesure par sandbox_reference_clone), au lieu d'un clone
-# fait par ce seul test. Le remote est repose juste apres, comme avant.
+# Mission 188: copy of the shared reference clone, at the same commit as this
+# repository (HEAD re-measured by sandbox_reference_clone), instead of a clone
+# made by this test alone. The remote is set again right after, as before.
 REF_CLONE="$(sandbox_reference_clone "$REPO_ROOT")" || { echo "FAIL : clone de reference non construit"; exit 1; }
 if ! git clone --quiet -- "$REF_CLONE" "$SRC_A" >/dev/null 2>&1; then
   echo "FAIL : source (clone de ce depot) non construite"
@@ -140,8 +140,8 @@ else
   fail "(a) aucun acte de naissance trouve : le premier projet n'a pas ete cree"
 fi
 
-# Le defaut d'origine est nomme : le chemin du dossier source ne doit
-# apparaitre nulle part comme origine.
+# The origin defect is named: the source folder's path must
+# appear nowhere as an origin.
 if [ -n "$(vid_get "$CLONE_A" vault_origin)" ] && ! printf '%s' "$GOT_IDENTITY" | grep -q 'second-brain-install'; then
   pass "(a) aucune trace du dossier temporaire dans vault_origin"
 else
@@ -176,13 +176,13 @@ if [ -n "$ORIGIN_B" ]; then
 else
   fail "temoin : vault_origin est vide"
 fi
-# Le repli est le CHEMIN de la source, pas une invention.
+# The fallback is the source's PATH, not an invention.
 if printf '%s' "$ORIGIN_B" | grep -qF -- "$(basename "$SRC_B_REAL")"; then
   pass "temoin : le repli est bien le chemin de la source"
 else
   fail "temoin : le repli ($ORIGIN_B) ne nomme pas la source ($SRC_B_REAL)"
 fi
-# ... et il est DIT, jamais pose en silence.
+# ... and it is SAID, never set silently.
 MESSAGE="$(uv run --no-project "$REPO_ROOT/tools/sb_installer_helper.py" format-catalog \
   "$REPO_ROOT/i18n/catalog.en.json" "install.vaultOrigin.fallback" "$SRC_B_REAL" 2>/dev/null | head -n 1)"
 MARKER_WORDS="$(printf '%s' "$MESSAGE" | sed 's/[^A-Za-z ].*$//' | head -n 1)"

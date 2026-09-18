@@ -1,31 +1,31 @@
 #!/usr/bin/env bash
-# T2 (Mission 186, etape 5) : le bloc RELAY a une SOURCE UNIQUE --
-# DECISION-2026-09-17-201623, volet B1 : « Toute Mission, tout skill, tout
-# gabarit, toute charte [renvoie a la regle 124937] et n'en redit ni les
-# rubriques ni le nombre de lignes. Toute redite est une copie de doctrine
-# a retirer. »
+# T2 (Mission 186, step 5): the RELAY block has a SINGLE SOURCE --
+# DECISION-2026-09-17-201623, part B1: "Every Mission, every skill, every
+# template, every charter [points to rule 124937] and restates neither its
+# headings nor its number of lines. Any restatement is a copy of doctrine
+# to be removed." (translated from French)
 #
-# Deux controles :
-#   1. La grammaire exacte du bloc RELAY (l'en-tete « RELAY <NNN> » et les
-#      sept rubriques litterales, avec leur espacement exact) est extraite
-#      DEPUIS rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md
-#      lui-meme -- jamais recopiee a la main ici, pour ne jamais diverger
-#      silencieusement de la source si elle change. Elle ne doit apparaitre
-#      NULLE PART ailleurs dans le corpus distribue (meme perimetre que
-#      T1 : rules/, skills/, templates/, README.md, INSTALL.md, tools/,
-#      i18n/, hors decisions/*.md historiques).
-#   2. Les pieces qui PARLENT du RELAY sans en etre la source
+# Two checks:
+#   1. The exact grammar of the RELAY block (the header « RELAY <NNN> » and the
+#      seven literal headings, with their exact spacing) is extracted
+#      FROM rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md
+#      itself -- never copied by hand here, so as never to diverge
+#      silently from the source if it changes. It must appear
+#      NOWHERE else in the distributed corpus (same perimeter as
+#      T1: rules/, skills/, templates/, README.md, INSTALL.md, tools/,
+#      i18n/, excluding the historical decisions/*.md).
+#   2. The pieces that TALK ABOUT the RELAY without being its source
 #      (skills/session-close/SKILL.md, skills/ecriture-de-mission/SKILL.md)
-#      portent un renvoi nominatif -- la chaine "124937" -- au lieu de
-#      redire la grammaire.
+#      carry a pointer by name -- the string "124937" -- instead of
+#      restating the grammar.
 #
-# Rerun avec une commande, depuis la racine du depot :
+# Rerun with one command, from the repository root:
 #   bash tests/test-relay-single-source.sh
 #
-# Exit 0 : la grammaire RELAY n'apparait que dans sa source, les deux
-# skills renvoient nommement a la regle 124937, et le temoin negatif
-# prouve que la detection sait echouer sur une copie qui redit la
-# grammaire. Exit 1 sinon, fichier et ligne imprimes.
+# Exit 0: the RELAY grammar appears only in its source, both
+# skills point by name to rule 124937, and the negative control
+# proves that the detection can fail on a copy that restates the
+# grammar. Exit 1 otherwise, file and line printed.
 
 set -u
 
@@ -59,11 +59,11 @@ if [ ! -f "$REPO_ROOT/$SOURCE_FILE" ]; then
   exit 1
 fi
 
-# extract_relay_labels <regle-124937> : rend, une ligne par rubrique,
-# l'en-tete « RELAY <NNN> » puis chaque libelle exact (« Rapport   : »,
-# « Verdict   : », etc., espacement inclus) tel qu'il vit DANS la source --
-# jamais retape a la main. Le bloc source est le fencing ```text .. ```` a
-# l'interieur de la citation Markdown (prefixe "> ") du sens retour.
+# extract_relay_labels <regle-124937>: returns, one line per heading,
+# the header « RELAY <NNN> » then each exact label (« Rapport   : »,
+# « Verdict   : », etc., spacing included) as it lives IN the source --
+# never retyped by hand. The source block is the ```text .. ```` fencing
+# inside the Markdown quote (prefix "> ") of the return direction.
 extract_relay_labels() {
   awk '
     /^> ```text[[:space:]]*$/ { grab=1; next }

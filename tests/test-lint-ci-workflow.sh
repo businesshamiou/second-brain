@@ -3,7 +3,8 @@
 # structural YAML/GitHub Actions lint fallback, chosen because `actionlint`
 # and `shellcheck` are both absent from this machine (measured, ticket 10
 # report) and the ticket's own fallback clause is "analyse YAML par uv run +
-# bibliotheque standard" -- not a third-party YAML parser.
+# bibliotheque standard" ["YAML analysis by uv run + standard library"] --
+# not a third-party YAML parser.
 #
 # Cases:
 #   1. a well-formed minimal workflow passes (exit 0).
@@ -16,8 +17,8 @@
 #      test-third-party-licenses.sh case 3.
 #
 # usage: tests/test-lint-ci-workflow.sh
-# sortie : "PASS: 6/6 cas conformes" (exit 0) ou "FAIL: <n> cas non
-# conformes" (exit 1), meme convention que test-check-links-cross-repo.sh.
+# output: "PASS: 6/6 cas conformes" (exit 0) or "FAIL: <n> cas non
+# conformes" (exit 1), same convention as test-check-links-cross-repo.sh.
 
 set -u
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Main end-to-end test of install.sh (Mission 168, ticket 08; spec, Testing
-# Decisions -- "point de controle principal"), shell parity with
+# Decisions -- "point de controle principal" ["main checkpoint"]), shell parity with
 # tests/test-install-e2e.ps1 (tickets 03/04/07).
 #
 # Rerun this exact test with one command, from the repository root:
@@ -86,10 +86,10 @@ echo "  verdict: $VERDICT1"
 [ "$EXIT1" = "0" ]; assert_true "$?" "first run exits 0"
 case "$VERDICT1" in *"Installation complete"*) r=0 ;; *) r=1 ;; esac
 assert_true "$r" "first run verdict reports success"
-# Comparaison arithmetique, jamais de chaine : le wc de BSD (macOS) aligne
-# son compte a droite -- « 1 » y sort precede d'espaces -- et l'egalite de
-# chaine echouait alors que l'installeur avait bien ecrit une seule ligne
-# (Mission 180, tour 3).
+# Arithmetic comparison, never a string one: BSD wc (macOS) right-aligns
+# its count -- « 1 » comes out there preceded by spaces -- and the string
+# equality failed even though the installer had indeed written a single line
+# (Mission 180, round 3).
 LINE_COUNT="$(printf '%s\n' "$VERDICT1" | wc -l)"
 [ "$LINE_COUNT" -eq 1 ]; assert_true "$?" "silent mode (--answers-file) prints exactly one line, never a question"
 case "$VERDICT1" in *"first name"*|*"assistant"*|*"workspace live"*|*"Question"*) r=1 ;; *) r=0 ;; esac

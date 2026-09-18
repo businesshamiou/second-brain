@@ -1,31 +1,32 @@
 #!/usr/bin/env bash
-# T4 (Mission 186, etape 3 ; Decision 201623 volet C, amende 000545 A4) : le
-# bloc "Instructions du Projet" rendu par tools/project-bootstrap.sh porte
-# le texte COMPLET du tronc commun, pret a coller -- plus seulement un
-# chemin vers le gabarit que le participant devait aller ouvrir lui-meme.
+# T4 (Mission 186, step 3; Decision 201623 part C, amended 000545 A4): the
+# "Instructions du Projet" ["Project instructions"] block returned by
+# tools/project-bootstrap.sh carries
+# the COMPLETE text of the common trunk, ready to paste -- no longer just a
+# path to the template that the participant had to go and open themselves.
 #
-# Quatre familles de cas :
-#   (1) create, sans --order : l'objet rendu retombe sur DISPLAY_NAME
-#       (fallback ${ORDER_PURPOSE:-$DISPLAY_NAME}) ; le tronc commun exact,
-#       le chemin natif, le vault_id et le canari sont tous presents, et le
-#       canari rendu est identique a celui ecrit dans
+# Four families of cases:
+#   (1) create, without --order: the returned purpose falls back to DISPLAY_NAME
+#       (fallback ${ORDER_PURPOSE:-$DISPLAY_NAME}); the exact common trunk,
+#       the native path, the vault_id and the canary are all present, and the
+#       returned canary is identical to the one written in
 #       <cible>/state/PILOT-PROMPT.md.
-#   (2) --order avec un Objet renseigne : l'objet rendu est celui de
-#       l'ordre, pas le nom du projet (Nom de l'ordre).
-#   (3) trois langues : les libelles des nouveaux champs changent de langue
-#       (FR/EN/ES) alors que le tronc commun -- texte francais canonique --
-#       reste identique dans les trois cas (il n'est jamais traduit).
-#   (4) temoin negatif : un gabarit jetable prive de <!-- PROMPT:BEGIN -->
-#       fait echouer le script proprement (code de sortie non nul), avec un
-#       message nommant le gabarit fautif, et SANS rendu partiel du bloc
-#       d'instructions (aucune des lignes du bloc, meme son en-tete,
-#       n'apparait dans la sortie).
+#   (2) --order with a filled-in Objet (purpose): the returned purpose is the
+#       order's, not the project's name (Nom of the order).
+#   (3) three languages: the labels of the new fields change language
+#       (FR/EN/ES) while the common trunk -- canonical French text --
+#       stays identical in all three cases (it is never translated).
+#   (4) negative control: a disposable template deprived of <!-- PROMPT:BEGIN -->
+#       makes the script fail cleanly (non-zero exit code), with a
+#       message naming the faulty template, and WITHOUT partial output of the
+#       instructions block (none of the block's lines, not even its header,
+#       appears in the output).
 #
-# Ecrit seulement dans un dossier temporaire (prefixe m186). Aucun appel
-# modele, aucune ecriture hors de ce dossier temporaire.
+# Writes only in a temporary folder (prefix m186). No model
+# call, no write outside this temporary folder.
 #
 # usage: bash tests/test-project-bootstrap-instructions-block.sh
-# Code 0 : tous les cas PASS. Code 1 sinon.
+# Exit 0: all cases PASS. Exit 1 otherwise.
 
 set -u
 
@@ -48,15 +49,15 @@ TMP="$(cd "$TMP" && pwd)"
 
 echo "=== T4 : bloc d'instructions du Projet rendu tel quel ==="
 
-# extract_expected_block <gabarit> : la meme extraction que celle du script
-# (Decision 201623 volet C), rejouee ici independamment -- l'oracle de ce
-# test, jamais une chaine recopiee a la main.
+# extract_expected_block <gabarit>: the same extraction as the script's
+# (Decision 201623 part C), replayed here independently -- the oracle of this
+# test, never a string copied by hand.
 extract_expected_block() {
   tr -d '\r' < "$1" | sed -n '/<!-- PROMPT:BEGIN -->/,/<!-- PROMPT:END -->/p' | sed '1d;$d'
 }
 
-# contains_block <haystack> <needle> : substring, sauts de ligne compris --
-# le pattern d'un `case` bash ne traite pas '\n' specialement.
+# contains_block <haystack> <needle>: substring, line breaks included --
+# the pattern of a bash `case` does not treat '\n' specially.
 contains_block() {
   case "$1" in
     *"$2"*) return 0 ;;
@@ -176,8 +177,8 @@ fi
 echo ""
 echo "=== (3) trois langues : libelles traduits, tronc commun inchange ==="
 declare_lang_case() {
-  # $1 = code langue (FR|EN|ES), $2 = mot distinctif attendu dans le nouveau
-  # champ "chemin du projet" pour cette langue (verifie la Tache 2).
+  # $1 = language code (FR|EN|ES), $2 = distinctive word expected in the new
+  # "project path" field for this language (checks Task 2).
   local lang="$1" needle="$2" dir="$WS/proj-lang-$1" out rc
   out="$(bash "$BOOT" create "$dir" "Projet $1" --vcs none --lang "$lang" 2>&1 </dev/null)"
   rc=$?
@@ -214,8 +215,8 @@ grep -qF '<!-- PROMPT:BEGIN -->' "$TEMPLATE2" && grep -qF '<!-- PROMPT:END -->' 
   && pass "(4) avant sabotage : les deux marqueurs sont presents dans le gabarit jetable" \
   || fail "(4) avant sabotage : marqueur(s) deja absent(s) -- fixture invalide"
 
-# Retire uniquement la ligne du marqueur BEGIN (sabotage du gabarit jetable
-# seulement -- jamais le gabarit du depot reel).
+# Removes only the BEGIN marker line (sabotage of the disposable template
+# only -- never the real repository's template).
 sed -i.bak '/<!-- PROMPT:BEGIN -->/d' "$TEMPLATE2"
 rm -f "$TEMPLATE2.bak"
 grep -qF '<!-- PROMPT:BEGIN -->' "$TEMPLATE2" && fail "(4) sabotage inefficace : PROMPT:BEGIN toujours present" \

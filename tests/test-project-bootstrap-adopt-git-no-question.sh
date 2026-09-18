@@ -1,33 +1,34 @@
 #!/usr/bin/env bash
-# T5 (Mission 185-C01, porte 5 de la capture 2026-09-17-144137) : `--git`
-# VAUT la reponse a la question Git -- elle n'est plus posee.
+# T5 (Mission 185-C01, door 5 of capture 2026-09-17-144137): `--git`
+# IS the answer to the Git question -- it is no longer asked.
 #
-# Defaut mesure sur le poste de l'Owner : `adopt <projet> --git` posait
-# quand meme « Suivre ce projet avec Git ? » avant de traiter `--git`, donc
-# bloquait tout appelant sans terminal (un agent, un script, une session
-# d'installation). Cause lue dans le code : `--git` ne posait que ADD_GIT,
-# consomme bien plus loin ; la variable VCS restait vide au moment de la
+# Defect measured on the Owner's machine: `adopt <projet> --git` still asked
+# « Suivre ce projet avec Git ? » ["Track this project with Git?"] before
+# handling `--git`, and so
+# blocked any caller without a terminal (an agent, a script, an installation
+# session). Cause read in the code: `--git` only set ADD_GIT,
+# consumed much further on; the VCS variable was still empty at the time of the
 # question.
 #
-# Oracle (PASS attendu) :
-#   - `adopt <p> --git` avec l'entree standard FERMEE rend 0 ;
-#   - `.git` et le hook sont poses, l'acte porte `# vcs: git` ;
-#   - l'entree standard n'est PAS lue : la meme commande, alimentee par le
-#     mot « none », rend quand meme `# vcs: git` -- si elle lisait l'entree,
-#     elle ecrirait `# vcs: none` ;
-#   - la question Git n'est pas affichee.
-# Temoin negatif (dans ce meme fichier) : `adopt <p>` SANS `--git` ni
-# `--vcs`, alimente par « none », pose bien la question et ecrit
-# `# vcs: none` -- la question existe toujours quand rien ne la tranche.
+# Oracle (PASS expected):
+#   - `adopt <p> --git` with standard input CLOSED returns 0;
+#   - `.git` and the hook are set, the certificate carries `# vcs: git`;
+#   - standard input is NOT read: the same command, fed the
+#     word « none », still returns `# vcs: git` -- if it read the input,
+#     it would write `# vcs: none`;
+#   - the Git question is not displayed.
+# Negative control (in this same file): `adopt <p>` WITHOUT `--git` or
+# `--vcs`, fed « none », does ask the question and writes
+# `# vcs: none` -- the question still exists when nothing settles it.
 #
-# `pre-commit install` est un substitut enregistreur (meme patron que
-# tests/test-project-initiation.sh) : ce test mesure la question, pas les
-# gardiens.
+# `pre-commit install` is a recording stand-in (same pattern as
+# tests/test-project-initiation.sh): this test measures the question, not the
+# guardians.
 #
-# Ecrit seulement dans un dossier temporaire (prefixe m185).
+# Writes only in a temporary folder (prefix m185).
 #
 # usage: bash tests/test-project-bootstrap-adopt-git-no-question.sh
-# Code 0 : tous les cas PASS. Code 1 sinon.
+# Exit 0: all cases PASS. Exit 1 otherwise.
 
 set -u
 
@@ -73,8 +74,8 @@ fi
 bash "$V/tools/write-marker.sh" "$WS" >/dev/null
 BOOTSTRAP="$V/tools/project-bootstrap.sh"
 
-# La question Git, dans la langue du catalogue par defaut (EN) : lue dans
-# le catalogue, jamais recopiee ici -- une question traduite reste la meme
+# The Git question, in the language of the default catalogue (EN): read from
+# the catalogue, never copied here -- a translated question remains the same
 # question.
 QUESTION="$(uv run --no-project "$V/tools/sb_installer_helper.py" format-catalog \
   "$V/i18n/catalog.en.json" "projectBootstrap.question.git" "none" 2>/dev/null | head -n 1)"
@@ -124,8 +125,8 @@ esac
 # =============================================================================
 echo ""
 echo "=== (b) adopt --git, entree standard qui dirait « none » ==="
-# Si le script lisait l'entree standard, ce mot deviendrait la reponse et
-# l'acte porterait # vcs: none. C'est le coeur de la porte 5.
+# If the script read standard input, this word would become the answer and
+# the certificate would carry # vcs: none. This is the heart of door 5.
 P_B="$WS/projet-b"
 new_folder "$P_B"
 OUT_B="$(printf 'none\n' | bash "$BOOTSTRAP" adopt "$P_B" "Projet B" --git 2>&1)"

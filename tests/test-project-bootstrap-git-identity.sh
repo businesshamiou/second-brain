@@ -1,33 +1,33 @@
 #!/usr/bin/env bash
-# T4 (Mission 185-C01, porte 4 de la capture 2026-09-17-144137) : tout
-# depot Git cree ou repris par tools/project-bootstrap.sh porte une
-# identite d'auteur, donc son premier commit aboutit.
+# T4 (Mission 185-C01, door 4 of capture 2026-09-17-144137): every
+# Git repository created or taken over by tools/project-bootstrap.sh carries an
+# author identity, so its first commit succeeds.
 #
-# Defaut mesure sur le poste de l'Owner : `adopt` faisait `git init` sans
-# identite. Sur un poste sans `user.email` global -- le cas de l'Owner --
-# le premier commit du projet mourait sur « Author identity unknown ».
-# L'installeur, lui, en posait une sur le clone : deux chemins, une seule
-# des deux portes fermee.
+# Defect measured on the Owner's machine: `adopt` ran `git init` without an
+# identity. On a machine without a global `user.email` -- the Owner's case --
+# the project's first commit died on « Author identity unknown ».
+# The installer, for its part, set one on the clone: two paths, only one
+# of the two doors closed.
 #
-# Oracle (PASS attendu) : `create` puis `adopt --git`, avec un HOME vide et
-# AUCUN `user.*` global ni systeme, acceptent un `git commit` dans le
-# projet ; l'identite posee est celle du Vault installe quand il en a une,
-# sinon l'identite neutre de repli, jamais rien.
-# Temoin negatif (dans ce meme fichier) : sur le MEME projet, l'identite
-# locale retiree (`git config --unset`), le meme commit est refuse et le
-# refus nomme « Author identity unknown ».
+# Oracle (PASS expected): `create` then `adopt --git`, with an empty HOME and
+# NO global or system `user.*`, accept a `git commit` in the
+# project; the identity set is the installed Vault's when it has one,
+# otherwise the neutral fallback identity, never nothing.
+# Negative control (in this same file): on the SAME project, with the local
+# identity removed (`git config --unset`), the same commit is refused and the
+# refusal names « Author identity unknown ».
 #
-# Les gardiens ne sont pas le sujet ici : `pre-commit install` est un
-# substitut enregistreur (meme patron que tests/test-project-initiation.sh)
-# et les commits de mesure tournent avec un dossier de hooks vide. Ce que
-# ce test mesure est l'identite d'auteur, rien d'autre ; les gardiens sont
-# mesures par tests/test-githooks-run-on-commit.sh.
+# The guardians are not the subject here: `pre-commit install` is a
+# recording stand-in (same pattern as tests/test-project-initiation.sh)
+# and the measurement commits run with an empty hooks folder. What
+# this test measures is the author identity, nothing else; the guardians are
+# measured by tests/test-githooks-run-on-commit.sh.
 #
-# Ecrit seulement dans un dossier temporaire (prefixe m185). Aucun appel
-# modele, aucun reseau.
+# Writes only in a temporary folder (prefix m185). No model
+# call, no network.
 #
 # usage: bash tests/test-project-bootstrap-git-identity.sh
-# Code 0 : tous les cas PASS (ou SKIP nomme). Code 1 sinon.
+# Exit 0: all cases PASS (or named SKIP). Exit 1 otherwise.
 
 set -u
 
@@ -50,7 +50,7 @@ TMP="$(mktemp -d "${TMPDIR:-/tmp}/m185-ident-XXXXXX")"
 trap 'rm -rf "$TMP"' EXIT
 TMP="$(cd "$TMP" && pwd)"
 
-# --- Substitut de pre-commit : `install` pose un hook, rien d'autre. ------
+# --- pre-commit stand-in: `install` sets a hook, nothing else. ------------
 mkdir -p "$TMP/bin"
 cat > "$TMP/bin/pre-commit" <<'STUB'
 #!/usr/bin/env bash
@@ -66,10 +66,10 @@ chmod +x "$TMP/bin/pre-commit"
 PATH="$TMP/bin:$PATH"
 export PATH
 
-# --- Un poste SANS identite Git globale ni systeme -----------------------
-# GIT_CONFIG_GLOBAL/GIT_CONFIG_SYSTEM plutot que HOME seul : sous Windows,
-# Git lit aussi %USERPROFILE% et une configuration systeme posee par
-# l'installateur -- rediriger HOME ne suffit pas a prouver l'absence.
+# --- A machine WITHOUT a global or system Git identity -------------------
+# GIT_CONFIG_GLOBAL/GIT_CONFIG_SYSTEM rather than HOME alone: under Windows,
+# Git also reads %USERPROFILE% and a system configuration set by
+# the Git installer -- redirecting HOME is not enough to prove the absence.
 mkdir -p "$TMP/home" "$TMP/emptyhooks"
 : > "$TMP/home/.gitconfig-empty"
 export HOME="$TMP/home"
@@ -81,8 +81,8 @@ unset GIT_AUTHOR_NAME GIT_AUTHOR_EMAIL GIT_COMMITTER_NAME GIT_COMMITTER_EMAIL 2>
 
 EMPTY_HOOKS="$TMP/emptyhooks"
 
-# control_no_global_identity : sans ce controle, tout le test ne prouve
-# rien -- il mesurerait un poste qui a deja une identite globale.
+# control_no_global_identity: without this check, the whole test proves
+# nothing -- it would measure a machine that already has a global identity.
 if [ -z "$(git config --global --get user.email 2>/dev/null || true)" ] \
    && [ -z "$(git config --global --get user.name 2>/dev/null || true)" ]; then
   pass "controle : ce test tourne bien sans identite Git globale"
@@ -90,8 +90,8 @@ else
   fail "controle : une identite Git globale est encore visible -- le test ne prouverait rien"
 fi
 
-# try_commit <projet> <message> [config...] : commit de mesure, gardiens
-# ecartes. Rend le code de sortie et laisse la sortie complete dans
+# try_commit <projet> <message> [config...]: measurement commit, guardians
+# set aside. Returns the exit code and leaves the full output in
 # $LAST_COMMIT_OUT.
 LAST_COMMIT_OUT=""
 try_commit() {
@@ -101,7 +101,7 @@ try_commit() {
 }
 
 build_vault() {
-  # $1 = destination du Vault jetable, $2 = 1 pour lui retirer son identite
+  # $1 = destination of the disposable Vault, $2 = 1 to remove its identity
   sandbox_vault "$REPO_ROOT" "$1" || return 1
   if [ "$2" = "1" ]; then
     git -C "$1" config --unset user.name >/dev/null 2>&1 || true
@@ -196,16 +196,16 @@ fi
 # =============================================================================
 echo ""
 echo "=== temoin negatif : identite locale retiree -> commit refuse ==="
-# Le MEME projet, le MEME commit, la seule identite en moins.
+# The SAME project, the SAME commit, only the identity missing.
 #
-# `user.useConfigOnly=true` : sans lui, ce temoin ne mesure pas la meme
-# chose partout. Quand aucune identite n'est configuree, Git en DEVINE une
-# a partir du compte et du nom de machine s'il le peut -- ce qu'il fait sur
-# le runner macOS (mesure, Mission 185-C01, tour 2 : le commit passait) et
-# ce qu'il ne pouvait pas faire sur le poste de l'Owner, ou le defaut s'est
-# manifeste. Ce reglage desactive la devinette : la condition mesuree
-# devient « aucune identite configuree » sur les trois systemes, ce que la
-# porte 4 corrige. Pose sur la commande seule (-c), jamais dans le depot.
+# `user.useConfigOnly=true`: without it, this control does not measure the same
+# thing everywhere. When no identity is configured, Git GUESSES one
+# from the account and the machine name if it can -- which it does on
+# the macOS runner (measured, Mission 185-C01, round 2: the commit went through) and
+# which it could not do on the Owner's machine, where the defect
+# showed up. This setting disables the guessing: the measured condition
+# becomes « aucune identite configuree » ["no identity configured"] on the
+# three systems, which door 4 fixes. Set on the command only (-c), never in the repository.
 printf '\nUne ligne de plus.\n' >> "$P_A/README.md"
 git -C "$P_A" config --unset user.name >/dev/null 2>&1 || true
 git -C "$P_A" config --unset user.email >/dev/null 2>&1 || true

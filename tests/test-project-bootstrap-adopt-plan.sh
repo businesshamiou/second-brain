@@ -1,24 +1,25 @@
 #!/usr/bin/env bash
-# T8 (Mission 185-C01, porte 11 de la capture 2026-09-17-144137) : le plan
-# de reorganisation propose par `adopt` ne parle que de L'EXISTANT.
+# T8 (Mission 185-C01, door 11 of capture 2026-09-17-144137): the
+# reorganisation plan proposed by `adopt` speaks only of what ALREADY EXISTS.
 #
-# Defaut mesure sur le poste de l'Owner : le plan proposait « deplacer
-# index.md vers knowledge/index.md » -- pour l'index que le meme appel
-# venait d'ecrire. Un plan qui propose de ranger ce qu'il vient de poser
-# apprend au participant a ne plus le lire.
+# Defect measured on the Owner's machine: the plan proposed « deplacer
+# index.md vers knowledge/index.md » ["move index.md to knowledge/index.md"]
+# -- for the index that the same call
+# had just written. A plan that proposes to file away what it has just set
+# teaches the participant to stop reading it.
 #
-# Oracle (PASS attendu) : aucun fichier ajoute par CET appel (ceux que le
-# script annonce lui-meme comme ajoutes : index.md, CLAUDE.md, AGENTS.md,
-# README.md...) n'apparait dans le plan.
-# Temoin negatif (dans ce meme fichier) : un fichier qui existait AVANT et
-# n'est pas a sa place (MISSION-*.md a la racine) est, lui, toujours
-# propose au deplacement -- sans quoi ce test passerait aussi sur un plan
-# devenu muet.
+# Oracle (PASS expected): no file added by THIS call (those that the
+# script itself announces as added: index.md, CLAUDE.md, AGENTS.md,
+# README.md...) appears in the plan.
+# Negative control (in this same file): a file that existed BEFORE and
+# is not in its place (MISSION-*.md at the root) is, for its part, still
+# proposed for moving -- otherwise this test would also pass on a plan
+# that had gone silent.
 #
-# Ecrit seulement dans un dossier temporaire (prefixe m185).
+# Writes only in a temporary folder (prefix m185).
 #
 # usage: bash tests/test-project-bootstrap-adopt-plan.sh
-# Code 0 : tous les cas PASS. Code 1 sinon.
+# Exit 0: all cases PASS. Exit 1 otherwise.
 
 set -u
 
@@ -65,8 +66,8 @@ bash "$V/tools/write-marker.sh" "$WS" >/dev/null
 BOOTSTRAP="$V/tools/project-bootstrap.sh"
 CATALOG="$V/i18n/catalog.en.json"
 
-# Les bornes du plan, lues au catalogue : le plan est ce qui vit entre
-# elles, jamais un compte de lignes.
+# The bounds of the plan, read from the catalogue: the plan is what lives between
+# them, never a line count.
 PLAN_HEADER="$(uv run --no-project "$V/tools/sb_installer_helper.py" format-catalog "$CATALOG" "projectBootstrap.adopt.planHeader" 2>/dev/null | head -n 1)"
 PLAN_FOOTER="$(uv run --no-project "$V/tools/sb_installer_helper.py" format-catalog "$CATALOG" "projectBootstrap.adopt.planFooter" 2>/dev/null | head -n 1)"
 if [ -n "$PLAN_HEADER" ] && [ -n "$PLAN_FOOTER" ]; then
@@ -75,7 +76,7 @@ else
   fail "controle : bornes du plan illisibles -- le test ne prouverait rien"
 fi
 
-# --- Un dossier existant : deux fichiers, dont un mal range --------------
+# --- An existing folder: two files, one of them misfiled ------------------
 P="$WS/projet"
 mkdir -p "$P"
 printf '# notes\n\nDu texte.\n' > "$P/notes.md"
@@ -93,10 +94,10 @@ else
   fail "aucun plan rendu -- $(printf '%s' "$OUT" | tail -n 5)"
 fi
 
-# --- Oracle : rien de ce que cet appel vient d'ajouter dans le plan ------
-# La liste des ajouts est celle que le script annonce lui-meme, plus les
-# fichiers que ce test a vus apparaitre a la racine. Les deux sources sont
-# croisees : le plan ne parle d'aucun des deux.
+# --- Oracle: nothing this call has just added is in the plan -------------
+# The list of additions is the one the script itself announces, plus the
+# files this test saw appear at the root. The two sources are
+# cross-checked: the plan speaks of neither.
 AFTER_LIST="$(cd "$P" && ls -1)"
 ADDED_AT_ROOT=""
 while IFS= read -r f; do
@@ -132,21 +133,21 @@ else
   fail "le plan propose de ranger ce que cet appel vient d'ecrire :$OFFENDERS"
 fi
 
-# index.md est le cas exact de la porte 11 : nomme, en plus du balayage.
+# index.md is the exact case of door 11: named, on top of the sweep.
 if printf '%s' "$PLAN" | grep -q 'index.md'; then
   fail "le plan parle encore de index.md (porte 11)"
 else
   pass "le plan ne parle plus de index.md (porte 11)"
 fi
 
-# --- Temoin negatif : l'existant mal range reste propose ----------------
+# --- Negative control: what exists and is misfiled is still proposed ----
 if printf '%s' "$PLAN" | grep -qF 'MISSION-001-essai.md'; then
   pass "temoin : un fichier existant mal range (MISSION-001-essai.md) est toujours propose au deplacement"
 else
   fail "temoin : le plan ne propose plus MISSION-001-essai.md -- il est devenu muet"
 fi
 
-# Rien n'est applique : le fichier est toujours a la racine.
+# Nothing is applied: the file is still at the root.
 if [ -f "$P/MISSION-001-essai.md" ] && [ ! -e "$P/missions/MISSION-001-essai.md" ]; then
   pass "temoin : le plan est propose, jamais applique"
 else

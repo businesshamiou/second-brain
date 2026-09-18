@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Workspace-path validation test for install.sh (Mission 171-C01, step 3;
-# spec -- "L'espace de travail n'est accepte que si le chemin est absolu et
-# hors du depot source ; sinon message qui nomme la cause, propose un
-# chemin valide, et repose la question. oui, non, y, n et une chaine vide
-# sont refuses comme chemins.").
+# spec -- "The workspace is accepted only if the path is absolute and
+# outside the source repository; otherwise a message that names the cause,
+# proposes a valid path, and asks the question again. oui, non, y, n and an
+# empty string are refused as paths." (translated from French)).
 #
 # Rerun this exact test with one command, from the repository root:
 #

@@ -1,34 +1,34 @@
 #!/usr/bin/env bash
-# Initiation et adoption de projet (Mission 184, Decision 2026-09-17-000545).
+# Project initiation and adoption (Mission 184, Decision 2026-09-17-000545).
 #
-# Six familles de cas, chacune avec son temoin negatif dans ce fichier :
-#   (a) create        : acte de naissance, vcs, prompt Pilot, bloc a consommer ;
-#                       l'appel historique reste muet et cree toujours l'acte ;
-#                       la forme de l'acte passe `pre-commit validate-config`
-#                       sans avertissement (temoin : une cle de premier niveau
-#                       avertit).
-#   (b) adopt         : rien de modifie, ligne de base, cliquet, plan de
-#                       reorganisation propose et non applique, reparation de
-#                       liens proposee et non appliquee.
-#   (c) deux Vaults   : l'acte gagne ; marqueur seul refuse ; identite
-#                       differente ou absente refusee en nommant les deux.
-#   (d) 214607 D4     : projet copie seul hors de l'espace de travail -- les
-#                       controles par commande rendent un verdict.
-#   (e) vcs: none     : aucun depot, aucun hook, controles par commande ;
-#                       `adopt --git` ajoute depot, hook et epingle active.
-#   (f) ordre         : dossier vide, existant, existant sans Git -> adopte
-#                       sans Mission ; sans ordre -> rien d'ecrit, ordre rendu.
+# Six families of cases, each with its negative control in this file:
+#   (a) create        : birth certificate, vcs, Pilot prompt, block to consume;
+#                       the historical call stays silent and still creates the certificate;
+#                       the certificate's form passes `pre-commit validate-config`
+#                       without a warning (control: a top-level key
+#                       warns).
+#   (b) adopt         : nothing modified, baseline, ratchet, reorganisation
+#                       plan proposed and not applied, link repair
+#                       proposed and not applied.
+#   (c) two Vaults    : the certificate wins; marker alone refused; identity
+#                       different or absent refused, naming both.
+#   (d) 214607 D4     : project copied alone outside the workspace -- the
+#                       per-command checks return a verdict.
+#   (e) vcs: none     : no repository, no hook, per-command checks;
+#                       `adopt --git` adds repository, hook and active pin.
+#   (f) order         : empty folder, existing, existing without Git -> adopted
+#                       without a Mission; without an order -> nothing written, order returned.
 #
-# Les gardiens sont joues comme pre-commit les joue (entrees de l'epingle,
-# depuis la racine du projet), pour que le verdict ne depende pas de la
-# presence de pre-commit sur le runner ; `pre-commit install` est un
-# substitut enregistreur place en tete du PATH.
+# The guardians are run the way pre-commit runs them (entries of the pin,
+# from the project root), so that the verdict does not depend on the
+# presence of pre-commit on the runner; `pre-commit install` is a
+# recording stand-in placed at the head of the PATH.
 #
-# Ecrit seulement dans un dossier temporaire (prefixe m184). Aucun appel
-# modele, aucun reseau hors la verification de forme par pre-commit.
+# Writes only in a temporary folder (prefix m184). No model
+# call, no network apart from the form check by pre-commit.
 #
 # usage: bash tests/test-project-initiation.sh
-# Code 0 : tous les cas PASS (ou SKIP nomme). Code 1 sinon.
+# Exit 0: all cases PASS (or named SKIP). Exit 1 otherwise.
 
 set -u
 
@@ -56,7 +56,7 @@ TMP="$(mktemp -d "${TMPDIR:-/tmp}/m184-init-XXXXXX")"
 trap 'rm -rf "$TMP"' EXIT
 TMP="$(cd "$TMP" && pwd)"
 
-# --- Substitut de pre-commit : `install` pose un hook, rien d'autre. ------
+# --- pre-commit stand-in: `install` sets a hook, nothing else. ------------
 mkdir -p "$TMP/bin"
 cat > "$TMP/bin/pre-commit" <<'STUB'
 #!/usr/bin/env bash
@@ -90,8 +90,8 @@ echo "  Vault $VID @ $VREF"
 
 git_quiet() { git -c user.name=t -c user.email=t@example.invalid -c commit.gpgsign=false "$@"; }
 
-# run_pin <projet> : joue chaque entree de l'epingle depuis la racine du
-# projet, comme pre-commit ; 0 si toutes passent.
+# run_pin <projet>: runs each entry of the pin from the root of the
+# project, like pre-commit; 0 if they all pass.
 run_pin() {
   local proj="$1" entry rc=0
   while IFS= read -r entry; do
@@ -324,7 +324,7 @@ check "(e) temoin : vcs git sans hook -> la conformite le dit" [ "$r" = "0" ]
 echo ""
 echo "=== (f) ordre d'initiation ==="
 write_order() {
-  # $1 fichier, $2 type, $3 nom, $4 git, $5 vault_id, $6 autorisation, $7 mode
+  # $1 file, $2 type, $3 name, $4 git, $5 vault_id, $6 authorization, $7 mode
   cat > "$1" <<ORDER
 Session Executor — initiation ($3)
 

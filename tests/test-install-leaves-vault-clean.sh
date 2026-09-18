@@ -1,31 +1,31 @@
 #!/usr/bin/env bash
-# T3 (Mission 185-C01, porte 8 de la capture 2026-09-17-144137) : une
-# installation terminee laisse le Vault installe au porcelain VIDE.
+# T3 (Mission 185-C01, door 8 of capture 2026-09-17-144137): a
+# finished installation leaves the installed Vault with an EMPTY porcelain.
 #
-# Defaut mesure sur le poste de l'Owner : apres l'installation, la fiche du
-# premier projet restait non suivie et deux index modifies. Le tout premier
-# commit du participant aurait emporte des fichiers qu'il n'a pas ecrits,
-# et le gardien de fraicheur des index refuse justement un index modifie :
-# le Vault etait livre dans l'etat qu'il interdit.
+# Defect measured on the Owner's machine: after the installation, the first
+# project's record stayed untracked and two indexes modified. The
+# participant's very first commit would have carried files they did not write,
+# and the index freshness guardian precisely refuses a modified index:
+# the Vault was delivered in the state it forbids.
 #
-# Oracle (PASS attendu) : `git status --porcelain` du clone installe est
-# vide a la fin de l'installation -- et une seconde execution ne fabrique
-# aucun commit (la reprise reste un no-op).
-# Temoin negatif (dans ce meme fichier) : une installation INTERROMPUE
-# avant le commit de fin (arret force apres l'etape firstProject) laisse un
-# porcelain NON vide, vu par la meme mesure -- sans quoi ce test passerait
-# aussi sur un depot ou rien ne se serait ecrit.
+# Oracle (PASS expected): `git status --porcelain` of the installed clone is
+# empty at the end of the installation -- and a second run produces
+# no commit (the resume stays a no-op).
+# Negative control (in this same file): an INTERRUPTED installation
+# before the final commit (forced stop after the firstProject step) leaves a
+# NON-empty porcelain, seen by the same measurement -- otherwise this test would
+# also pass on a repository where nothing had been written.
 #
-# La source est un CLONE de ce depot, jamais une copie de l'arbre de
-# travail : un clone conserve les modes de l'index (le bit d'execution des
-# gardiens, absent de NTFS) et porte VAULT-IDENTITY.md a son etat de
-# squelette. Ce test mesure donc l'arbre COMMITTE, comme
+# The source is a CLONE of this repository, never a copy of the working
+# tree: a clone keeps the index modes (the execute bit of the
+# guardians, absent from NTFS) and carries VAULT-IDENTITY.md in its
+# skeleton state. This test therefore measures the COMMITTED tree, like
 # tests/test-install-e2e.sh.
 #
-# Ecrit seulement dans un dossier temporaire (prefixe m185), profil simule.
+# Writes only in a temporary folder (prefix m185), simulated profile.
 #
 # usage: bash tests/test-install-leaves-vault-clean.sh
-# Code 0 : tous les cas PASS. Code 1 sinon.
+# Exit 0: all cases PASS. Exit 1 otherwise.
 
 set -u
 
@@ -50,9 +50,9 @@ echo "=== T3 : le Vault installe est rendu au porcelain vide ==="
 echo "  TestRoot: $TMP"
 
 SRC="$TMP/source"
-# Mission 188 : copie du clone de reference partage, au meme commit que ce
-# depot (HEAD remesure par sandbox_reference_clone), au lieu d'un clone
-# fait par ce seul test.
+# Mission 188: copy of the shared reference clone, at the same commit as this
+# repository (HEAD re-measured by sandbox_reference_clone), instead of a clone
+# made by this test alone.
 REF_CLONE="$(sandbox_reference_clone "$REPO_ROOT")" || { echo "FAIL : clone de reference non construit"; exit 1; }
 if ! git clone --quiet -- "$REF_CLONE" "$SRC" >/dev/null 2>&1; then
   echo "FAIL : source (clone de ce depot) non construite"
@@ -60,7 +60,7 @@ if ! git clone --quiet -- "$REF_CLONE" "$SRC" >/dev/null 2>&1; then
 fi
 
 run_install() {
-  # $1 = racine du cas, $2... = arguments supplementaires pour install.sh.
+  # $1 = root of the case, $2... = extra arguments for install.sh.
   CASE_ROOT="$1"; shift
   mkdir -p "$CASE_ROOT"
   sed "s#\"workspacePath\": \"[^\"]*\"#\"workspacePath\": \"$CASE_ROOT/workspace\"#" \
@@ -105,8 +105,8 @@ else
 $(printf '%s' "$PORC_A" | sed 's/^/      /')"
 fi
 
-# Le premier projet existe bien : sans lui, le porcelain serait vide pour
-# une mauvaise raison et cette mesure ne prouverait rien.
+# The first project does exist: without it, the porcelain would be empty for
+# the wrong reason and this measurement would prove nothing.
 FIRST_PROJECT="$(ls -1d "$R_A"/workspace/*/ 2>/dev/null | grep -v '/second-brain/$' | head -n 1)"
 if [ -n "$FIRST_PROJECT" ]; then
   pass "(a) controle : un premier projet a bien ete cree ($(basename "${FIRST_PROJECT%/}"))"
@@ -114,7 +114,7 @@ else
   fail "(a) controle : aucun premier projet -- la mesure ne prouverait rien"
 fi
 
-# La fiche du projet est SUIVIE, pas laissee de cote.
+# The project's record is TRACKED, not left aside.
 UNTRACKED_RECORD="$(git -C "$CLONE_A" ls-files --others --exclude-standard -- projects/ 2>/dev/null)"
 if [ -z "$UNTRACKED_RECORD" ]; then
   pass "(a) aucune fiche de projet non suivie"
@@ -122,7 +122,7 @@ else
   fail "(a) fiche(s) de projet non suivie(s) : $UNTRACKED_RECORD"
 fi
 
-# Une seconde execution reste un no-op : aucun commit fabrique.
+# A second run stays a no-op: no commit produced.
 HEAD_BEFORE="$(git -C "$CLONE_A" rev-parse HEAD)"
 run_install "$R_A"
 RC_A2=$?
@@ -142,13 +142,13 @@ fi
 # =============================================================================
 echo ""
 echo "=== temoin negatif : l'etat exact de la porte 8, reproduit ==="
-# Un `--stop-after-step` ne suffit PAS a fabriquer ce temoin : chaque etape
-# de l'installeur commite avant son point d'arret, et la mesure tomberait
-# sur un porcelain vide pour une mauvaise raison (mesure ici meme, Mission
-# 185-C01). L'etat de la porte 8 est donc reproduit tel qu'il a ete
-# observe : une fiche de projet ecrite dans le Vault et les index touches,
-# sans le commit qui les enregistre -- ce que fait tout appel a
-# project-bootstrap.sh hors de l'installeur.
+# A `--stop-after-step` is NOT enough to produce this control: each step
+# of the installer commits before its stopping point, and the measurement would
+# land on an empty porcelain for the wrong reason (measured right here, Mission
+# 185-C01). The state of door 8 is therefore reproduced as it was
+# observed: a project record written in the Vault and the indexes touched,
+# without the commit that records them -- which is what any call to
+# project-bootstrap.sh outside the installer does.
 if bash "$CLONE_A/tools/project-bootstrap.sh" create "$R_A/workspace/second-projet" "Second projet" --vcs none >/dev/null 2>&1; then
   pass "temoin : un second projet est cree contre le Vault installe"
 else
@@ -162,8 +162,8 @@ else
   fail "temoin : porcelain vide alors que le Vault vient d'etre touche -- la mesure ne prouverait rien"
 fi
 
-# ... et le passage de fin d'installation est bien ce qui referme cet etat :
-# une execution de plus le nettoie, et cette fois elle fabrique un commit.
+# ... and the end-of-installation pass is indeed what closes this state:
+# one more run cleans it, and this time it produces a commit.
 HEAD_DIRTY="$(git -C "$CLONE_A" rev-parse HEAD)"
 run_install "$R_A"
 RC_A3=$?
