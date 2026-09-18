@@ -16,8 +16,16 @@
           the -Vault path reach the script.
     Writes only in a temporary folder.
 #>
-$ErrorActionPreference = 'Stop'
+# The wrapper's own stderr (a refusal) must not become a terminating error.
+$ErrorActionPreference = 'Continue'
 $repoRoot = Split-Path -Parent $PSScriptRoot
+# uv on the PATH as tests/sandbox-vault.sh does (CI runners keep it under
+# RUNNER_TEMP\uv-bin; a participant's installer puts it on the PATH).
+if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
+    foreach ($d in @("$env:RUNNER_TEMP\uv-bin", "$env:USERPROFILE\.local\bin", "$env:USERPROFILE\.cargo\bin")) {
+        if ($d -and (Test-Path (Join-Path $d 'uv.exe'))) { $env:Path = "$d;$env:Path"; break }
+    }
+}
 $wrapper = Join-Path $repoRoot 'tools\second-brain-update.ps1'
 $failures = 0
 function Pass([string]$m) { Write-Output "  PASS - $m" }

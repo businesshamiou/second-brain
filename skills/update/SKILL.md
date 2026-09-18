@@ -1,6 +1,6 @@
 ---
 name: update
-description: "Update an installed Second Brain to a published version without reinstalling: fetch the version, merge it over the participant's own commits (profile, identity, projects, indexes kept), regenerate the indexes, refuse cleanly on a conflict or an identity change. Use when the participant wants the new version, or when the published line says Second Brain is already installed. Triggers on: « mets à jour second-brain », « mise à jour », « nouvelle version », \"update second-brain\", \"update\", \"new version\"."
+description: "Update an installed Second Brain to a published version without reinstalling: merge over the participant's commits, clean refusal otherwise. Triggers on: « mets à jour second-brain », « mise à jour », « nouvelle version », \"update second-brain\", \"new version\"."
 license: "MIT"
 metadata:
   vault-implements: "decisions/DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md, (historique de l'atelier, non distribué)"

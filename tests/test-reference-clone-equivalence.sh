@@ -81,7 +81,8 @@ windows_path_pattern() {
 norm_file() {
   # $1 = case root, $2 = file under workspace/. Its content with what every
   # install draws for itself normalized: the case root (both spellings), the
-  # timestamps, the random Vault identity (sb-<16 hex>) and Pilot canary
+  # timestamps, the random Vault identity (sb-<16 hex>) and the MCP server
+  # name derived from it (Mission 191-C01), the Pilot canary
   # (pp-<12 hex>), and the hashes of the installer's own commits (they
   # carry a timestamp). HEAD of the source is marked first, so it is still
   # compared.
@@ -89,6 +90,7 @@ norm_file() {
       -e "s#$(sandbox_native_path "$1")#<ROOT>#g" \
       -e "s#$(windows_path_pattern "$1")#<ROOT>#g" \
       -e "s#$HEAD#<HEAD>#g" -e "s#$(printf '%s' "$HEAD" | cut -c1-8)#<HEAD>#g" \
+      -e 's#second-brain-vault-[0-9a-f]\{8\}#second-brain-vault-<VAULT_SHORT>#g' \
       -e 's#sb-[0-9a-f]\{16\}#<VAULT_ID>#g' \
       -e 's#pp-[0-9a-f]\{12\}#<CANARY>#g' \
       -e 's#[0-9a-f]\{40\}#<COMMIT>#g' \
