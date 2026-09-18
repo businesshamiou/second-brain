@@ -45,7 +45,7 @@
         The package this generator actually produces (Mission 171-C01 step
         8, audit defects 8 and 9; knowledge-file selection revised by
         Mission 172 to also cover assistant/ASSISTANT.md's own "Trois
-        questions de test") stays far below that ceiling on purpose:
+        questions de test" ["Three test questions"]) stays far below that ceiling on purpose:
         INSTRUCTIONS.md, README.md and three knowledge files, five files
         total -- see $Script:WebPackageKnowledgeFiles's own comment for why
         those three and not more.
@@ -93,7 +93,7 @@ $Script:MaxWebPackageFiles = 25
 # own language; a description matching that language is closer to what a
 # real query looks like). {0} is the assistant's safe-quoted name (-f
 # operator, same placeholder convention as the i18n catalogs). Wording is
-# deliberately directive ("MUST"/"toujours invoquer"/"SIEMPRE") rather than
+# deliberately directive ("MUST"/"toujours invoquer" ["always invoke"]/"SIEMPRE") rather than
 # descriptive, per the same step: a passive description is exactly what let
 # the primary agent answer in its place at acceptance.
 $Script:AssistantSubagentDescriptions = @{
@@ -131,9 +131,9 @@ function Get-AssistantDescriptionTemplate {
 # without Claude Code's or Codex's own file access.
 #
 # Mission 172 closed a second audit finding on top of that: two of the
-# three "Trois questions de test" in assistant/ASSISTANT.md's own
-# corps-generateur body -- "Comment j'ouvre une session ?" and "Qu'est-ce
-# qu'une Mission et ou je l'ecris ?" -- had no source anywhere in this
+# three "Trois questions de test" ["Three test questions"] in assistant/ASSISTANT.md's own
+# corps-generateur body -- "Comment j'ouvre une session ?" ["How do I open a session?"] and "Qu'est-ce
+# qu'une Mission et ou je l'ecris ?" ["What is a Mission and where do I write it?"] -- had no source anywhere in this
 # package. A Project has no filesystem of its own; it can only answer from
 # what is pasted into its instructions or uploaded as knowledge, and
 # neither the session-start skill nor the Mission template/operating model
@@ -158,7 +158,7 @@ function Get-AssistantDescriptionTemplate {
 #     session" (skills/session-start/SKILL.md,
 #     skills/session-start/reading-list.md); the Mission template and the
 #     project operating model -- named by assistant/ASSISTANT.md itself as
-#     "le gabarit de Mission" and "le modele operatoire des projets" --
+#     "le gabarit de Mission" ["the Mission template"] and "le modele operatoire des projets" ["the project operating model"] --
 #     answer "what is a Mission and where do I write it"
 #     (templates/mission-template.md,
 #     knowledge/BRIEF-2026-08-17-211522-project-operating-model-v2.md),
@@ -195,8 +195,8 @@ function Get-AssistantDescriptionTemplate {
 # total in the finished package -- far under $Script:MaxWebPackageFiles
 # (25, the measured platform ceiling above) and landing, unplanned, on the
 # same number the Owner set early in grilling, before the platform ceiling
-# above was ever measured (playbook journal, Manche 1, tickets T13-T16 and
-# T19-T21: "Brian web = Projet, paquet de 5 fichiers au plus", DECIDED).
+# above was ever measured (playbook journal, Manche 1 [Round 1], tickets T13-T16 and
+# T19-T21: "Brian web = Projet, paquet de 5 fichiers au plus" ["Brian web = Project, package of 5 files at most"], DECIDED).
 # That earlier figure is not re-derived here -- it is simply honoured as
 # the more conservative of the two: fewer, load-bearing files a person
 # uploads by hand beats maximizing toward the technical ceiling. It is also
@@ -230,7 +230,8 @@ $Script:WebPackageKnowledgeFiles = @(
 
 function ConvertTo-AssistantSlug {
     # Lowercase, no accents, no spaces (T07 complement: "un identifiant de
-    # fichier derive, minuscules, sans accents ni espaces"). Accents are
+    # fichier derive, minuscules, sans accents ni espaces" ["a derived file
+    # identifier, lowercase, without accents or spaces"]). Accents are
     # stripped by Unicode decomposition (FormD) followed by dropping every
     # non-spacing-mark character, not by a fixed substitution table -- this
     # covers any Latin-script name a participant might type, not just the
@@ -541,7 +542,7 @@ function New-CodexSkillContent {
     # at Codex's measured official location (.agents/skills/<slug>/, T11).
     # Read-only by instruction only, not by mechanism: Codex has no
     # per-skill tool restriction (measured this ticket -- see this file's
-    # own header comment); the body's own "Ce qu'il refuse" section is the
+    # own header comment); the body's own "Ce qu'il refuse" ["What it refuses"] section is the
     # only thing standing between this skill and writing or running
     # something, which is exactly why it is worth naming as a residual in
     # this ticket's report rather than silently presenting it as

@@ -1,27 +1,27 @@
 #!/usr/bin/env python3
-# Garde-fou de fraicheur des index (Mission 089), reecrit en Python par la
-# Mission 137-B : meme verdict, memes messages, memes codes de retour que
-# tools/check-indexes-fresh.sh, en un seul processus. Ne regenere jamais, ne
-# modifie jamais rien ; lit le format que tools/build-indexes.sh produit
-# (Mission 080), ne le redefinit pas -- meme liste de dossiers elagues, meme
-# grammaire de champ. Le refus est la position par defaut.
+# Index freshness guardrail (Mission 089), rewritten in Python by
+# Mission 137-B: same verdict, same messages, same return codes as
+# tools/check-indexes-fresh.sh, in a single process. Never regenerates, never
+# modifies anything; reads the format that tools/build-indexes.sh produces
+# (Mission 080), does not redefine it -- same list of pruned folders, same
+# field grammar. Refusal is the default position.
 #
-# Trois appels Git fixes (arbitrage Owner du 2026-09-04, option 2), jamais un
-# par entree ni par fichier : git diff --cached (jeu stage), git ls-files
-# (contenu des dossiers dans l'arbre stage), git cat-file --batch (tous les
-# contenus en une passe). La semantique de l'ancien Bash est conservee : tout
-# est lu dans l'ARBRE STAGE, jamais dans le worktree.
+# Three fixed Git calls (Owner arbitration of 2026-09-04, option 2), never one
+# per entry or per file: git diff --cached (staged set), git ls-files
+# (contents of the folders in the staged tree), git cat-file --batch (all
+# contents in one pass). The semantics of the old Bash are kept: everything
+# is read in the STAGED TREE, never in the worktree.
 #
-# Sortie : les ecarts d'index vont sur stdout, la butee de MISSION-INDEX.md
-# sur stderr, comme dans le Bash d'origine. Ecriture en binaire (UTF-8, LF)
-# pour ne pas subir la traduction CRLF de Python sous Windows.
+# Output: index gaps go to stdout, the MISSION-INDEX.md cap
+# to stderr, as in the original Bash. Written in binary (UTF-8, LF)
+# so as not to suffer Python's CRLF translation under Windows.
 
 import os
 import re
 import subprocess
 import sys
 
-# --- Sortie : LF strict, UTF-8, jamais de traduction de fin de ligne --------
+# --- Output: strict LF, UTF-8, never any line-ending translation ----------
 
 
 def out(line):
@@ -32,11 +32,11 @@ def err(line):
     sys.stderr.buffer.write((line + "\n").encode("utf-8"))
 
 
-# --- Bloc Bash l.13-16 : garde Git ------------------------------------------
-# Le Bash fait `git rev-parse --show-toplevel`. Ici la racine est trouvee en
-# remontant jusqu'a un .git : meme resultat, aucun processus supplementaire.
-# REPO_ROOT n'apparait dans aucun message : sa forme (Windows ou POSIX) est
-# sans effet sur la sortie.
+# --- Bash block l.13-16: Git guard ------------------------------------------
+# The Bash does `git rev-parse --show-toplevel`. Here the root is found by
+# climbing up to a .git: same result, no extra process.
+# REPO_ROOT appears in no message: its form (Windows or POSIX) has
+# no effect on the output.
 def find_repo_root():
     d = os.path.abspath(os.getcwd())
     while True:
@@ -48,10 +48,10 @@ def find_repo_root():
         d = parent
 
 
-# Mode dossier (Decision 2026-09-17-000545, A4 -- vcs: none) : un argument
-# nomme la racine d'un projet sans Git ; les trois appels Git sont alors
-# remplaces par une lecture du disque (tous les fichiers du projet, tous les
-# .md comptes comme ajoutes). Sans argument : comportement inchange.
+# Folder mode (Decision 2026-09-17-000545, A4 -- vcs: none): an argument
+# names the root of a project without Git; the three Git calls are then
+# replaced by a read of the disk (all files of the project, all
+# .md counted as added). Without argument: behaviour unchanged.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import project_baseline  # noqa: E402
 
@@ -67,34 +67,34 @@ else:
         err("REFUS : hors d'un depot Git : gardien non executable.")
         sys.exit(1)
 
-# Le Bash fait `cd "$REPO_ROOT"` (l.261) avant d'inspecter les dossiers.
+# The Bash does `cd "$REPO_ROOT"` (l.261) before inspecting the folders.
 os.chdir(REPO_ROOT)
 
-# --- Bloc Bash l.20 : dossiers elagues --------------------------------------
-# `skills-warehouse` ajoute (Mission 168, arbitrage Owner 2026-09-11, option
-# b) : sous-arbre adopte tel quel (fichiers suivis seulement, T24), avec ses
-# propres standards (AGENTS.md, CLAUDE.md, *_STANDARD.md) et sans la
-# convention d'index du Vault -- il n'a jamais porte qu'un seul index.md
-# natif (skill-collections/index.md), pas un par dossier. Hors perimetre de
-# ce gardien, comme tools/ ou state/ le sont deja pour d'autres raisons.
-# ".agents" ajoute (ticket 06, Mission 168) : meme motif que ".claude" et
-# ".codex" deja presents -- emplacement officiel des skills et sous-agents
-# Codex (T11), un dossier machine-lu par un outil tiers, jamais un contenu
-# du corpus documentaire indexe par ce script.
-# "_trash" ajoute (Mission 175, etape 7) : corbeille du produit, contenu
-# retire de la distribution et fige (Decision 110852) -- jamais navigue par
-# l'ordre de recherche par index (assistant/ASSISTANT.md), donc jamais
-# indexe, meme motif que "state".
-# "web-package" ajoute (Mission 183-C01), meme liste que
-# tools/build_indexes.py : paquet genere pour un Projet web, jamais indexe.
+# --- Bash block l.20: pruned folders ----------------------------------------
+# `skills-warehouse` added (Mission 168, Owner arbitration 2026-09-11, option
+# b): subtree adopted as is (tracked files only, T24), with its
+# own standards (AGENTS.md, CLAUDE.md, *_STANDARD.md) and without the
+# Vault index convention -- it has only ever carried a single native
+# index.md (skill-collections/index.md), not one per folder. Outside the perimeter of
+# this guardian, as tools/ or state/ already are for other reasons.
+# ".agents" added (ticket 06, Mission 168): same reason as ".claude" and
+# ".codex" already present -- official location of the Codex skills and
+# subagents (T11), a folder machine-read by a third-party tool, never content
+# of the documentary corpus indexed by this script.
+# "_trash" added (Mission 175, step 7): the product's _trash/ zone, content
+# withdrawn from distribution and frozen (Decision 110852) -- never navigated by
+# the search order by index (assistant/ASSISTANT.md), hence never
+# indexed, same reason as "state".
+# "web-package" added (Mission 183-C01), same list as
+# tools/build_indexes.py: package generated for a web Project, never indexed.
 PRUNE_NAMES = set(
     ".git .githooks .claude .codex .agents graphify-out tools patterns "
     "node_modules state .venv venv __pycache__ skills-warehouse _trash "
     "web-package".split()
 )
 
-# Mission 140 : index.md et ses archives figees ne s'indexent jamais eux-memes
-# (meme regle que tools/build_indexes.py).
+# Mission 140: index.md and its frozen archives never index themselves
+# (same rule as tools/build_indexes.py).
 ARCHIVE_RE = re.compile(r"^index-archive-.+\.md$")
 
 
@@ -102,30 +102,30 @@ def is_index_name(name):
     return name == "index.md" or bool(ARCHIVE_RE.match(name))
 
 
-# --- Bloc Bash l.22-35 : is_pruned_dir --------------------------------------
+# --- Bash block l.22-35: is_pruned_dir --------------------------------------
 def is_pruned_dir(d):
     if d == ".":
         return False
     return any(comp in PRUNE_NAMES for comp in d.split("/"))
 
 
-# --- Bloc Bash l.78-79 : butee MISSION-INDEX.md -----------------------------
-# Chemin relatif a la racine du DEPOT COURANT (celui qui commite -- un projet
-# cree par tools/project-bootstrap.sh, dont le registre vit a la racine de
-# son propre dossier missions/, jamais sous un sous-dossier d'atelier :
-# "workshop-production/" etait un chemin d'atelier laisse en dur (Mission
-# 174, audit ; Mission 175, etape 2), sans effet sur un projet reel puisque
-# ce sous-dossier n'y existe jamais -- la butee ne se declenchait donc
-# jamais hors de l'atelier de l'Owner. Mesure au meme rapport : ce depot
-# (second-brain) lui-meme ne porte aucun dossier missions/ a sa racine, donc
-# ce changement ne modifie la severite d'aucun contenu reel de ce depot.
+# --- Bash block l.78-79: MISSION-INDEX.md cap -----------------------------
+# Path relative to the root of the CURRENT REPOSITORY (the one committing -- a project
+# created by tools/project-bootstrap.sh, whose register lives at the root of
+# its own missions/ folder, never under a workshop subfolder:
+# "workshop-production/" was a workshop path left hard-coded (Mission
+# 174, audit; Mission 175, step 2), with no effect on a real project since
+# that subfolder never exists there -- the cap therefore never triggered
+# outside the Owner's workshop. Measured in the same report: this repository
+# (second-brain) itself carries no missions/ folder at its root, so
+# this change alters the severity of no real content of this repository.
 MISSION_INDEX_LINE_CAP_BASELINE = 122
 MISSION_INDEX_PATH = "missions/MISSION-INDEX.md"
 
 FAIL = 0
 
 
-# --- Bloc Bash l.113-119 : report_gap (stdout) ------------------------------
+# --- Bash block l.113-119: report_gap (stdout) ------------------------------
 def report_gap(dossier, ecart, index_path):
     global FAIL
     out("INDEX-FRESHNESS [%s]" % dossier)
@@ -137,9 +137,9 @@ def report_gap(dossier, ecart, index_path):
     FAIL = 1
 
 
-# --- Appels Git (trois, fixes) ----------------------------------------------
-# Point d'appel unique : toute commande externe du gardien passe ici. Il est
-# invoque exactement trois fois, jamais dans une boucle (voir GIT_CALLS).
+# --- Git calls (three, fixed) ----------------------------------------------
+# Single call point: every external command of the guardian goes through here. It is
+# invoked exactly three times, never in a loop (see GIT_CALLS).
 GIT_CALLS = []
 
 
@@ -152,14 +152,14 @@ def decode(b):
     return b.decode("utf-8", errors="surrogateescape")
 
 
-# Ligne de base (Decision 000545, A4) : fichiers graves a l'adoption.
+# Baseline (Decision 000545, A4): files engraved at adoption.
 BASELINE = project_baseline.Baseline(REPO_ROOT)
 
 if DIR_MODE:
     TRACKED = project_baseline.list_files(REPO_ROOT)
     diff_raw = "\n".join("A\t" + p for p in TRACKED if p.endswith(".md"))
 else:
-    # Appel 1 -- Bloc Bash l.259 : jeu stage.
+    # Call 1 -- Bash block l.259: staged set.
     diff_raw = decode(
         git_out(
             [
@@ -174,12 +174,12 @@ else:
         )
     )
 
-    # Appel 2 -- Bloc Bash l.128 : fichiers presents dans l'arbre stage.
+    # Call 2 -- Bash block l.128: files present in the staged tree.
     lsfiles_raw = git_out(["ls-files", "-z"])
     TRACKED = [decode(p) for p in lsfiles_raw.split(b"\x00") if p]
 
-# Un ajout ou une modification d'un fichier grave et non touche ne compte
-# pas comme un changement du commit (cliquet : seul le touche est juge).
+# An addition or modification of an engraved, untouched file does not count
+# as a change of the commit (ratchet: only what is touched is judged).
 if BASELINE.active:
     kept = []
     for line in diff_raw.split("\n"):
@@ -190,7 +190,7 @@ if BASELINE.active:
     diff_raw = "\n".join(kept)
 
 
-# --- Bloc Bash l.236-259 : dossiers touches par un .md stage ----------------
+# --- Bash block l.236-259: folders touched by a staged .md ----------------
 DIRS = []
 for line in diff_raw.split("\n"):
     if not line:
@@ -199,7 +199,7 @@ for line in diff_raw.split("\n"):
     st = fields[0]
     if not st:
         continue
-    # R*/C* portent deux chemins ; les autres un seul (l.240-243).
+    # R*/C* carry two paths; the others a single one (l.240-243).
     paths = fields[1:3] if st[:1] in ("R", "C") else fields[1:2]
     for p in paths:
         if not p:
@@ -215,17 +215,17 @@ for line in diff_raw.split("\n"):
         if d not in DIRS:
             DIRS.append(d)
 
-# --- Mission 161 : union avec tout dossier indexe de l'arbre stage ----------
-# La boucle ci-dessus ne retient qu'un dossier ayant recu un .md non-index
-# dans le commit en cours. Un dossier que le commit ne touche pas n'etait donc
-# jamais controle : angle mort mesure au rapport 160 -- cinq index restes au
-# format ancien quatre jours durant, et decisions/index.md monte a 16 495
-# octets, 206 % du plafond, sans qu'aucun gardien ne le voie. Tout dossier de
-# l'arbre stage portant un index.md est desormais controle, que le commit y
-# touche ou non.
-# Aucun appel Git ajoute (arbitrage du 2026-09-04, trois appels fixes) :
-# TRACKED vient du `git ls-files` deja lu a l'appel 2. La grammaire n'est pas
-# touchee -- ni ENTRY_RE, ni check_dir, ni PRUNE_NAMES.
+# --- Mission 161: union with every indexed folder of the staged tree ----------
+# The loop above only keeps a folder that received a non-index .md
+# in the current commit. A folder the commit does not touch was therefore
+# never checked: blind spot measured in report 160 -- five indexes left in the
+# old format for four days, and decisions/index.md grown to 16 495
+# bytes, 206 % of the ceiling, without any guardian seeing it. Every folder of
+# the staged tree carrying an index.md is now checked, whether the commit
+# touches it or not.
+# No Git call added (arbitration of 2026-09-04, three fixed calls):
+# TRACKED comes from the `git ls-files` already read at call 2. The grammar is not
+# touched -- neither ENTRY_RE, nor check_dir, nor PRUNE_NAMES.
 for p in TRACKED:
     if p.rsplit("/", 1)[-1] != "index.md":
         continue
@@ -236,9 +236,9 @@ for p in TRACKED:
         DIRS.append(d)
 
 
-# --- Bloc Bash l.128-136 : .md de profondeur 1 d'un dossier, tries ----------
-# Tri par octets : identique au `sort` du contexte, mesure du 2026-09-05 sur
-# les 154 noms reels de missions/.
+# --- Bash block l.128-136: depth-1 .md of a folder, sorted ----------
+# Byte sort: identical to the `sort` of the context, measured on 2026-09-05 on
+# the 154 real names of missions/.
 def disk_files_of(d):
     prefix = "" if d == "." else d + "/"
     res = []
@@ -253,9 +253,9 @@ def disk_files_of(d):
     return res
 
 
-# --- Appel 3 : tous les contenus de l'arbre stage, en une passe -------------
-# Remplace les `git show ":$path"` et `git cat-file -e ":$path"` que le Bash
-# lancait par fichier (l.143, l.149, l.177, l.82, l.85).
+# --- Call 3: all contents of the staged tree, in one pass -------------
+# Replaces the `git show ":$path"` and `git cat-file -e ":$path"` that the Bash
+# launched per file (l.143, l.149, l.177, l.82, l.85).
 def batch_read(specs):
     if not specs:
         return {}
@@ -283,15 +283,15 @@ def batch_read(specs):
             continue
         size = int(header.split(b" ")[2])
         res[spec] = raw[pos:pos + size]
-        pos += size + 1  # le contenu est suivi d'un \n ajoute par cat-file
+        pos += size + 1  # the content is followed by a \n added by cat-file
     return res
 
 
 DISK = {d: disk_files_of(d) for d in DIRS}
 
 
-# Cliquet : un dossier dont l'index et chaque .md sont graves et non touches
-# n'est pas controle -- il est tel qu'a l'adoption.
+# Ratchet: a folder whose index and every .md are engraved and untouched
+# is not checked -- it is as it was at adoption.
 def dir_untouched(d):
     prefix = "" if d == "." else d + "/"
     names = ["index.md"] + DISK[d]
@@ -301,7 +301,7 @@ def dir_untouched(d):
 if BASELINE.active:
     DIRS = [d for d in DIRS if not dir_untouched(d)]
 
-# Mission 140 : archives figees d'un dossier, presentes dans l'arbre stage.
+# Mission 140: frozen archives of a folder, present in the staged tree.
 ARCHIVES = {}
 for d in DIRS:
     prefix_d = "" if d == "." else d + "/"
@@ -335,11 +335,11 @@ def staged_text(path):
     b = BLOBS.get(":" + path)
     if b is None:
         return None
-    # `$(git show ...)` supprime les newlines finaux (l.149, l.177, l.85).
+    # `$(git show ...)` strips the trailing newlines (l.149, l.177, l.85).
     return decode(b).rstrip("\n")
 
 
-# --- Bloc Bash l.39-48 : fm_status_desc, meme grammaire que build-indexes ---
+# --- Bash block l.39-48: fm_status_desc, same grammar as build-indexes ---
 def fm_status_desc(text):
     infm = False
     status = ""
@@ -363,7 +363,7 @@ def fm_status_desc(text):
     return status, description
 
 
-# --- Bloc Bash l.50-58 : fm_type -------------------------------------------
+# --- Bash block l.50-58: fm_type -------------------------------------------
 def fm_type(text):
     infm = False
     ty = ""
@@ -382,7 +382,7 @@ def fm_type(text):
     return ty if ty else "inconnu"
 
 
-# --- Bloc Bash l.60-66 : contenu_section -----------------------------------
+# --- Bash block l.60-66: contenu_section -----------------------------------
 def contenu_section(text):
     on = False
     res = []
@@ -397,16 +397,16 @@ def contenu_section(text):
     return res
 
 
-# --- Mission 140 : format de ligne en localisateur -------------------------
+# --- Mission 140: line format as a locator -------------------------
 # "- `<identifiant>` · <statut> · <titre court> · `<nom de fichier>`"
-# suivi, le cas echeant, de " — REMPLACÉ par <nom>". Le statut ne contient
-# jamais de "·" ; le titre peut en contenir, d'ou le groupe gourmand.
+# followed, where applicable, by " — REMPLACÉ par <nom>". The status never contains
+# a "·"; the title may contain some, hence the greedy group.
 ENTRY_RE = re.compile(r"^- `[^`]*` · ([^·]*?) · .* · `([^`]*)`$")
 MARK = " — REMPLACÉ par "
 
 
 def parse_entry(line):
-    """Rend (nom de fichier, statut) pour une ligne d'entree, sinon None."""
+    """Return (file name, status) for an entry line, otherwise None."""
     if MARK in line:
         line = line.split(MARK, 1)[0]
     m = ENTRY_RE.match(line)
@@ -415,7 +415,7 @@ def parse_entry(line):
     return m.group(2), m.group(1)
 
 
-# --- Bloc Bash l.155 : comm -13 sur deux listes triees ---------------------
+# --- Bash block l.155: comm -13 on two sorted lists ---------------------
 def comm_13(disk, index_names):
     i = j = 0
     only_second = []
@@ -434,12 +434,12 @@ def comm_13(disk, index_names):
     return only_second
 
 
-# --- Bloc Bash l.121-232 : check_dir ---------------------------------------
+# --- Bash block l.121-232: check_dir ---------------------------------------
 def check_dir(d):
     prefix = "" if d == "." else d + "/"
 
     disk_files = DISK[d]
-    if not disk_files:  # l.138 : pas un dossier indexe
+    if not disk_files:  # l.138: not an indexed folder
         return
 
     index_path = "index.md" if d == "." else d + "/index.md"
@@ -453,17 +453,17 @@ def check_dir(d):
         )
         return
 
-    # Mission 140 : l'index d'un dossier peut etre scinde en un index vivant
-    # et des archives figees (DECISION-2026-09-05-124647 point 4). L'ensemble
-    # des noms se lit sur la reunion des deux -- le vivant seul est une vue
-    # partielle, et refuserait a tort toute entree archivee.
+    # Mission 140: a folder's index may be split into a live index
+    # and frozen archives (DECISION-2026-09-05-124647 point 4). The set
+    # of names is read over the union of both -- the live one alone is a
+    # partial view, and would wrongly refuse any archived entry.
     contenu = contenu_section(index_content)
     for arch_path in ARCHIVES.get(d, []):
         arch_text = staged_text(arch_path)
         if arch_text is not None:
             contenu = contenu + contenu_section(arch_text)
 
-    index_entries = {}  # nom de fichier -> statut porte par l'index
+    index_entries = {}  # file name -> status carried by the index
     for line in contenu:
         parsed = parse_entry(line)
         if parsed:
@@ -472,7 +472,7 @@ def check_dir(d):
         index_entries, key=lambda s: s.encode("utf-8", errors="surrogateescape")
     )
 
-    # l.153-163 : entrees en trop.
+    # l.153-163: extra entries.
     for fn in comm_13(disk_files, index_names):
         if not fn:
             continue
@@ -482,7 +482,7 @@ def check_dir(d):
             index_path,
         )
 
-    # l.165-231 : entree manquante, puis desynchro status/description.
+    # l.165-231: missing entry, then status/description desync.
     for fn in disk_files:
         if not fn:
             continue
@@ -500,9 +500,9 @@ def check_dir(d):
         st, _ = fm_status_desc(fm_content)
         ty = fm_type(fm_content)
 
-        # Mission 140 : la ligne est un localisateur, le statut y est un champ
-        # a part entiere ; la description a disparu des index (DECISION
-        # 124647 point 1), sa comparaison disparait donc aussi.
+        # Mission 140: the line is a locator, the status is a field
+        # in its own right; the description has disappeared from indexes (DECISION
+        # 124647 point 1), so its comparison disappears too.
         expected = st if st else ty
         found = index_entries.get(fn)
         if found != expected:
@@ -520,25 +520,25 @@ def check_dir(d):
                 )
 
 
-# --- Bloc Bash l.81-109 : butee 300 caracteres (stderr) --------------------
+# --- Bash block l.81-109: 300-character cap (stderr) --------------------
 def check_mission_index_line_cap():
     global FAIL
     content = staged_text(MISSION_INDEX_PATH)
-    if content is None:  # l.82 : git cat-file -e ... || return 0
+    if content is None:  # l.82: git cat-file -e ... || return 0
         return
 
     line_no = 0
     for line in content.split("\n"):
         line_no += 1
-        # l.89-92 : motif "| `NNN` |" en tete de ligne.
+        # l.89-92: pattern "| `NNN` |" at the start of a line.
         m = re.match(r"^\| `([0-9]+)`.*", line)
         if not m:
             continue
         nnn = int(m.group(1))
         if nnn <= MISSION_INDEX_LINE_CAP_BASELINE:  # l.97
             continue
-        # l.99 : `wc -m` compte les caracteres, pas les octets, et le newline
-        # n'est pas compte (printf '%s').
+        # l.99: `wc -m` counts characters, not bytes, and the newline
+        # is not counted (printf '%s').
         length = len(line)
         if length > 300:
             err("INDEX-LINE-CAP [%s]" % MISSION_INDEX_PATH)
@@ -549,11 +549,11 @@ def check_mission_index_line_cap():
             FAIL = 1
 
 
-# --- Bloc Bash l.263-273 : ordre d'execution -------------------------------
+# --- Bash block l.263-273: execution order -------------------------------
 for d in DIRS:
     check_dir(d)
 
-# l.271-273 : butee seulement si MISSION-INDEX.md est stage dans ce commit.
+# l.271-273: cap only if MISSION-INDEX.md is staged in this commit.
 staged_now = set()
 for line in diff_raw.split("\n"):
     if not line:
@@ -566,7 +566,7 @@ for line in diff_raw.split("\n"):
 if MISSION_INDEX_PATH in staged_now and not BASELINE.untouched(MISSION_INDEX_PATH):
     check_mission_index_line_cap()
 
-# --- Bloc Bash l.275 -------------------------------------------------------
+# --- Bash block l.275 -------------------------------------------------------
 sys.stdout.buffer.flush()
 sys.stderr.buffer.flush()
 sys.exit(FAIL)

@@ -155,9 +155,9 @@ fi
 # carry their own licence file. Sorted (`sort`) so the generated document
 # is byte-identical across runs regardless of the filesystem's own
 # directory order -- required for --check to mean anything.
-# `-printf` est une extension GNU que le find de BSD (macOS) ne connait pas
-# -- « find: -printf: unknown primary or operator » (Mission 180). Une
-# boucle sur le motif de dossiers rend les memes noms, partout.
+# `-printf` is a GNU extension that BSD find (macOS) does not know
+# -- « find: -printf: unknown primary or operator » (Mission 180). A
+# loop over the folder pattern returns the same names, everywhere.
 COLLECTIONS="$(for d in "$WAREHOUSE_DIR"/*/; do
   [ -d "$d" ] || continue
   basename "$d"

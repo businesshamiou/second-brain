@@ -14,7 +14,7 @@
     require elevation to finish; this module never calls either).
 
     Detection first, always (spec, Implementation Decisions -- "outils deja
-    presents reutilises") : if `git.exe` / `uv.exe` / `pre-commit.exe`
+    presents reutilises" ["tools already present, reused"]) : if `git.exe` / `uv.exe` / `pre-commit.exe`
     already resolve on the current process's PATH, that copy is reused
     as-is, whatever its version -- this module only ever fetches and
     installs its own pinned copy for a tool that is genuinely absent. This
@@ -32,7 +32,7 @@
     `uv tool install` resolves and installs it from PyPI, which already
     verifies package hashes itself as part of uv's normal, documented
     dependency-resolution behaviour; pinning pre-commit's exact version
-    in the lock file is what "versions figees" asks for on that tool, the
+    in the lock file is what "versions figees" ["pinned versions"] asks for on that tool, the
     separate artifact-level SHA-256 pin is scoped to what this script
     itself fetches over the network (Class B, consigned in the ticket 04
     report).
@@ -149,9 +149,9 @@ function Get-CachedOrDownloadedFile {
     # $ExpectedSha256 -- a mismatch throws and deletes the bad file rather
     # than ever handing a caller an unverified artifact (ticket 04,
     # criterion 3: "empreinte fausse = arret, avec un verdict qui nomme la
-    # cause"). A previously-cached file whose hash still matches is reused
+    # cause" ["wrong fingerprint = stop, with a verdict that names the cause"]). A previously-cached file whose hash still matches is reused
     # untouched (no re-download) -- verified again here regardless, because
-    # "empreinte verifiee avant chaque execution" means every time this
+    # "empreinte verifiee avant chaque execution" ["fingerprint verified before each execution"] means every time this
     # artifact is about to be used, not only the run that first fetched it.
     param(
         [Parameter(Mandatory = $true)][string] $Url,
@@ -215,7 +215,7 @@ function Resolve-OrInstall-GitPortable {
     $cacheDir = Join-Path $toolsRoot 'downloads'
     $cachedArchive = Join-Path $cacheDir $Lock.asset
 
-    # "Empreinte verifiee avant chaque execution" (criterion 3): re-verify
+    # "Empreinte verifiee avant chaque execution" ["fingerprint verified before each execution"] (criterion 3): re-verify
     # the pinned, downloaded archive's SHA-256 every run this function is
     # the one managing Git -- not only the run that first extracted it --
     # so a cached archive tampered with between two runs is caught even
@@ -347,7 +347,7 @@ function Resolve-OrInstall-PreCommit {
     # directly -- `uv tool install` resolves and fetches it from PyPI,
     # which uv already verifies against PyPI's own published package
     # hashes as a normal, documented part of its dependency resolution.
-    # The version pin below ("versions figees") is what ticket 04 asks for
+    # The version pin below ("versions figees" ["pinned versions"]) is what ticket 04 asks for
     # on this tool; the artifact-level SHA-256 verification this module
     # does itself is scoped to what it fetches over the network with no
     # other integrity check of its own (Class B, consigned in the ticket
@@ -456,7 +456,7 @@ function Assure-Prerequisites {
     # install.ps1's own run can call `git`/`pre-commit` immediately, and
     # persists each newly-installed directory via $AddPersistentPathEntry
     # so a *future* shell finds them too (ticket 04, criterion 1: "ajoutee
-    # au PATH de l'utilisateur"). Never called for a tool that was already
+    # au PATH de l'utilisateur" ["added to the user's PATH"]). Never called for a tool that was already
     # on PATH -- reusing an existing install never re-adds or duplicates
     # its directory.
     param(

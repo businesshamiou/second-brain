@@ -1,32 +1,32 @@
 #!/usr/bin/env bash
-# Vue drone des liens ecrits (build history) : mesure deterministe, zero appel
-# modele, zero reseau. Lit ce depot, et un second corpus si un depot voisin
-# est declare (voir plus bas), parcourt la section "## Liens" de chaque
-# fichier .md suivi par Git, construit le graphe oriente et rend quatre
-# mesures plus deux vues Mermaid. Ecrit uniquement sur la sortie standard :
-# aucun fichier de sortie persistant (build history, contrainte).
+# Drone view of the written links (build history): deterministic measurement, zero model
+# call, zero network. Reads this repository, and a second corpus if a sibling repository
+# is declared (see below), walks the "## Liens" section of each
+# .md file tracked by Git, builds the directed graph and renders four
+# measurements plus two Mermaid views. Writes only to standard output:
+# no persistent output file (build history, constraint).
 #
-# Complement (Session Executor, 2026-08-24) : la mesure 4 ajoute une
-# ventilation des couples de remplacement selon la date de creation
-# (created_at, front-matter) du document remplacant, frontiere 2026-08-21
-# (adoption du standard de liens). Dates absentes ou illisibles comptees a
-# part, jamais devinees ni substituees par la date du nom de fichier.
+# Complement (Session Executor, 2026-08-24): measurement 4 adds a
+# breakdown of the supersession pairs by the creation date
+# (created_at, front-matter) of the superseding document, boundary 2026-08-21
+# (adoption of the link standard). Absent or unreadable dates are counted
+# separately, never guessed nor replaced by the date in the file name.
 #
-# Correction (build history, 2026-08-24) : le pipeline d'extraction FM/SUP/LINK
-# (section 2 ci-dessous) utilisait une tabulation comme separateur de champ,
-# lue par `read` avec IFS reduit a cette meme tabulation. Or IFS compose
-# uniquement d'espace/tabulation/saut de ligne est traite par bash comme de
-# l'« IFS whitespace » : les tabulations consecutives sont fusionnees en un
-# seul separateur, quel que soit le contenu d'IFS. Un champ vide (`status:`
-# present sans valeur, ou `type:` absent/vide) produit deux tabulations
-# consecutives dans la ligne imprimee par awk, qui se fusionnent a la lecture
-# et decalent tous les champs suivants d'une position. Corrige en remplacant
-# le separateur interne par l'octet de controle \001 (jamais IFS whitespace,
-# jamais collabore) — uniquement dans ce pipeline interne EXTRACT/read ;
-# aucune sortie imprimee par le script n'utilise ce separateur, le format de
-# sortie est inchange. Le contournement de la mesure 4 (read_created_at, plus
-# bas) reste tel quel : il ne dependait pas de ce pipeline et n'a pas besoin
-# d'etre retire pour rester correct.
+# Correction (build history, 2026-08-24): the FM/SUP/LINK extraction pipeline
+# (section 2 below) used a tab as field separator,
+# read by `read` with IFS reduced to that same tab. But an IFS made
+# only of space/tab/newline is treated by bash as
+# « IFS whitespace »: consecutive tabs are merged into a
+# single separator, whatever the content of IFS. An empty field (`status:`
+# present without a value, or `type:` absent/empty) produces two consecutive
+# tabs in the line printed by awk, which merge on reading
+# and shift all following fields by one position. Fixed by replacing
+# the internal separator with the control byte \001 (never IFS whitespace,
+# never collapsed) — only in this internal EXTRACT/read pipeline;
+# no output printed by the script uses this separator, the output
+# format is unchanged. The workaround in measurement 4 (read_created_at, further
+# down) stays as is: it did not depend on this pipeline and does not need
+# to be removed to stay correct.
 #
 # usage: link-graph-drone-view.sh
 #
@@ -53,11 +53,11 @@ WORKSHOP_ROOT="${WORKSHOP_BUILD_ROOT:+$WORKSHOP_BUILD_ROOT/$WORKSHOP_SUBDIR}"
 STATE_FILE="${WORKSHOP_ROOT:+$WORKSHOP_ROOT/state/STATE.md}"
 
 resolve_path() {
-  # $1 = chemin, potentiellement relatif et contenant . ou ..
+  # $1 = path, possibly relative and containing . or ..
   abs_path "$1"
 }
 
-# --- 1. Inventaire : union des deux corpus, fichiers .md suivis par Git ---
+# --- 1. Inventory: union of the two corpora, .md files tracked by Git ---
 VAULT_FILES="$(cd "$VAULT_ROOT" && git ls-files '*.md' | while IFS= read -r f; do printf '%s/%s\n' "$VAULT_ROOT" "$f"; done)"
 WORKSHOP_FILES=""
 if [ -n "$WORKSHOP_BUILD_ROOT" ]; then
@@ -68,14 +68,14 @@ fi
 ALL_FILES="$(printf '%s\n%s\n' "$VAULT_FILES" "$WORKSHOP_FILES")"
 TOTAL_DOCS="$(printf '%s\n' "$ALL_FILES" | grep -c .)"
 
-# --- 2. Extraction en un seul passage awk : front-matter + section Liens ---
-# Noms de fichiers passes par `xargs -0` : `xargs -d` est une option GNU que
-# le xargs d'Apple refuse (Mission 181).
-# Sortie taggee, une ligne par enregistrement, separateur \001 (voir note de
-# correction Mission 043 ci-dessus — jamais une tabulation, qui se fusionne a
-# la lecture bash des qu'un champ est vide) :
+# --- 2. Extraction in a single awk pass: front-matter + Liens section ---
+# File names passed through `xargs -0`: `xargs -d` is a GNU option that
+# the Apple xargs refuses (Mission 181).
+# Tagged output, one line per record, separator \001 (see the correction
+# note Mission 043 above — never a tab, which merges on
+# bash reading as soon as a field is empty):
 #   FM<SOH>path<SOH>type<SOH>status<SOH>title
-#   SUP<SOH>path<SOH>raw-basename-cible
+#   SUP<SOH>path<SOH>raw-target-basename
 #   LINK<SOH>path<SOH>linktype<SOH>target-raw
 EXTRACT="$(printf '%s\n' "$ALL_FILES" | grep . | tr '\n' '\0' | xargs -0 awk '
   FNR == 1 {
@@ -121,12 +121,12 @@ EXTRACT="$(printf '%s\n' "$ALL_FILES" | grep . | tr '\n' '\0' | xargs -0 awk '
   }
   !infm && /^## Liens[[:space:]]*$/ { inliens = 1; next }
   !infm && inliens && /^## / { inliens = 0 }
-  # Deux graphies coexistent dans le corpus (constat, non corrige par ce
-  # script) : la forme actuelle du standard "- `type` -- [texte](cible)"
-  # et une forme anterieure "- type : [texte](cible)" sans guillemets ni
-  # tiret cadratin, utilisee par des documents ecrits avant adoption du
-  # standard (RULES-2026-08-21-115658). Les deux sont extraites comme
-  # declaration de lien ; la forme employee est reportee separement.
+  # Two spellings coexist in the corpus (observation, not fixed by this
+  # script): the current form of the standard "- `type` -- [texte](cible)"
+  # and an earlier form "- type : [texte](cible)" without quotes or
+  # em dash, used by documents written before the adoption of the
+  # standard (RULES-2026-08-21-115658). Both are extracted as a
+  # link declaration; the form used is reported separately.
   !infm && inliens && /^-[[:space:]]*/ && /\]\(/ {
     line = $0
     linktype = ""
@@ -152,10 +152,10 @@ EXTRACT="$(printf '%s\n' "$ALL_FILES" | grep . | tr '\n' '\0' | xargs -0 awk '
   }
 ' 2>&1)"
 
-# --- 3. Chargement en memoire bash ---
-# Cartes DOC_TYPE, DOC_STATUS, DOC_TITLE, INDEGREE, DIST, SEEN_PAIR,
-# BASENAME_TO_PATH et ACTIVE_TOUCH portees par tools/kvmap.sh : `declare -A`
-# n'existe pas dans le bash 3.2 livre par Apple (Mission 181).
+# --- 3. Loading into bash memory ---
+# Maps DOC_TYPE, DOC_STATUS, DOC_TITLE, INDEGREE, DIST, SEEN_PAIR,
+# BASENAME_TO_PATH and ACTIVE_TOUCH carried by tools/kvmap.sh: `declare -A`
+# does not exist in the bash 3.2 shipped by Apple (Mission 181).
 declare -a EDGE_SRC EDGE_TYPE EDGE_TGT EDGE_RAW
 declare -a SUP_SRC SUP_TGT_BASENAME
 UNRESOLVED=0
@@ -204,7 +204,7 @@ done <<EXTRACT_EOF
 $EXTRACT
 EXTRACT_EOF
 
-# Taux de liens non resolus : condition d'arret Mission 042.
+# Rate of unresolved links: stop condition Mission 042.
 if [ "$TOTAL_LINKS" -gt 0 ]; then
   UNRESOLVED_PCT=$(( UNRESOLVED * 1000 / TOTAL_LINKS ))
 else
@@ -231,7 +231,7 @@ if [ "$UNRESOLVED" -gt 0 ]; then
 fi
 echo ""
 
-# --- Mesure 1 : noyau, top 15 par liens entrants ---
+# --- Measurement 1: core, top 15 by incoming links ---
 echo "=== MESURE 1 — NOYAU (top 15 par liens entrants) ==="
 kv_keys INDEGREE
 for p in ${KV_KEYS[@]+"${KV_KEYS[@]}"}; do
@@ -242,7 +242,7 @@ for p in ${KV_KEYS[@]+"${KV_KEYS[@]}"}; do
 done | sort -t$'\t' -k1,1nr | head -15 | nl -ba -w2 -s'. '
 echo ""
 
-# --- Mesure 2 : orphelins (aucun lien entrant) ---
+# --- Measurement 2: orphans (no incoming link) ---
 echo "=== MESURE 2 — ORPHELINS ==="
 ORPHAN_TOTAL=0
 ORPHAN_ACTIVE=0
@@ -272,7 +272,7 @@ echo "--- orphelins non actifs (autre statut ou aucun) ---"
 printf '%b' "$ORPHAN_OTHER_LIST" | grep . | sort
 echo ""
 
-# --- Mesure 3 : portee, BFS oriente depuis STATE.md ---
+# --- Measurement 3: reach, directed BFS from STATE.md ---
 echo "=== MESURE 3 — PORTEE depuis ${STATE_FILE:-<aucun depot voisin declare>} ==="
 if [ -n "$STATE_FILE" ] && [ -f "$STATE_FILE" ]; then
   kv_set DIST "$STATE_FILE" 0
@@ -333,23 +333,23 @@ DOCS_EOF2
 echo "total hors de portee : $UNREACHABLE_TOTAL (dont actifs : $UNREACHABLE_ACTIVE)"
 echo ""
 
-# --- Mesure 4 : reciprocite des relations de remplacement ---
+# --- Measurement 4: reciprocity of the supersession relations ---
 echo "=== MESURE 4 — RECIPROCITE DES REMPLACEMENTS ==="
 INCOMPLETE=0
 CHECKED=0
 
-# Ventilation par date de creation du remplacant (complement Session Executor,
-# 2026-08-24) : le 2026-08-21 est la date d'adoption du standard de liens
-# (RULES-2026-08-21-115658). Un remplacant cree ce jour-la ou apres est
-# repute connaitre le standard ; avant, c'est du stock anterieur. Seule la
-# date `created_at` du front-matter est lue ; aucune date n'est devinee et le
-# nom de fichier n'est jamais substitue a une date absente ou illisible.
-# Lecture directe et independante du fichier (pas de passage par le pipeline
-# EXTRACT/read a tabulations partage plus haut) : ce pipeline colle les
-# tabulations consecutives d'un champ vide (`status:` absent), ce qui decale
-# les colonnes suivantes — constat fait en cours d'ecriture de ce complement,
-# non corrige dans le pipeline existant (hors perimetre), contourne ici pour
-# que cette mesure seule reste fiable.
+# Breakdown by creation date of the superseding document (complement Session Executor,
+# 2026-08-24): 2026-08-21 is the adoption date of the link standard
+# (RULES-2026-08-21-115658). A superseding document created on that day or after is
+# deemed to know the standard; before, it is earlier stock. Only the
+# `created_at` date of the front-matter is read; no date is guessed and the
+# file name is never substituted for an absent or unreadable date.
+# Direct and independent reading of the file (no going through the shared
+# tab-based EXTRACT/read pipeline above): that pipeline collapses the
+# consecutive tabs of an empty field (`status:` absent), which shifts
+# the following columns — observation made while writing this complement,
+# not fixed in the existing pipeline (outside the perimeter), worked around here so
+# that this measurement alone stays reliable.
 DATE_BOUNDARY="2026-08-21"
 DATE_BEFORE=0
 DATE_ONAFTER=0
@@ -358,8 +358,8 @@ DATE_UNKNOWN=0
 DATE_UNKNOWN_LIST=""
 
 read_created_at() {
-  # $1 = chemin absolu d'un document .md ; imprime la valeur brute de
-  # created_at lue dans son en-tete, ou rien si absente/illisible.
+  # $1 = absolute path of a .md document; prints the raw value of
+  # created_at read in its header, or nothing if absent/unreadable.
   awk '
     NR == 1 && $0 == "---" { infm = 1; next }
     infm && $0 == "---" { exit }
@@ -374,7 +374,7 @@ read_created_at() {
 }
 
 check_pair() {
-  # $1 = source (remplacant), $2 = cible (remplace)
+  # $1 = source (superseding), $2 = target (superseded)
   local src="$1" tgt="$2" key
   key="$src|$tgt"
   kv_has SEEN_PAIR "$key" && return
@@ -416,7 +416,7 @@ check_pair() {
   fi
 }
 
-# (a) via front-matter supersedes : basename -> chercher le chemin absolu dans le corpus
+# (a) via front-matter supersedes: basename -> look up the absolute path in the corpus
 while IFS= read -r p; do
   [ -z "$p" ] && continue
   kv_set BASENAME_TO_PATH "$(basename "$p")" "$p"
@@ -435,8 +435,8 @@ for i in "${!SUP_SRC[@]}"; do
   check_pair "$src" "$tgt"
 done
 
-# (b) via section Liens, type "supersedes" (Mission 054 : vocabulaire anglais
-# seul depuis la bascule etape 6)
+# (b) via Liens section, type "supersedes" (Mission 054: English vocabulary
+# only since the cutover, step 6)
 for i in "${!EDGE_SRC[@]}"; do
   if [ "${EDGE_TYPE[$i]}" = "supersedes" ] && [ -n "${EDGE_TGT[$i]}" ]; then
     check_pair "${EDGE_SRC[$i]}" "${EDGE_TGT[$i]}"
@@ -457,21 +457,21 @@ if [ "$DATE_UNKNOWN" -gt 0 ]; then
 fi
 echo ""
 
-# --- 4. Graphe Mermaid ---
+# --- 4. Mermaid graph ---
 node_id() {
   printf '%s' "$1" | sed -E 's#.*/([^/]+)\.md$#\1#; s/[^A-Za-z0-9_]/_/g'
 }
 node_label() {
-  # Pas de troncature par octets : les titres contiennent des caracteres
-  # multi-octets (fleches, guillemets typographiques) et `cut -c`/`awk
-  # substr` coupent ici par octet malgre la locale C.UTF-8, produisant du
-  # mojibake. On garde le titre entier plutot que de risquer une coupure
-  # invalide.
+  # No truncation by bytes: titles contain multi-byte
+  # characters (arrows, typographic quotes) and `cut -c`/`awk
+  # substr` cut here by byte despite the C.UTF-8 locale, producing
+  # mojibake. We keep the whole title rather than risk an invalid
+  # cut.
   local t
   kv_get DOC_TITLE "$1"; t="$KV_VALUE"
   [ -z "$t" ] && t="$(basename "$1" .md)"
-  # Apostrophe ecrite telle quelle : `\x27` dans un remplacement est une
-  # extension de GNU sed, que le sed d'Apple recopie en « x27 » (Mission 181).
+  # Apostrophe written as is: `\x27` in a replacement is a
+  # GNU sed extension, which the Apple sed copies as « x27 » (Mission 181).
   printf '%s' "$t" | sed "s/\"/'/g"
 }
 

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Recherche par contenu dans les fichiers .md sous une racine.
-# Renvoie les lignes trouvees, jamais les fichiers : un resultat par ligne,
-# format "chemin:numero-de-ligne:texte", suffixe de " [REMPLACÉ]" quand le
-# fichier source figure dans <racine>/superseded-files.txt (liste produite
-# par tools/build-indexes.sh, objectif B, Mission 029). La ligne reste
-# toujours renvoyee, jamais filtree. Liste absente => recherche sans marque,
-# sans erreur. La marque n'est fraiche qu'a la derniere generation des index
-# (build-indexes.sh) : un supersedes ajoute apres coup n'apparait qu'apres
-# une regeneration.
+# Content search in the .md files under a root.
+# Returns the matching lines, never the files: one result per line,
+# format "chemin:numero-de-ligne:texte" (path:line-number:text), suffixed with " [REMPLACÉ]" when the
+# source file appears in <racine>/superseded-files.txt (list produced
+# by tools/build-indexes.sh, objective B, Mission 029). The line is still
+# always returned, never filtered. List absent => search without the mark,
+# without error. The mark is only as fresh as the last generation of the indexes
+# (build-indexes.sh): a supersedes added afterwards only appears after
+# a regeneration.
 #
 # usage: find-in-vault.sh [--root <dir>] [--limit N] [--frontmatter-only] <motif>
 
@@ -57,15 +57,15 @@ fi
 
 EXCLUDE_RE='(^|/)(\.git|\.githooks|\.claude|\.codex|graphify-out|node_modules|\.venv|venv|__pycache__)(/|$)'
 
-# --- Marquage des documents remplaces (objectif B, Mission 029) ---
-# La liste superseded-files.txt est ecrite par build-indexes.sh a la racine
-# qui lui a ete passee ; comme le defaut de racine de ce script reste le
-# repertoire courant de l'appelant (OPEN 1, Mission 027, hors perimetre de
-# la Mission 029), cette racine peut differer de celle de generation (ex.
-# appel depuis workshop-build, liste ecrite sous workshop-production/). On
-# cherche donc le fichier n'importe ou sous $ROOT, pas seulement a sa racine.
-# Ensemble porte par tools/kvmap.sh : `declare -A` n'existe pas dans le
-# bash 3.2 livre par Apple (Mission 181).
+# --- Marking of superseded documents (objective B, Mission 029) ---
+# The list superseded-files.txt is written by build-indexes.sh at the root
+# that was passed to it; since the default root of this script remains the
+# caller's current directory (OPEN 1, Mission 027, outside the perimeter of
+# Mission 029), that root may differ from the generation root (e.g.
+# a call from workshop-build, list written under workshop-production/). We
+# therefore look for the file anywhere under $ROOT, not only at its root.
+# Set carried by tools/kvmap.sh: `declare -A` does not exist in the
+# bash 3.2 shipped by Apple (Mission 181).
 . "$(dirname "$0")/kvmap.sh"
 while IFS= read -r SUP_LIST_FILE; do
   [ -z "$SUP_LIST_FILE" ] && continue
@@ -88,8 +88,8 @@ mark_superseded() {
 }
 
 if [ "$FM_ONLY" -eq 1 ]; then
-  # Mode front-matter : les bornes "---" different par fichier (FNR), mais un
-  # seul processus awk traite tous les fichiers passes en argument (rapide).
+  # Front-matter mode: the "---" bounds differ per file (FNR), but a
+  # single awk process handles all the files passed as arguments (fast).
   FILES="$(find "$ROOT" -type f -name '*.md' | grep -vE "$EXCLUDE_RE")"
   if [ -n "$FILES" ]; then
     printf '%s\n' "$FILES" | tr '\n' '\0' | xargs -0 awk -v pat="$PATTERN" '

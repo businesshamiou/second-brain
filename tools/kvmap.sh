@@ -1,37 +1,37 @@
 #!/usr/bin/env bash
-# Tableaux associatifs en bash 3.2 : kv_set, kv_get, kv_has, kv_keys.
+# Associative arrays in bash 3.2: kv_set, kv_get, kv_has, kv_keys.
 #
-# Motif (Mission 181) : `declare -A` n'existe qu'a partir de bash 4.0, et
-# macOS livre /bin/bash 3.2. Sous 3.2, `declare -A M=()` echoue, M devient un
-# tableau indice, et chaque cle chemin (`rules/x.md`) est evaluee comme une
-# expression arithmetique : l'outil refuse de tourner, ou pire, tourne sans
-# rien verifier. Une forme commune aux trois plateformes vaut mieux qu'une
-# branche par systeme : ce fichier est cette forme.
+# Reason (Mission 181): `declare -A` only exists from bash 4.0 on, and
+# macOS ships /bin/bash 3.2. Under 3.2, `declare -A M=()` fails, M becomes an
+# indexed array, and each path key (`rules/x.md`) is evaluated as an
+# arithmetic expression: the tool refuses to run, or worse, runs without
+# checking anything. One form common to the three platforms is better than one
+# branch per system: this file is that form.
 #
-# Principe : chaque cle est encodee en un nom de variable unique
-# (KV_<carte>__<cle encodee>), puis lue par indirection `${!nom}`, disponible
-# depuis bash 2. La recherche reste en temps constant, comme un vrai tableau
-# associatif, sans sous-processus dans le cas courant. L'encodage est
-# injectif : `_` est echappe en premier (`_5f`), puis `/`, `.`, `-` et
-# l'espace. Une cle portant tout autre caractere passe par un encodage
-# hexadecimal complet, sous un autre prefixe (KVX_), donc sans collision
-# possible avec la forme courte.
+# Principle: each key is encoded into a unique variable name
+# (KV_<map>__<encoded key>), then read through the indirection `${!name}`, available
+# since bash 2. Lookup stays constant-time, like a real associative
+# array, with no subprocess in the common case. The encoding is
+# injective: `_` is escaped first (`_5f`), then `/`, `.`, `-` and
+# the space. A key carrying any other character goes through a full hexadecimal
+# encoding, under another prefix (KVX_), hence with no possible
+# collision with the short form.
 #
-# L'ordre d'insertion des cles est conserve (kv_keys) ; celui de
-# `${!M[@]}` ne l'etait pas, donc aucun appelant ne peut en dependre.
+# The insertion order of the keys is kept (kv_keys); that of
+# `${!M[@]}` was not, so no caller can depend on it.
 #
-# Nom de carte : identifiant bash (lettres, chiffres, `_`).
+# Map name: bash identifier (letters, digits, `_`).
 #
 # usage: . "$SCRIPT_DIR/kvmap.sh"
-#   kv_set CARTE CLE VALEUR
-#   kv_get CARTE CLE          -> KV_VALUE ; code 0 si la cle existe, 1 sinon
-#   kv_has CARTE CLE          -> code 0 si la cle existe
-#   kv_keys CARTE             -> tableau KV_KEYS, ordre d'insertion
+#   kv_set MAP KEY VALUE
+#   kv_get MAP KEY            -> KV_VALUE; code 0 if the key exists, 1 otherwise
+#   kv_has MAP KEY            -> code 0 if the key exists
+#   kv_keys MAP               -> array KV_KEYS, insertion order
 
 KV__ALNUM='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_'
 
 kv__name() {
-  # Nom de variable de la cle $2 dans la carte $1, dans KV_NAME.
+  # Variable name of key $2 in map $1, in KV_NAME.
   local k="$2"
   k="${k//_/_5f}"
   k="${k//\//_2f}"
@@ -40,8 +40,8 @@ kv__name() {
   k="${k// /_20}"
   case "$k" in
     *[!$KV__ALNUM]*)
-      # Classe ecrite en toutes lettres, jamais [:alnum:] : selon la locale,
-      # une lettre accentuee y entrerait et ferait un nom de variable invalide.
+      # Class spelled out in full, never [:alnum:]: depending on the locale,
+      # an accented letter would fall into it and make an invalid variable name.
       k="$(printf '%s' "$2" | od -An -v -tx1 | tr -d ' \n')"
       KV_NAME="KVX_${1}__${k}"
       return 0
@@ -74,7 +74,7 @@ kv_has() {
 }
 
 kv_keys() {
-  # Forme gardee : sous `set -u`, bash 3.2 refuse l'expansion d'un tableau
-  # vide (Mission 180).
+  # Guarded form: under `set -u`, bash 3.2 refuses the expansion of an empty
+  # array (Mission 180).
   eval "KV_KEYS=(\${KVKEYS_$1[@]+\"\${KVKEYS_$1[@]}\"})"
 }

@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
-# Pose le serveur MCP du Vault dans les outils du poste (Decision
-# 2026-09-17-000545, A6) -- appele par le skill first-install, jamais par
-# l'installeur (qui n'ecrit rien dans le profil).
+# Installs the Vault MCP server in the machine's tools (Decision
+# 2026-09-17-000545, A6) -- called by the first-install skill, never by
+# the installer (which writes nothing in the profile).
 #
-# Detecte ce qui est present -- `claude` (Claude Code), `codex`, l'application
-# de bureau Claude (dossier de configuration mesure, jamais suppose) -- et
-# injecte le serveur `second-brain-vault` :
-#   - Claude Code : `claude mcp add -s user` ;
-#   - Codex       : `codex mcp add` ;
-#   - application : fusion dans claude_desktop_config.json (autres serveurs
-#                   et autres cles conserves).
-# Idempotent : un serveur deja configure a l'identique n'est pas retouche ;
-# un second passage laisse les fichiers octet pour octet.
-# Dossier autorise = racine de l'espace de travail. Python est verifie par uv.
-# Geste restant imprime : redemarrer l'application.
+# Detects what is present -- `claude` (Claude Code), `codex`, the Claude desktop
+# application (configuration folder measured, never assumed) -- and
+# injects the server `second-brain-vault`:
+#   - Claude Code: `claude mcp add -s user`;
+#   - Codex      : `codex mcp add`;
+#   - application: merge into claude_desktop_config.json (other servers
+#                  and other keys kept).
+# Idempotent: a server already configured identically is not touched again;
+# a second run leaves the files byte for byte.
+# Authorized folder = root of the workspace. Python is checked through uv.
+# Remaining gesture printed: restart the application.
 #
-# usage: install-vault-mcp.sh <racine-espace-de-travail> [--vault <racine>] [--lang FR|EN|ES]
+# usage: install-vault-mcp.sh <workspace-root> [--vault <root>] [--lang FR|EN|ES]
 
 set -u
 
@@ -66,7 +66,7 @@ CATALOG() {
   PYRUN format-catalog "$CATALOG_FILE" "$@"
 }
 
-# Chemin lu par un programme natif (forme Windows sous Git Bash).
+# Path read by a native program (Windows form under Git Bash).
 native() {
   if command -v cygpath >/dev/null 2>&1; then
     cygpath -w "$1"
@@ -87,7 +87,7 @@ MCP_N="$(native "$MCP_SCRIPT")"
 VAULT_N="$(native "$VAULT_ROOT")"
 WS_N="$(native "$WORKSPACE")"
 
-# same_entry <config> : 0 si le serveur y est deja configure a l'identique.
+# same_entry <config>: 0 if the server is already configured identically there.
 same_entry() {
   local current wanted
   [ -f "$1" ] || return 1
@@ -98,7 +98,7 @@ same_entry() {
 
 DETECTED=0
 
-# --- Claude Code : configuration utilisateur (~/.claude.json) ---------------
+# --- Claude Code: user configuration (~/.claude.json) ---------------
 if command -v claude >/dev/null 2>&1; then
   DETECTED=1
   CATALOG "vaultMcp.detected" "Claude Code"
@@ -116,7 +116,7 @@ else
   CATALOG "vaultMcp.notDetected" "Claude Code"
 fi
 
-# --- Codex : ~/.codex/config.toml (ou $CODEX_HOME) --------------------------
+# --- Codex: ~/.codex/config.toml (or $CODEX_HOME) --------------------------
 if command -v codex >/dev/null 2>&1; then
   DETECTED=1
   CATALOG "vaultMcp.detected" "Codex"
@@ -135,7 +135,7 @@ else
   CATALOG "vaultMcp.notDetected" "Codex"
 fi
 
-# --- Application de bureau Claude : dossiers de configuration mesures -------
+# --- Claude desktop application: measured configuration folders -------
 to_unix() {
   if command -v cygpath >/dev/null 2>&1; then
     cygpath -u "$1"

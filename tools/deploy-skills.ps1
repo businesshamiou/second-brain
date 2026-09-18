@@ -7,12 +7,12 @@
 .DESCRIPTION
     Role: dot-sourced by install.ps1. Makes every "method" skill --
     everything under <clone>/skills/ that carries a SKILL.md, INCLUDING
-    skills/external/ (Owner arbitrage, 2026-09-12: "activer, pour Claude
-    Code et pour Codex, les skills de la methode -- ceux de skills/ et ceux
-    de skills/external/") -- available to Claude Code and to Codex from
+    skills/external/ (Owner arbitrage, 2026-09-12: "activate, for Claude
+    Code and for Codex, the skills of the method -- those of skills/ and those
+    of skills/external/", the Owner's words, translated from French) -- available to Claude Code and to Codex from
     every neighbouring project, not just from inside the clone itself
     (spec, Skills deployes: "toujours deployes, par lien et non par
-    copie"). A correction inside the clone's skills/<name>/ then
+    copie" ["always deployed, by link and not by copy"]). A correction inside the clone's skills/<name>/ then
     propagates to every place that already links to it, with no
     reinstall.
 
@@ -27,7 +27,7 @@
     file's only two sources are therefore skills/ and skills/external/ --
     never skills-warehouse/.
 
-    Mission 173 (Q17, "rien dans le profil") retired this file's own
+    Mission 173 (Q17, "rien dans le profil" ["nothing in the profile"]) retired this file's own
     profile-level orchestrators, Publish-DeployedSkills and
     Publish-DeployedAssistant (Mission 171-C01, steps 4 and 6): nothing is
     ever linked into ~/.claude or ~/.agents any more. The generic
@@ -54,7 +54,7 @@
     ceiling, both targets receive the same set.
 
     Idempotency (ticket 07 criterion 4, "aucun lien duplique, aucun
-    fichier modifie") follows the same three-state model the Vault's own
+    fichier modifie" ["no duplicated link, no modified file"]) follows the same three-state model the Vault's own
     first-install skill already uses for its own junctions
     (install-checklist.md items 8-10), adapted to a fully unattended
     script (this installer never has a live Owner to ask mid-run, unlike
@@ -75,8 +75,8 @@
     Junction` -- unlike a symbolic link, a junction needs no elevated
     privilege and no Developer Mode, matching ticket 04's "never
     elevated" constraint and the ticket's own literal wording, "jonction
-    sous Windows"); a symbolic link elsewhere (`New-Item -ItemType
-    SymbolicLink`, ticket's own "lien symbolique ailleurs" -- exercised by
+    sous Windows" ["junction under Windows"]); a symbolic link elsewhere (`New-Item -ItemType
+    SymbolicLink`, ticket's own "lien symbolique ailleurs" ["symbolic link elsewhere"] -- exercised by
     this repository's Windows-only test suite as a code path, not
     measured live, since the Mission's own main test runs on Windows).
     Always an ABSOLUTE target: NTFS junctions cannot encode a relative
@@ -153,7 +153,7 @@ function Get-SkillDirectoryEntries {
 
 function Get-DefaultSkillEntries {
     # The method-fabricated skills (T19: "les skills fabriques du Vault
-    # (skills/)"), identified the same way the Vault's own first-install
+    # (skills/)" ["the fabricated skills of the Vault (skills/)"]), identified the same way the Vault's own first-install
     # checklist item 8 identifies them: every skills/<name>/SKILL.md
     # except external/ (item 9's own, separate concern -- always
     # deployed too as of Mission 171-C01 step 4, see
@@ -166,7 +166,7 @@ function Get-DefaultSkillEntries {
 }
 
 function Get-ExternalMethodSkillEntries {
-    # T24: "outils de la methode" -- skills/external/, the adopted library
+    # T24: "outils de la methode" ["tools of the method"] -- skills/external/, the adopted library
     # the method itself uses. Unconditional as of Mission 171-C01 step 4
     # (superseding ticket 07's questionnaire-gated 'external' token,
     # retired along with the eighth question): always deployed to Claude
@@ -204,7 +204,7 @@ function Measure-MethodSkillsCodexBudget {
     # retired eighth question. Both directories are unconditional method
     # skills now (Owner arbitrage, 2026-09-12), so both count toward the
     # one ceiling that gates what Codex receives. Never throws (Doctrine
-    # rule 3: "Pas d'arret") -- returns OverBudget instead, which the
+    # rule 3: "Pas d'arret" ["No stop"]) -- returns OverBudget instead, which the
     # project-linking step (tools/project-bootstrap.sh, Mission 173) turns
     # into a per-target fallback: Codex drops skills/external/ when over
     # budget, Claude Code never does.
