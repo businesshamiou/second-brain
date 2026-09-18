@@ -1,7 +1,7 @@
 ---
 type: decision
-title: "Fin de passe skills V1 — liste à six skills plus un hook, principe commande, arbitrages session-start / session-close / first-install, recherche scindée en trois, ordre de fabrication, péremption par sources"
-description: "Grave l'ensemble des arbitrages de la passe skills V1 rendus entre le 2026-08-30 et le 2026-09-01 : liste finale (session-start, session-close, écriture-de-mission, project-bootstrap, first-install, recherche interne ; executor-preflight devient un hook), principe commande (l'Owner lance, jamais de canal agent → agent), les points arbitrés de session-start (six), session-close (quatre) et first-install (quatre), la scission de la recherche (interne fabriquée, web couverte par le skill research de la bibliothèque, images sans skill), le maintien du nom to-questionnaire après investigation, l'ordre de fabrication commençant par session-start et finissant par first-install, et le mécanisme de péremption par sources (vault-implements + vault-validated croisés avec superseded-files.txt et les amended by). Amende DECISION-2026-08-25-232341 §5.1."
+title: "End of the skills V1 pass — list of six skills plus a hook, command principle, session-start / session-close / first-install arbitrations, research split in three, build order, staleness by sources"
+description: "Engraves all the arbitrations of the skills V1 pass rendered between 2026-08-30 and 2026-09-01: final list (session-start, session-close, écriture-de-mission, project-bootstrap, first-install, internal research; executor-preflight becomes a hook), command principle (the Owner launches, never an agent → agent channel), the arbitrated points of session-start (six), session-close (four) and first-install (four), the split of research (internal built, web covered by the library's research skill, images without a skill), keeping the name to-questionnaire after investigation, the build order starting with session-start and ending with first-install, and the staleness-by-sources mechanism (vault-implements + vault-validated crossed with superseded-files.txt and the amended by lines). Amends DECISION-2026-08-25-232341 §5.1."
 created_at: "2026-09-01T14:49:31-04:00"
 timezone: America/Montreal
 status: arbitrated
@@ -10,79 +10,79 @@ amends: "./DECISION-2026-08-25-232341-evening-consolidation-project-standard-and
 rapatriated_from: "workshop-build/workshop-production/decisions/DECISION-2026-09-01-144931-skills-v1-end-of-pass.md"
 ---
 
-# DÉCISION — FIN DE PASSE SKILLS V1
+# DECISION — END OF THE SKILLS V1 PASS
 
 ## Date
 
-2026-09-01 (arbitrages rendus du 2026-08-30 au 2026-09-01)
+2026-09-01 (arbitrations rendered from 2026-08-30 to 2026-09-01)
 
-## Statut
+## Status
 
-`ARBITRATED` — mots exacts de l'Owner, fenêtre Pilot : « hook », « ok » (session-start), « ok » (session-close), « je valide » (commande), puis ce jour « fi-ok », « garder », « c-ok », « péremption-implements », et la scission de la recherche dictée en toutes lettres.
+`ARBITRATED` — exact words of the Owner, Pilot window: « hook », « ok » (session-start), « ok » (session-close), « je valide » ["I validate"] (command), then on this day « fi-ok », « garder » ["keep"], « c-ok », « péremption-implements » ["staleness-implements"], and the split of research dictated in full.
 
-## Décision
+## Decision
 
-**1. Liste V1 : six skills et un hook.** Les skills fabriqués par le Vault sont `session-start`, `session-close`, `écriture-de-mission` (nouveau, ajouté par cette Décision), `project-bootstrap`, `first-install`, `recherche-interne`. `executor-preflight` n'est pas un skill : c'est un hook `PreToolUse` posé par le bootstrap, plus le filtre pre-commit, plus trois lignes dans `session-start` (arbitrage « hook »). Cette liste amende `DECISION-2026-08-25-232341` §5.1 (qui disait six skills dont un `executor-preflight` et un skill de recherche non spécifié).
+**1. V1 list: six skills and a hook.** The skills built by the Vault are `session-start`, `session-close`, `écriture-de-mission` (new, added by this Decision), `project-bootstrap`, `first-install`, `recherche-interne`. `executor-preflight` is not a skill: it is a `PreToolUse` hook placed by the bootstrap, plus the pre-commit filter, plus three lines in `session-start` (arbitration « hook »). This list amends `DECISION-2026-08-25-232341` §5.1 (which said six skills including an `executor-preflight` and an unspecified research skill).
 
-**2. Principe `commande`, commun à tous.** Le Pilot prépare sur disque ; l'Owner lance une commande fixe dans Claude Code ; l'Executor finit seul et rend un RELAY. Jamais de canal agent → agent : l'Owner reste l'unique pont entre fenêtres.
+**2. `commande` (command) principle, common to all.** The Pilot prepares on disk; the Owner launches a fixed command in Claude Code; the Executor finishes alone and returns a RELAY. Never an agent → agent channel: the Owner remains the only bridge between windows.
 
-**3. `session-start`, six points (arbitrés le 2026-08-31).** Complète le prompt d'ouverture, ne le remplace pas · le hook est le déclencheur côté Executor, automatique seulement une fois posé par le bootstrap · un seul skill, bascule mécanique selon la surface (shell disponible ?) · canari d'ouverture = `rev:` de `.pre-commit-config.yaml` comparé à la tête du Vault + présence du hook + présence des scripts gardiens · NOT-READY = arrêt (Executor : aucun geste ; Pilot : aucun dépôt) · la liste de lecture par rôle vit dans un fichier du Vault, chaîne `amended by` suivie.
+**3. `session-start`, six points (arbitrated on 2026-08-31).** Completes the opening prompt, does not replace it · the hook is the trigger on the Executor side, automatic only once placed by the bootstrap · a single skill, mechanical switch according to the surface (shell available?) · opening canary = `rev:` of `.pre-commit-config.yaml` compared with the Vault's head + presence of the hook + presence of the guardian scripts · NOT-READY = stop (Executor: no gesture; Pilot: no filing) · the reading list per role lives in a Vault file, `amended by` chain followed.
 
-**4. `session-close`, quatre points (arbitrés le 2026-08-31).** Déclenché par l'Owner (« wrap ») · deux surfaces · refuse de clore avec des trous (portes sans ligne, résidus non arbitrés, RELAY non consommé) · la tenue de `MISSION-INDEX.md` fait partie de sa spec.
+**4. `session-close`, four points (arbitrated on 2026-08-31).** Triggered by the Owner (« wrap ») · two surfaces · refuses to close with holes (doors without a line, unarbitrated residues, unconsumed RELAY) · keeping `MISSION-INDEX.md` up to date is part of its spec.
 
-**5. `first-install`, quatre points (arbitrés « fi-ok » le 2026-09-01).** Executor seul · réutilise le skill `to-questionnaire` de la bibliothèque pour son interrogatoire · rejouable sans écraser (sur un poste déjà installé, il complète) · propose les skills chat sans jamais les déclarer installés — l'installation chat est un geste Owner constaté. Il se fabrique **en dernier** : installer tout exige d'avoir vu tout.
+**5. `first-install`, four points (arbitrated « fi-ok » on 2026-09-01).** Executor only · reuses the library's `to-questionnaire` skill for its interrogation · replayable without overwriting (on an already installed machine, it completes) · proposes the chat skills without ever declaring them installed — chat installation is an observed Owner gesture. It is built **last**: installing everything requires having seen everything.
 
-**6. Recherche : trois objets, un seul fabriqué.** (a) **Recherche interne au Vault** : skill V1 `recherche-interne`, une discipline et pas un moteur — index et champs `description` d'abord (dévoilement progressif), puis `grep`/glob exacts sur le corpus, jamais d'affirmation sans chemin mesuré ; deux surfaces ; conforme à la conclusion de l'étude Mnemosyne (câbler l'existant plutôt qu'outiller du neuf). (b) **Recherche web** : couverte par le skill `research` de la bibliothèque externe (mesuré au catalogue v3, case UD, invocation `/research` ou automatique — « high-trust primary sources », sortie Markdown citée) ; rien à fabriquer ; si l'Owner fournit une meilleure source, elle passera par le circuit d'adoption ordinaire. (c) **Recherche d'images** : aucun skill, les règles en place suffisent.
+**6. Research: three objects, only one built.** (a) **Research internal to the Vault**: V1 skill `recherche-interne`, a discipline and not an engine — indexes and `description` fields first (progressive disclosure), then exact `grep`/glob on the corpus, never an assertion without a measured path; two surfaces; consistent with the conclusion of the Mnemosyne study (wire up the existing rather than tool up anew). (b) **Web research**: covered by the `research` skill of the external library (measured in catalogue v3, box UD, invocation `/research` or automatic — "high-trust primary sources", cited Markdown output); nothing to build; if the Owner provides a better source, it will go through the ordinary adoption circuit. (c) **Image search**: no skill, the rules in place suffice.
 
-**7. `to-questionnaire` garde son nom (arbitrage « garder », après investigation).** Mesuré : le nom vient de l'amont `github.com/mattpocock/skills` (front-matter `upstream-repo`, version 1.2.3), et « questionnaire » est un mot anglais à part entière — le nommage English est respecté. Le renommer romprait l'appariement par nom du cycle update-ou-rejet à chaque paquet du warehouse, la jonction, le catalogue et le manifeste, pour corriger un défaut qui n'existe pas.
+**7. `to-questionnaire` keeps its name (arbitration « garder » ["keep"], after investigation).** Measured: the name comes from the upstream `github.com/mattpocock/skills` (front-matter `upstream-repo`, version 1.2.3), and "questionnaire" is an English word in its own right — the English naming is respected. Renaming it would break the matching by name of the update-or-reject cycle at each warehouse package, the junction, the catalogue and the manifest, to fix a defect that does not exist.
 
-**8. Ordre de fabrication (arbitrage « c-ok »).** L'étude préalable est faite (recherche des règles d'or de fraîcheur documentaire, ce jour, consignée en Raison). Puis : `session-start` → `session-close` → `écriture-de-mission` → `project-bootstrap` (mode adopter) → `recherche-interne` → `first-install`. Un skill à la fois, entièrement spécifié avant lancement, règle anti-chevauchement à la création (232341, inchangées). Conséquence assumée : l'adoption du projet `skills-warehouse` attend `project-bootstrap`.
+**8. Build order (arbitration « c-ok »).** The preliminary study is done (research on the golden rules of documentation freshness, on this day, recorded in Reason). Then: `session-start` → `session-close` → `écriture-de-mission` → `project-bootstrap` (adopt mode) → `recherche-interne` → `first-install`. One skill at a time, fully specified before launch, anti-overlap rule at creation (232341, unchanged). Accepted consequence: the adoption of the `skills-warehouse` project waits for `project-bootstrap`.
 
-**9. Péremption par sources (arbitrage « péremption-implements »).** Chaque skill fabriqué par le Vault porte dans `metadata` : `vault-implements` (chemins des Décisions et règles qu'il incarne, chaîne séparée par virgules — `metadata` n'accepte que des paires chaîne → chaîne) et `vault-validated` (date de dernière validation). Un skill est **réputé périmé** dès qu'une de ses sources figure dans `superseded-files.txt` ou reçoit une ligne `amended by` postérieure à son `vault-validated`. Contrôle manuel à chaque fin de passe pour commencer ; gardien mécanique candidat (croisement de fichiers existants, aucun outil neuf) — trajectoire doctrine → règle → mécanisme. Les skills externes adoptés ne portent pas `vault-implements` : leur péremption est celle du cycle update-ou-rejet.
+**9. Staleness by sources (arbitration « péremption-implements » ["staleness-implements"]).** Each skill built by the Vault carries in `metadata`: `vault-implements` (paths of the Decisions and rules it embodies, comma-separated string — `metadata` accepts only string → string pairs) and `vault-validated` (date of last validation). A skill is **deemed stale** as soon as one of its sources appears in `superseded-files.txt` or receives an `amended by` line later than its `vault-validated`. Manual check at each end of pass to begin with; candidate mechanical guardian (crossing of existing files, no new tool) — trajectory doctrine → rule → mechanism. Adopted external skills do not carry `vault-implements`: their staleness is that of the update-or-reject cycle.
 
-## Raison
+## Reason
 
-La passe V1 était arbitrée aux deux tiers depuis le 2026-08-31 (handoff §3) ; restaient first-install, la recherche, l'ordre et la péremption. Les verdicts de ce jour ferment la passe.
+The V1 pass had been two-thirds arbitrated since 2026-08-31 (handoff §3); first-install, research, the order and staleness remained. Today's verdicts close the pass.
 
-L'ajout d'`écriture-de-mission` à la liste s'appuie sur une preuve mesurée : trois contradictions internes de Missions en trois jours (090, 108 ×2), gravées avec leurs règles par `DECISION-2026-09-01-115547` — le skill n'a plus qu'à incarner des règles déjà écrites, c'est le rendement le plus sûr du chantier.
+The addition of `écriture-de-mission` to the list rests on measured evidence: three internal contradictions of Missions in three days (090, 108 ×2), engraved with their rules by `DECISION-2026-09-01-115547` — the skill only has to embody rules already written; it is the safest yield of the work item.
 
-La scission de la recherche vient d'une mesure : le catalogue v3 montre que la recherche web est déjà servie par un skill adopté (`research`), et l'étude Mnemosyne (2026-08-30) avait conclu que câbler les mécanismes existants vaut mieux que du nouvel outillage — la recherche interne est donc une discipline sur les index existants, pas un moteur.
+The split of research comes from a measurement: catalogue v3 shows that web research is already served by an adopted skill (`research`), and the Mnemosyne study (2026-08-30) had concluded that wiring up existing mechanisms is better than new tooling — internal research is therefore a discipline over the existing indexes, not an engine.
 
-La péremption par sources fond la recommandation du Pilot avec les règles d'or du terrain, recherchées ce jour sur demande de l'Owner : lier chaque document à ses sources dans un manifeste que la machine lit ; dater la dernière validation dans le document lui-même et l'imposer en CI ; mettre à jour dans le même geste que le changement, avec revue périodique et responsable nommé. Le Vault possède déjà les deux stocks machine-lisibles nécessaires (`superseded-files.txt`, lignes `amended by`) : le futur gardien est un croisement, pas un outil.
+Staleness by sources merges the Pilot's recommendation with the field's golden rules, researched on this day at the Owner's request: link each document to its sources in a manifest the machine reads; date the last validation in the document itself and enforce it in CI; update in the same gesture as the change, with periodic review and a named person responsible. The Vault already has the two machine-readable stocks needed (`superseded-files.txt`, `amended by` lines): the future guardian is a crossing, not a tool.
 
 ## Impact
 
-- `DECISION-2026-08-25-232341` §5.1 est amendée (réciproque `amended by` posée par la Mission d'exécution).
-- La fabrication peut commencer : première spec = `session-start`, un skill à la fois.
-- Le gabarit des skills fabriqués gagne deux champs `metadata` (`vault-implements`, `vault-validated`) — à poser dans la spec du premier skill, pas rétroactivement sur les 40 externes.
-- La revue de péremption entre dans la clôture de chaque passe skills ; `session-close` (point 4) n'en hérite pas — c'est un contrôle de passe, pas de session.
-- L'installation chat (file point 2) et l'adoption du warehouse (point 4) restent ouvertes, inchangées par cette Décision.
-- Une investigation de nommage est close : `to-questionnaire`, consignée au point 7, aucun trou ni lien mort créé.
+- `DECISION-2026-08-25-232341` §5.1 is amended (reciprocal `amended by` placed by the execution Mission).
+- Building can begin: first spec = `session-start`, one skill at a time.
+- The template of built skills gains two `metadata` fields (`vault-implements`, `vault-validated`) — to be placed in the spec of the first skill, not retroactively on the 40 external ones.
+- The staleness review enters the close of each skills pass; `session-close` (point 4) does not inherit it — it is a pass check, not a session check.
+- Chat installation (queue point 2) and the adoption of the warehouse (point 4) remain open, unchanged by this Decision.
+- A naming investigation is closed: `to-questionnaire`, recorded in point 7, no hole or dead link created.
 
-## Alternatives importantes
+## Important alternatives
 
-- **Fabriquer `écriture-de-mission` en premier** (preuve mesurée la plus forte) : écartée par l'Owner (« on commence par le commencement ») — `session-start` ouvre chaque session, son absence coûte à chaque fenêtre ; l'écriture de Mission vient troisième.
-- **Un moteur de recherche interne** (retrieval, embeddings) : écarté, contre la conclusion de l'étude Mnemosyne et sans besoin mesuré.
-- **Renommer `to-questionnaire`** : écarté après investigation (point 7).
-- **Péremption calendaire** (revue à date fixe sans lien aux sources) : écartée — elle fait relire ce qui n'a pas bougé et manque ce qui a bougé entre deux dates ; la revue périodique reste comme filet, pas comme mécanisme principal.
+- **Build `écriture-de-mission` first** (strongest measured evidence): set aside by the Owner (« on commence par le commencement » ["we start at the beginning"]) — `session-start` opens every session, its absence costs every window; Mission writing comes third.
+- **An internal search engine** (retrieval, embeddings): set aside, against the conclusion of the Mnemosyne study and without measured need.
+- **Rename `to-questionnaire`**: set aside after investigation (point 7).
+- **Calendar staleness** (review at a fixed date with no link to sources): set aside — it makes one reread what has not moved and misses what moved between two dates; the periodic review stays as a safety net, not as the main mechanism.
 
 ## Human gate
 
-- Validation : accordée — verdicts nommés au Statut, Owner, 2026-08-31 et 2026-09-01.
-- Référence : fenêtre Pilot du 2026-09-01 (table d'arbitrage en une passe, un verdict par rubrique) ; handoff `HANDOFF-2026-09-01-004859` §3 pour les arbitrages du 2026-08-31.
+- Validation: granted — verdicts named in Status, Owner, 2026-08-31 and 2026-09-01.
+- Reference: Pilot window of 2026-09-01 (arbitration table in one pass, one verdict per rubric); handoff `HANDOFF-2026-09-01-004859` §3 for the arbitrations of 2026-08-31.
 
-## Artefacts liés
+## Linked artefacts
 
-- Source : `../handoffs/HANDOFF-2026-09-01-004859-session-close-skills-rework-library-pending-106.md` (supprimé) (§3, arbitrages des deux tiers)
-- Source : `../knowledge-notes/KNOWLEDGE-NOTE-2026-09-01-110501-skills-library-v3-catalog.md` (mesure du skill `research`, entrée `to-questionnaire`)
-- Source : `../knowledge-notes/KNOWLEDGE-NOTE-2026-08-30-211552-mnemosyne-retrieval-vs-vault-reel.md` (câbler l'existant plutôt qu'outiller)
-- Exécution : Mission à venir (réciproque sur 232341, spec `session-start`)
+- Source: `../handoffs/HANDOFF-2026-09-01-004859-session-close-skills-rework-library-pending-106.md` (supprimé) (§3, arbitrations of the two thirds)
+- Source: `../knowledge-notes/KNOWLEDGE-NOTE-2026-09-01-110501-skills-library-v3-catalog.md` (measurement of the `research` skill, `to-questionnaire` entry)
+- Source: `../knowledge-notes/KNOWLEDGE-NOTE-2026-08-30-211552-mnemosyne-retrieval-vs-vault-reel.md` (wire up the existing rather than tool up)
+- Execution: Mission to come (reciprocal on 232341, `session-start` spec)
 
 ## Liens
 
-- `prescribed by` — [Gabarit de décision](../../../vault/templates/decision-template.md) (hors Vault)
-- `amends` — [Décision — Consolidation du soir, standard projet et plan](./DECISION-2026-08-25-232341-evening-consolidation-project-standard-and-plan.md)
-- `applies` — [Décision — Prise de conscience du Vault par un projet, trois étages](./DECISION-2026-08-31-210731-project-vault-awareness-three-tiers.md)
-- `applies` — [Décision — Cohérence interne des Missions](./DECISION-2026-09-01-115547-mission-context-coherence-and-least-powerful-reading.md)
-- `see also` — Décision — Critère de score retiré, adoption par nom (historique de l'atelier, non distribué)
-- `see also` — Catalogue v3 des 40 skills externes (historique de l'atelier, non distribué)
+- `prescribed by` — [Decision template](../../../vault/templates/decision-template.md) (hors Vault)
+- `amends` — [Decision — Evening consolidation, project standard and plan](./DECISION-2026-08-25-232341-evening-consolidation-project-standard-and-plan.md)
+- `applies` — [Decision — Awareness of the Vault by a project, in three tiers](./DECISION-2026-08-31-210731-project-vault-awareness-three-tiers.md)
+- `applies` — [Decision — Internal coherence of Missions](./DECISION-2026-09-01-115547-mission-context-coherence-and-least-powerful-reading.md)
+- `see also` — Decision — Score criterion withdrawn, adoption by name (workshop history, not distributed)
+- `see also` — Catalogue v3 of the 40 external skills (workshop history, not distributed)

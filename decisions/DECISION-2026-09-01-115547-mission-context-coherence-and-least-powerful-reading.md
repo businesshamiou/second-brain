@@ -1,7 +1,7 @@
 ---
 type: decision
-title: "Cohérence interne des Missions — section Contexte obligatoire, relecture croisée avant dépôt, mini-prompt sans interdit propre, lecture la moins puissante à l'exécution"
-description: "Grave quatre règles d'écriture et de consommation des Missions après trois contradictions internes attrapées à l'exécution (Mission 090, Mission 108 deux fois) qu'aucun gardien ne peut voir : une section Contexte obligatoire au contenu fixé, une relecture croisée Validations ↔ Interdits ↔ Étapes tracée avant dépôt, un mini-prompt qui ne porte aucun interdit propre à la Mission, et la règle d'exécution selon laquelle l'Executor retient la lecture la moins puissante d'une contradiction et la remonte. Ferme la porte open-mission-internal-coherence par sa propre condition (« une règle écrite »)."
+title: "Internal coherence of Missions — mandatory Context section, cross-review before filing, mini-prompt with no prohibition of its own, least powerful reading at execution"
+description: "Engraves four rules for writing and consuming Missions after three internal contradictions caught at execution (Mission 090, Mission 108 twice) that no guardian can see: a mandatory Context section with fixed content, a traced Validations ↔ Prohibitions ↔ Steps cross-review before filing, a mini-prompt that carries no prohibition specific to the Mission, and the execution rule by which the Executor retains the least powerful reading of a contradiction and reports it. Closes the door open-mission-internal-coherence by its own condition (\"a written rule\")."
 created_at: "2026-09-01T11:55:47-04:00"
 timezone: America/Montreal
 status: arbitrated
@@ -10,71 +10,71 @@ amends: "../rules/RULES-2026-08-23-224706-role-charter-and-session-determination
 rapatriated_from: "workshop-build/workshop-production/decisions/DECISION-2026-09-01-115547-mission-context-coherence-and-least-powerful-reading.md"
 ---
 
-# DÉCISION — COHÉRENCE INTERNE DES MISSIONS
+# DECISION — INTERNAL COHERENCE OF MISSIONS
 
 ## Date
 
 2026-09-01
 
-## Statut
+## Status
 
-`ARBITRATED` — mot exact « graver », Owner, 2026-09-01, dans la fenêtre Pilot, après recommandation unique.
+`ARBITRATED` — exact word « graver » ["engrave"], Owner, 2026-09-01, in the Pilot window, after a single recommendation.
 
-## Décision
+## Decision
 
-Quatre règles, applicables à toute Mission écrite ou exécutée à partir de ce jour, dans le Vault comme dans tout projet.
+Four rules, applicable to every Mission written or executed from this day on, in the Vault as in any project.
 
-**1. La section `## Contexte` est obligatoire dans une Mission**, placée entre le rappel de statut et `## Objectif`. Elle contient, dans cet ordre et sans exception : les faits mesurés qui motivent la Mission, chacun avec sa date et son mode de mesure (`MESURÉ`, `DECLARED`, `HYPOTHÈSE`) ; ce que l'Executor va trouver sur disque et pourquoi c'est là ; les pièges connus (précédents, défauts d'outil, emplacements trompeurs) ; et pourquoi la décision qui autorise la Mission est ce qu'elle est. Une Mission sans contexte oblige l'Executor à reconstituer l'histoire — ou à l'ignorer, ce qui revient à décider l'architecture à sa place.
+**1. The `## Contexte` (Context) section is mandatory in a Mission**, placed between the status reminder and `## Objectif` (Objective). It contains, in this order and without exception: the measured facts that motivate the Mission, each with its date and its mode of measurement (`MESURÉ`, `DECLARED`, `HYPOTHÈSE`); what the Executor will find on disk and why it is there; the known traps (precedents, tool defects, misleading locations); and why the decision that authorizes the Mission is what it is. A Mission without context forces the Executor to reconstruct the history — or to ignore it, which amounts to deciding the architecture in its place.
 
-**2. Avant dépôt, le Pilot fait une relecture croisée** de trois rubriques deux à deux : chaque critère de `## Validations` doit être atteignable sans violer un interdit de `## Gates` ou de `## Contraintes`, et chaque étape de `## Étapes` doit être permise par les mêmes interdits. La relecture est tracée par un commentaire HTML en tête de `## Validations` (« Relecture croisée faite par le Pilot avant dépôt : … »). Un compte de Validations que les Interdits rendent impossible est une faute de rédaction du Pilot, pas un cas à arbitrer par l'Executor.
+**2. Before filing, the Pilot does a cross-review** of three rubrics two by two: each criterion of `## Validations` must be reachable without violating a prohibition of `## Gates` or of `## Contraintes` (Constraints), and each step of `## Étapes` (Steps) must be allowed by the same prohibitions. The review is traced by an HTML comment at the head of `## Validations` (« Relecture croisée faite par le Pilot avant dépôt : … » ["Cross-review done by the Pilot before filing: …"]). A count of Validations that the Prohibitions make impossible is a drafting fault of the Pilot, not a case for the Executor to arbitrate.
 
-**3. Le mini-prompt Executor ne porte aucun interdit propre à la Mission.** Sa rubrique 4 (`RULES-2026-08-23-124937`) se limite aux quatre interdits standards — aucun push, aucun appel modèle, aucune suppression, déplacement vers `_trash/` seulement sur prescription de la Mission — plus un renvoi explicite aux rubriques `## Gates` et `## Contraintes` de la Mission comme seule liste d'interdits propres. Une Mission a une seule source de gates ; un interdit ajouté dans le mini-prompt est un second texte normatif, invisible à la relecture du point 2, et c'est ainsi que la Mission 108 s'est contredite.
+**3. The Executor mini-prompt carries no prohibition specific to the Mission.** Its rubric 4 (`RULES-2026-08-23-124937`) is limited to the four standard prohibitions — no push, no model call, no deletion, move to `_trash/` only when prescribed by the Mission — plus an explicit reference to the Mission's `## Gates` and `## Contraintes` rubrics as the only list of its own prohibitions. A Mission has a single source of gates; a prohibition added in the mini-prompt is a second normative text, invisible to the review of point 2, and that is how Mission 108 contradicted itself.
 
-**4. À l'exécution, une contradiction interne se résout par la lecture la moins puissante.** Quand deux rubriques d'une Mission se contredisent, l'Executor retient l'interprétation qui écrit le moins, ne supprime rien et ne modifie aucun fichier hors du périmètre le plus étroit ; il consigne la contradiction et sa résolution dans la rubrique « Écarts » du rapport et dans le `Résumé` du RELAY. Il ne s'arrête pas pour cela (ce n'est pas un STOP de précondition), sauf si aucune lecture n'est inoffensive. C'est le miroir, pour les Missions, de la règle de la charte pour les rôles : l'erreur doit tomber du côté inoffensif.
+**4. At execution, an internal contradiction is resolved by the least powerful reading.** When two rubrics of a Mission contradict each other, the Executor retains the interpretation that writes the least, deletes nothing and modifies no file outside the narrowest perimeter; it records the contradiction and its resolution in the « Écarts » ["Deviations"] rubric of the report and in the `Résumé` of the RELAY. It does not stop for this (it is not a precondition STOP), unless no reading is harmless. It is the mirror, for Missions, of the charter's rule for roles: the error must fall on the harmless side.
 
-## Raison
+## Reason
 
-Trois contradictions internes en trois Missions, toutes du même type — une rubrique demande ce qu'une autre interdit :
+Three internal contradictions in three Missions, all of the same type — one rubric asks for what another forbids:
 
-- Mission 090 (2026-08-29) : la rubrique Portes prescrivait un verbatim que la rubrique Validations comptait à zéro. Attrapée à l'exécution ; porte `open-mission-internal-coherence` ouverte avec pour condition de fermeture « une règle écrite ou le futur skill d'écriture de Mission ».
-- Mission 108 (2026-09-01), première contradiction : Validations exigeait `vault-source-sha256 = e23edad2…(historique de l'atelier, non distribué)superseded-files.txt`, que l'Executor a rangé parmi les résidus. La contradiction n'était pas dans la Mission : elle était entre la Mission et un texte que personne ne relit.
+- Mission 090 (2026-08-29): the Doors rubric prescribed a verbatim that the Validations rubric counted at zero. Caught at execution; door `open-mission-internal-coherence` opened with the closing condition « une règle écrite ou le futur skill d'écriture de Mission » ["a written rule or the future Mission-writing skill"].
+- Mission 108 (2026-09-01), first contradiction: Validations required `vault-source-sha256 = e23edad2…(workshop history, not distributed)superseded-files.txt`, which the Executor tidied among the residues. The contradiction was not in the Mission: it was between the Mission and a text nobody rereads.
 
-Aucun gardien ne peut voir ces fautes : elles portent sur le sens, pas sur la forme. Les deux fois où la Mission 108 s'est contredite, l'Executor a pris la lecture la moins puissante, l'a dit au RELAY et n'a rien cassé — un réflexe qui n'était écrit nulle part et qui a tenu à la doctrine seule. Une constante mesurée du Vault (audit 057, DECISION-153503) : ce qui tient à la doctrine seule dérive ; ce qui est écrit puis mécanisé tient. La règle est donc gravée maintenant, et le mécanisme — le skill d'écriture de Mission, désigné par la preuve mesurée comme le plus rentable (handoff 2026-09-01 §3) — en héritera à sa fabrication.
+No guardian can see these faults: they bear on meaning, not on form. Both times Mission 108 contradicted itself, the Executor took the least powerful reading, said so in the RELAY and broke nothing — a reflex that was written nowhere and held on doctrine alone. A measured constant of the Vault (audit 057, DECISION-153503): what holds on doctrine alone drifts; what is written and then mechanized holds. The rule is therefore engraved now, and the mechanism — the Mission-writing skill, designated by the measured evidence as the most cost-effective (handoff 2026-09-01 §3) — will inherit it when it is built.
 
 ## Impact
 
-- Le gabarit `vault/templates/mission-template.md` est amendé (Mission 111) : section `## Contexte` ajoutée avec son commentaire de consigne ; commentaire de relecture croisée ajouté en tête de `## Validations`.
-- `RULES-2026-08-23-124937` rubrique 4 est amendée par cette Décision (réciproque `amended by` posée dans le Vault, Mission 111) : quatre interdits standards plus renvoi aux Gates, rien d'autre.
-- La charte (`RULES-2026-08-23-224706` §3, rôle Executor) reçoit une réciproque `amended by` pour le point 4 : l'Executor ne corrige jamais en silence — il ne « corrige » pas non plus une contradiction en choisissant la lecture la plus large.
-- Les Missions 109 et 110 (déposées le 2026-09-01 avant cette Décision) appliquent déjà les points 1 à 3 ; elles ne sont pas retouchées (gel, DECISION-013217).
-- Porte `open-mission-internal-coherence` : close par cette Décision, condition « une règle écrite » satisfaite. La ligne `CLOSE:` est écrite par la Mission 111.
-- Chantier skills V1 (point 3 de la file) : le skill d'écriture de Mission gagne un argument de plus pour l'ordre de fabrication ; cette Décision devient une de ses sources. Rien n'est tranché ici sur cet ordre.
-- Coût : une Mission courte (111), aucun cycle push/ré-épingle (gabarit et règle ne sont pas des hooks).
+- The template `vault/templates/mission-template.md` is amended (Mission 111): `## Contexte` section added with its instruction comment; cross-review comment added at the head of `## Validations`.
+- `RULES-2026-08-23-124937` rubric 4 is amended by this Decision (reciprocal `amended by` placed in the Vault, Mission 111): four standard prohibitions plus a reference to the Gates, nothing else.
+- The charter (`RULES-2026-08-23-224706` §3, Executor role) receives a reciprocal `amended by` for point 4: the Executor never corrects silently — nor does it « corrige » ["correct"] a contradiction by choosing the broadest reading.
+- Missions 109 and 110 (filed on 2026-09-01 before this Decision) already apply points 1 to 3; they are not touched up (freeze, DECISION-013217).
+- Door `open-mission-internal-coherence`: closed by this Decision, condition "a written rule" satisfied. The `CLOSE:` line is written by Mission 111.
+- Skills V1 work item (point 3 of the queue): the Mission-writing skill gains one more argument for the build order; this Decision becomes one of its sources. Nothing is settled here on that order.
+- Cost: one short Mission (111), no push/re-pin cycle (template and rule are not hooks).
 
-## Alternatives importantes
+## Important alternatives
 
-- **Ne rien graver, laisser le skill d'écriture de Mission porter ces règles.** Rejetée : le skill n'existe pas, son ordre de fabrication n'est pas tranché, et la faute s'est rejouée deux fois en trois jours depuis l'ouverture de la porte. Le skill héritera de la Décision ; l'inverse aurait laissé trois sessions de plus sans règle.
-- **Noter en capture à la clôture seulement.** Rejetée : une capture n'est jamais une norme ; la porte resterait ouverte avec sa condition non remplie.
-- **Un gardien de cohérence.** Rejetée comme irréalisable : la contradiction est sémantique ; le seul mécanisme possible est le skill qui écrit la Mission, pas un contrôle qui la lit.
-- **Autoriser l'Executor à s'arrêter (STOP) sur contradiction.** Maintenue ouverte comme variante du point 4 : le STOP coûte une fenêtre entière pour un cas que la lecture la moins puissante règle sans dommage. Réservé au cas où aucune lecture n'est inoffensive.
+- **Engrave nothing, let the Mission-writing skill carry these rules.** Rejected: the skill does not exist, its build order is not settled, and the fault has replayed twice in three days since the door was opened. The skill will inherit from the Decision; the reverse would have left three more sessions without a rule.
+- **Note it in a capture at close only.** Rejected: a capture is never a norm; the door would stay open with its condition unmet.
+- **A coherence guardian.** Rejected as unfeasible: the contradiction is semantic; the only possible mechanism is the skill that writes the Mission, not a check that reads it.
+- **Allow the Executor to stop (STOP) on a contradiction.** Kept open as a variant of point 4: the STOP costs a whole window for a case that the least powerful reading settles without damage. Reserved for the case where no reading is harmless.
 
 ## Human gate
 
-- Validation : accordée — « graver », Owner, 2026-09-01.
-- Référence : cette fenêtre Pilot (recommandation unique, mot exact embarqué, réponse d'un mot).
+- Validation: granted — « graver » ["engrave"], Owner, 2026-09-01.
+- Reference: this Pilot window (single recommendation, exact word embedded, one-word answer).
 
-## Artefacts liés
+## Linked artefacts
 
-- Source : `../reports/REPORT-2026-09-01-111007-108-skills-library-update-from-package.md` (§6, les deux contradictions et leur résolution)
-- Source : `../missions/MISSION-2026-09-01-105013-108-skills-library-update-from-package.md` (Mission contradictoire, gelée, non retouchée)
-- Exécution : Mission 111 (gabarit, réciproques, ligne `CLOSE:`)
+- Source: `../reports/REPORT-2026-09-01-111007-108-skills-library-update-from-package.md` (§6, the two contradictions and their resolution)
+- Source: `../missions/MISSION-2026-09-01-105013-108-skills-library-update-from-package.md` (contradictory Mission, frozen, not touched up)
+- Execution: Mission 111 (template, reciprocals, `CLOSE:` line)
 
 ## Liens
 
-- `prescribed by` — [Gabarit de décision](../../../vault/templates/decision-template.md) (hors Vault)
-- `amends` — [Relais entre rôles par mini-prompts à rubriques fixes](../../../vault/rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md) (hors Vault)
-- `amends` — [Charte des rôles et détermination de session](../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
-- `amends` — [Gabarit de Mission](../../../vault/templates/mission-template.md) (hors Vault)
-- `see also` — Décision — Hygiène des portes, treize arbitrages (historique de l'atelier, non distribué)
-- `see also` — Décision — Le code n'est jamais une norme (historique de l'atelier, non distribué)
-- `see also` — Rapport 108 — mise à jour de la bibliothèque de skills (historique de l'atelier, non distribué)
+- `prescribed by` — [Decision template](../../../vault/templates/decision-template.md) (hors Vault)
+- `amends` — [Relay between roles through mini-prompts with fixed rubrics](../../../vault/rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md) (hors Vault)
+- `amends` — [Role charter and session determination](../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
+- `amends` — [Mission template](../../../vault/templates/mission-template.md) (hors Vault)
+- `see also` — Decision — Door hygiene, thirteen arbitrations (workshop history, not distributed)
+- `see also` — Decision — Code is never a norm (workshop history, not distributed)
+- `see also` — Report 108 — skills library update (workshop history, not distributed)

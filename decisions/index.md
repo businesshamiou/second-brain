@@ -14,6 +14,7 @@ Index vivant : les entrées les plus récentes. La totalité est répartie en ar
 
 ## Contenu
 
+- `2026-08-24-214607` · ARBITRATED · Distribution of transverse mechanisms — single doctrine, pinned implementation,… · `DECISION-2026-08-24-214607-transverse-mechanism-distribution.md`
 - `2026-08-25-110935` · ARBITRATED · Extension of the journal tag convention — CLOSE: tag and keyed doors · `DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md`
 - `2026-08-25-131034` · ARBITRATED · Doctrinal arbitrations of 2026-08-25 — revocation of the Pilot shell, self-fili… · `DECISION-2026-08-25-131034-doctrinal-arbitrations-2026-08-25.md`
 - `2026-08-25-205728` · arbitrated · Pivot of the workshop's use case — abandonment of « Une semaine sans écran », a… · `DECISION-2026-08-25-205728-workshop-case-study-pivot-wordpress.md`
@@ -33,15 +34,15 @@ Index vivant : les entrées les plus récentes. La totalité est répartie en ar
 - `2026-08-30-013217` · arbitrated · Amendment — a Mission file is frozen as soon as its snippet is issued · `DECISION-2026-08-30-013217-mission-frozen-at-snippet-emission.md`
 - `2026-08-31-210731` · arbitrated · Awareness of the Vault by a project — three tiers (machine, workspace, project)… · `DECISION-2026-08-31-210731-project-vault-awareness-three-tiers.md`
 - `2026-08-31-231841` · arbitrated · Amendment of DECISION-171209 — the skills library moves to the standard Agent S… · `DECISION-2026-08-31-231841-skills-library-standard-form-warehouse.md`
-- `2026-09-01-115547` · arbitrated · Cohérence interne des Missions — section Contexte obligatoire, relecture croisé… · `DECISION-2026-09-01-115547-mission-context-coherence-and-least-powerful-reading.md`
-- `2026-09-01-144931` · arbitrated · Fin de passe skills V1 — liste à six skills plus un hook, principe commande, ar… · `DECISION-2026-09-01-144931-skills-v1-end-of-pass.md`
-- `2026-09-02-005041` · arbitrated · Liens sortants vers un autre dépôt — marqués, contrôlés seulement quand le dépô… · `DECISION-2026-09-02-005041-cross-repo-links-checked-only-when-target-repo-present.md`
-- `2026-09-02-191407` · active · Décision — Journal et index en pointeurs : toute ligne ≤ 300 caractères, le réc… · `DECISION-2026-09-02-191407-journal-and-index-as-pointers-300-chars.md`
-- `2026-09-03-140714` · arbitrated · Budget de contexte du Pilot : plafond de taille des Missions sur distribution m… · `DECISION-2026-09-03-140714-pilot-context-budget-mission-size-cap.md`
-- `2026-09-03-230604` · arbitrated · Une fenêtre MCP, un workspace ; skills exposés en entier · `DECISION-2026-09-03-230604-one-mcp-window-per-workspace-skills-fully-exposed.md`
-- `2026-09-04-121443` · arbitrated · Balayage d'existence avant toute recommandation de création ; la mémoire n'est… · `DECISION-2026-09-04-121443-existence-sweep-memory-hypothesis-measured-existing.md`
-- `2026-09-04-145256` · arbitrated · Amendement de deux normes gravées sur mesure : recherche d'outils par descripti… · `DECISION-2026-09-04-145256-amend-two-engraved-norms-and-amendment-rule.md`
-- `2026-09-04-154756` · arbitrated · Étape 0 de pré-vol : tous les gardiens lancés sur le Périmètre avant le premier… · `DECISION-2026-09-04-154756-mission-preflight-step-zero.md`
+- `2026-09-01-115547` · arbitrated · Internal coherence of Missions — mandatory Context section, cross-review before… · `DECISION-2026-09-01-115547-mission-context-coherence-and-least-powerful-reading.md`
+- `2026-09-01-144931` · arbitrated · End of the skills V1 pass — list of six skills plus a hook, command principle,… · `DECISION-2026-09-01-144931-skills-v1-end-of-pass.md`
+- `2026-09-02-005041` · arbitrated · Outgoing links to another repository — marked, checked only when the target rep… · `DECISION-2026-09-02-005041-cross-repo-links-checked-only-when-target-repo-present.md`
+- `2026-09-02-191407` · active · Decision — Journal and index as pointers: every line ≤ 300 characters, the narr… · `DECISION-2026-09-02-191407-journal-and-index-as-pointers-300-chars.md`
+- `2026-09-03-140714` · arbitrated · Pilot context budget: Mission size cap on a measured distribution, opening orde… · `DECISION-2026-09-03-140714-pilot-context-budget-mission-size-cap.md`
+- `2026-09-03-230604` · arbitrated · One MCP window, one workspace; skills fully exposed · `DECISION-2026-09-03-230604-one-mcp-window-per-workspace-skills-fully-exposed.md`
+- `2026-09-04-121443` · arbitrated · Existence sweep before any creation recommendation; memory is never a source of… · `DECISION-2026-09-04-121443-existence-sweep-memory-hypothesis-measured-existing.md`
+- `2026-09-04-145256` · arbitrated · Amendment of two engraved norms on measurement: tool search by description, rep… · `DECISION-2026-09-04-145256-amend-two-engraved-norms-and-amendment-rule.md`
+- `2026-09-04-154756` · arbitrated · Preflight step 0: all guardians run on the Scope before the first commit, all v… · `DECISION-2026-09-04-154756-mission-preflight-step-zero.md`
 - `2026-09-05-124647` · active · Décision — Un index est un localisateur : ligne sans description, plafond de 8… · `DECISION-2026-09-05-124647-index-as-locator-8000-cap-live-archive.md`
 - `2026-09-05-144700` · active · Décision — Plafond de taille des Missions (20 000 octets) et budget de rédactio… · `DECISION-2026-09-05-144700-mission-size-cap-20000-and-drafting-budget-5.md`
 - `2026-09-05-204248` · active · Décision — Clôture de la phase mémoire/retrieval avant V1 STABLE : benchmark bo… · `DECISION-2026-09-05-204248-memory-retrieval-closure-benchmark-freeze.md`

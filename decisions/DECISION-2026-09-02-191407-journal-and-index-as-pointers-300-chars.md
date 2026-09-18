@@ -1,35 +1,35 @@
 ---
 type: decision
-title: "Décision — Journal et index en pointeurs : toute ligne ≤ 300 caractères, le récit vit dans le document pointé"
+title: "Decision — Journal and index as pointers: every line ≤ 300 characters, the narrative lives in the document pointed to"
 created_at: "2026-09-02T19:14:07-04:00"
 timezone: America/Montreal
 status: active
-description: "Toute ligne future du journal et des index de Missions est un pointeur (date, tag, une phrase, nom du fichier) plafonnée à 300 caractères ; le détail vit dans le rapport, la capture ou le handoff pointé. Applicable par gardien."
+description: "Every future line of the journal and of the Mission indexes is a pointer (date, tag, one sentence, file name) capped at 300 characters; the detail lives in the report, capture or handoff pointed to. Enforceable by a guardian."
 ---
 
-# DÉCISION — Journal et index en pointeurs (≤ 300 caractères par ligne)
+# DECISION — Journal and index as pointers (≤ 300 characters per line)
 
-## Contexte
+## Context
 
-La Mission 120 a mesuré que le coût d'ouverture d'une session Pilot tient d'abord à la taille des lignes, pas au nombre de fichiers : des lignes de journal de 3 à 5 000 caractères, une ligne d'index de Missions à ~2 500 caractères, 55 969 octets prescrits à l'ouverture. La Mission 121 a créé un digest plafonné qui tronque ces lignes à la lecture ; il soulage le Pilot mais ne change pas la source, que l'Executor, les gardiens et la couche mémoire (Mission 122) continuent de lire en entier. Une règle plafonnée existe déjà pour une seule ligne — le `STATE:` de clôture, ≤ 300 caractères — mais elle est vérifiée par l'Executor sur consigne de Mission, pas par un gardien : aucun script ne refuse aujourd'hui une ligne trop longue (mesure : rapports 121 et 122 déclarent la longueur, aucun gardien ne l'impose). Cette Décision l'étend à toutes les lignes et exige sa mécanisation.
+Mission 120 measured that the cost of opening a Pilot session comes first from the size of the lines, not from the number of files: journal lines of 3 to 5,000 characters, a Mission index line at ~2,500 characters, 55,969 bytes prescribed at opening. Mission 121 created a capped digest that truncates these lines on reading; it relieves the Pilot but does not change the source, which the Executor, the guardians and the memory layer (Mission 122) continue to read in full. A capped rule already exists for a single line — the closing `STATE:`, ≤ 300 characters — but it is checked by the Executor on a Mission instruction, not by a guardian: no script today refuses a line that is too long (measurement: reports 121 and 122 declare the length, no guardian enforces it). This Decision extends it to all lines and requires its mechanization.
 
-## Décision (Owner, chat, 2026-09-02)
+## Decision (Owner, chat, 2026-09-02)
 
-1. **La ligne est un pointeur ; le document pointé est le récit.** Toute ligne ajoutée au journal du projet (fichier journal.md du dossier d'état) et toute ligne d'entrée de l'index de Missions du projet (fichier MISSION-INDEX.md du dossier des missions) porte : horodatage, tag, un résumé d'une phrase, et le nom du fichier où vit le détail. Mesures, listes, tableaux, justifications vivent dans le rapport, la capture, le handoff ou la Décision pointés — jamais dans la ligne.
-2. **Plafond : 300 caractères par ligne**, journal et index, aligné sur la règle existante de la ligne `STATE:` de clôture.
-3. **Non rétroactif.** Le journal est en ajout seul ; les lignes existantes ne sont ni réécrites ni tronquées. La règle s'applique aux lignes ajoutées après la gravure de cette Décision.
-4. **Mécanisation obligatoire.** Une règle écrite sans gardien dérive : le plafond est appliqué par une butée fail-closed dans le mécanisme existant (`tools/append-journal.sh` pour le journal, `tools/check-indexes-fresh.sh` pour l'index de Missions), livrée par une Mission distincte. Tant que la butée n'est pas livrée, la règle est une consigne d'auteur, et le RELAY signale toute ligne qui la dépasse.
-5. **Portée** : (historique de l'atelier, non distribué) d'abord ; la règle est un mécanisme du Vault (gardien distribuable), pas une convention locale.
+1. **The line is a pointer; the document pointed to is the narrative.** Every line added to the project's journal (file journal.md of the state folder) and every entry line of the project's Mission index (file MISSION-INDEX.md of the missions folder) carries: timestamp, tag, a one-sentence summary, and the name of the file where the detail lives. Measurements, lists, tables, justifications live in the report, capture, handoff or Decision pointed to — never in the line.
+2. **Cap: 300 characters per line**, journal and index, aligned with the existing rule for the closing `STATE:` line.
+3. **Not retroactive.** The journal is append-only; existing lines are neither rewritten nor truncated. The rule applies to lines added after this Decision is engraved.
+4. **Mandatory mechanization.** A rule written without a guardian drifts: the cap is enforced by a fail-closed stop in the existing mechanism (`tools/append-journal.sh` for the journal, `tools/check-indexes-fresh.sh` for the Mission index), delivered by a separate Mission. As long as the stop is not delivered, the rule is an author instruction, and the RELAY flags any line that exceeds it.
+5. **Reach**: (workshop history, not distributed) first; the rule is a Vault mechanism (distributable guardian), not a local convention.
 
-## Conséquences
+## Consequences
 
-- Mission à rédiger : gardien « ligne ≤ 300 caractères » sur journal et index, fail-closed, câblé au pre-commit de (historique de l'atelier, non distribué) via épingle de révision (deux pushes minimum).
-- Le skill `écriture-de-mission` et le skill `session-close` reprennent la règle dans leurs checklists (la ligne d'index d'une Mission se rédige en pointeur).
-- Le digest d'ouverture (Mission 121) garde sa troncature à 300 caractères : redondance voulue, il reste correct sur les lignes anciennes.
+- Mission to be drafted: guardian "line ≤ 300 characters" on journal and index, fail-closed, wired to the pre-commit of (workshop history, not distributed) via a revision pin (two pushes minimum).
+- The `écriture-de-mission` skill and the `session-close` skill take up the rule in their checklists (a Mission's index line is drafted as a pointer).
+- The opening digest (Mission 121) keeps its truncation at 300 characters: intended redundancy, it stays correct on the old lines.
 
 ## Liens
 
-- `source` — Rapport 120 — audit de la boucle d'état (historique de l'atelier, non distribué) (hors Vault)
-- `see also` — Mission 121 — digest d'ouverture plafonné (historique de l'atelier, non distribué) (hors Vault)
-- `see also` — [Décision — tag CLOSE: et portes à clé du journal](./DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md)
-- `applies` — [Décision — Statut de preuve et contrôle du STOP](./DECISION-2026-08-29-212009-evidence-status-and-stop-control.md)
+- `source` — Report 120 — audit of the state loop (workshop history, not distributed) (hors Vault)
+- `see also` — Mission 121 — capped opening digest (workshop history, not distributed) (hors Vault)
+- `see also` — [Decision — CLOSE: tag and keyed doors of the journal](./DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md)
+- `applies` — [Decision — Evidence status and STOP control](./DECISION-2026-08-29-212009-evidence-status-and-stop-control.md)

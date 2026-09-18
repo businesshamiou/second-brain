@@ -1,7 +1,7 @@
 ---
 type: decision
-title: "Amendement de deux normes gravées sur mesure : recherche d'outils par description, motif de nommage des rapports aligné sur l'usage ; et la règle générale — une Décision gravée n'est jamais réécrite, elle est amendée par une Décision"
-description: "Décision arbitrée le 2026-09-04 après le rapport 132 : amende la règle de recherche d'outils de la Décision 140714 (recherche formulée sur la description, seconde recherche permise et comptée) et le motif de nommage des rapports de la Décision 000236 (forme alignée sur l'usage mesuré) ; et grave la règle générale qui manquait — le corps d'une Décision arbitrée ne se réécrit pas, il reçoit une annotation datée pointant vers la Décision qui l'amende, avec réciprocité de liens."
+title: "Amendment of two engraved norms on measurement: tool search by description, report naming pattern aligned with usage; and the general rule — an engraved Decision is never rewritten, it is amended by a Decision"
+description: "Decision arbitrated on 2026-09-04 after report 132: amends the tool search rule of Decision 140714 (search phrased on the description, second search allowed and counted) and the report naming pattern of Decision 000236 (form aligned with measured usage); and engraves the general rule that was missing — the body of an arbitrated Decision is not rewritten, it receives a dated annotation pointing to the Decision that amends it, with reciprocal links."
 created_at: "2026-09-04T14:52:56-04:00"
 timezone: America/Montreal
 status: arbitrated
@@ -12,67 +12,67 @@ amends:
 scope: tool-search-rule, report-naming, decision-amendment-doctrine
 ---
 
-# DÉCISION — AMENDEMENT DE DEUX NORMES GRAVÉES, ET LA RÈGLE D'AMENDEMENT
+# DECISION — AMENDMENT OF TWO ENGRAVED NORMS, AND THE AMENDMENT RULE
 
 ## Date
 
 2026-09-04
 
-## Statut
+## Status
 
 `ARBITRATED`
 
-Arbitrage Owner en clair, session Pilot du 2026-09-04, gate « annote va graver aussi la décision ».
+Owner arbitration in plain words, Pilot session of 2026-09-04, gate « annote va graver aussi la décision » ["annotate, go engrave the decision too"].
 
-## Fait déclencheur
+## Triggering fact
 
-Le rapport 132 a mesuré deux normes gravées en désaccord avec la pratique. La règle de recherche d'outils de la Décision 140714 (« par le nom exact de l'outil ») avait déjà été remplacée dans `../skills/session-start/reading-list.md` par le texte T7 de la Mission 132-B, sous un gate Owner — **un amendement vivant dans une Mission et absent du corpus des Décisions**. Le motif de nommage des rapports de la Décision 000236 comporte un segment que l'usage n'a jamais respecté, ce qui a produit un rapport hors motif à la Mission 133 sans qu'aucun gardien ne le voie.
+Report 132 measured two engraved norms at odds with practice. The tool search rule of Decision 140714 (« par le nom exact de l'outil » ["by the exact name of the tool"]) had already been replaced in `../skills/session-start/reading-list.md` by text T7 of Mission 132-B, under an Owner gate — **an amendment living in a Mission and absent from the corpus of Decisions**. The report naming pattern of Decision 000236 includes a segment that usage never respected, which produced an out-of-pattern report at Mission 133 without any guardian seeing it.
 
-Ces deux cas ont la même forme : une norme gravée qu'on n'ose pas réécrire, un usage qui diverge, et rien qui relie les deux.
+These two cases have the same shape: an engraved norm that one does not dare rewrite, a usage that diverges, and nothing linking the two.
 
-## Décision
+## Decision
 
-1. **Recherche d'outils.** La règle de la Décision 140714 selon laquelle une recherche d'outils se formule « par le nom exact de l'outil » est amendée. La recherche se formule **sur la description de l'outil** — verbe et objet — parce que l'index de recherche porte les descriptions et non les noms (mesures des Missions 132-A et 132-B). Une seconde recherche est permise, et comptée au budget d'ouverture, si la première ne remonte pas l'outil visé. Le texte appliqué vit dans `../skills/session-start/reading-list.md`.
+1. **Tool search.** The rule of Decision 140714 by which a tool search is phrased « par le nom exact de l'outil » is amended. The search is phrased **on the tool's description** — verb and object — because the search index carries the descriptions and not the names (measurements of Missions 132-A and 132-B). A second search is allowed, and counted in the opening budget, if the first does not bring up the intended tool. The applied text lives in `../skills/session-start/reading-list.md`.
 
-2. **Nommage des rapports.** Le motif de nommage des rapports d'exécution de la Décision 000236 est aligné sur l'usage mesuré : `REPORT-<AAAA-MM-JJ>-<HHMMSS>-<mission_id>-<slug>.md`. Le segment jamais respecté est retiré de la norme plutôt que d'être imposé rétroactivement à des dizaines de fichiers existants. Faire respecter le motif retenu par un gardien reste ouvert et n'est pas décidé ici.
+2. **Report naming.** The naming pattern for execution reports of Decision 000236 is aligned with measured usage: `REPORT-<AAAA-MM-JJ>-<HHMMSS>-<mission_id>-<slug>.md`. The segment never respected is removed from the norm rather than imposed retroactively on dozens of existing files. Having the retained pattern enforced by a guardian remains open and is not decided here.
 
-3. **Règle générale d'amendement.** Le corps d'une Décision au statut `arbitrated` n'est jamais réécrit. Il reçoit, à l'endroit exact de la règle dépassée, une **annotation datée** qui nomme la Décision amendante et l'endroit où vit le texte appliqué. La Décision amendante porte `amends`, la Décision amendée reçoit `amended by` : la réciprocité rend la divergence visible aux gardiens de liens. Un amendement obtenu par gate de Mission, sans Décision, est un état transitoire à régulariser — jamais un état final.
+3. **General amendment rule.** The body of a Decision with status `arbitrated` is never rewritten. It receives, at the exact place of the superseded rule, a **dated annotation** that names the amending Decision and the place where the applied text lives. The amending Decision carries `amends`, the amended Decision receives `amended by`: reciprocity makes the divergence visible to the link guardians. An amendment obtained by a Mission gate, without a Decision, is a transitional state to be regularized — never a final state.
 
-## Raison
+## Reason
 
-- Une norme qui contredit sa propre pratique est pire qu'une norme absente : elle est lue, citée en Mission, et propage l'erreur. Trois textes ont produit des fautes réelles cette semaine par ce seul mécanisme.
-- Réécrire le corps d'une Décision effacerait la trace de ce qui a été arbitré et quand. L'annotation conserve l'histoire et signale la dérive au même endroit.
-- Le point 3 est le remède structurel : sans lui, le prochain gate de Mission créera un nouvel amendement orphelin.
+- A norm that contradicts its own practice is worse than an absent norm: it is read, cited in Missions, and propagates the error. Three texts produced real faults this week through this mechanism alone.
+- Rewriting the body of a Decision would erase the trace of what was arbitrated and when. The annotation preserves the history and flags the drift at the same place.
+- Point 3 is the structural remedy: without it, the next Mission gate will create a new orphan amendment.
 
 ## Impact
 
-- Les Décisions 140714 et 000236 reçoivent chacune une annotation datée et un lien `amended by` vers celle-ci — geste de la Mission 134-A.
-- Le gabarit de Décision et la règle de liens ne changent pas : `amends` et `amended by` existent déjà, ils étaient simplement inemployés dans ce cas.
-- Aucun fichier existant n'est renommé. Aucun gardien n'est créé ni modifié.
-- Le budget d'ouverture du Pilot compte désormais explicitement une éventuelle seconde recherche d'outils.
+- Decisions 140714 and 000236 each receive a dated annotation and an `amended by` link to this one — gesture of Mission 134-A.
+- The Decision template and the linking rule do not change: `amends` and `amended by` already exist, they were simply unused in this case.
+- No existing file is renamed. No guardian is created or modified.
+- The Pilot's opening budget now explicitly counts a possible second tool search.
 
-## Alternatives importantes
+## Important alternatives
 
-- Réécrire directement le corps des deux Décisions : rejeté, perte de la trace d'arbitrage.
-- Laisser l'amendement vivre dans `../skills/session-start/reading-list.md` seul : rejeté, c'est l'état de départ, et il est invisible pour quiconque lit la Décision.
-- Imposer le motif de nommage d'origine par un gardien et renommer l'existant : rejeté, coût sans bénéfice, et l'usage mesuré est le meilleur candidat.
+- Rewrite the body of the two Decisions directly: rejected, loss of the arbitration trace.
+- Let the amendment live in `../skills/session-start/reading-list.md` alone: rejected, that is the starting state, and it is invisible to anyone reading the Decision.
+- Enforce the original naming pattern by a guardian and rename the existing files: rejected, cost without benefit, and measured usage is the best candidate.
 
 ## Human gate
 
-- Validation : accordée
-- Référence : ordre Owner en clair, session Pilot du 2026-09-04, gate « annote va graver aussi la décision »
+- Validation: granted
+- Reference: Owner order in plain words, Pilot session of 2026-09-04, gate « annote va graver aussi la décision » ["annotate, go engrave the decision too"]
 
-## Artefacts liés
+## Linked artefacts
 
-- Proposal source : aucune
-- Mesure source : (historique de l'atelier, non distribué) (hors Vault)
-- Application : Mission 134-A, (historique de l'atelier, non distribué) (hors Vault)
+- Source proposal: none
+- Source measurement: (workshop history, not distributed) (hors Vault)
+- Application: Mission 134-A, (workshop history, not distributed) (hors Vault)
 
 ## Liens
 
-- `prescribed by` — [Cycle de contexte V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
-- `amends` — [Décision — Budget de contexte du Pilot](./DECISION-2026-09-03-140714-pilot-context-budget-mission-size-cap.md)
-- `amends` — [Décision — Canal de rapport d'exécution](./DECISION-2026-08-21-000236-execution-report-channel.md)
-- `see also` — [Décision — Balayage d'existence, mémoire et hypothèses](./DECISION-2026-09-04-121443-existence-sweep-memory-hypothesis-measured-existing.md)
-- `see also` — [Liste de lecture d'ouverture de session, par rôle](../skills/session-start/reading-list.md)
-- `see also` — [Standard de liens entre documents](../rules/RULES-2026-08-21-115658-document-linking-standard.md)
+- `prescribed by` — [Context cycle V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
+- `amends` — [Decision — Pilot context budget](./DECISION-2026-09-03-140714-pilot-context-budget-mission-size-cap.md)
+- `amends` — [Decision — Execution report channel](./DECISION-2026-08-21-000236-execution-report-channel.md)
+- `see also` — [Decision — Existence sweep, memory and hypotheses](./DECISION-2026-09-04-121443-existence-sweep-memory-hypothesis-measured-existing.md)
+- `see also` — [Session opening reading list, by role](../skills/session-start/reading-list.md)
+- `see also` — [Standard for links between documents](../rules/RULES-2026-08-21-115658-document-linking-standard.md)
