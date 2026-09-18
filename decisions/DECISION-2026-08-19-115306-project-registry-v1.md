@@ -1,6 +1,6 @@
 ---
 type: decision
-title: "Project Registry V1 — architecture et contrat d'écriture"
+title: "Project Registry V1 — architecture and write contract"
 created_at: 2026-08-19T11:53:06-04:00
 timezone: America/Montreal
 status: active
@@ -11,84 +11,84 @@ source_proposal: "(historique de l'atelier, non distribué)"
 
 # DECISION — PROJECT REGISTRY V1
 
-## Contexte
+## Context
 
-Le Vault sait comment travailler mais ne connaît pas explicitement les projets existants, leur emplacement et leurs points d'entrée. Un agent qui ouvre le Vault dépend donc d'une indication manuelle de l'Owner pour localiser un projet.
+The Vault knows how to work but does not explicitly know the existing projects, their location and their entry points. An agent that opens the Vault therefore depends on a manual indication from the Owner to locate a project.
 
-Le Proposal source a été brainstormé puis arbitré avec l'Owner. Son statut `PROPOSED` n'est pas modifié : une Decision référence son Proposal, elle ne le réécrit pas.
+The source Proposal was brainstormed and then arbitrated with the Owner. Its `PROPOSED` status is not modified: a Decision references its Proposal, it does not rewrite it.
 
-## Principe
+## Principle
 
-> Le Vault connaît l'adresse du projet, pas son contenu.
+> The Vault knows the project's address, not its content.
 
-Le projet reste la source canonique de sa propre mémoire.
+The project remains the canonical source of its own memory.
 
-## Décisions
+## Decisions
 
-### D1 — Forme et emplacement
+### D1 — Form and location
 
-Une fiche par projet, plus un index, dans `vault/projects/` :
+One entry per project, plus an index, in `vault/projects/`:
 
     vault/projects/
     ├── PROJECT-REGISTRY.md            (index)
     └── PROJECT-<project_id>.md        (une fiche par projet)
 
-L'index est structuré en sections `Active`, `Paused`, `Archived`, Active en tête. Une entrée archivée reste en place, jamais supprimée.
+The index is structured in sections `Active`, `Paused`, `Archived`, Active first. An archived entry stays in place, never deleted.
 
-Noms de champs et identifiants en anglais ; prose en français.
+Field names and identifiers in English; prose in French.
 
-### D1b — Identifiant projet
+### D1b — Project identifier
 
     project_id : YYYY-MM-DD-CODE
 
-Date complète de première création du projet, puis code mnémonique dérivé du nom : un à trois segments de deux à quatre caractères majuscules alphanumériques séparés par des tirets, par exemple `AI-CTX-WRKS`. Les trois premiers segments d'un `project_id` sont toujours la date ; tout ce qui suit est le code. En cas de collision, ajuster le code, jamais la date.
+Full date of the project's first creation, then a mnemonic code derived from the name: one to three segments of two to four upper-case alphanumeric characters separated by hyphens, for example `AI-CTX-WRKS`. The first three segments of a `project_id` are always the date; everything after is the code. In case of collision, adjust the code, never the date.
 
-### D2 — Schéma minimal
+### D2 — Minimal schema
 
-Fiche, huit champs : `project_id`, `display_name`, `status`, `relative_path`, `purpose` en une phrase, `canonical_context`, `entry_point`, `last_verified`.
+Entry, eight fields: `project_id`, `display_name`, `status`, `relative_path`, `purpose` in one sentence, `canonical_context`, `entry_point`, `last_verified`.
 
-Index, quatre colonnes : `project_id`, `display_name`, `status`, `relative_path`.
+Index, four columns: `project_id`, `display_name`, `status`, `relative_path`.
 
-Sections de fiche : Identity, Location, Entry Points, Notes.
+Entry sections: Identity, Location, Entry Points, Notes.
 
-Exclus explicitement : dernier handoff, dépôt, graphe, tout état Git, tout SHA — périssables ou déductibles.
+Explicitly excluded: last handoff, repository, graph, any Git state, any SHA — perishable or deducible.
 
-### D3 — Chemins
+### D3 — Paths
 
-`relative_path` est relatif au parent du Vault, le workspace étant implicite. Aucun chemin machine-spécifique n'est versionné, ce qui préserve la portabilité entre machines et fournisseurs.
+`relative_path` is relative to the Vault's parent, the workspace being implicit. No machine-specific path is versioned, which preserves portability across machines and providers.
 
-Le schéma reste extensible par champs optionnels — `workspace_root`, `remote` — le jour où un projet sortira du workspace, sans casser l'existant.
+The schema remains extensible through optional fields — `workspace_root`, `remote` — the day a project leaves the workspace, without breaking what exists.
 
-### D4 — Contrat d'écriture
+### D4 — Write contract
 
-Personne n'édite le Registry à la main. Trois chemins d'écriture, tous passant par un Executor :
+No one edits the Registry by hand. Three write paths, all going through an Executor:
 
-1. le Skill `project-bootstrap` écrit automatiquement la fiche et la ligne d'index à la création d'un projet ;
-2. une Mission ou instruction Executor, sur arbitrage Owner, applique les changements de cycle de vie : statut, chemin, points d'entrée ;
-3. le Skill `session-start` lit seulement : il vérifie le projet ouvert et signale les écarts en ANOMALY, sans corriger.
+1. the `project-bootstrap` Skill automatically writes the entry and the index line when a project is created;
+2. a Mission or Executor instruction, on Owner arbitration, applies lifecycle changes: status, path, entry points;
+3. the `session-start` Skill only reads: it checks the opened project and reports discrepancies as ANOMALY, without correcting.
 
-Statuts fermés : `ACTIVE`, `PAUSED`, `ARCHIVED`.
+Closed statuses: `ACTIVE`, `PAUSED`, `ARCHIVED`.
 
 ### D5 — Graphify
 
-L'index et les fiches entrent dans le corpus actif Graphify du Vault. Le graphe du Vault porte ainsi le « quoi et où » des projets ; chaque projet conserve son propre graphe pour son contenu. Aucun graphe global fusionné : la Decision Graphify V1 reste inchangée.
+The index and the entries enter the Vault's active Graphify corpus. The Vault graph thus carries the "what and where" of projects; each project keeps its own graph for its content. No merged global graph: the Graphify V1 Decision remains unchanged.
 
-### D6 — Péremption
+### D6 — Staleness
 
-Chaque fiche porte `last_verified` et `stale_after`, conformément à la Decision d'adoption OKF. `session-start` vérifie l'existence des chemins du projet qu'il ouvre, et non l'ensemble du Registry : le Registry se répare au fil de l'usage réel, sans inventaire périodique.
+Each entry carries `last_verified` and `stale_after`, in accordance with the OKF adoption Decision. `session-start` checks that the paths of the project it opens exist, not the whole Registry: the Registry repairs itself through real use, without periodic inventory.
 
-## Critère de réussite
+## Success criterion
 
-Un agent qui ne connaît que le Vault peut répondre : quels projets actifs existent, où ils se trouvent, à quoi ils servent, et quel fichier lire pour commencer — sans que le Vault recopie leur mémoire.
+An agent that knows only the Vault can answer: which active projects exist, where they are, what they are for, and which file to read to start — without the Vault copying their memory.
 
 ## Human gate
 
-Arbitrage Owner rendu en session de pilotage.
+Owner arbitration given in a steering session.
 
 ## Liens
 
 - `source` — [Project Registry](../projects/PROJECT-REGISTRY.md)
-- `source` — Proposal source (historique de l'atelier, non distribué) (hors Vault)
-- `amended by` — [Retrait de Graphify du rôle « graphe du Vault »](./DECISION-2026-08-23-184200-graphify-graph-role-withdrawal.md) (D5 devient sans objet)
-- `amended by` — [Standard de structure de projet](../rules/RULES-2026-08-26-142800-project-structure-standard.md) (D3, extension additive du schéma — registre v2, Mission 061)
-- `amended by` — [Décision — Initiation et adoption de projet, acte de naissance](./DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md) (D2 : champ et colonne `vcs` ; D4 : écriture par `adopt`)
+- `source` — Source Proposal (workshop history, not distributed) (hors Vault)
+- `amended by` — [Withdrawal of Graphify from the "Vault graph" role](./DECISION-2026-08-23-184200-graphify-graph-role-withdrawal.md) (D5 becomes moot)
+- `amended by` — [Project structure standard](../rules/RULES-2026-08-26-142800-project-structure-standard.md) (D3, additive extension of the schema — registry v2, Mission 061)
+- `amended by` — [Decision — Project initiation and adoption, birth certificate](./DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md) (D2: `vcs` field and column; D4: writing by `adopt`)

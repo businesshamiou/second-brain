@@ -1,61 +1,61 @@
 ---
 type: decision
-title: "Architecture centrale — Vault permanent et projets frères"
+title: "Central architecture — permanent Vault and sibling projects"
 created_at: 2026-08-17T00:30:00-04:00
 timezone: America/Montreal
 status: active
 ---
 
-# DÉCISION — VAULT CENTRAL ET PROJETS FRÈRES
+# DECISION — CENTRAL VAULT AND SIBLING PROJECTS
 
-## Statut
+## Status
 
 **ARBITRATED**
 
-## Décision
+## Decision
 
-Le système central du workshop n'est plus conçu comme un projet nommé `ai-context-workshop`.
+The workshop's central system is no longer conceived as a project named `ai-context-workshop`.
 
-Il devient un **Vault** permanent.
+It becomes a permanent **Vault**.
 
-Dans la prose et les supports pédagogiques, le concept est nommé **Vault**.
+In prose and teaching materials, the concept is named **Vault**.
 
-Dans les identifiants machine et le système de fichiers, le dossier et futur dépôt utilisent le nom :
+In machine identifiers and the file system, the folder and future repository use the name:
 
 `vault`
 
-Le Vault reste à un emplacement fixe et sert de mini second brain / système opératoire de travail avec l'IA.
+The Vault stays at a fixed location and serves as a mini second brain / operating system for working with AI.
 
-Il contient uniquement la connaissance et les mécanismes **transversaux et réutilisables** :
+It contains only the **cross-cutting and reusable** knowledge and mechanisms:
 
-- règles de travail ;
-- conventions ;
-- méthodes ;
-- skills ;
-- templates utiles ;
-- principes de capture ;
-- principes de handoff ;
-- principes de décision ;
-- règles Git ;
-- règles de sécurité ;
-- principes Graphify ;
-- connaissances générales nécessaires au fonctionnement du système.
+- working rules;
+- conventions;
+- methods;
+- skills;
+- useful templates;
+- capture principles;
+- handoff principles;
+- decision principles;
+- Git rules;
+- security rules;
+- Graphify principles;
+- general knowledge needed for the system to function.
 
-Le Vault **ne doit pas absorber le contexte métier détaillé de tous les projets**.
+The Vault **must not absorb the detailed business context of every project**.
 
-Chaque projet réel possède son propre dossier ou dépôt, créé **à l'extérieur du Vault**, comme dossier frère, avec son contexte local :
+Each real project has its own folder or repository, created **outside the Vault**, as a sibling folder, with its local context:
 
-- objectifs ;
-- état courant ;
-- décisions propres ;
-- connaissance métier ;
-- handoffs ;
-- sketches ;
-- autres artefacts spécifiques.
+- objectives;
+- current state;
+- its own decisions;
+- business knowledge;
+- handoffs;
+- sketches;
+- other specific artefacts.
 
-Le Vault peut aider à créer et guider ces projets sans être recopié dans chacun d'eux.
+The Vault may help create and guide these projects without being copied into each of them.
 
-## Architecture logique
+## Logical architecture
 
 ```text
 workspace/
@@ -65,60 +65,60 @@ workspace/
     ├── vault/
     ├── project-a/
     ├── project-b/
-    └── (historique de l'atelier, non distribué)
+    └── (workshop history, not distributed)
 ```
 
-(historique de l'atelier, non distribué) est un espace séparé, à concevoir ultérieurement, destiné à la fabrication de la formation : prompts Codex, présentation, supports pédagogiques, journaux de construction et outils de production.
+(workshop history, not distributed) is a separate space, to be designed later, intended for building the training: Codex prompts, presentation, teaching materials, build journals and production tools.
 
-## Principe d'héritage
+## Inheritance principle
 
-Le Vault porte les règles transversales.
+The Vault carries the cross-cutting rules.
 
-Les projets portent seulement :
+Projects carry only:
 
-- leur contexte propre ;
-- leurs décisions propres ;
-- leurs exceptions ;
-- leurs artefacts de travail.
+- their own context;
+- their own decisions;
+- their exceptions;
+- their working artefacts.
 
-Une amélioration générale découverte dans un projet peut remonter vers le Vault **uniquement après validation humaine**.
+A general improvement discovered in a project may move up to the Vault **only after human validation**.
 
-Une décision spécifique à un projet ne remonte pas automatiquement dans le Vault.
+A decision specific to a project does not move up to the Vault automatically.
 
 ## Graphify
 
-Le Vault et chaque projet doivent rester des espaces de contexte séparés.
+The Vault and each project must remain separate context spaces.
 
-Le Vault peut avoir son propre graphe Graphify.
+The Vault may have its own Graphify graph.
 
-Chaque projet peut avoir son propre graphe Graphify.
+Each project may have its own Graphify graph.
 
-Aucune fusion globale n'est considérée comme acquise tant qu'elle n'a pas été testée et validée.
+No global merge is considered settled until it has been tested and validated.
 
-**Note (2026-08-26, Mission 065)** : cette section décrit une option d'architecture qui n'a plus cours. Graphify est sorti du rôle « graphe du Vault » puis a été intégralement éradiqué (Mission 040, 2026-08-24) ; conservée pour lecture historique, non corrigée sur place (`amended by` ci-dessous).
+**Note (2026-08-26, Mission 065)**: this section describes an architecture option that no longer applies. Graphify was taken out of the "Vault graph" role and then entirely eradicated (Mission 040, 2026-08-24); kept for historical reading, not corrected in place (`amended by` below).
 
-## Raison
+## Reason
 
-Cette architecture évite :
+This architecture avoids:
 
-- la duplication du cerveau central dans chaque projet ;
-- la dérive de règles divergentes entre projets ;
-- le mélange de contextes métier sans rapport ;
-- la contamination du graphe par des décisions spécifiques à d'autres projets ;
-- la confusion entre infrastructure de travail et fabrication du workshop.
+- duplicating the central brain in every project;
+- drift of diverging rules between projects;
+- mixing unrelated business contexts;
+- contaminating the graph with decisions specific to other projects;
+- confusing working infrastructure with building the workshop.
 
-Elle permet au système de capitaliser sur l'expérience tout en maintenant des frontières de contexte propres.
+It lets the system capitalize on experience while keeping clean context boundaries.
 
 ## Impact
 
-Les anciennes références à `ai-context-workshop` comme nom du dépôt central sont **supplantées**.
+Earlier references to `ai-context-workshop` as the name of the central repository are **superseded**.
 
-Toute Mission 001 ou tout prompt d'exécution qui crée `ai-context-workshop` est obsolète.
+Any Mission 001 or execution prompt that creates `ai-context-workshop` is obsolete.
 
-Le prochain bootstrap doit créer `vault`.
+The next bootstrap must create `vault`.
 
-Les huit artefacts initiaux restent conservés comme historique et ne sont pas réécrits silencieusement.
+The eight initial artefacts remain kept as history and are not silently rewritten.
 
 ## Liens
 
-- `amended by` — [Retrait de Graphify du rôle « graphe du Vault »](./DECISION-2026-08-23-184200-graphify-graph-role-withdrawal.md) (section Graphify)
+- `amended by` — [Withdrawal of Graphify from the "Vault graph" role](./DECISION-2026-08-23-184200-graphify-graph-role-withdrawal.md) (Graphify section)

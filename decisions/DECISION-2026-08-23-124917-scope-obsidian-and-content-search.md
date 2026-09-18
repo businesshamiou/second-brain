@@ -1,58 +1,58 @@
 ---
 type: decision
-title: "Décisions de périmètre — Obsidian hors du premier workshop, recherche par contenu construite en propre"
+title: "Scope decisions — Obsidian out of the first workshop, content search built in-house"
 created_at: "2026-08-23T12:49:17-04:00"
 timezone: America/Montreal
 status: ARBITRATED
 owner_gate: required
 ---
 
-# DÉCISION — Décisions de périmètre du 2026-08-23
+# DECISION — Scope decisions of 2026-08-23
 
 ## Date
 
 2026-08-23
 
-## Statut
+## Status
 
 `ARBITRATED`
 
-Arbitrage : session Owner/Pilot du 2026-08-23.
+Arbitration: Owner/Pilot session of 2026-08-23.
 
-## Décision
+## Decision
 
-Adoption des deux décisions de périmètre apparues en séance le 2026-08-23, consignées dans la proposal des sept arbitrages et de l'ordre des lots révisé (historique de l'atelier, non distribué), §4.
+Adoption of the two scope decisions that arose during the session on 2026-08-23, recorded in the proposal of the seven arbitrations and the revised batch order (workshop history, not distributed), §4.
 
-1. **Obsidian hors du premier workshop.** Obsidian est écarté du workshop et du paquet distribué : l'audience visée est non développeuse, et l'ajout d'un logiciel à installer contredit la promesse de légèreté du système. Constat associé : les skills de recherche examinés (kepano/obsidian-skills, gmickel/obsidian-skill, le skill Obsidian de hermes-agent, un serveur MCP de recherche par ripgrep) ne dépendent pas d'Obsidian dans leur mécanisme — ils cherchent dans des fichiers Markdown en clair ; la stratégie est réutilisable sans l'outil. Écarté : intégrer Obsidian au premier workshop. Obsidian reste un sujet possible pour un second workshop bâti sur celui-ci.
+1. **Obsidian out of the first workshop.** Obsidian is set aside from the workshop and the distributed package: the target audience is non-developers, and adding a piece of software to install contradicts the system's promise of lightness. Associated finding: the search skills examined (kepano/obsidian-skills, gmickel/obsidian-skill, the Obsidian skill of hermes-agent, an MCP search server based on ripgrep) do not depend on Obsidian in their mechanism — they search plain Markdown files; the strategy is reusable without the tool. Set aside: integrating Obsidian into the first workshop. Obsidian remains a possible subject for a second workshop built on this one.
 
-2. **Recherche par contenu construite en propre.** Le Vault se dote de sa propre recherche : un script qui cherche dans le contenu et renvoie les lignes trouvées, pas les fichiers (chemin, numéro de ligne, ligne), et un skill mince qui traduit la question en arguments du script et présente le résultat sans rien lire d'autre. Convention de nommage : nom anglais tiré de ce que le skill produit. Les skills tiers examinés servent de références de conception et ne sont pas importés dans le Vault, conformément à la règle existante. Écarté : dépendre d'un outil ou d'un skill tiers importé pour la recherche par contenu.
+2. **Content search built in-house.** The Vault gets its own search: a script that searches the content and returns the lines found, not the files (path, line number, line), and a thin skill that translates the question into the script's arguments and presents the result without reading anything else. Naming convention: an English name drawn from what the skill produces. The third-party skills examined serve as design references and are not imported into the Vault, in accordance with the existing rule. Set aside: depending on a third-party tool or imported skill for content search.
 
-## Raison
+## Reason
 
-Obsidian : l'audience non développeuse et la promesse de légèreté priment sur les capacités de recherche d'Obsidian, d'autant que ces capacités sont atteignables sans l'outil (skills tiers examinés cherchent en Markdown clair, sans dépendance mécanique à Obsidian).
+Obsidian: the non-developer audience and the promise of lightness take precedence over Obsidian's search capabilities, all the more since these capabilities are reachable without the tool (the third-party skills examined search plain Markdown, with no mechanical dependency on Obsidian).
 
-Recherche par contenu : retrouver un seul mot dans le corpus a coûté, en séance, la lecture d'une capture entière, faute de recherche par contenu côté chat. Côté Executor le besoin est déjà couvert nativement ; construire un script mince et un skill dans le Vault referme cet écart sans dépendance externe.
+Content search: finding a single word in the corpus cost, during the session, the reading of an entire capture, for lack of content search on the chat side. On the Executor side the need is already covered natively; building a thin script and a skill in the Vault closes this gap without an external dependency.
 
 ## Impact
 
-Le paquet de distribution (lot E) n'installe pas Obsidian. Le lot A (Mission 027, objectif D) construit `tools/find-in-vault.sh` et le skill de recherche associé. Aucun skill tiers n'est importé dans `vault/`.
+The distribution package (batch E) does not install Obsidian. Batch A (Mission 027, objective D) builds `tools/find-in-vault.sh` and the associated search skill. No third-party skill is imported into `vault/`.
 
-## Alternatives importantes
+## Important alternatives
 
-- Intégrer Obsidian au premier workshop pour sa recherche native : rejeté, coût d'installation contraire à la promesse de légèreté pour une audience non développeuse.
-- Importer un skill tiers de recherche Obsidian tel quel : rejeté, contraire à la règle existante sur les skills tiers ; sert de référence de conception seulement.
+- Integrate Obsidian into the first workshop for its native search: rejected, installation cost contrary to the promise of lightness for a non-developer audience.
+- Import a third-party Obsidian search skill as is: rejected, contrary to the existing rule on third-party skills; serves as a design reference only.
 
 ## Human gate
 
-- Validation : accordée
-- Référence : arbitrage de l'Owner en session le 2026-08-23, formalisé par la Mission 028.
+- Validation: granted
+- Reference: arbitration by the Owner in session on 2026-08-23, formalized by Mission 028.
 
-## Artefacts liés
+## Linked artefacts
 
-- Proposal source : (historique de l'atelier, non distribué)
+- Source Proposal: (workshop history, not distributed)
 
 ## Liens
 
-- `source` — Proposal sept arbitrages et ordre des lots révisé (historique de l'atelier, non distribué) (hors Vault)
-- `see also` — [Décision — Sept arbitrages de session du 2026-08-23](./DECISION-2026-08-23-124848-seven-arbitrations-2026-08-23.md)
-- `see also` — Mission 027 — Lot A (historique de l'atelier, non distribué) (hors Vault)
+- `source` — Proposal seven arbitrations and revised batch order (workshop history, not distributed) (hors Vault)
+- `see also` — [Decision — Seven session arbitrations of 2026-08-23](./DECISION-2026-08-23-124848-seven-arbitrations-2026-08-23.md)
+- `see also` — Mission 027 — Batch A (workshop history, not distributed) (hors Vault)

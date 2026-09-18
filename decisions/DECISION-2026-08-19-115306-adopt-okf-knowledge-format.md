@@ -1,6 +1,6 @@
 ---
 type: decision
-title: "Adoption du format OKF comme norme de référence"
+title: "Adoption of the OKF format as the reference standard"
 created_at: 2026-08-19T11:53:06-04:00
 timezone: America/Montreal
 status: active
@@ -9,50 +9,50 @@ owner_gate: granted
 source_proposal: none
 ---
 
-# DECISION — ADOPTION DU FORMAT OKF
+# DECISION — ADOPTION OF THE OKF FORMAT
 
-## Contexte
+## Context
 
-Le Vault a développé ses propres conventions d'artefacts : Markdown, front-matter YAML typé, liens relatifs, versionnement Git. Une comparaison avec l'Open Knowledge Format v0.2, format ouvert et vendor-neutral publié par Google Cloud Platform, a montré une convergence forte et une conformité déjà acquise.
+The Vault has developed its own artefact conventions: Markdown, typed YAML front matter, relative links, Git versioning. A comparison with Open Knowledge Format v0.2, an open, vendor-neutral format published by Google Cloud Platform, showed strong convergence and conformance already achieved.
 
-Référence : https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf
+Reference: https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf
 
-## Conformité constatée
+## Conformance observed
 
-Le Vault satisfait les trois critères de conformité OKF v0.2 sans modification : front-matter YAML parsable sur chaque document, champ `type` non vide partout, aucun usage non conforme des noms réservés `index.md` et log.md.
+The Vault meets the three OKF v0.2 conformance criteria without modification: parsable YAML front matter on every document, a non-empty `type` field everywhere, no non-conforming use of the reserved names `index.md` and log.md.
 
-## Décision
+## Decision
 
-Le projet adopte OKF comme norme de référence externe pour le format de ses artefacts de connaissance, et la cite comme telle dans la production pédagogique du workshop.
+The project adopts OKF as the external reference standard for the format of its knowledge artefacts, and cites it as such in the workshop's teaching production.
 
-L'adoption est progressive et sans rupture.
+Adoption is gradual and without disruption.
 
-### Adopté immédiatement
+### Adopted immediately
 
-- `index.md` par dossier de premier niveau du Vault, pour la progressive disclosure : un agent lit l'index avant de décider quels fichiers ouvrir. Ceci rend également visibles dans Git les dossiers qui seraient autrement vides.
-- `stale_after` sur les artefacts sujets à péremption, à commencer par les fiches du [Project Registry](../projects/PROJECT-REGISTRY.md).
-- Champ `description` dans le front-matter des artefacts nouvellement créés.
+- `index.md` per top-level folder of the Vault, for progressive disclosure: an agent reads the index before deciding which files to open. This also makes visible in Git the folders that would otherwise be empty.
+- `stale_after` on artefacts subject to going stale, starting with the entries of the [Project Registry](../projects/PROJECT-REGISTRY.md).
+- A `description` field in the front matter of newly created artefacts.
 
-### Conservé en l'état, et documenté comme écart assumé
+### Kept as is, and documented as an accepted deviation
 
-- Valeurs de `type` en minuscules. OKF ne registre pas centralement ces valeurs et n'impose aucune casse ; la règle de gel du stock interdit par ailleurs tout renommage rétroactif.
-- Champ `status` porteur d'un statut métier (`AUTHORIZED`, `ARBITRATED`, `COMPLETED`, `PROPOSED`) là où OKF le réserve au cycle de vie du document. L'écart est assumé et tracé ici.
+- Lower-case `type` values. OKF does not register these values centrally and imposes no case; the stock freeze rule moreover forbids any retroactive renaming.
+- A `status` field carrying a business status (`AUTHORIZED`, `ARBITRATED`, `COMPLETED`, `PROPOSED`) where OKF reserves it for the document lifecycle. The deviation is accepted and traced here.
 
-### Reporté
+### Postponed
 
-- `generated` et `verified` structurés avec convention d'acteur. Les trust tiers OKF correspondent exactement à la doctrine VERIFIED / DECLARED du chantier ; l'alignement aura de la valeur lorsque les Skills exploiteront ces champs.
-- Champ `sources` structuré.
-- log.md par scope.
+- Structured `generated` and `verified` with an actor convention. The OKF trust tiers correspond exactly to the project's VERIFIED / DECLARED doctrine; alignment will have value when Skills make use of these fields.
+- A structured `sources` field.
+- log.md per scope.
 
-## Conséquences
+## Consequences
 
-Aucune migration, aucun renommage, aucune réécriture d'artefact existant. Les conventions de nommage de fichiers du Vault restent la seule source sur ce point : OKF ne spécifie pas le nommage.
+No migration, no renaming, no rewriting of any existing artefact. The Vault's file-naming conventions remain the only source on this point: OKF does not specify naming.
 
-Un futur alignement des points reportés fera l'objet d'une Decision cumulative distincte.
+A future alignment of the postponed points will be the subject of a distinct cumulative Decision.
 
 ## Human gate
 
-Arbitrage Owner rendu en session de pilotage.
+Owner arbitration given in a steering session.
 
 ## Liens
 

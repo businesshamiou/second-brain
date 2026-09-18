@@ -1,55 +1,55 @@
 ---
 type: decision
-title: "Adoption de la règle du relais entre rôles par mini-prompts"
+title: "Adoption of the rule of relay between roles through mini-prompts"
 created_at: "2026-08-23T12:49:37-04:00"
 timezone: America/Montreal
 status: ARBITRATED
 owner_gate: required
 ---
 
-# DÉCISION — Adoption de la règle du relais entre rôles par mini-prompts
+# DECISION — Adoption of the rule of relay between roles through mini-prompts
 
 ## Date
 
 2026-08-23
 
-## Statut
+## Status
 
 `ARBITRATED`
 
-Arbitrage : Owner le 2026-08-23, conception déléguée au Pilot.
+Arbitration: Owner on 2026-08-23, design delegated to the Pilot.
 
-## Décision
+## Decision
 
-Adoption de la [règle du relais entre rôles par mini-prompts](../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md), qui grave le texte de la proposal du relais par mini-prompts (historique de l'atelier, non distribué), §2, sans le modifier : quatre rubriques — Aller, Retour, Pont, Portée — formalisant la passation entre la fenêtre Pilot et la fenêtre Executor.
+Adoption of the [rule of relay between roles through mini-prompts](../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md), which engraves the text of the proposal on relay through mini-prompts (workshop history, not distributed), §2, without modifying it: four rubrics — Outbound, Return, Bridge, Scope — formalizing the handover between the Pilot window and the Executor window.
 
-Le gabarit de rapport (`vault/templates/report-template.md`) porte désormais la section « Bloc RELAY » en fin de fichier, selon la proposal §3.
+The report template (`vault/templates/report-template.md`) now carries the "RELAY block" section at the end of the file, according to the proposal §3.
 
-## Raison
+## Reason
 
-Les structures fixes de transfert (type SBAR / I-PASS) relevées dans la recherche sur les registres de projets — chronologie, ancrages et objectif — doublent la réussite d'une reprise. Le canal actuel (rapport intégral relu par le Pilot à chaque retour) n'exploite pas ce gain : cette règle borne l'aller à trois rubriques et le retour à un bloc fixe, sans dupliquer le contenu de la Mission ni celui du rapport.
+The fixed handover structures (SBAR / I-PASS type) noted in the research on project registers — chronology, anchors and objective — double the success of a resume. The current channel (full report reread by the Pilot at each return) does not exploit this gain: this rule bounds the outbound direction to three rubrics and the return to a fixed block, without duplicating the content of the Mission or of the report.
 
 ## Impact
 
-Toute Mission ou instruction ponctuelle déléguée à l'Executor applique la règle. Le gabarit de rapport se termine par le bloc RELAY. `AGENTS.md` porte une ligne d'ancrage vers la règle. Cette Mission (028) applique elle-même la règle qu'elle grave : sa fenêtre se termine par le bloc RELAY rempli.
+Every Mission or one-off instruction delegated to the Executor applies the rule. The report template ends with the RELAY block. `AGENTS.md` carries an anchor line to the rule. This Mission (028) itself applies the rule it engraves: its window ends with the filled-in RELAY block.
 
-## Alternatives importantes
+## Important alternatives
 
-- Rapport intégral relu par le Pilot à chaque retour, sans bloc de synthèse fixe : c'est l'état antérieur, jugé insuffisant en séance au regard du gain mesuré par les structures fixes de transfert.
-- Rubriques du bloc RELAY laissées libres plutôt que fixes : rejeté, la valeur de la structure SBAR / I-PASS tient à la fixité des rubriques.
+- Full report reread by the Pilot at each return, without a fixed summary block: this is the previous state, judged insufficient during the session in view of the gain measured for fixed handover structures.
+- RELAY block rubrics left free rather than fixed: rejected, the value of the SBAR / I-PASS structure lies in the fixity of the rubrics.
 
 ## Human gate
 
-- Validation : accordée
-- Référence : arbitrage de l'Owner en session le 2026-08-23, formalisé par la Mission 028.
+- Validation: granted
+- Reference: arbitration by the Owner in session on 2026-08-23, formalized by Mission 028.
 
-## Artefacts liés
+## Linked artefacts
 
-- Proposal source : (historique de l'atelier, non distribué)
-- Règle adoptée : `../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md`
+- Source Proposal: (workshop history, not distributed)
+- Rule adopted: `../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md`
 
 ## Liens
 
-- `applies` — [Relais entre rôles par mini-prompts à rubriques fixes](../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md)
-- `source` — Proposal — Relais entre rôles par mini-prompts à rubriques fixes (historique de l'atelier, non distribué) (hors Vault)
-- `see also` — Mission 028 — Gravure du rang 1 (historique de l'atelier, non distribué) (hors Vault)
+- `applies` — [Relay between roles through mini-prompts with fixed rubrics](../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md)
+- `source` — Proposal — Relay between roles through mini-prompts with fixed rubrics (workshop history, not distributed) (hors Vault)
+- `see also` — Mission 028 — Engraving of rank 1 (workshop history, not distributed) (hors Vault)

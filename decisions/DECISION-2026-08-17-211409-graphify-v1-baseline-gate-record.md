@@ -1,6 +1,6 @@
 ---
 type: decision
-title: "Arbitrage de la baseline Graphify V1 du Vault"
+title: "Arbitration of the Vault's Graphify V1 baseline"
 created_at: 2026-08-17T21:14:09-04:00
 timezone: America/Montreal
 status: ARBITRATED
@@ -10,34 +10,34 @@ related_mission: "../missions/MISSION-2026-08-17-211122-004-graphify-v1-vault-ba
 rapatriated_from: "workshop-build/workshop-production/decisions/DECISION-2026-08-17-211409-graphify-v1-baseline-gate-record.md"
 ---
 
-# DÉCISION — ARBITRAGE DE LA BASELINE GRAPHIFY V1
+# DECISION — ARBITRATION OF THE GRAPHIFY V1 BASELINE
 
-## Statut
+## Status
 
-**ARBITRATED — human gate historiquement accordé par l’Owner / Pilot.**
+**ARBITRATED — human gate historically granted by the Owner / Pilot.**
 
-Cette décision enregistre l’arbitrage sans réécrire la proposition `163400`.
+This decision records the arbitration without rewriting proposal `163400`.
 
-## Décision
+## Decision
 
-La baseline Graphify V1 du seul Vault est autorisée dans les limites de Mission 004 : mode standard, frontières du Vault, aucun hook, MCP, watch, deep mode, graphe global, modification de source, staging, commit ou push.
+The Graphify V1 baseline of the Vault alone is authorized within the limits of Mission 004: standard mode, Vault boundaries, no hook, MCP, watch, deep mode, global graph, source modification, staging, commit or push.
 
-## État d’exécution
+## Execution state
 
-La première exécution s’est arrêtée avec `NEEDS_OWNER_INPUT` parce que Graphify était absent. Cette interruption ne termine pas Mission 004.
+The first execution stopped with `NEEDS_OWNER_INPUT` because Graphify was missing. This interruption does not end Mission 004.
 
-Mission `007-C01` a ensuite rendu `graphify 0.9.26` disponible selon l’audit `174601`. Mission 004 reste `READY_TO_RESUME` depuis son préflight; la disponibilité de l’outil ne constitue pas une preuve que la baseline a été exécutée.
+Mission `007-C01` then made `graphify 0.9.26` available according to audit `174601`. Mission 004 remains `READY_TO_RESUME` since its preflight; the tool's availability is not evidence that the baseline was executed.
 
-**Note (2026-08-26, Mission 065)** : cet état `READY_TO_RESUME` est doublement dépassé — `MISSION-INDEX.md` enregistre depuis Mission 004-C02 le statut `COMPLETED` de cette lignée, et Graphify est sorti du rôle « graphe du Vault » puis a été intégralement éradiqué (Mission 040, 2026-08-24). Conservé pour lecture historique, non corrigé sur place.
+**Note (2026-08-26, Mission 065)**: this `READY_TO_RESUME` state is outdated twice over — `MISSION-INDEX.md` has recorded since Mission 004-C02 the `COMPLETED` status of this lineage, and Graphify was taken out of the "Vault graph" role and then entirely eradicated (Mission 040, 2026-08-24). Kept for historical reading, not corrected in place.
 
 ## Impact
 
-- la proposition `163400` reste historique et inchangée;
-- la Mission active est `004`;
-- toute exécution doit remesurer l’état réel;
-- les résultats de baseline nécessiteront un nouveau human gate.
+- proposal `163400` remains historical and unchanged;
+- the active Mission is `004`;
+- any execution must re-measure the real state;
+- the baseline results will require a new human gate.
 
 ## Liens
 
-- `amends` — DECISION-2026-08-17-163400-graphify-v1-vault-baseline — Graphify V1 — baseline séparée du Vault (historique de l'atelier, non distribué)
-- `amended by` — [Retrait de Graphify du rôle « graphe du Vault »](../../../vault/decisions/DECISION-2026-08-23-184200-graphify-graph-role-withdrawal.md) (hors l'atelier (historique, non distribué))
+- `amends` — DECISION-2026-08-17-163400-graphify-v1-vault-baseline — Graphify V1 — separate baseline of the Vault (workshop history, not distributed)
+- `amended by` — [Withdrawal of Graphify from the "Vault graph" role](../../../vault/decisions/DECISION-2026-08-23-184200-graphify-graph-role-withdrawal.md) (hors l'atelier (historique, non distribué))

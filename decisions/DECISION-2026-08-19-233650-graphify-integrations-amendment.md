@@ -1,7 +1,7 @@
 ---
 type: decision
-title: "Amendement Graphify V1 — activation des intégrations natives"
-description: "Lève l'exclusion des hooks et du MCP, retient le mode par défaut et exclut le mode strict."
+title: "Graphify V1 amendment — enabling the native integrations"
+description: "Lifts the exclusion of hooks and MCP, keeps the default mode and excludes the strict mode."
 created_at: 2026-08-19T23:36:50-04:00
 timezone: America/Montreal
 status: ARBITRATED
@@ -10,66 +10,66 @@ amends: "DECISION-2026-08-18-004740-graphify-v1-architecture.md"
 owner_gate: granted
 ---
 
-# DECISION — AMENDEMENT GRAPHIFY V1 : INTÉGRATIONS NATIVES
+# DECISION — GRAPHIFY V1 AMENDMENT: NATIVE INTEGRATIONS
 
-## Contexte
+## Context
 
-La Decision Graphify V1 excluait les hooks, le MCP et toute automatisation, et imposait une actualisation explicite du graphe. Elle prévoyait qu'une évolution de cette contrainte exigerait une Mission et un gate distincts.
+The Graphify V1 Decision excluded hooks, MCP and any automation, and required an explicit refresh of the graph. It provided that a change to this constraint would require a distinct Mission and gate.
 
-Deux constats motivent cet amendement.
+Two findings motivate this amendment.
 
-**Le motif du coût ne tient plus.** La reconnaissance a mesuré que le hook de reconstruction relance une extraction syntaxique locale, sans appel à un modèle, sans transmission de contenu et sans consommation d'interface applicative.
+**The cost argument no longer holds.** The reconnaissance measured that the rebuild hook reruns a local syntactic extraction, with no call to a model, no transmission of content and no use of an application programming interface.
 
-**Le motif de la simplicité s'est retourné.** L'actualisation explicite a été omise à plusieurs reprises. Le graphe s'est périmé en silence, et des mesures ont été conduites sur un état obsolète sans que personne ne s'en aperçoive. Un mécanisme automatique de reconstruction supprime cette classe d'erreur.
+**The simplicity argument has turned around.** The explicit refresh was omitted several times. The graph went stale silently, and measurements were carried out on an obsolete state without anyone noticing. An automatic rebuild mechanism removes this class of error.
 
-## Décision
+## Decision
 
-### D1 — Hooks de reconstruction autorisés
+### D1 — Rebuild hooks authorized
 
-Les hooks de dépôt fournis par l'outil sont autorisés dans le Vault. Ils reconstruisent le graphe après un commit ou un changement de branche, par analyse syntaxique locale uniquement.
+The repository hooks supplied by the tool are authorized in the Vault. They rebuild the graph after a commit or a branch change, by local syntactic analysis only.
 
-L'actualisation cesse d'être exclusivement explicite : elle devient automatique pour la partie qui ne coûte rien, et reste explicite pour l'extraction sémantique complète, qui demeure sous contrôle d'une Mission.
+Refresh stops being exclusively explicit: it becomes automatic for the part that costs nothing, and remains explicit for the full semantic extraction, which stays under the control of a Mission.
 
-### D2 — Mécanismes toujours-actifs autorisés, dans leur forme native
+### D2 — Always-on mechanisms authorized, in their native form
 
-Les mécanismes qui incitent un assistant à consulter le graphe avant de fouiller les fichiers sont autorisés, tels que l'outil les écrit.
+The mechanisms that prompt an assistant to consult the graph before searching through the files are authorized, as the tool writes them.
 
-Ces blocs de directives ne sont pas réécrits à la main. Un bloc réécrit ne suit plus les évolutions de l'outil et devient une charge de maintenance permanente. Leur langue et leur formulation relèvent de l'outil, non des conventions du Vault.
+These directive blocks are not rewritten by hand. A rewritten block no longer follows the tool's changes and becomes a permanent maintenance burden. Their language and wording belong to the tool, not to the Vault's conventions.
 
-Cette exception à la règle de langue est délibérée et bornée : elle ne vaut que pour les blocs maintenus par un outil tiers, jamais pour les artefacts du chantier.
+This exception to the language rule is deliberate and bounded: it applies only to blocks maintained by a third-party tool, never to the project's artefacts.
 
-### D3 — Mode strict exclu
+### D3 — Strict mode excluded
 
-Le mode strict, qui bloque la première lecture brute de fichier tant qu'aucune interrogation du graphe n'a eu lieu, est exclu.
+The strict mode, which blocks the first raw file read as long as no graph query has taken place, is excluded.
 
-Il supprime le fallback vers les fichiers, que la Decision V1 pose comme obligatoire et que cet amendement confirme. Il rendrait par ailleurs inaccessible la lecture directe du [registre des projets](../projects/PROJECT-REGISTRY.md), dont les mesures ont établi qu'il n'est pas restitué par l'interrogation du graphe.
+It removes the fallback to the files, which the V1 Decision sets as mandatory and which this amendment confirms. It would moreover make direct reading of the [project registry](../projects/PROJECT-REGISTRY.md) inaccessible, which the measurements established is not returned by querying the graph.
 
-### D4 — Ce qui reste inchangé
+### D4 — What remains unchanged
 
-- Les fichiers et Git restent la source de vérité ; le graphe demeure une couche dérivée.
-- Le fallback vers les fichiers reste obligatoire en toute circonstance.
-- Les sorties générées ne sont jamais éditées à la main et ne sont pas versionnées.
-- Le graphe du Vault reste séparé des graphes de projet ; aucune fusion globale.
-- L'extraction sémantique complète reste sous contrôle d'une Mission.
+- The files and Git remain the source of truth; the graph remains a derived layer.
+- The fallback to the files remains mandatory in all circumstances.
+- Generated outputs are never edited by hand and are not versioned.
+- The Vault graph remains separate from the project graphs; no global merge.
+- The full semantic extraction remains under the control of a Mission.
 
-### D5 — Serveur MCP
+### D5 — MCP server
 
-L'exclusion du serveur MCP est levée dans son principe. Sa mise en service n'est pas décidée ici : elle relèvera d'une Mission distincte, la reconnaissance ayant établi qu'aucune configuration n'est générée par l'outil et que toute mise en place serait rédigée à la main.
+The exclusion of the MCP server is lifted in principle. Putting it into service is not decided here: it will be a matter for a distinct Mission, the reconnaissance having established that no configuration is generated by the tool and that any setup would be written by hand.
 
-**Note (2026-08-26, Mission 065)** : D1 et D5 autorisent des mécanismes Graphify (hooks de dépôt, principe d'un serveur MCP dédié) devenus sans objet — Graphify est sorti du rôle « graphe du Vault » puis a été intégralement éradiqué (Mission 040, 2026-08-24). Conservé pour lecture historique, non corrigé sur place (`amended by` ci-dessous).
+**Note (2026-08-26, Mission 065)**: D1 and D5 authorize Graphify mechanisms (repository hooks, principle of a dedicated MCP server) that have become moot — Graphify was taken out of the "Vault graph" role and then entirely eradicated (Mission 040, 2026-08-24). Kept for historical reading, not corrected in place (`amended by` below).
 
-## Conséquences
+## Consequences
 
-Aucune réécriture de la Decision V1 : elle reste lisible dans son état d'origine, et cet amendement s'y ajoute.
+No rewriting of the V1 Decision: it stays readable in its original state, and this amendment is added to it.
 
-Les fichiers écrits par l'outil dans le dépôt sont versionnés tels quels. Leur maintenance appartient à l'outil.
+The files written by the tool into the repository are versioned as they are. Their maintenance belongs to the tool.
 
 ## Human gate
 
-Arbitrage Owner rendu en session de pilotage, après lecture du rapport de reconnaissance des intégrations.
+Owner arbitration given in a steering session, after reading the integrations reconnaissance report.
 
 ## Liens
 
-- `amends` — [Architecture Graphify V1](./DECISION-2026-08-18-004740-graphify-v1-architecture.md)
+- `amends` — [Graphify V1 architecture](./DECISION-2026-08-18-004740-graphify-v1-architecture.md)
 - `see also` — [Project Registry](../projects/PROJECT-REGISTRY.md)
-- `amended by` — [Retrait de Graphify du rôle « graphe du Vault »](./DECISION-2026-08-23-184200-graphify-graph-role-withdrawal.md) (D1, D5)
+- `amended by` — [Withdrawal of Graphify from the "Vault graph" role](./DECISION-2026-08-23-184200-graphify-graph-role-withdrawal.md) (D1, D5)

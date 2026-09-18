@@ -1,80 +1,80 @@
 ---
 type: decision
-title: "Contrat du Pilot, marquage des documents remplacés, et ratification de la convention de tags du journal"
+title: "Pilot contract, marking of superseded documents, and ratification of the journal tag convention"
 created_at: "2026-08-23T14:35:42-04:00"
 timezone: America/Montreal
 status: ARBITRATED
 owner_gate: required
 ---
 
-# DÉCISION — Contrat du Pilot, marquage des documents remplacés, et ratification de la convention de tags du journal
+# DECISION — Pilot contract, marking of superseded documents, and ratification of the journal tag convention
 
 ## Date
 
 2026-08-23
 
-## Statut
+## Status
 
 `ARBITRATED`
 
-Arbitrage : session Owner/Pilot du 2026-08-23, formalisé par la Mission 029 (historique de l'atelier, non distribué).
+Arbitration: Owner/Pilot session of 2026-08-23, formalized by Mission 029 (workshop history, not distributed).
 
-## Décision
+## Decision
 
-Décision cumulative portant quatre points, tous issus de la proposal du 2026-08-23 14:01 (historique de l'atelier, non distribué) et de la Mission 029 qui l'exécute.
+Cumulative decision carrying four points, all arising from the proposal of 2026-08-23 14:01 (workshop history, not distributed) and from Mission 029 which executes it.
 
-1. **Les trois arbitrages du §1 de la Mission 029.**
-   - Correctifs exécutés en Mission immédiate, avant le lot B — le prompt d'ouverture cesse d'être une variable avant que l'étude de cas du lot B ne mesure des coûts d'ouverture.
-   - La recherche par contenu signale les fichiers remplacés par une marque `[REMPLACÉ]` en fin de ligne ; la ligne reste toujours renvoyée, jamais filtrée.
-   - Le contrat du Pilot compte sept lignes — les cinq de la proposal plus deux (ne jamais prétendre avoir lu ; horodatage réel et nom définitif avant fin de tour) — et il est **plafonné à sept lignes**, contrôle logiciel à l'appui dans `tools/build-state.sh`.
+1. **The three arbitrations of §1 of Mission 029.**
+   - Fixes executed in an immediate Mission, before batch B — the opening prompt stops being a variable before the batch B case study measures opening costs.
+   - Content search flags superseded files with a `[REMPLACÉ]` mark at the end of the line; the line is always returned, never filtered.
+   - The Pilot contract has seven lines — the five of the proposal plus two (never claim to have read; real timestamp and final name before the end of the turn) — and it is **capped at seven lines**, with a software check in `tools/build-state.sh`.
 
-2. **Le texte des sept lignes du contrat et son plafond.** Le contrat vit dans `templates/pilot-contract-template.md`, jamais rédigé dans un script, et se lit :
-   1. Aucun dépôt de fichier sans accord explicite de l'Owner, demandé juste avant d'écrire.
-   2. Aucune lecture ni recherche hors de cette fiche sans l'annoncer (quel document, pourquoi) et attendre l'accord.
-   3. La liste des points ouverts est un inventaire, pas une liste de tâches : ne rien traiter sans demande.
-   4. Un document marqué remplacé n'est pas une source.
-   5. Ne jamais dire qu'un fichier a été lu s'il ne l'a pas été ; distinguer ce qui est vérifié de ce qui est rapporté.
-   6. Tout fichier déposé porte son horodatage réel et son nom définitif avant la fin du tour.
-   7. Terminer chaque tour par la prochaine action proposée et les portes ouvertes.
+2. **The text of the seven lines of the contract and its cap.** The contract lives in `templates/pilot-contract-template.md`, never written in a script, and reads:
+   1. No filing of a file without the Owner's explicit agreement, asked for just before writing.
+   2. No reading or search outside this sheet without announcing it (which document, why) and waiting for agreement.
+   3. The list of open points is an inventory, not a task list: handle nothing without a request.
+   4. A document marked superseded is not a source.
+   5. Never say that a file has been read if it has not; distinguish what is verified from what is reported.
+   6. Every filed file carries its real timestamp and its final name before the end of the turn.
+   7. End each turn with the next proposed action and the open doors.
 
-   `tools/build-state.sh` échoue avec un message explicite, sans écrire la fiche d'état, si le gabarit porte un nombre de lignes différent de sept entre les repères `CONTRACT:BEGIN` / `CONTRACT:END`.
+   `tools/build-state.sh` fails with an explicit message, without writing the state sheet, if the template carries a number of lines other than seven between the `CONTRACT:BEGIN` / `CONTRACT:END` markers.
 
-3. **Limite de fraîcheur de la marque `[REMPLACÉ]`.** La marque posée par `tools/find-in-vault.sh` provient de `superseded-files.txt`, un fichier plat généré par `tools/build-indexes.sh` à chaque régénération des index. Elle n'est donc fraîche qu'à la date de la dernière génération des index : un champ `supersedes` ajouté après coup dans le front-matter d'un document n'apparaît dans la recherche qu'après une régénération des index (`tools/build-indexes.sh <racine>`). Cette limite est structurelle, pas un défaut à corriger — elle est actée ici pour qu'elle ne soit pas découverte par surprise.
+3. **Freshness limit of the `[REMPLACÉ]` mark.** The mark set by `tools/find-in-vault.sh` comes from `superseded-files.txt`, a flat file generated by `tools/build-indexes.sh` at each regeneration of the indexes. It is therefore only fresh as of the date of the last generation of the indexes: a `supersedes` field added afterwards in a document's front matter appears in the search only after a regeneration of the indexes (`tools/build-indexes.sh <racine>`). This limit is structural, not a defect to correct — it is recorded here so that it is not discovered by surprise.
 
-4. **Ratification de la convention de tags du journal.** Introduite sans spécification par l'Executor en Mission 027 (`OPEN 2` de son rapport), la convention `ETAT:` / `PROCHAIN:` / `OUVERT:` / `REPRISE:` en préfixe de ligne dans `<projet>/state/journal.md`, lue par `tools/build-state.sh`, est ratifiée telle quelle : dernière occurrence retenue pour `ETAT:` et `PROCHAIN:`, toutes les occurrences listées pour `OUVERT:`, et `REPRISE:` reconnue seulement en dernière ligne du journal. Une ligne de journal sans tag reconnu n'alimente aucune rubrique de la fiche d'état.
+4. **Ratification of the journal tag convention.** Introduced without specification by the Executor in Mission 027 (`OPEN 2` of its report), the convention `ETAT:` / `PROCHAIN:` / `OUVERT:` / `REPRISE:` as a line prefix in `<projet>/state/journal.md`, read by `tools/build-state.sh`, is ratified as is: last occurrence retained for `ETAT:` and `PROCHAIN:`, all occurrences listed for `OUVERT:`, and `REPRISE:` recognized only on the last line of the journal. A journal line without a recognized tag feeds no rubric of the state sheet.
 
-## Raison
+## Reason
 
-Une règle de comportement gravée dans un fichier que le Pilot a ordre de ne pas lire à l'ouverture n'a aucune force (proposal du 2026-08-23 14:01 (historique de l'atelier, non distribué), §1) : un incident concret l'a montré (recherche lancée, fichiers lus, capture déposée en nom temporaire, contradiction signalée depuis un document explicitement remplacé — sans accord de l'Owner dans les quatre cas). Le contrat doit vivre là où l'agent regarde effectivement à l'ouverture : la fiche d'état. Le marquage des remplacés rend la quatrième ligne du contrat opérante en pratique plutôt que déclarative. La convention de tags du journal, en usage depuis Mission 027 sans ratification, ne doit pas devenir un usage figé par habitude sans passer par une Decision.
+A behaviour rule engraved in a file that the Pilot is ordered not to read at opening has no force (proposal of 2026-08-23 14:01 (workshop history, not distributed), §1): a concrete incident showed it (search launched, files read, capture filed under a temporary name, contradiction flagged from an explicitly superseded document — without the Owner's agreement in all four cases). The contract must live where the agent actually looks at opening: the state sheet. Marking the superseded documents makes the fourth line of the contract operative in practice rather than declarative. The journal tag convention, in use since Mission 027 without ratification, must not become a usage frozen by habit without going through a Decision.
 
 ## Impact
 
-- `templates/pilot-contract-template.md` devient la source unique du texte du contrat ; toute modification future du contrat passe par ce gabarit, sous contrôle du plafond de sept lignes.
-- `tools/build-indexes.sh` et `tools/find-in-vault.sh` portent désormais le mécanisme de marquage des documents remplacés, sur les deux dépôts (Vault et (historique de l'atelier, non distribué)).
-- `templates/session-opening-prompt-template.md` devient le prompt de réouverture de référence, sans règle de comportement dupliquée.
-- La convention de tags du journal (`ETAT:`, `PROCHAIN:`, `OUVERT:`, `REPRISE:`) devient normative : toute Mission future qui alimente `<projet>/state/journal.md` s'y conforme, sauf Decision contraire.
+- `templates/pilot-contract-template.md` becomes the single source of the contract text; any future modification of the contract goes through this template, under control of the seven-line cap.
+- `tools/build-indexes.sh` and `tools/find-in-vault.sh` now carry the mechanism for marking superseded documents, in both repositories (Vault and (workshop history, not distributed)).
+- `templates/session-opening-prompt-template.md` becomes the reference reopening prompt, with no duplicated behaviour rule.
+- The journal tag convention (`ETAT:`, `PROCHAIN:`, `OUVERT:`, `REPRISE:`) becomes normative: any future Mission that feeds `<projet>/state/journal.md` complies with it, unless a Decision says otherwise.
 
-## Alternatives importantes
+## Important alternatives
 
-- Rattacher ces correctifs au lot C (mécanique de session) plutôt qu'à une Mission immédiate : écartée, l'étude de cas chiffrée du lot B a besoin d'un prompt d'ouverture stable pour produire des mesures reproductibles.
-- Ne pas étendre le marquage des remplacés à la recherche par contenu : écartée, la quatrième ligne du contrat (« un document marqué remplacé n'est pas une source ») resterait sans levier pratique pour un agent qui découvre un document par recherche plutôt que par l'index.
-- Filtrer les lignes remplacées au lieu de les marquer : écartée, la Mission 029 exige explicitement que la ligne reste toujours renvoyée.
+- Attach these fixes to batch C (session mechanics) rather than to an immediate Mission: set aside, the costed case study of batch B needs a stable opening prompt to produce reproducible measurements.
+- Not extend the marking of superseded documents to content search: set aside, the fourth line of the contract ("a document marked superseded is not a source") would remain without practical leverage for an agent that discovers a document through search rather than through the index.
+- Filter the superseded lines instead of marking them: set aside, Mission 029 explicitly requires that the line always be returned.
 
 ## Human gate
 
-- Validation : accordée
-- Référence : arbitrage de l'Owner en session le 2026-08-23, exécuté par la Mission 029.
+- Validation: granted
+- Reference: arbitration by the Owner in session on 2026-08-23, executed by Mission 029.
 
-## Artefacts liés
+## Linked artefacts
 
-- Proposal source : (historique de l'atelier, non distribué)
-- Mission d'exécution : (historique de l'atelier, non distribué)
-- Rapport source de l'OPEN 2 ratifié : (historique de l'atelier, non distribué)
+- Source Proposal: (workshop history, not distributed)
+- Execution Mission: (workshop history, not distributed)
+- Source report of the ratified OPEN 2: (workshop history, not distributed)
 
 ## Liens
 
-- `source` — Proposal — Contrat de comportement du Pilot et marquage des documents remplacés (historique de l'atelier, non distribué) (hors Vault)
-- `applies` — Mission 029 — Contrat du Pilot, marquage des remplacés, prompt d'ouverture minimal (historique de l'atelier, non distribué) (hors Vault)
-- `see also` — [Sept arbitrages de session du 2026-08-23](./DECISION-2026-08-23-124848-seven-arbitrations-2026-08-23.md)
-- `amended by` — [Decision : taxonomie PIV, langue système anglaise, charte des rôles, fin des PROMPT, §4 ratification des tags de journal](./DECISION-2026-08-23-220049-piv-taxonomy-and-english-system-language.md)
-- `amended by` — [Decision : extension de la convention de tags du journal — tag CLOSE: et portes à clé](./DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md)
+- `source` — Proposal — Pilot behaviour contract and marking of superseded documents (workshop history, not distributed) (hors Vault)
+- `applies` — Mission 029 — Pilot contract, marking of superseded documents, minimal opening prompt (workshop history, not distributed) (hors Vault)
+- `see also` — [Seven session arbitrations of 2026-08-23](./DECISION-2026-08-23-124848-seven-arbitrations-2026-08-23.md)
+- `amended by` — [Decision: PIV taxonomy, English system language, role charter, end of PROMPT, §4 ratification of the journal tags](./DECISION-2026-08-23-220049-piv-taxonomy-and-english-system-language.md)
+- `amended by` — [Decision: extension of the journal tag convention — CLOSE: tag and keyed doors](./DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md)
