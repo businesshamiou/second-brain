@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Parite des clefs des trois catalogues i18n (fr, en, es) -- jumeau shell de
-# tests/test-catalog-key-parity.ps1, joue sur les trois systemes (Mission
-# 184) : tout message destine au participant, dont ceux de l'initiation et
-# du serveur MCP, existe dans les trois langues.
+# Key parity of the three i18n catalogues (fr, en, es) -- shell twin of
+# tests/test-catalog-key-parity.ps1, played on the three systems (Mission
+# 184): every message meant for the participant, including those of the
+# initiation and of the MCP server, exists in the three languages.
 #
-# Temoin negatif : un catalogue ampute d'une clef, dans un dossier
-# temporaire, est detecte par la meme comparaison.
+# Negative control: a catalogue stripped of one key, in a temporary
+# folder, is detected by the same comparison.
 #
 # usage: bash tests/test-catalog-key-parity.sh
 
@@ -46,11 +46,11 @@ else
   FAILURES=$((FAILURES + 1))
 fi
 
-# --- T11 (Mission 185-C01) : les clefs NEUVES de cette Mission existent
-# dans les trois langues. La parite seule ne suffit pas -- trois catalogues
-# auxquels il manque la meme clef sont parfaitement paritaires. Chaque clef
-# ajoutee par une Mission est donc nommee ici, une fois, et le temoin
-# ci-dessous la retire pour prouver que la mesure sait echouer. ---
+# --- T11 (Mission 185-C01): the NEW keys of this Mission exist
+# in the three languages. Parity alone is not enough -- three catalogues
+# that all lack the same key are perfectly at parity. Each key
+# added by a Mission is therefore named here, once, and the control
+# below removes it to prove the measurement can fail. ---
 NEW_KEYS="install.vaultOrigin.fallback"
 for K in $NEW_KEYS; do
   MISSING=""
@@ -79,8 +79,8 @@ else
   FAILURES=$((FAILURES + 1))
 fi
 
-# Temoin de la mesure T11 elle-meme : une clef NEUVE retiree d'un
-# catalogue est vue par le controle de presence ci-dessus.
+# Control of the T11 measurement itself: a NEW key removed from a
+# catalogue is seen by the presence check above.
 mkdir -p "$TMP/i18n-new"
 cp "$REPO_ROOT/i18n/catalog.fr.json" "$TMP/i18n-new/catalog.fr.json"
 for K in $NEW_KEYS; do

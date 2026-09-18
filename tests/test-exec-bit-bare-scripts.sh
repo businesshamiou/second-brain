@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Regression test for tools/check-exec-bit-bare-scripts.sh (Mission 177,
-# etape 2, 4e reprise). Written after this exact family of defect struck
+# step 2, 4th resume). Written after this exact family of defect struck
 # CI twice at two different sizes (3 scripts, then 5) -- both times
 # invisible on NTFS (this machine, any Windows machine), only visible on
 # the Ubuntu runner that actually enforces the execute bit. This test
@@ -62,10 +62,10 @@ make_repo() {
   printf '%s\n' "$repo"
 }
 
-# Ajoute et commite tout le contenu courant, puis force le mode Git de
-# chaque chemin donne en argument (2e+ arguments), independamment de ce
-# que le filesystem hote rapporte -- le mecanisme mesure et deja utilise
-# par les correctifs reels de cette Mission (`git update-index --chmod`).
+# Adds and commits all current content, then forces the Git mode of
+# each path given as argument (2nd+ arguments), regardless of what
+# the host filesystem reports -- the mechanism measured and already used
+# by the real fixes of this Mission (`git update-index --chmod`).
 commit_with_modes() {
   local repo="$1"; shift
   local msg="commit"
@@ -86,7 +86,7 @@ commit_with_modes() {
   }
 }
 
-# --- 1. bare invocation, bit absent : refuse, nomme le chemin ---------------
+# --- 1. bare invocation, bit absent: refused, path named --------------------
 REPO_1="$(make_repo "$TMP/case-1")"
 printf '#!/usr/bin/env bash\n"$REPO_ROOT/tools/nu.sh" "$@"\n' > "$REPO_1/install.sh"
 printf '#!/usr/bin/env bash\necho ok\n' > "$REPO_1/tools/nu.sh"
@@ -100,7 +100,7 @@ else
   FAILURES=$((FAILURES + 1))
 fi
 
-# --- 2. meme script, bit present : passe -------------------------------------
+# --- 2. same script, bit present: passes -------------------------------------
 REPO_2="$(make_repo "$TMP/case-2")"
 printf '#!/usr/bin/env bash\n"$REPO_ROOT/tools/nu.sh" "$@"\n' > "$REPO_2/install.sh"
 printf '#!/usr/bin/env bash\necho ok\n' > "$REPO_2/tools/nu.sh"
@@ -114,7 +114,7 @@ else
   FAILURES=$((FAILURES + 1))
 fi
 
-# --- 3. entry: sous language: script, bit absent : refuse -------------------
+# --- 3. entry: under language: script, bit absent: refused ------------------
 REPO_3="$(make_repo "$TMP/case-3")"
 printf -- '- id: canary\n  name: canary\n  entry: tools/canary-hook.sh\n  language: script\n  always_run: true\n  pass_filenames: false\n' > "$REPO_3/.pre-commit-hooks.yaml"
 printf '#!/usr/bin/env bash\necho ok\n' > "$REPO_3/tools/canary-hook.sh"
@@ -128,7 +128,7 @@ else
   FAILURES=$((FAILURES + 1))
 fi
 
-# --- 4. invocation prefixee `bash tools/x.sh`, bit absent : jamais signale --
+# --- 4. prefixed invocation `bash tools/x.sh`, bit absent: never flagged ----
 REPO_4="$(make_repo "$TMP/case-4")"
 printf '#!/usr/bin/env bash\nbash "$REPO_ROOT/tools/prefixed.sh" "$@"\n' > "$REPO_4/install.sh"
 printf '#!/usr/bin/env bash\necho ok\n' > "$REPO_4/tools/prefixed.sh"
@@ -142,10 +142,10 @@ else
   FAILURES=$((FAILURES + 1))
 fi
 
-# --- 5. hook Git sans extension, bit absent : refuse, nomme le hook ---------
-# Mission 181 : un hook n'est appele nu par aucun script du depot -- Git
-# l'appelle, et l'ignore s'il n'est pas executable. Aucun autre fichier ne
-# l'invoque ici : seul son role (dossier .githooks/) le rend candidat.
+# --- 5. Git hook without extension, bit absent: refused, hook named ---------
+# Mission 181: a hook is called bare by no script of the repository -- Git
+# calls it, and ignores it if it is not executable. No other file
+# invokes it here: only its role (the .githooks/ folder) makes it a candidate.
 REPO_5="$(make_repo "$TMP/case-5")"
 mkdir -p "$REPO_5/.githooks"
 printf '#!/usr/bin/env bash\nexit 0\n' > "$REPO_5/.githooks/pre-commit"
@@ -159,9 +159,9 @@ else
   FAILURES=$((FAILURES + 1))
 fi
 
-# --- 6. fichier de .githooks/ portant une extension, bit absent : refuse ---
-# Le role decide, jamais l'extension : un .py ou un .sh range dans
-# .githooks/ est refuse de la meme facon.
+# --- 6. .githooks/ file carrying an extension, bit absent: refused --------
+# The role decides, never the extension: a .py or a .sh filed in
+# .githooks/ is refused the same way.
 REPO_6="$(make_repo "$TMP/case-6")"
 mkdir -p "$REPO_6/.githooks"
 printf '#!/usr/bin/env python3\n' > "$REPO_6/.githooks/commit-msg.py"
@@ -177,7 +177,7 @@ else
   FAILURES=$((FAILURES + 1))
 fi
 
-# --- 7. hooks Git executables dans l'index : passe --------------------------
+# --- 7. Git hooks executable in the index: passes ---------------------------
 REPO_7="$(make_repo "$TMP/case-7")"
 mkdir -p "$REPO_7/.githooks"
 printf '#!/usr/bin/env bash\nexit 0\n' > "$REPO_7/.githooks/pre-commit"

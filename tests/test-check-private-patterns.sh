@@ -37,8 +37,8 @@
 #      checker.
 #
 # usage: tests/test-check-private-patterns.sh
-# sortie : "PASS: 5/5 cas conformes" (exit 0) ou "FAIL: <n> cas non
-# conformes" (exit 1), meme convention que test-check-links-cross-repo.sh.
+# output: "PASS: 5/5 cas conformes" (exit 0) or "FAIL: <n> cas non
+# conformes" (exit 1), same convention as test-check-links-cross-repo.sh.
 
 set -u
 
@@ -55,8 +55,8 @@ trap 'rm -rf "$TMP"' EXIT
 
 FAILURES=0
 
-# make_repo <chemin-workspace> : sandbox Git minimal, script cible copie
-# dedans sous tools/ (meme patron que test-check-links-cross-repo.sh).
+# make_repo <chemin-workspace>: minimal Git sandbox, target script copied
+# into it under tools/ (same pattern as test-check-links-cross-repo.sh).
 make_repo() {
   local ws="$1"
   local repo="$ws/canary"

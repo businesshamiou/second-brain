@@ -1,30 +1,30 @@
 #!/usr/bin/env bash
-# T6 (Mission 186, etape 3) : jumeau bash de tests/test-catalog-key-parity.ps1
-# -- meme verification, jouee sur macOS et Linux la ou PowerShell n'est pas
-# disponible. Charge les trois catalogues i18n/catalog.{fr,en,es}.json et
-# prouve qu'ils declarent EXACTEMENT le meme ensemble de clefs : un
-# installeur ou un script lance dans n'importe laquelle des trois langues
-# doit pouvoir resoudre toute clef que le code cherche, jamais tomber sur
-# une clef absente d'une seule langue. La clef "_comment" est exclue : elle
-# documente le fichier pour un lecteur humain, aucun code ne la cherche.
+# T6 (Mission 186, step 3): bash twin of tests/test-catalog-key-parity.ps1
+# -- same verification, played on macOS and Linux where PowerShell is not
+# available. Loads the three catalogues i18n/catalog.{fr,en,es}.json and
+# proves that they declare EXACTLY the same set of keys: an
+# installer or a script launched in any of the three languages
+# must be able to resolve every key the code looks for, never hit
+# a key missing from a single language. The "_comment" key is excluded: it
+# documents the file for a human reader, no code looks for it.
 #
-# jq si present sur le PATH, sinon un script Python joue par
-# `uv run --no-project` (meme mecanisme que tests/test-catalog-key-parity.sh
-# et tools/sb_installer_helper.py pour parser du JSON en bash dans ce depot).
+# jq if present on the PATH, otherwise a Python script played by
+# `uv run --no-project` (same mechanism as tests/test-catalog-key-parity.sh
+# and tools/sb_installer_helper.py to parse JSON in bash in this repository).
 #
-# Deux temoins negatifs :
-#   - une clef retiree d'une COPIE jetable d'un catalogue (jamais le fichier
-#     reel du depot) -- la comparaison doit rendre FAIL et nommer la clef ;
-#   - les clefs NEUVES de la Tache 2 de la Mission 186
-#     (projectBootstrap.consume.instructions*) sont verifiees presentes dans
-#     les trois catalogues REELS du depot -- preuve concrete que "nouvelles
-#     clefs dans fr/en/es" est controle, pas seulement la parite generale.
+# Two negative controls:
+#   - a key removed from a throwaway COPY of a catalogue (never the real
+#     file of the repository) -- the comparison must return FAIL and name the key;
+#   - the NEW keys of Task 2 of Mission 186
+#     (projectBootstrap.consume.instructions*) are verified present in
+#     the three REAL catalogues of the repository -- concrete proof that "nouvelles
+#     clefs dans fr/en/es" ["new keys in fr/en/es"] is checked, not only the general parity.
 #
-# Ecrit seulement dans un dossier temporaire (prefixe m186). Aucune
-# modification des fichiers reels du depot.
+# Writes only in a temporary folder (prefix m186). No
+# modification of the real files of the repository.
 #
 # usage: bash tests/test-i18n-parity.sh
-# Code 0 : tous les cas PASS. Code 1 sinon.
+# Exit 0: all cases PASS. Exit 1 otherwise.
 
 set -u
 
@@ -52,7 +52,7 @@ TMP="$(mktemp -d "${TMPDIR:-/tmp}/m186-i18n-parity-XXXXXX")"
 trap 'rm -rf "$TMP"' EXIT
 TMP="$(cd "$TMP" && pwd)"
 
-# catalog_keys <fichier.json> : une clef par ligne, triees, "_comment" exclue.
+# catalog_keys <fichier.json>: one key per line, sorted, "_comment" excluded.
 catalog_keys() {
   if [ "$HAVE_JQ" = "1" ]; then
     jq -r 'keys[]' "$1" | grep -vxF '_comment' | LC_ALL=C sort
@@ -66,8 +66,8 @@ for k in sorted(k for k in d if k != "_comment"):
   fi
 }
 
-# keys_differ <fichier_a> <fichier_b> : rend 0 (differe) si les ensembles de
-# clefs des deux fichiers ne sont pas identiques, imprime les ecarts sur
+# keys_differ <fichier_a> <fichier_b>: returns 0 (differs) if the key sets
+# of the two files are not identical, prints the gaps on
 # stdout.
 keys_differ() {
   local a="$1" b="$2" ka kb missing extra bad=1
@@ -126,7 +126,7 @@ for K in $NEW_KEYS; do
   fi
 done
 
-# --- Ancienne clef retiree (Tache 2) : ne doit plus exister nulle part -----
+# --- Old key removed (Task 2): must no longer exist anywhere ---------------
 if catalog_keys "$FR" | grep -qxF 'projectBootstrap.consume.instructions' \
   || catalog_keys "$EN" | grep -qxF 'projectBootstrap.consume.instructions' \
   || catalog_keys "$ES" | grep -qxF 'projectBootstrap.consume.instructions'; then
@@ -170,7 +170,7 @@ if [ "$NEG_RC" -ne 0 ] && printf '%s' "$NEG_OUT" | grep -qF "$REMOVED_KEY"; then
 else
   fail "temoin : la clef retiree n'a pas ete detectee ($NEG_OUT)"
 fi
-# la copie fr/en jetable, elle, n'a rien perdu -> pas d'ecart entre elles.
+# the throwaway fr/en copy, for its part, lost nothing -> no gap between them.
 NEG_OK="$(keys_differ "$TMP/i18n-broken/catalog.fr.json" "$TMP/i18n-broken/catalog.en.json")"
 if [ $? -eq 0 ]; then
   pass "temoin : les deux copies jetables non touchees (fr/en) restent en parite"

@@ -57,10 +57,10 @@ function To-Posix {
     return ("$out").Trim()
 }
 
-# Le parametre ne s'appelle PAS $Args : c'est une variable automatique de
-# PowerShell, et `& git @Args` dans une fonction qui la redeclare lance git
-# sans aucun argument -- mesure directement ici, git repondait par son
-# ecran d'aide et tout le reste du test mesurait du vide.
+# The parameter is NOT called $Args: that is an automatic variable of
+# PowerShell, and `& git @Args` in a function that redeclares it runs git
+# with no argument at all -- measured directly here, git answered with its
+# help screen and the whole rest of the test measured nothing.
 function Git-Out {
     param([string[]] $GitArgs)
     $ErrorActionPreference = 'Continue'
@@ -149,7 +149,7 @@ try {
     Assert-True ((Test-Path $userMd) -and ((Get-Content -Raw -Encoding UTF8 $userMd) -match 'Une ligne de la version suivante')) `
         "(a) le contenu installe est celui de v-test, pas celui du dossier perime"
 
-    # --- (b) temoin : -Ref inexistant -------------------------------------
+    # --- (b) control: nonexistent -Ref ------------------------------------
     Write-Output ""
     Write-Output "=== (b) temoin : -Ref inexistant ==="
     $caseB = Join-Path $TestRoot 'b'
@@ -160,7 +160,7 @@ try {
     Assert-True (-not (Test-Path (Join-Path $caseB 'workspace\second-brain'))) "(b) rien n'est installe"
     Assert-True ((Git-Out @('-C', $targetB, 'rev-parse', 'HEAD')) -eq $oldRef) "(b) le dossier temporaire est laisse ou il etait, jamais supprime"
 
-    # --- (c) temoin : une AUTRE origine -----------------------------------
+    # --- (c) control: ANOTHER origin --------------------------------------
     Write-Output ""
     Write-Output "=== (c) temoin : dossier temporaire d'une AUTRE origine ==="
     $caseC = Join-Path $TestRoot 'c'
@@ -170,9 +170,9 @@ try {
     Git-Out @('-C', $targetC, 'remote', 'set-url', 'origin', $other) | Out-Null
     $outC = Invoke-Bootstrap $caseC 'v-test'
     Assert-True ($script:BootExit -ne 0) "(c) rend un code non nul (exit $($script:BootExit))"
-    # Chaque URL est nommee telle que sa source l'ecrit (celle du dossier
-    # vient de son .git/config) : on compare les depots nommes, pas une
-    # orthographe.
+    # Each URL is named as its source writes it (the folder's one comes
+    # from its .git/config): we compare the repositories named, not a
+    # spelling.
     Assert-True (($outC -match [regex]::Escape((Split-Path $other -Leaf))) -and ($outC -match [regex]::Escape((Split-Path $src -Leaf)))) `
         "(c) le refus nomme les DEUX depots"
     Assert-True ($outC -match [regex]::Escape($targetC)) "(c) le refus nomme le dossier a ecarter"

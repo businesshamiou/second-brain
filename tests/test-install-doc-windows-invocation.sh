@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
-# T10 (Mission 185-C01, porte 10 de la capture 2026-09-17-144137) :
-# INSTALL.md et README.md portent l'invocation WINDOWS exacte des deux
-# outils shell qu'un participant lance a la main.
+# T10 (Mission 185-C01, door 10 of capture 2026-09-17-144137):
+# INSTALL.md and README.md carry the exact WINDOWS invocation of the two
+# shell tools a participant launches by hand.
 #
-# Defaut mesure sur le poste de l'Owner : la documentation ecrivait
-# `bash tools/install-vault-mcp.sh ...`, et `bash` est absent du PATH de
-# PowerShell. Git, lui, est present -- son bash vit a
-# C:\Program Files\Git\bin\bash.exe. Une ligne qu'on ne peut pas coller
-# n'est pas une instruction.
+# Defect measured on the Owner's machine: the documentation wrote
+# `bash tools/install-vault-mcp.sh ...`, and `bash` is absent from the PATH of
+# PowerShell. Git, for its part, is present -- its bash lives at
+# C:\Program Files\Git\bin\bash.exe. A line that cannot be pasted
+# is not an instruction.
 #
-# Oracle : chacun des deux documents porte, pour chacun des deux outils, la
-# ligne PowerShell qui appelle le bash de Git par son chemin complet.
-# Temoin negatif : une copie du document privee de ces lignes echoue au
-# meme controle, dans un dossier temporaire.
+# Oracle: each of the two documents carries, for each of the two tools, the
+# PowerShell line that calls Git's bash by its full path.
+# Negative control: a copy of the document stripped of these lines fails the
+# same check, in a temporary folder.
 #
 # usage: bash tests/test-install-doc-windows-invocation.sh
-# Code 0 : tous les cas PASS. Code 1 sinon.
+# Exit 0: all cases PASS. Exit 1 otherwise.
 
 set -u
 
@@ -28,17 +28,17 @@ fail() { echo "  FAIL - $1"; FAILURES=$((FAILURES + 1)); }
 TMP="$(mktemp -d "${TMPDIR:-/tmp}/m185-doc-XXXXXX")"
 trap 'rm -rf "$TMP"' EXIT
 
-# Le chemin exact de bash.exe fourni par Git sous Windows, tel qu'un
-# participant le colle dans PowerShell. En dur ici parce que c'est
-# precisement la chaine que les documents doivent porter (mesuree sur le
-# poste de l'Owner, capture 2026-09-17-144137) ; tout le reste du depot
-# resout bash par tools/resolve-bash-exe.ps1.
+# The exact path of the bash.exe provided by Git on Windows, as a
+# participant pastes it into PowerShell. Hard-coded here because it is
+# precisely the string the documents must carry (measured on the
+# Owner's machine, capture 2026-09-17-144137); the whole rest of the repository
+# resolves bash through tools/resolve-bash-exe.ps1.
 BASH_EXE_LITERAL='C:\Program Files\Git\bin\bash.exe'
 
 TOOLS="install-vault-mcp.sh check-mcp-containment.sh"
 
-# has_windows_invocation <fichier> <outil> : 0 si le fichier porte une
-# ligne appelant <outil> par le bash.exe de Git.
+# has_windows_invocation <fichier> <outil>: 0 if the file carries a
+# line calling <outil> through Git's bash.exe.
 has_windows_invocation() {
   tr -d '\r' < "$1" | grep -F "$BASH_EXE_LITERAL" | grep -qF "$2"
 }
@@ -60,7 +60,7 @@ for DOC in INSTALL.md README.md; do
   done
 done
 
-# --- Temoin negatif : la meme mesure, sur une copie amputee ---------------
+# --- Negative control: the same measurement, on a truncated copy ----------
 WITNESS="$TMP/INSTALL.md"
 grep -vF "$BASH_EXE_LITERAL" "$REPO_ROOT/INSTALL.md" > "$WITNESS"
 WITNESS_SEEN=0

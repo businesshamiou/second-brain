@@ -59,8 +59,8 @@ FAILURES=0
 # (add_guardian lines reference tools/<name>.{sh,py} under $VAULT_ROOT) --
 # read from .githooks/pre-commit, never hand-copied, so a future guardian
 # added there is picked up automatically instead of silently unchecked here.
-# Boucle de lecture plutot que `mapfile`, absent du bash 3.2 de macOS
-# (Mission 180, meme famille que le test de flux nominal).
+# A read loop rather than `mapfile`, absent from macOS's bash 3.2
+# (Mission 180, same family as the nominal flow test).
 GUARDIAN_SCRIPTS=()
 while IFS= read -r guardian_path; do
   if [ -n "$guardian_path" ]; then

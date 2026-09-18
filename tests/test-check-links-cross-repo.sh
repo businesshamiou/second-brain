@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
-# Essai de non-regression (build history, DECISION-2026-09-02-005041) pour la
-# distinction lien interne / lien sortant de tools/check-links.sh : un lien
-# dont la cible resolue sort de la racine du depot courant est desormais
-# controle seulement si le depot cible (premier segment sous la racine du
-# workspace) est present sur disque -- absent -> avertissement, jamais un
-# refus ; present -> controle ordinaire (absente = refus). Les liens internes
-# au depot courant restent inchanges : absente = refus, comme avant.
+# Non-regression trial (build history, DECISION-2026-09-02-005041) for the
+# internal link / outgoing link distinction of tools/check-links.sh: a link
+# whose resolved target leaves the root of the current repository is now
+# checked only if the target repository (first segment under the workspace
+# root) is present on disk -- absent -> warning, never a
+# refusal; present -> ordinary check (missing = refusal). Links internal
+# to the current repository remain unchanged: missing = refusal, as before.
 #
-# Methode : sandbox jetable par cas (aucun fichier du vrai corpus touche),
-# copie verbatim du script courant de tools/, depot Git local minimal pour
-# le "depot courant" (vaultcanary), workspace-parent controle par cas pour
-# simuler la presence ou l'absence du depot cible.
+# Method: throwaway sandbox per case (no file of the real corpus touched),
+# verbatim copy of the current script from tools/, minimal local Git repository for
+# the "current repository" (vaultcanary), parent workspace controlled per case to
+# simulate the presence or absence of the target repository.
 #
-# Quatre cas (memes lettres que le rapport d'origine, build history) :
-#   (a) sortant vers un depot absent du workspace -> avertissement, exit 0.
-#   (b) sortant vers un depot present, cible absente -> refuse.
-#   (c) sortant vers un depot present, cible presente -> PASS silencieux.
-#   (d) interne au depot courant, cible absente -> refuse (comportement
-#       inchange depuis avant cette Mission).
+# Four cases (same letters as the original report, build history):
+#   (a) outgoing to a repository absent from the workspace -> warning, exit 0.
+#   (b) outgoing to a present repository, target missing -> refused.
+#   (c) outgoing to a present repository, target present -> silent PASS.
+#   (d) internal to the current repository, target missing -> refused (behaviour
+#       unchanged since before this Mission).
 #
 # usage: tests/test-check-links-cross-repo.sh
-# sortie : "PASS: 4/4 cas conformes" (exit 0) ou "FAIL: <raison>" (exit 1)
+# output: "PASS: 4/4 cas conformes" (exit 0) or "FAIL: <raison>" (exit 1)
 
 set -u
 
@@ -37,19 +37,19 @@ trap 'rm -rf "$TMP"' EXIT
 
 FAILURES=0
 
-# make_repo <chemin-workspace> : sandbox Git minimal (vaultcanary) sous le
-# workspace donne, script cible copie dedans.
+# make_repo <chemin-workspace>: minimal Git sandbox (vaultcanary) under the
+# given workspace, target script copied into it.
 make_repo() {
   local ws="$1"
   local repo="$ws/vaultcanary"
   mkdir -p "$repo/tools" "$repo/decisions"
   cp "$REAL_SCRIPT" "$repo/tools/check-links.sh"
-  # Le gardien source tools/relpath.sh depuis son propre dossier (forme
-  # commune aux trois plateformes, Mission 180) : le bac a sable le copie
-  # aussi, sinon il teste un script ampute.
+  # The guardian sources tools/relpath.sh from its own folder (form
+  # common to the three platforms, Mission 180): the sandbox copies it
+  # too, otherwise it tests a truncated script.
   cp "$SCRIPT_DIR/../tools/relpath.sh" "$repo/tools/relpath.sh"
-  # Mission 184 : meme motif pour la ligne de base de projet et ses deux
-  # dependances, sourcees par le gardien depuis son dossier.
+  # Mission 184: same pattern for the project baseline and its two
+  # dependencies, sourced by the guardian from its folder.
   for lib in project-baseline.sh resolve-vault.sh vault-identity.sh; do
     cp "$SCRIPT_DIR/../tools/$lib" "$repo/tools/$lib"
   done
@@ -57,14 +57,14 @@ make_repo() {
   printf '%s\n' "$repo"
 }
 
-# run <repo> : stage tout, lance le script, capture sortie + exit.
+# run <repo>: stages everything, runs the script, captures output + exit.
 run() {
   local repo="$1"
   (cd "$repo" && git add -A >/dev/null 2>&1)
   (cd "$repo" && bash tools/check-links.sh 2>&1)
 }
 
-# --- (a) sortant vers depot absent -> avertissement, exit 0 ---
+# --- (a) outgoing to absent repository -> warning, exit 0 ---
 WS_A="$TMP/case-a"
 mkdir -p "$WS_A"
 REPO_A="$(make_repo "$WS_A")"
@@ -86,7 +86,7 @@ else
   FAILURES=$((FAILURES + 1))
 fi
 
-# --- (b) sortant vers depot present, cible absente -> refuse ---
+# --- (b) outgoing to present repository, target missing -> refused ---
 WS_B="$TMP/case-b"
 mkdir -p "$WS_B/presentrepo"
 REPO_B="$(make_repo "$WS_B")"
@@ -108,7 +108,7 @@ else
   FAILURES=$((FAILURES + 1))
 fi
 
-# --- (c) sortant vers depot present, cible presente -> PASS ---
+# --- (c) outgoing to present repository, target present -> PASS ---
 WS_C="$TMP/case-c"
 mkdir -p "$WS_C/presentrepo/target"
 cat > "$WS_C/presentrepo/target/Y.md" <<'EOF'
@@ -133,7 +133,7 @@ else
   FAILURES=$((FAILURES + 1))
 fi
 
-# --- (d) interne, cible absente -> refuse (comportement inchange) ---
+# --- (d) internal, target missing -> refused (behaviour unchanged) ---
 WS_D="$TMP/case-d"
 mkdir -p "$WS_D"
 REPO_D="$(make_repo "$WS_D")"

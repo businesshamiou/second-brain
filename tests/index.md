@@ -1,73 +1,73 @@
 ---
 type: index
-title: "Tests du Vault"
-description: "Scénarios de vérification du comportement du système."
+title: "Vault tests"
+description: "Scenarios that verify the system's behaviour."
 created_at: 2026-08-19T11:53:06-04:00
 timezone: America/Montreal
 status: active
 ---
 
-# Tests du Vault
+# Vault tests
 
-Scénarios de vérification du comportement du système.
+Scenarios that verify the system's behaviour.
 
-Ce fichier est tenu à la main : `tools/build-indexes.sh` n'indexe que les documents Markdown à front matter, et un test est un script. L'inventaire complet reste le dossier lui-même ; l'enchaînement par système est [`suite.tsv`](./suite.tsv), seule source de vérité de ce qui tourne où, joué à l'identique en local et en CI par [`run-suite.sh`](./run-suite.sh) (et [`run-suite.ps1`](./run-suite.ps1) sous Windows) — `bash tests/run-suite.sh` joue toute la suite. [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) n'appelle plus que ce lanceur, après l'action partagée [`setup-test-env`](../.github/actions/setup-test-env/action.yml) (uv, Python et pre-commit, en cache).
+This file is kept by hand: `tools/build-indexes.sh` indexes only Markdown documents with front matter, and a test is a script. The complete inventory remains the folder itself; the sequence per system is [`suite.tsv`](./suite.tsv), the single source of truth for what runs where, played identically locally and in CI by [`run-suite.sh`](./run-suite.sh) (and [`run-suite.ps1`](./run-suite.ps1) on Windows) — `bash tests/run-suite.sh` plays the whole suite. [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) now only calls this launcher, after the shared action [`setup-test-env`](../.github/actions/setup-test-env/action.yml) (uv, Python and pre-commit, cached).
 
-## Contenu
+## Contents
 
-Chaque test rend un verdict fermé — `PASS`, `FAIL`, ou `SKIP (cause, plateforme)` — et porte son propre témoin négatif : la même mesure, sur un cas fabriqué pour échouer. Un test sans témoin ne prouve pas qu'il sait échouer.
+Each test returns a closed verdict — `PASS`, `FAIL`, or `SKIP (cause, platform)` — and carries its own negative control: the same measurement, on a case built to fail. A test without a control does not prove it can fail.
 
-### Banc de test réutilisable — Mission 188
+### Reusable test bench — Mission 188
 
-Chaque fichier porte en tête son oracle et son témoin négatif.
+Each file carries its oracle and its negative control in its header.
 
-- T1 `test-suite-manifest-matches-ci.sh` (U) — `suite.tsv` = la suite de `ci.yml` à `42f74e6a` (108 triplets).
-- T2 `test-run-suite-reports-red.sh` (W / U / M) — le lanceur joue tout, compte, nomme les rouges.
-- T3 `test-setup-test-env-offline.sh` (U, CI) — l'environnement en cache répond hors réseau.
-- T4 `test-reference-clone-equivalence.sh` (U) — le clone de référence installe la même chose.
+- T1 `test-suite-manifest-matches-ci.sh` (U) — `suite.tsv` = the `ci.yml` suite at `42f74e6a` (108 triplets).
+- T2 `test-run-suite-reports-red.sh` (W / U / M) — the launcher plays everything, counts, names the reds.
+- T3 `test-setup-test-env-offline.sh` (U, CI) — the cached environment answers offline.
+- T4 `test-reference-clone-equivalence.sh` (U) — the reference clone installs the same thing.
 
-### Portes fermées par la Mission 186 (v0.1.5)
+### Doors closed by Mission 186 (v0.1.5)
 
-Six mesures : la source unique du relais Pilot↔Executor (DECISION-2026-09-17-201623) synchronisée dans tout le corpus distribué, plus le bloc « Instructions du Projet » rendu prêt à coller et le parcours d'installation retravaillé. U = Ubuntu, W = Windows, M = macOS.
+Six measurements: the single source of the Pilot↔Executor relay (DECISION-2026-09-17-201623) synchronized across the whole distributed corpus, plus the « Instructions du Projet » ["Project Instructions"] block made ready to paste and the reworked install path. U = Ubuntu, W = Windows, M = macOS.
 
-| # | Fichier | Ce qu'il prouve | Témoin négatif | Systèmes |
+| # | File | What it proves | Negative control | Systems |
 |---|---|---|---|---|
-| T1 | `test-no-push-formula.sh` | zéro occurrence, dans le corpus distribué, des quatre formulations de l'ancienne formule de push imposée (« j'ordonne le push », « verbatim »/« à l'identique » associés à push, « aucun push » sans « non délégué ») | un fichier par motif, jamais écrit dans ce dépôt → chacun détecté et nommé | U |
-| T2 | `test-relay-single-source.sh` | la grammaire du bloc RELAY (rubriques exactes) n'apparaît que dans `RULES-2026-08-23-124937` ; les pièces qui en parlent y renvoient nommément (« 124937 ») sans la redire | une copie de skill qui redit la grammaire → détectée et nommée | U |
-| T3 | `test-common-prompt-no-relay.sh` | le bloc `PROMPT:BEGIN/END` du prompt Pilot commun ne porte plus le mot RELAY, et garde la phrase d'exclusivité du serveur MCP | RELAY réinjecté dans une copie jetable du gabarit → échec | U |
-| T4 | `test-project-bootstrap-instructions-block.sh` | le bloc « Instructions du Projet » rendu par `tools/project-bootstrap.sh` porte le tronc commun complet, prêt à coller (chemin natif, `vault_id`, canari identique à `state/PILOT-PROMPT.md`), en français et dans les trois langues du questionnaire | gabarit privé de `<!-- PROMPT:BEGIN -->` → échec propre, sans rendu partiel | W / U / M |
-| T5 | `test-install-doc-participant-path.sh` | README.md et INSTALL.md portent, dans l'ordre, les quatre étapes du parcours participant (installer, serveur MCP, ouvrir le Pilot, adopter) et une FAQ des quatre leçons de l'acceptation 184 | copie de README.md privée d'une section puis d'une entrée FAQ → échec | U |
-| T6 | `test-i18n-parity.sh` | les catalogues `i18n/catalog.{fr,en,es}.json` déclarent exactement le même ensemble de clefs, dont les nouvelles clefs `projectBootstrap.consume.instructions*` | une clef retirée d'une copie jetable d'un catalogue → détectée et nommée | U |
+| T1 | `test-no-push-formula.sh` | zero occurrences, in the distributed corpus, of the four wordings of the old imposed push formula (« j'ordonne le push » ["I order the push"], « verbatim »/« à l'identique » ["identically"] tied to push, « aucun push » ["no push"] without « non délégué » ["not delegated"]) | one file per pattern, never written in this repository → each detected and named | U |
+| T2 | `test-relay-single-source.sh` | the RELAY block grammar (exact headings) appears only in `RULES-2026-08-23-124937`; the pieces that mention it refer to it by name (« 124937 ») without restating it | a skill copy that restates the grammar → detected and named | U |
+| T3 | `test-common-prompt-no-relay.sh` | the `PROMPT:BEGIN/END` block of the common Pilot prompt no longer carries the word RELAY, and keeps the MCP server exclusivity sentence | RELAY reinjected into a throwaway copy of the template → failure | U |
+| T4 | `test-project-bootstrap-instructions-block.sh` | the « Instructions du Projet » block rendered by `tools/project-bootstrap.sh` carries the complete common trunk, ready to paste (native path, `vault_id`, canary identical to `state/PILOT-PROMPT.md`), in French and in the three questionnaire languages | template stripped of `<!-- PROMPT:BEGIN -->` → clean failure, no partial rendering | W / U / M |
+| T5 | `test-install-doc-participant-path.sh` | README.md and INSTALL.md carry, in order, the four steps of the participant path (install, MCP server, open the Pilot, adopt) and a FAQ of the four lessons of acceptance 184 | copy of README.md stripped of a section, then of a FAQ entry → failure | U |
+| T6 | `test-i18n-parity.sh` | the catalogues `i18n/catalog.{fr,en,es}.json` declare exactly the same set of keys, including the new keys `projectBootstrap.consume.instructions*` | a key removed from a throwaway copy of a catalogue → detected and named | U |
 
-### Portes fermées par la Mission 185-C01 (v0.1.4)
+### Doors closed by Mission 185-C01 (v0.1.4)
 
-Douze mesures, une par défaut relevé pendant l'acceptation humaine du 2026-09-17. W = Windows, U = Ubuntu, M = macOS.
+Twelve measurements, one per defect found during the human acceptance of 2026-09-17. W = Windows, U = Ubuntu, M = macOS.
 
-| # | Fichier | Ce qu'il prouve | Témoin négatif | Systèmes |
+| # | File | What it proves | Negative control | Systems |
 |---|---|---|---|---|
-| T1 | `test-bootstrap-stale-temp-clone.ps1` / `.sh` | un dossier temporaire déjà cloné est amené à `--ref` | `--ref` inexistant ; origine différente → refus, rien d'installé | W / U / M |
-| T2 | `test-install-vault-origin.sh` | `vault_origin`, marqueur et acte du premier projet portent l'origine réelle | source sans remote → repli sur le chemin, dit au participant | W / U / M |
-| T3 | `test-install-leaves-vault-clean.sh` | le Vault installé est rendu au porcelain vide | installation interrompue → porcelain non vide, vu par la même mesure | W / U / M |
-| T4 | `test-project-bootstrap-git-identity.sh` | tout dépôt créé ou repris porte une identité d'auteur | identité locale retirée → commit refusé, « Author identity unknown » | W / U / M |
-| T5 | `test-project-bootstrap-adopt-git-no-question.sh` | `--git` vaut réponse : aucune question, l'entrée standard n'est pas lue | sans `--git` ni `--vcs` → la question est posée et sa réponse appliquée | W / U / M |
-| T6 | `test-vault-mcp-refusal-message.py` | un refus MCP est un résultat `isError` nommant le chemin et le périmètre | chemin dedans → pas d'`isError`, contenu rendu | W / U / M |
-| T7 | `test-project-bootstrap-native-paths.ps1` / `.sh` | sous Windows, les chemins rendus sont natifs (`C:\…`) | sous Unix, le chemin POSIX revient rigoureusement inchangé | W / U / M |
-| T8 | `test-project-bootstrap-adopt-plan.sh` | le plan d'adoption ne parle que de l'existant | un fichier existant mal rangé est toujours proposé au déplacement | W / U / M |
-| T9 | `test-common-prompt-exclusivity.sh` | le prompt Pilot commun dit que `second-brain-vault` est le seul outil de fichiers | copie du gabarit sans la phrase → échec | U |
-| T10 | `test-install-doc-windows-invocation.sh` | `INSTALL.md` et `README.md` portent l'invocation Windows exacte | copie sans ces lignes → échec | U |
-| T11 | `test-catalog-key-parity.sh` / `.ps1` | parité fr/en/es, et présence des clefs neuves | une clef retirée d'un catalogue → échec | U |
-| T12 | suites de la Mission 184 | les 106 cas et les onze lignes d'acceptation gardent leur verdict | — (c'est la règle « ne rien casser ») | W / U / M |
+| T1 | `test-bootstrap-stale-temp-clone.ps1` / `.sh` | an already-cloned temporary folder is brought to `--ref` | nonexistent `--ref`; different origin → refusal, nothing installed | W / U / M |
+| T2 | `test-install-vault-origin.sh` | `vault_origin`, marker and birth certificate of the first project carry the real origin | source without a remote → fallback to the path, told to the participant | W / U / M |
+| T3 | `test-install-leaves-vault-clean.sh` | the installed Vault is left with an empty porcelain | interrupted install → non-empty porcelain, seen by the same measurement | W / U / M |
+| T4 | `test-project-bootstrap-git-identity.sh` | every repository created or taken over carries an author identity | local identity removed → commit refused, « Author identity unknown » | W / U / M |
+| T5 | `test-project-bootstrap-adopt-git-no-question.sh` | `--git` counts as an answer: no question, standard input is not read | without `--git` or `--vcs` → the question is asked and its answer applied | W / U / M |
+| T6 | `test-vault-mcp-refusal-message.py` | an MCP refusal is an `isError` result naming the path and the perimeter | path inside → no `isError`, content returned | W / U / M |
+| T7 | `test-project-bootstrap-native-paths.ps1` / `.sh` | on Windows, the rendered paths are native (`C:\…`) | on Unix, the POSIX path comes back strictly unchanged | W / U / M |
+| T8 | `test-project-bootstrap-adopt-plan.sh` | the adoption plan speaks only of what exists | an existing misfiled file is still proposed for moving | W / U / M |
+| T9 | `test-common-prompt-exclusivity.sh` | the common Pilot prompt says `second-brain-vault` is the only file tool | copy of the template without the sentence → failure | U |
+| T10 | `test-install-doc-windows-invocation.sh` | `INSTALL.md` and `README.md` carry the exact Windows invocation | copy without these lines → failure | U |
+| T11 | `test-catalog-key-parity.sh` / `.ps1` | fr/en/es parity, and presence of the new keys | a key removed from a catalogue → failure | U |
+| T12 | Mission 184 suites | the 106 cases and the eleven acceptance lines keep their verdict | — (this is the "break nothing" rule) | W / U / M |
 
-### Familles antérieures
+### Earlier families
 
-- **Installation de bout en bout** — `test-install-e2e.ps1` / `.sh`, `test-bootstrap-no-git.ps1`, `test-install-standard-user.ps1`, `test-prerequisites-e2e.ps1`.
-- **Initiation et adoption de projet** — `test-project-initiation.sh`, `test-project-bootstrap-path-validation.sh`, `test-project-structure-standard-conformity.ps1`.
-- **Serveur MCP embarqué** — `test-vault-mcp.sh` (serveur, injection sur profil simulé, contenance).
-- **Gardiens** — `test-githooks-run-on-commit.sh`, `test-guardian-offline-commit.sh`, `test-guardian-path-special-chars.sh`, `test-guardian-secret-refusal.sh`, `test-exec-bit-bare-scripts.sh`.
-- **Questionnaire et assistant** — `test-questionnaire-*.ps1`, `test-assistant-*.ps1`.
-- **Portabilité et vocabulaire** — `test-participant-shell-portability.sh`, `test-nominal-flow-no-atelier-vocabulary.ps1` / `.sh`, `test-distributed-documents-no-atelier-vocabulary.ps1` / `.sh`.
+- **End-to-end install** — `test-install-e2e.ps1` / `.sh`, `test-bootstrap-no-git.ps1`, `test-install-standard-user.ps1`, `test-prerequisites-e2e.ps1`.
+- **Project initiation and adoption** — `test-project-initiation.sh`, `test-project-bootstrap-path-validation.sh`, `test-project-structure-standard-conformity.ps1`.
+- **Embedded MCP server** — `test-vault-mcp.sh` (server, injection on a simulated profile, containment).
+- **Guardians** — `test-githooks-run-on-commit.sh`, `test-guardian-offline-commit.sh`, `test-guardian-path-special-chars.sh`, `test-guardian-secret-refusal.sh`, `test-exec-bit-bare-scripts.sh`.
+- **Questionnaire and assistant** — `test-questionnaire-*.ps1`, `test-assistant-*.ps1`.
+- **Portability and vocabulary** — `test-participant-shell-portability.sh`, `test-nominal-flow-no-atelier-vocabulary.ps1` / `.sh`, `test-distributed-documents-no-atelier-vocabulary.ps1` / `.sh`.
 
 ## Liens
 
-- `see also` — [Garde-fous et niveaux de preuve](../rules/RULES-2026-08-19-210803-guardrails-and-evidence-levels.md)
-- `prescribed by` — [Standard de liens entre documents](../rules/RULES-2026-08-21-115658-document-linking-standard.md)
+- `see also` — [Guardrails and levels of evidence](../rules/RULES-2026-08-19-210803-guardrails-and-evidence-levels.md)
+- `prescribed by` — [Standard for links between documents](../rules/RULES-2026-08-21-115658-document-linking-standard.md)

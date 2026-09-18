@@ -1,27 +1,27 @@
 #!/usr/bin/env bash
-# T3 (Mission 186, etape 5) : le bloc PROMPT:BEGIN/END du prompt Pilot
-# commun (templates/session-opening-prompt-template.md) ne porte plus le
-# mot « RELAY » -- DECISION-2026-09-17-201623, volet B4 : « Le RELAY est la
-# sortie d'un relais A L'INTERIEUR D'UNE SESSION ; il ne porte jamais la
-# portee d'un projet. Il ne figure dans AUCUNE instruction de Projet : le
-# prompt commun perd ses deux lignes « blocs RELAY reçus». » Ce prompt
-# commun est colle tel quel dans les instructions d'un Projet (application
-# de bureau) : y laisser un mot RELAY reintroduirait la portee de session
-# que la Decision retire.
+# T3 (Mission 186, step 5): the PROMPT:BEGIN/END block of the common Pilot
+# prompt (templates/session-opening-prompt-template.md) no longer carries the
+# word « RELAY » -- DECISION-2026-09-17-201623, part B4: "The RELAY is the
+# output of a relay INSIDE A SESSION; it never carries the scope of a
+# project. It appears in NO Project instruction: the common prompt loses
+# its two « blocs RELAY reçus » lines." (translated from French) This common
+# prompt is pasted as is into the instructions of a Project (desktop
+# application): leaving a word RELAY there would reintroduce the session scope
+# that the Decision removes.
 #
-# La phrase d'exclusivite du serveur MCP (« second-brain-vault » + « hors
-# perimetre » sur la MEME ligne, deja testee par
-# tests/test-common-prompt-exclusivity.sh -- T9 de la Mission 185-C01) doit
-# rester presente : ce test ne verifie pas une regression sur elle,
-# seulement qu'elle survit au retrait du mot RELAY dans le meme bloc.
+# The MCP server exclusivity sentence (« second-brain-vault » + « hors
+# perimetre » ["outside the perimeter"] on the SAME line, already tested by
+# tests/test-common-prompt-exclusivity.sh -- T9 of Mission 185-C01) must
+# remain present: this test does not check a regression on it,
+# only that it survives the removal of the word RELAY in the same block.
 #
-# Rerun avec une commande, depuis la racine du depot :
+# Rerun with one command, from the repository root:
 #   bash tests/test-common-prompt-no-relay.sh
 #
-# Exit 0 : le bloc PROMPT:BEGIN/END est absent de "RELAY" (insensible a la
-# casse) et porte toujours la phrase d'exclusivite ; le temoin negatif
-# prouve que l'absence de RELAY sait etre detectee comme un echec quand
-# RELAY est reinjecte. Exit 1 sinon.
+# Exit 0: the PROMPT:BEGIN/END block is free of "RELAY" (case-
+# insensitive) and still carries the exclusivity sentence; the negative control
+# proves that the absence of RELAY can be detected as a failure when
+# RELAY is reinjected. Exit 1 otherwise.
 
 set -u
 
@@ -36,17 +36,17 @@ fail() { echo "  FAIL - $1"; FAILURES=$((FAILURES + 1)); }
 TMP="$(mktemp -d "${TMPDIR:-/tmp}/m186-prompt-no-relay-XXXXXX")"
 trap 'rm -rf "$TMP"' EXIT
 
-# prompt_block <fichier> : le texte entre les deux marqueurs, vide si l'un
-# des deux manque -- meme technique que
-# tests/test-common-prompt-exclusivity.sh (sed sur les marqueurs, jamais un
-# compte de lignes : le gabarit bouge, ses marqueurs non), et que
-# extract_prompt_common_block() dans tools/project-bootstrap.sh.
+# prompt_block <fichier>: the text between the two markers, empty if either
+# of them is missing -- same technique as
+# tests/test-common-prompt-exclusivity.sh (sed on the markers, never a
+# line count: the template moves, its markers do not), and as
+# extract_prompt_common_block() in tools/project-bootstrap.sh.
 prompt_block() {
   tr -d '\r' < "$1" | sed -n '/<!-- PROMPT:BEGIN -->/,/<!-- PROMPT:END -->/p'
 }
 
-# check_no_relay <fichier> : 0 si le bloc ne porte pas "RELAY" (insensible
-# a la casse), 1 sinon (bloc absent compris).
+# check_no_relay <fichier>: 0 if the block does not carry "RELAY" (case-
+# insensitive), 1 otherwise (missing block included).
 check_no_relay() {
   BLOCK="$(prompt_block "$1")"
   [ -n "$BLOCK" ] || return 1
@@ -54,9 +54,9 @@ check_no_relay() {
   return 0
 }
 
-# check_exclusivity <fichier> : meme controle que T9
-# (tests/test-common-prompt-exclusivity.sh), rejoue ici pour prouver qu'il
-# survit au retrait de RELAY dans le meme bloc.
+# check_exclusivity <fichier>: same check as T9
+# (tests/test-common-prompt-exclusivity.sh), replayed here to prove that it
+# survives the removal of RELAY in the same block.
 check_exclusivity() {
   BLOCK="$(prompt_block "$1")"
   [ -n "$BLOCK" ] || return 1
@@ -95,8 +95,8 @@ else
   fail "la phrase d'exclusivite a disparu du bloc"
 fi
 
-# --- Temoin negatif : une copie du gabarit ou RELAY est reinjecte dans le
-# bloc -- la detection doit alors echouer (FAIL nomme), jamais dire PASS.
+# --- Negative control: a copy of the template where RELAY is reinjected into the
+# block -- detection must then fail (FAIL named), never say PASS.
 echo ""
 echo "=== Temoin negatif (FAIL prouve) : RELAY reinjecte dans une copie jetable ==="
 WITNESS="$TMP/session-opening-prompt-template.md"
@@ -112,9 +112,9 @@ else
   printf '%s\n' "$(prompt_block "$WITNESS")" | grep -in 'relay' | sed 's/^/      /'
 fi
 
-# La phrase d'exclusivite doit rester detectee independamment sur ce
-# temoin (elle n'a pas ete touchee) : preuve que les deux controles sont
-# bien independants l'un de l'autre.
+# The exclusivity sentence must remain detected independently on this
+# control (it was not touched): proof that the two checks are
+# indeed independent of each other.
 if check_exclusivity "$WITNESS"; then
   pass "temoin : la phrase d'exclusivite reste detectee sur la meme copie (les deux controles sont independants)"
 else

@@ -1,35 +1,35 @@
 #!/usr/bin/env bash
-# Balaie le CONTENU des documents suivis, distribues et destines a un
-# participant -- mots (meme liste que
-# tests/test-nominal-flow-no-atelier-vocabulary.sh, Mission 174) et chemins
-# prefixes `vault/` cites comme s'ils resolvaient chez un participant
-# (Mission 177, etape 4b).
+# Scans the CONTENT of the tracked documents that are distributed and meant
+# for a participant -- words (same list as
+# tests/test-nominal-flow-no-atelier-vocabulary.sh, Mission 174) and paths
+# prefixed `vault/` cited as if they resolved on a participant's machine
+# (Mission 177, step 4b).
 #
-# Complement de la Mission 174 : celle-ci ne balaie que la SORTIE CONSOLE
-# d'un flux nominal, jamais le CONTENU des documents eux-memes -- c'est par
-# la qu'est passee la citation `vault/skills/session-start/reading-list.md`
-# de la charte des roles (RULES-2026-08-23-224706-role-charter-and-session-
-# determination.md), invisible a la console d'une installation mais lue par
-# tout participant qui ouvre ce fichier.
+# Complement to Mission 174: that one scans only the CONSOLE OUTPUT
+# of a nominal flow, never the CONTENT of the documents themselves -- that is
+# the way the citation `vault/skills/session-start/reading-list.md`
+# of the role charter (RULES-2026-08-23-224706-role-charter-and-session-
+# determination.md) slipped through, invisible on an install's console but read by
+# any participant who opens that file.
 #
-# PORTEE : une liste d'inclusion, pas d'exclusion -- les dossiers et
-# fichiers qu'un participant lit reellement comme documentation ou comme
-# guide (rules/, knowledge/, templates/, skills/ hors external/, assistant/,
-# i18n/, AGENTS.md, CLAUDE.md, README.md, INSTALL.md). Mesure prealable
-# (Mission 177, etape 1) : ces dossiers ne portent aujourd'hui aucune
-# occurrence. Le code source (tools/, tests/) cite legitimement ces memes
-# mots dans ses fixtures, ses commentaires d'historique ou sa propre
-# definition (meme motif que la paire definition/test de
-# tools/check-private-patterns.sh) -- l'inclure aurait exige une liste
-# d'exclusion fichier par fichier aussi longue qu'arbitraire, pour un risque
-# bien moindre qu'un document que le participant ouvre directement.
+# SCOPE: an inclusion list, not an exclusion list -- the folders and
+# files a participant actually reads as documentation or as a
+# guide (rules/, knowledge/, templates/, skills/ except external/, assistant/,
+# i18n/, AGENTS.md, CLAUDE.md, README.md, INSTALL.md). Prior measurement
+# (Mission 177, step 1): these folders carry no occurrence
+# today. The source code (tools/, tests/) legitimately cites these same
+# words in its fixtures, its history comments or its own
+# definition (same pattern as the definition/test pair of
+# tools/check-private-patterns.sh) -- including it would have required a
+# file-by-file exclusion list as long as it is arbitrary, for a risk
+# much smaller than a document the participant opens directly.
 #
-# Rerun avec une commande, depuis la racine du depot :
+# Rerun with one command, from the repository root:
 #   bash tests/test-distributed-documents-no-atelier-vocabulary.sh
 #
-# Exit 0 : aucune occurrence dans les documents inclus, et le cas negatif
-# prouve que le balayage detecte toujours un motif present. Exit 1 sinon,
-# fichier et ligne imprimes.
+# Exit 0: no occurrence in the included documents, and the negative case
+# proves that the scan still detects a present pattern. Exit 1 otherwise,
+# file and line printed.
 
 set -u
 
@@ -46,14 +46,14 @@ assert_true() {
   fi
 }
 
-# Motifs : les quatre mots d'atelier deja catalogues par la Mission 174,
-# plus tout chemin cite entre accents graves qui commence par `vault/` --
-# le seul alias que tools/check-asserted-paths.sh resout encore vers ce
-# depot lui-meme (historique : ce depot s'appelait "vault" avant sa
-# distribution comme produit), donc le seul chemin de ce type que le
-# gardien de chemins affirmes ne peut PAS distinguer d'un vrai sous-dossier
-# chez un participant -- ce depot n'a jamais eu de sous-dossier `vault/`
-# reel.
+# Patterns: the four workshop words already catalogued by Mission 174,
+# plus any path cited between backticks that starts with `vault/` --
+# the only alias that tools/check-asserted-paths.sh still resolves to this
+# repository itself (history: this repository was called "vault" before its
+# distribution as a product), hence the only path of this kind that the
+# asserted-paths guardian can NOT tell apart from a real subfolder
+# on a participant's machine -- this repository never had a real `vault/`
+# subfolder.
 WORD_PATTERNS=(
   'workshop-build'
   'workshop-production'
@@ -62,12 +62,12 @@ WORD_PATTERNS=(
 )
 PATH_PATTERN='`vault/'
 
-# Portee : dossiers vivants lus par un participant, plus les fichiers
-# racine qui s'adressent a lui. `skills/external/` est exclu a l'interieur
-# de `skills/` : materiel d'auteurs tiers adopte verbatim, corps garanti
-# par empreinte SHA-256 (DECISION-171209) -- jamais reecrit, meme pour une
-# raison de vocabulaire (mesure : ses occurrences de "Legacy" sont un nom
-# de script du plugin, sans rapport avec l'atelier).
+# Scope: living folders read by a participant, plus the root files
+# addressed to them. `skills/external/` is excluded inside
+# `skills/`: third-party material adopted verbatim, body guaranteed
+# by SHA-256 fingerprint (DECISION-171209) -- never rewritten, even for a
+# vocabulary reason (measured: its occurrences of "Legacy" are a script
+# name of the plugin, unrelated to the workshop).
 INCLUDE_PATHSPECS=(
   'rules'
   'knowledge'
@@ -103,8 +103,8 @@ assert_true "$TREE_FAIL" "0 mot ni chemin d'atelier dans les documents distribue
 
 echo ""
 echo "=== 2. Cas negatif : le balayage detecte toujours un motif present ==="
-# Depot bac a sable jetable, jamais un fichier suivi de CE depot -- meme
-# discipline que tools/check-private-patterns.sh et la Mission 176.
+# Throwaway sandbox repository, never a tracked file of THIS repository -- same
+# discipline as tools/check-private-patterns.sh and Mission 176.
 SANDBOX="$(mktemp -d "${TMPDIR:-/tmp}/sb-atelier-doc-sweep-XXXXXX")"
 trap 'rm -rf -- "$SANDBOX"' EXIT
 (

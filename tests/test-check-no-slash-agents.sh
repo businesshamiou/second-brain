@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regression test for tools/check-no-slash-agents.sh (Mission 171-C01, etape
+# Regression test for tools/check-no-slash-agents.sh (Mission 171-C01, step
 # 9). Written for the same structural reason as
 # tests/test-check-private-patterns.sh: the checker's own source names the
 # pattern it looks for in clear (comments, the PATTERN variable), so a naive
@@ -21,8 +21,8 @@
 #      checker is case-sensitive on purpose.
 #
 # usage: tests/test-check-no-slash-agents.sh
-# sortie : "PASS: 4/4 cas conformes" (exit 0) ou "FAIL: <n> cas non
-# conformes" (exit 1), meme convention que test-check-private-patterns.sh.
+# output: "PASS: 4/4 cas conformes" (exit 0) or "FAIL: <n> cas non
+# conformes" (exit 1), same convention as test-check-private-patterns.sh.
 
 set -u
 

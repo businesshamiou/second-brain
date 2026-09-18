@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
-# T9 (Mission 185-C01, porte 6 de la capture 2026-09-17-144137) : le prompt
-# Pilot commun dit que le serveur `second-brain-vault` est le SEUL outil de
-# fichiers du Pilot.
+# T9 (Mission 185-C01, door 6 of capture 2026-09-17-144137): the common
+# Pilot prompt says that the `second-brain-vault` server is the Pilot's ONLY
+# file tool.
 #
-# Defaut mesure a l'acceptation humaine de la 184 : le Pilot constate la
-# borne de `second-brain-vault`, puis lit le meme fichier par un autre
-# serveur de fichiers configure sur le poste. Le prompt commun ne disait
-# nulle part « uniquement ce serveur » : la borne du serveur MCP n'est une
-# borne que si le contrat le dit.
+# Defect measured at the human acceptance of 184: the Pilot notices the
+# bound of `second-brain-vault`, then reads the same file through another
+# file server configured on the machine. The common prompt said
+# nowhere « uniquement ce serveur » ["only this server"]: the MCP server's
+# bound is a bound only if the contract says so.
 #
-# Oracle : le bloc PROMPT:BEGIN/END du gabarit porte la phrase
-# d'exclusivite -- le nom du serveur ET la mention « hors perimetre ».
-# Temoin negatif : une copie du gabarit privee de cette phrase echoue au
-# meme controle, dans un dossier temporaire.
+# Oracle: the PROMPT:BEGIN/END block of the template carries the exclusivity
+# sentence -- the server name AND the mention « hors perimetre » ["outside the perimeter"].
+# Negative control: a copy of the template stripped of that sentence fails the
+# same check, in a temporary folder.
 #
 # usage: bash tests/test-common-prompt-exclusivity.sh
-# Code 0 : tous les cas PASS. Code 1 sinon.
+# Exit 0: all cases PASS. Exit 1 otherwise.
 
 set -u
 
@@ -29,23 +29,23 @@ fail() { echo "  FAIL - $1"; FAILURES=$((FAILURES + 1)); }
 TMP="$(mktemp -d "${TMPDIR:-/tmp}/m185-prompt-XXXXXX")"
 trap 'rm -rf "$TMP"' EXIT
 
-# prompt_block <fichier> : le bloc entre les deux marqueurs, vide si l'un
-# des deux manque. sed sur les marqueurs plutot qu'un compte de lignes :
-# le gabarit bouge, ses marqueurs non.
+# prompt_block <fichier>: the block between the two markers, empty if either
+# of them is missing. sed on the markers rather than a line count:
+# the template moves, its markers do not.
 prompt_block() {
   tr -d '\r' < "$1" | sed -n '/<!-- PROMPT:BEGIN -->/,/<!-- PROMPT:END -->/p'
 }
 
-# check_exclusivity <fichier> : 0 si le bloc porte la phrase, 1 sinon.
+# check_exclusivity <fichier>: 0 if the block carries the sentence, 1 otherwise.
 check_exclusivity() {
   BLOCK="$(prompt_block "$1")"
   [ -n "$BLOCK" ] || return 1
   printf '%s' "$BLOCK" | grep -q 'second-brain-vault' || return 1
   printf '%s' "$BLOCK" | grep -q 'outside the perimeter' || return 1
-  # Les deux moities de la phrase doivent vivre sur la MEME ligne : le nom
-  # du serveur apparait deja ailleurs dans le bloc, et « hors perimetre »
-  # seul ne dit pas de quel outil on parle. Depuis la Mission 187 le gabarit
-  # est en anglais : la phrase cherchee est sa traduction exacte.
+  # Both halves of the sentence must live on the SAME line: the name
+  # of the server already appears elsewhere in the block, and « hors perimetre »
+  # alone does not say which tool is meant. Since Mission 187 the template
+  # is in English: the sentence searched for is its exact translation.
   printf '%s' "$BLOCK" | grep 'second-brain-vault' | grep -q 'outside the perimeter' || return 1
   return 0
 }
@@ -72,7 +72,7 @@ else
   fail "le bloc ne porte pas la phrase d'exclusivite"
 fi
 
-# --- Temoin negatif : la meme mesure, sur une copie amputee ---------------
+# --- Negative control: the same measurement, on a truncated copy ----------
 WITNESS="$TMP/session-opening-prompt-template.md"
 grep -v 'outside the perimeter' "$TEMPLATE" > "$WITNESS"
 if check_exclusivity "$WITNESS"; then

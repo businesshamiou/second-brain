@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# Aide partagee des tests d'initiation (Mission 184) : fabrique un Vault
-# jetable a partir de l'ARBRE DE TRAVAIL de ce depot -- jamais un clone, qui
-# lirait l'historique committe et exercerait l'ancien code
-# (tests/test-project-bootstrap-path-validation.sh l'a mesure). A sourcer.
+# Shared helper for the initiation tests (Mission 184): builds a throwaway
+# Vault from the WORKING TREE of this repository -- never a clone, which
+# would read the committed history and exercise the old code
+# (tests/test-project-bootstrap-path-validation.sh measured it). To be sourced.
 #
 #   . "$REPO_ROOT/tests/sandbox-vault.sh"
-#   sandbox_find_uv                       # met uv sur le PATH (runners CI)
-#   sandbox_vault <source> <destination>  # copie, git init, identite, commit
-#   sandbox_native_path <chemin>          # forme lue par un Python natif
-#   sandbox_reference_clone <source>      # depot nu partage, a HEAD (Mission 188)
+#   sandbox_find_uv                       # puts uv on the PATH (CI runners)
+#   sandbox_vault <source> <destination>  # copy, git init, identity, commit
+#   sandbox_native_path <path>            # form read by a native Python
+#   sandbox_reference_clone <source>      # shared bare repository, at HEAD (Mission 188)
 #
-# Le warehouse (skills-warehouse/) n'est pas copie : aucun test d'initiation
-# ne le lit. Aucune ecriture hors de la destination.
+# The warehouse (skills-warehouse/) is not copied: no initiation test
+# reads it. No writing outside the destination.
 
 sandbox_find_uv() {
   command -v uv >/dev/null 2>&1 && return 0
@@ -30,13 +30,13 @@ sandbox_find_uv() {
   return 1
 }
 
-# Clone de reference (Mission 188) : un depot nu de <source> a son HEAD, fait
-# une seule fois par execution et par commit, partage par les tests qui
-# clonaient ce depot chacun pour soi. Rend son chemin. Le nom porte le
-# commit, et le HEAD du depot nu est remesure a chaque appel : une reference
-# a un autre commit est refusee, jamais servie. Il ne remplace jamais le
-# test qui joue la vraie ligne publiee (smoke-from-github, S1-S11), qui
-# clone le reseau par definition.
+# Reference clone (Mission 188): a bare repository of <source> at its HEAD,
+# made only once per run and per commit, shared by the tests that used to
+# clone this repository each on its own. Returns its path. The name carries
+# the commit, and the HEAD of the bare repository is re-measured on each call:
+# a reference at another commit is refused, never served. It never replaces
+# the test that plays the real published line (smoke-from-github, S1-S11),
+# which clones from the network by definition.
 #   SRC="$(sandbox_reference_clone "$REPO_ROOT")" || exit 1
 #   git clone --quiet -- "$SRC" "$dest"
 sandbox_reference_clone() {
@@ -55,7 +55,7 @@ sandbox_reference_clone() {
       echo "REFUS : clone de reference non construit depuis $src" >&2
       return 1
     }
-    # Un autre test a pu le poser entre-temps : le premier arrive garde le sien.
+    # Another test may have placed it meanwhile: the first to arrive keeps its own.
     mv "$tmp" "$dir" 2>/dev/null || rm -rf "$tmp"
   fi
   got="$(git -C "$dir" rev-parse HEAD 2>/dev/null)"
@@ -97,10 +97,10 @@ sandbox_vault() {
     git config commit.gpgsign false
     git config core.longpaths true
     bash tools/vault-identity.sh ensure "$dest" >/dev/null
-    # Sous Windows, l'ecriture d'un objet Git est parfois refusee
-    # (« Permission denied » sur .git/objects, mesure deux fois a la Mission
-    # 184) puis acceptee a la tentative suivante : on reessaie, jamais plus
-    # de cinq fois.
+    # On Windows, writing a Git object is sometimes refused
+    # (« Permission denied » on .git/objects, measured twice in Mission
+    # 184) then accepted on the next attempt: we retry, never more
+    # than five times.
     n=0
     until git add -A >/dev/null 2>&1; do
       n=$((n + 1))

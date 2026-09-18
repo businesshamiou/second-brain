@@ -53,8 +53,8 @@ REPO="$TMP/sandbox"
 
 mkdir -p "$REPO/tools" "$REPO/rules/patterns"
 cp "$REAL_GUARDIAN" "$REPO/tools/check-secrets.sh"
-# Mission 184 : le gardien source la ligne de base de projet et ses deux
-# dependances depuis son propre dossier ; la copie les emporte.
+# Mission 184: the guardian sources the project baseline and its two
+# dependencies from its own folder; the copy takes them along.
 for lib in project-baseline.sh resolve-vault.sh vault-identity.sh; do
   cp "$(dirname "$REAL_GUARDIAN")/$lib" "$REPO/tools/$lib"
 done

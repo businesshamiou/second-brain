@@ -1,34 +1,34 @@
 #!/usr/bin/env bash
-# T1 (Mission 185-C01, porte 1 de la capture 2026-09-17-144137) : un
-# dossier temporaire DEJA clone est amene a --ref, jamais installe tel
-# qu'il est.
+# T1 (Mission 185-C01, door 1 of capture 2026-09-17-144137): an
+# ALREADY cloned temporary folder is brought to --ref, never installed as
+# it stands.
 #
-# Defaut mesure sur le poste de l'Owner, le plus grave de l'acceptation :
-# `bootstrap.*` sautait clone ET checkout des que <cible>/.git existait.
-# Un %TEMP%\second-brain-install oublie (2026-09-14, commit du 2026-09-13,
-# anterieur a toute etiquette) a donc installe une version perimee -- sans
-# identite, sans acte de naissance, sans prompt Pilot -- avec un verdict
-# propre. Invisible en CI, ou chaque scenario part d'un TestRoot vide.
+# Defect measured on the Owner's machine, the gravest of the acceptance:
+# `bootstrap.*` skipped clone AND checkout as soon as <cible>/.git existed.
+# A forgotten %TEMP%\second-brain-install (2026-09-14, commit of 2026-09-13,
+# older than every tag) therefore installed a stale version -- no
+# identity, no birth certificate, no Pilot prompt -- with a clean
+# verdict. Invisible in CI, where every scenario starts from an empty TestRoot.
 #
-# Oracle (PASS attendu) : un TestRoot dont `second-brain-install` est deja
-# clone a un commit ANTERIEUR, puis la ligne ; apres elle,
-# `rev-parse HEAD` du dossier temporaire = `<ref>^{commit}`, et le Vault
-# installe est au meme commit.
-# Temoins negatifs (dans ce meme fichier) :
-#   - `--ref` inexistant -> refus qui nomme le ref, rien d'installe ;
-#   - dossier temporaire dont `origin` n'est pas `--repo-url` -> refus qui
-#     nomme les DEUX URL, rien d'installe, dossier jamais supprime.
+# Oracle (PASS expected): a TestRoot whose `second-brain-install` is already
+# cloned at an EARLIER commit, then the line; after it,
+# `rev-parse HEAD` of the temporary folder = `<ref>^{commit}`, and the
+# installed Vault is at the same commit.
+# Negative controls (in this same file):
+#   - nonexistent `--ref` -> refusal naming the ref, nothing installed;
+#   - temporary folder whose `origin` is not `--repo-url` -> refusal naming
+#     BOTH URLs, nothing installed, folder never deleted.
 #
-# Le vrai bootstrap est rejoue, avec `--repo-url`/`--raw-base` locaux --
-# meme patron que tests/test-bootstrap-no-git.ps1 -- et l'installation est
-# arretee juste apres l'etape de clone : ce test mesure l'etape de clone,
-# pas l'installation complete (mesuree par tests/test-install-e2e.sh).
+# The real bootstrap is replayed, with local `--repo-url`/`--raw-base` --
+# same pattern as tests/test-bootstrap-no-git.ps1 -- and the install is
+# stopped right after the clone step: this test measures the clone step,
+# not the full install (measured by tests/test-install-e2e.sh).
 #
-# Ecrit seulement dans un dossier temporaire (prefixe m185). Aucun reseau
-# vers GitHub, aucun appel modele.
+# Writes only in a temporary folder (prefix m185). No network
+# to GitHub, no model call.
 #
 # usage: bash tests/test-bootstrap-stale-temp-clone.sh
-# Code 0 : tous les cas PASS. Code 1 sinon.
+# Exit 0: all cases PASS. Exit 1 otherwise.
 
 set -u
 
@@ -52,10 +52,10 @@ TMP="$(cd "$TMP" && pwd)"
 echo "=== T1 : dossier temporaire deja clone, amene a --ref ==="
 echo "  TestRoot: $TMP"
 
-# --- Une source locale a DEUX commits et une etiquette -------------------
-# L'etiquette est posee APRES le commit du clone perime : c'est la
-# situation exacte du poste de l'Owner -- le dossier oublie ne connait pas
-# encore la version publiee.
+# --- A local source with TWO commits and a tag ---------------------------
+# The tag is placed AFTER the commit of the stale clone: that is the
+# exact situation of the Owner's machine -- the forgotten folder does not
+# know the published version yet.
 SRC="$TMP/source"
 if ! sandbox_vault "$REPO_ROOT" "$SRC"; then
   echo "FAIL : source jetable non construite"
@@ -78,22 +78,22 @@ else
 fi
 
 answers_file() {
-  # $1 = TestRoot du cas. Rend le chemin du fichier de reponses ecrit.
+  # $1 = TestRoot of the case. Returns the path of the answers file written.
   sed "s#\"workspacePath\": \"[^\"]*\"#\"workspacePath\": \"$1/workspace\"#" \
     "$REPO_ROOT/tests/fixtures/install-answers.sample.json" > "$1/answers.json"
   printf '%s\n' "$1/answers.json"
 }
 
 stale_clone() {
-  # $1 = TestRoot, $2 = commit a poser. Clone perime, detache, comme un
-  # dossier temporaire oublie par une installation precedente.
+  # $1 = TestRoot, $2 = commit to place. Stale clone, detached, like a
+  # temporary folder forgotten by a previous install.
   mkdir -p "$1"
   git clone --quiet --no-checkout -- "$SRC" "$1/second-brain-install" >/dev/null 2>&1 || return 1
   git -C "$1/second-brain-install" -c advice.detachedHead=false checkout --quiet --detach "$2" >/dev/null 2>&1 || return 1
-  # Le dossier oublie du poste de l'Owner datait d'AVANT la publication : il
-  # ne connaissait aucune etiquette. `git clone` en rapporte toujours ;
-  # elles sont retirees ici pour reproduire cet etat exactement, et c'est
-  # `fetch --tags` de la ligne qui doit les ramener.
+  # The forgotten folder on the Owner's machine dated from BEFORE publication: it
+  # knew no tag. `git clone` always brings some along;
+  # they are removed here to reproduce that state exactly, and it is
+  # the line's `fetch --tags` that must bring them back.
   git -C "$1/second-brain-install" tag -d v-test >/dev/null 2>&1 || true
   return 0
 }
@@ -141,7 +141,7 @@ if [ "$INSTALLED_HEAD" = "$WANTED" ]; then
 else
   fail "(a) Vault installe : HEAD = $INSTALLED_HEAD, attendu $WANTED"
 fi
-# Le contenu suit le commit, pas seulement la reference.
+# The content follows the commit, not only the reference.
 if [ -f "$INSTALLED/USER.md" ] && grep -q 'Une ligne de la version suivante' "$INSTALLED/USER.md"; then
   pass "(a) le contenu installe est celui de v-test, pas celui du dossier perime"
 else
@@ -189,10 +189,10 @@ OUT_C="$(bash "$REPO_ROOT/bootstrap.sh" --ref v-test --repo-url "$SRC" --raw-bas
   --test-mode --test-root "$R_C" --answers-file "$C_ANSWERS" --stop-after-step clone 2>&1)"
 RC_C=$?
 [ "$RC_C" != "0" ] && pass "(c) rend un code non nul ($RC_C)" || fail "(c) rend 0 malgre l'origine differente"
-# Les deux URL sont nommees telles que chaque source les ecrit : celle du
-# dossier vient de son .git/config (forme native sous Git Bash), celle
-# demandee vient de la ligne. C'est justement ce qu'il faut montrer au
-# participant -- on compare donc les dossiers nommes, pas une orthographe.
+# Both URLs are named as each source writes them: the folder's one
+# comes from its .git/config (native form under Git Bash), the requested
+# one comes from the line. That is exactly what must be shown to the
+# participant -- so we compare the folders named, not a spelling.
 NAMED_BOTH=0
 case "$OUT_C" in
   *"$(basename "$OTHER")"*)

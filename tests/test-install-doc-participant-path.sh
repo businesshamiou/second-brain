@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
-# T5 (Mission 186, etape 4) : README.md et INSTALL.md portent, dans cet
-# ordre, les quatre etapes du parcours d'un participant qui decouvre le
-# produit -- installer, le serveur MCP, ouvrir le Pilot, adopter un dossier
-# existant -- et la FAQ nomme les quatre lecons tirees de la capture
-# d'acceptation humaine de la Mission 184 (bash hors PATH sous Windows,
-# dossier temporaire reutilise, deux emplacements possibles pour
-# claude_desktop_config.json, exclusivite du serveur MCP
+# T5 (Mission 186, step 4): README.md and INSTALL.md carry, in this
+# order, the four steps of the path of a participant discovering the
+# product -- install, the MCP server, open the Pilot, adopt an existing
+# folder -- and the FAQ names the four lessons drawn from the human
+# acceptance capture of Mission 184 (bash outside the PATH on Windows,
+# reused temporary folder, two possible locations for
+# claude_desktop_config.json, exclusivity of the MCP server
 # `second-brain-vault`).
 #
-# Oracle : pour chaque document, les quatre titres de section se trouvent
-# tous, a des numeros de ligne strictement croissants dans l'ordre attendu ;
-# pour la FAQ (portee par README.md), un mot-cle par theme est present,
-# insensible a la casse.
-# Temoin negatif : une copie jetable de README.md, privee d'une section puis
-# d'une entree FAQ, echoue au meme controle.
+# Oracle: for each document, the four section headings are all
+# found, at strictly increasing line numbers in the expected order;
+# for the FAQ (carried by README.md), one keyword per theme is present,
+# case-insensitive.
+# Negative control: a throwaway copy of README.md, stripped of a section then
+# of a FAQ entry, fails the same check.
 #
 # usage: bash tests/test-install-doc-participant-path.sh
-# Code 0 : tous les cas PASS. Code 1 sinon.
+# Exit 0: all cases PASS. Exit 1 otherwise.
 
 set -u
 
@@ -28,17 +28,17 @@ fail() { echo "  FAIL - $1"; FAILURES=$((FAILURES + 1)); }
 
 echo "=== T5 : parcours participant en quatre etapes, et FAQ des lecons d'acceptation ==="
 
-# --- 1. Ordre relatif des quatre sections, par fichier ---------------------
+# --- 1. Relative order of the four sections, per file ----------------------
 #
-# Format d'une entree : "fichier|motif installer|motif MCP|motif Pilot|motif adopter"
+# Entry format: "file|install pattern|MCP pattern|Pilot pattern|adopt pattern"
 CHECKS=(
   "README.md|## Installation line|## The MCP server|## Open a project's Pilot|## Adopt an existing folder"
   "INSTALL.md|## 2. Installation line|## 4. The MCP server|## 5. Open the Pilot|## 6. Adopt an existing folder"
 )
 
-# section_order_ok <fichier> <motif1> <motif2> <motif3> <motif4> : 0 si les
-# quatre motifs sont trouves chacun une fois, a des numeros de ligne
-# strictement croissants dans cet ordre.
+# section_order_ok <fichier> <motif1> <motif2> <motif3> <motif4>: 0 if the
+# four patterns are each found once, at strictly increasing line
+# numbers in this order.
 section_order_ok() {
   local SOO_DOC="$1"; shift
   local SOO_PREV=0
@@ -63,10 +63,10 @@ for ENTRY in "${CHECKS[@]}"; do
   fi
 done
 
-# --- 2. La FAQ nomme les quatre themes --------------------------------------
+# --- 2. The FAQ names the four themes ---------------------------------------
 #
-# La FAQ vit dans README.md, section "## Questions frequentes" jusqu'au "## "
-# suivant. Format d'une entree : "nom du theme|motif1|motif2"
+# The FAQ lives in README.md, section "## Frequently asked questions" up to the next
+# "## ". Entry format: "theme name|pattern1|pattern2"
 FAQ_FILE="$REPO_ROOT/README.md"
 FAQ_BLOCK="$(awk '/^## Frequently asked questions/{flag=1; next} /^## /{if (flag) exit} flag' "$FAQ_FILE" 2>/dev/null)"
 
@@ -78,15 +78,15 @@ FAQ_THEMES=(
 )
 
 faq_has_theme() {
-  # $1 = bloc FAQ (texte), $2 = motif1, $3 = motif2 -- les deux doivent
-  # apparaitre (pas forcement sur la meme ligne), insensible a la casse.
+  # $1 = FAQ block (text), $2 = pattern1, $3 = pattern2 -- both must
+  # appear (not necessarily on the same line), case-insensitive.
   printf '%s\n' "$1" | grep -qi -- "$2" || return 1
   printf '%s\n' "$1" | grep -qi -- "$3" || return 1
   return 0
 }
 
 if [ -z "$FAQ_BLOCK" ]; then
-  fail "README.md : section « Questions frequentes » introuvable"
+  fail "README.md : section « Frequently asked questions » introuvable"
 else
   for ENTRY in "${FAQ_THEMES[@]}"; do
     IFS='|' read -r NOM MOTIF1 MOTIF2 <<< "$ENTRY"
@@ -98,27 +98,27 @@ else
   done
 fi
 
-# --- 3. Temoin negatif : une copie amputee echoue au meme controle ---------
+# --- 3. Negative control: a truncated copy fails the same check ------------
 TMP="$(mktemp -d "${TMPDIR:-/tmp}/m186-doc-participant-path-XXXXXX")"
 trap 'rm -rf -- "$TMP"' EXIT
 
-# 3a. Copie privee de la section "Le serveur MCP" (et de tout ce qui suit
-# jusqu'au prochain "## ") : l'ordre des quatre sections doit alors echouer.
+# 3a. Copy stripped of the "The MCP server" section (and of everything that follows
+# up to the next "## "): the order of the four sections must then fail.
 WITNESS_SECTION="$TMP/README-no-mcp-section.md"
 awk '
-  /^## Le serveur MCP/ { skip = 1; next }
+  /^## The MCP server/ { skip = 1; next }
   /^## / { if (skip) skip = 0 }
   !skip { print }
 ' "$FAQ_FILE" > "$WITNESS_SECTION"
 
-if section_order_ok "$WITNESS_SECTION" "## Ligne d'installation" "## Le serveur MCP" "## Ouvrir le Pilot d'un projet" "## Adopter un dossier existant"; then
-  fail "temoin : une copie de README.md privee de « Le serveur MCP » passe quand meme le controle d'ordre"
+if section_order_ok "$WITNESS_SECTION" "## Installation line" "## The MCP server" "## Open a project's Pilot" "## Adopt an existing folder"; then
+  fail "temoin : une copie de README.md privee de « The MCP server » passe quand meme le controle d'ordre"
 else
-  pass "temoin : une copie de README.md privee de « Le serveur MCP » echoue au controle d'ordre"
+  pass "temoin : une copie de README.md privee de « The MCP server » echoue au controle d'ordre"
 fi
 
-# 3b. Copie privee de l'entree FAQ sur l'exclusivite du serveur MCP : le
-# theme correspondant doit alors echouer, les trois autres doivent tenir.
+# 3b. Copy stripped of the FAQ entry on the exclusivity of the MCP server: the
+# matching theme must then fail, the three others must hold.
 WITNESS_FAQ="$TMP/README-no-faq-entry.md"
 grep -v "second-brain-vault" "$FAQ_FILE" > "$WITNESS_FAQ"
 WITNESS_FAQ_BLOCK="$(awk '/^## Frequently asked questions/{flag=1; next} /^## /{if (flag) exit} flag' "$WITNESS_FAQ" 2>/dev/null)"
@@ -128,9 +128,9 @@ if faq_has_theme "$WITNESS_FAQ_BLOCK" "second-brain-vault" "exclusiv"; then
 else
   pass "temoin : une copie de README.md privee des mentions « second-brain-vault » echoue au controle FAQ"
 fi
-# Les trois autres themes doivent, eux, rester detectes dans cette meme copie
-# amputee -- preuve que le controle FAQ cible bien le theme retire, pas tout
-# le bloc.
+# The three other themes, for their part, must remain detected in this same
+# truncated copy -- proof that the FAQ check indeed targets the removed theme,
+# not the whole block.
 OTHER_THEMES_OK=1
 for ENTRY in "bash hors PATH sous Windows|PATH|bash" "dossier temporaire reutilise|temporary|second-brain-install" "deux emplacements de claude_desktop_config.json|Packages|APPDATA"; do
   IFS='|' read -r NOM MOTIF1 MOTIF2 <<< "$ENTRY"

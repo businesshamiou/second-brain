@@ -1,29 +1,29 @@
 #!/usr/bin/env bash
-# Essai de non-regression (Mission 060) pour la reconnaissance de couches de
-# tools/check-links.sh : un exemple pedagogique a l'interieur d'un bloc de
-# code cloture (``` / ~~~) ou d'un span de code inline (backticks apparies,
-# simple ou double, meme imbrique) n'est plus balaye comme un lien Markdown
-# reel par les regles 2/3. La regle 1 (section "## Liens" obligatoire) et la
-# resolution de cibles pour un vrai lien restent inchangees -- verifiees ici
-# comme garde-fous de non-regression, pas seulement le nouveau comportement.
+# Non-regression trial (Mission 060) for the layer recognition of
+# tools/check-links.sh: a teaching example inside a fenced code
+# block (``` / ~~~) or an inline code span (paired backticks,
+# single or double, even nested) is no longer scanned as a real Markdown
+# link by rules 2/3. Rule 1 (mandatory "## Liens" section) and the
+# resolution of targets for a real link remain unchanged -- verified here
+# as non-regression guardrails, not only the new behaviour.
 #
-# Methode : sandbox jetable par cas (aucun fichier du vrai corpus touche),
-# copie verbatim du script courant de tools/, depot Git local minimal,
-# execution directe (le script lit `git diff --cached`).
+# Method: throwaway sandbox per case (no file of the real corpus touched),
+# verbatim copy of the current script from tools/, minimal local Git repository,
+# direct execution (the script reads `git diff --cached`).
 #
-# Cinq cas :
-#   1. Faux lien dans un bloc de code cloture, vrai lien present ailleurs
-#      -> PASS (le faux est ignore, le vrai suffit).
-#   2. Faux lien en code inline simple backtick (patron PROMPT-024, tableau
-#      de cas de test), vrai lien present ailleurs -> PASS.
-#   3. Faux lien en code inline double backtick imbrique (patron PROMPT-026,
-#      `` `type` — [texte](cible) ``), vrai lien present ailleurs -> PASS.
-#   4. Vrai lien casse hors bloc/inline -> refuse (la reconnaissance de
-#      couches ne doit rien avaler de reel).
-#   5. Section "## Liens" manquante -> refuse (regle 1 inchangee).
+# Five cases:
+#   1. Fake link in a fenced code block, real link present elsewhere
+#      -> PASS (the fake is ignored, the real one suffices).
+#   2. Fake link in single-backtick inline code (pattern PROMPT-024, table
+#      of test cases), real link present elsewhere -> PASS.
+#   3. Fake link in nested double-backtick inline code (pattern PROMPT-026,
+#      `` `type` — [texte](cible) ``), real link present elsewhere -> PASS.
+#   4. Real broken link outside block/inline -> refused (the layer
+#      recognition must swallow nothing real).
+#   5. Missing "## Liens" section -> refused (rule 1 unchanged).
 #
 # usage: tests/test-check-links-code-block-scope.sh
-# sortie : "PASS: 5/5 cas conformes" (exit 0) ou "FAIL: <raison>" (exit 1)
+# output: "PASS: 5/5 cas conformes" (exit 0) or "FAIL: <raison>" (exit 1)
 
 set -u
 
@@ -40,17 +40,17 @@ trap 'rm -rf "$TMP"' EXIT
 
 FAILURES=0
 
-# make_repo <nom> : sandbox Git minimal avec le script cible copie dedans.
+# make_repo <nom>: minimal Git sandbox with the target script copied into it.
 make_repo() {
   local repo="$TMP/$1"
   mkdir -p "$repo/tools"
   cp "$REAL_SCRIPT" "$repo/tools/check-links.sh"
-  # Le gardien source tools/relpath.sh depuis son propre dossier (forme
-  # commune aux trois plateformes, Mission 180) : le bac a sable le copie
-  # aussi, sinon il teste un script ampute.
+  # The guardian sources tools/relpath.sh from its own folder (form
+  # common to the three platforms, Mission 180): the sandbox copies it
+  # too, otherwise it tests a truncated script.
   cp "$SCRIPT_DIR/../tools/relpath.sh" "$repo/tools/relpath.sh"
-  # Mission 184 : meme motif pour la ligne de base de projet et ses deux
-  # dependances, sourcees par le gardien depuis son dossier.
+  # Mission 184: same pattern for the project baseline and its two
+  # dependencies, sourced by the guardian from its folder.
   for lib in project-baseline.sh resolve-vault.sh vault-identity.sh; do
     cp "$SCRIPT_DIR/../tools/$lib" "$repo/tools/$lib"
   done
@@ -58,7 +58,7 @@ make_repo() {
   printf '%s\n' "$repo"
 }
 
-# check <nom> <expect: pass|fail> : stage tout, lance le script, compare.
+# check <nom> <expect: pass|fail>: stages everything, runs the script, compares.
 check() {
   local name="$1" expect="$2" repo="$TMP/$1"
   (cd "$repo" && git add -A)
@@ -77,7 +77,7 @@ check() {
   fi
 }
 
-# --- Cas 1 : faux lien dans un bloc de code cloture ---
+# --- Case 1: fake link in a fenced code block ---
 REPO1="$(make_repo case1-fenced)"
 cat > "$REPO1/B.md" <<'EOF'
 # B
@@ -104,7 +104,7 @@ Exemple pedagogique :
 EOF
 check "case1-fenced" "pass"
 
-# --- Cas 2 : faux lien en code inline simple backtick (patron PROMPT-024) ---
+# --- Case 2: fake link in single-backtick inline code (pattern PROMPT-024) ---
 REPO2="$(make_repo case2-inline-single)"
 cat > "$REPO2/B.md" <<'EOF'
 # B
@@ -127,7 +127,7 @@ cat > "$REPO2/A.md" <<'EOF'
 EOF
 check "case2-inline-single" "pass"
 
-# --- Cas 3 : faux lien en code inline double backtick imbrique (patron PROMPT-026) ---
+# --- Case 3: fake link in nested double-backtick inline code (pattern PROMPT-026) ---
 REPO3="$(make_repo case3-inline-double)"
 cat > "$REPO3/B.md" <<'EOF'
 # B
@@ -148,7 +148,7 @@ Ajoute a sa section : `` `amended by` — [<titre>](./DECISION-<ts>-amendment.md
 EOF
 check "case3-inline-double" "pass"
 
-# --- Cas 4 : vrai lien casse hors bloc/inline -> toujours refuse ---
+# --- Case 4: real broken link outside block/inline -> always refused ---
 REPO4="$(make_repo case4-real-broken)"
 cat > "$REPO4/A.md" <<'EOF'
 # Doc
@@ -161,7 +161,7 @@ Voir [Fantome](./does-not-exist.md).
 EOF
 check "case4-real-broken" "fail"
 
-# --- Cas 5 : section "## Liens" manquante -> toujours refuse ---
+# --- Case 5: missing "## Liens" section -> always refused ---
 REPO5="$(make_repo case5-missing-section)"
 cat > "$REPO5/A.md" <<'EOF'
 # Doc
