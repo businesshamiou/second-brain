@@ -68,3 +68,7 @@ tests/test-suite-manifest-matches-ci.sh	-	bash	U	blocking	+M188 T1 -- this manif
 tests/test-run-suite-reports-red.sh	-	bash	WUM	blocking	+M188 T2 -- the runner plays every line, counts n/total, names the red ones and fails on a blocking red
 tests/test-setup-test-env-offline.sh	-	bash	U	blocking	+M188 T3 -- after the setup-test-env action, uv, Python and pre-commit answer offline; an empty cache reinstalls the same versions (CI only, SKIP elsewhere)
 tests/test-reference-clone-equivalence.sh	-	bash	U	blocking	+M188 T4 -- an install from the shared reference clone equals an install from a network clone; a stale reference is refused
+tests/test-corpus-language-english.sh	-	bash	WUM	blocking	+M187 T1 -- the distributed corpus is in English (French function-word density under the threshold, closed exclusions: i18n/, tests/fixtures/, skills/external/, USER.md)
+tests/test-links-targets-unchanged.sh	-	bash	U	blocking	+M187 T2 -- the translation changed link texts, never link targets (415 pairs frozen at 653910c)
+tests/test-skill-triggers-bilingual.sh	-	bash	U	blocking	+M187 T3 -- the six skills keep their trigger phrases in French and English
+tests/test-published-line-ref.sh	-	bash	U	blocking	+M187 -- the published install line and the bootstraps default ref name the same tag

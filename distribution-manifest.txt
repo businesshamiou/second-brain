@@ -587,3 +587,4 @@ tests/test-corpus-language-english.sh	DISTRIBUABLE
 tests/test-links-targets-unchanged.sh	DISTRIBUABLE
 tests/test-skill-triggers-bilingual.sh	DISTRIBUABLE
 tests/fixtures/corpus-link-targets-653910c.tsv	DISTRIBUABLE
+tests/test-published-line-ref.sh	DISTRIBUABLE

@@ -6,6 +6,29 @@ status: active
 
 # RELEASE NOTES
 
+## v0.1.6
+
+Language version: what Second Brain is made of is now written in English; what it says to you stays in the language you chose. One fix for everyone who installed v0.1.5.
+
+**What this version brings.**
+
+- **The corpus is in English, one version.** Rules, skills, templates, documentation, these release notes, the copies of Decisions, and the comments of the scripts and tests are translated faithfully: same rules, same numbers, same prohibitions, same file paths and link targets. An agent of any language reads one reference text.
+- **You keep your language.** The messages the installer shows you still come from its catalogues, in the language you picked (French, English or Spanish), exactly as before. The skills keep their French trigger phrases next to the English ones: « wrap », « clôture », « écris la Mission » still work.
+- **The published line installs the version it names.** The v0.1.5 line downloaded a bootstrap whose default version was still v0.1.4, so it installed v0.1.4. The line and the bootstrap's default version now agree, and a test keeps them agreed.
+- **One command plays the whole test suite on your machine.** `bash tests/run-suite.sh` plays the same list the public CI plays (see [`README.md`](./README.md)).
+
+**How it is proven.** Four named tests, each with its negative control, chained in the public CI: the corpus has no file above the French-language threshold, the link targets are the ones frozen before the translation, the skills carry their triggers in both languages, and the published line agrees with the bootstrap. The inventory is in [`tests/index.md`](./tests/index.md).
+
+**What this version does not promise.**
+
+- A few fixed strings stay in French because the tools read them literally: the `## Liens` heading, the `(hors Vault)` and `(supprimé)` markers, the field lines of `VAULT-ROOT.md`, the RELAY block, the headings of the generated state sheets. They are anchors, not prose.
+- The messages printed by the scripts outside the catalogues (guardian refusals, test labels) are unchanged in this version.
+- The limits of the previous versions remain valid: no update mechanism, S7 and S8 at `SKIP` without a provider key.
+
+**What remains to be done on your side.**
+
+- If you installed with the v0.1.5 line, you received v0.1.4: run the line above to get this version.
+
 ## v0.1.5
 
 Comfort version: three touch-ups to the way you delegate a gesture to the agent and the way you start a new Project — nothing that changes what is executed.

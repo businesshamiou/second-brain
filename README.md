@@ -30,13 +30,13 @@ The complete glossary of the product's terms lives in [CONTEXT.md](./CONTEXT.md)
 **Windows (PowerShell, a standard account is enough):**
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.5/bootstrap.ps1)))"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.6/bootstrap.ps1)))"
 ```
 
 **macOS / Linux (Terminal):**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.5/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.6/bootstrap.sh | bash
 ```
 
 Nothing needs to be installed beforehand: the bootstrap script sets up Git in your profile if it is missing, fetches this repository, then launches the installer (details in [INSTALL.md](./INSTALL.md)).

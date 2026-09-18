@@ -17,9 +17,14 @@ This file is kept by hand: `tools/build-indexes.sh` indexes only Markdown docume
 
 Each test returns a closed verdict — `PASS`, `FAIL`, or `SKIP (cause, platform)` — and carries its own negative control: the same measurement, on a case built to fail. A test without a control does not prove it can fail.
 
-### Reusable test bench — Mission 188
+### Corpus in English — Mission 187 (v0.1.6)
 
-Each file carries its oracle and its negative control in its header.
+- `test-corpus-language-english.sh` (W / U / M) — no corpus file above the French threshold.
+- `test-links-targets-unchanged.sh` (U) — link targets as frozen at `653910c`.
+- `test-skill-triggers-bilingual.sh` (U) — skill triggers in both languages.
+- `test-published-line-ref.sh` (U) — the published line and the bootstraps name one tag.
+
+### Reusable test bench — Mission 188
 
 - T1 `test-suite-manifest-matches-ci.sh` (U) — `suite.tsv` = the `ci.yml` suite at `42f74e6a` (108 triplets).
 - T2 `test-run-suite-reports-red.sh` (W / U / M) — the launcher plays everything, counts, names the reds.
@@ -28,7 +33,7 @@ Each file carries its oracle and its negative control in its header.
 
 ### Doors closed by Mission 186 (v0.1.5)
 
-Six measurements: the single source of the Pilot↔Executor relay (DECISION-2026-09-17-201623) synchronized across the whole distributed corpus, plus the « Instructions du Projet » ["Project Instructions"] block made ready to paste and the reworked install path. U = Ubuntu, W = Windows, M = macOS.
+Six measurements: the single source of the Pilot↔Executor relay (DECISION-2026-09-17-201623) across the distributed corpus, plus the « Instructions du Projet » ["Project Instructions"] block made ready to paste and the reworked install path. U = Ubuntu, W = Windows, M = macOS.
 
 | # | File | What it proves | Negative control | Systems |
 |---|---|---|---|---|
