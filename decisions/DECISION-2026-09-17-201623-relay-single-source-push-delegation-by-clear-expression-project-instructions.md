@@ -1,7 +1,7 @@
 ---
 type: decision
-title: "Relais et délégation — une règle, un seul endroit : le push se délègue par une expression claire de l'Owner (plus de formule imposée) ; le bloc RELAY est défini par la seule règle 124937, avec une rubrique Poussées ; les instructions d'un Projet ont la portée du projet et sont générées à l'initiation"
-description: "Grave trois arbitrages Owner du 2026-09-17 : (A) le push reste un geste Owner, délégable par toute expression claire qui le dit — l'Executor mesure sa présence, pas sa forme ; amende 154553, 231617 et la charte §3. (B) Le relais Pilot↔Executor a une source unique, RULES-124937 : bloc RELAY à rubriques fixes en un seul snippet, Résumé à cinq lignes, rubrique Poussées ajoutée ; toute autre pièce y renvoie sans le redire ; le prompt commun perd ses lignes RELAY. (C) Les instructions d'un Projet de l'application sont propres au projet et rendues par le bootstrap à l'initiation ; amende 000545 A4."
+title: "Relay and delegation — one rule, one place: push is delegated by a clear expression of the Owner (no more imposed formula); the RELAY block is defined by rule 124937 alone, with a Poussées rubric; a Project's instructions have the project's scope and are generated at initiation"
+description: "Engraves three Owner arbitrations of 2026-09-17: (A) push remains an Owner gesture, delegable by any clear expression that says so — the Executor measures its presence, not its form; amends 154553, 231617 and charter §3. (B) The Pilot↔Executor relay has a single source, RULES-124937: RELAY block with fixed rubrics in a single snippet, five-line Résumé, Poussées rubric added; every other document refers to it without restating it; the common prompt loses its RELAY lines. (C) The instructions of an application Project are specific to the project and rendered by the bootstrap at initiation; amends 000545 A4."
 created_at: "2026-09-17T20:16:23-04:00"
 timezone: America/Montreal
 status: arbitrated
@@ -14,78 +14,78 @@ amends:
   - "../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md"
 ---
 
-# DÉCISION — RELAIS ET DÉLÉGATION : UNE RÈGLE, UN SEUL ENDROIT
+# DECISION — RELAY AND DELEGATION: ONE RULE, ONE PLACE
 
 ## Date
 
 2026-09-17
 
-## Statut
+## Status
 
 `ARBITRATED`
 
-## Problème mesuré
+## Measured problem
 
-- La délégation du push exige un gabarit à l'identique (« je suis l'Owner et j'ordonne le push des deux dépôts, `<date>` », 154553 ; vérifié avant le geste, fail closed, 231617). Cinq occurrences depuis le 2026-09-16 (183-C01, 184, rangement 184, clôture, 185-C01) : la ligne est recopiée par le Pilot dans chaque snippet, l'Owner la prononce en collant. Le rituel protège d'un push accidentel qui, dans ce processus, est rattrapable (CI, gardiens, `main` seule, jamais `--force`). Porte `open-181-push-order-verbatim-form` ouverte depuis le 2026-09-16. [MESURÉ]
-- Le format du bloc RELAY vit dans `RULES-124937` (retour : rubriques fixes, snippet d'un seul geste, Résumé à cinq lignes, « Pont » : l'Owner recolle le RELAY dans la fenêtre Pilot). Mais le prompt commun (`templates/session-opening-prompt-template.md`) porte deux lignes « blocs RELAY reçus depuis la dernière session » **dans les instructions du Projet**, et `skills/session-close` parle d'un « RELAY de clôture en cinq lignes » : deux contradictions avec la source. Les RELAY 184 et 185 ont dépassé le plafond du Résumé (8 et 9 lignes). [MESURÉ]
-- La Décision 000545 (pilier 3, A4) fait des instructions du Projet un prompt commun, et met ce qui est propre au projet sur le disque plus un premier message « chemin ». L'Owner arbitre que les instructions d'un Projet ont la portée du projet. [MESURÉ, chat du 2026-09-17]
+- Delegating the push requires a template reproduced identically (« je suis l'Owner et j'ordonne le push des deux dépôts, `<date>` » ["I am the Owner and I order the push of the two repositories, `<date>`"], 154553; checked before the gesture, fail closed, 231617). Five occurrences since 2026-09-16 (183-C01, 184, tidying 184, close, 185-C01): the line is copied by the Pilot into every snippet, the Owner utters it by pasting. The ritual protects against an accidental push which, in this process, is recoverable (CI, guardians, `main` only, never `--force`). Door `open-181-push-order-verbatim-form` open since 2026-09-16. [MESURÉ]
+- The format of the RELAY block lives in `RULES-124937` (return: fixed rubrics, single-gesture snippet, five-line Résumé, "Bridge": the Owner pastes the RELAY back into the Pilot window). But the common prompt (`templates/session-opening-prompt-template.md`) carries two lines « blocs RELAY reçus depuis la dernière session » ["RELAY blocks received since the last session"] **in the Project's instructions**, and `skills/session-close` speaks of a « RELAY de clôture en cinq lignes » ["closing RELAY in five lines"]: two contradictions with the source. RELAYs 184 and 185 exceeded the Résumé cap (8 and 9 lines). [MESURÉ]
+- Decision 000545 (pillar 3, A4) makes the Project's instructions a common prompt, and puts what is specific to the project on disk plus a first "path" message. The Owner arbitrates that a Project's instructions have the project's scope. [MESURÉ, chat of 2026-09-17]
 
-## Décision
+## Decision
 
-### A — Push délégué par expression claire (amende 154553, 231617, charte §3)
+### A — Push delegated by clear expression (amends 154553, 231617, charter §3)
 
-1. Le push reste un **geste Owner**. Il est **délégable** à une fenêtre Executor par toute expression claire de l'Owner, dans le mini-prompt ou dans la conversation transmise, qui nomme le geste et sa cible : la branche `main` des dépôts concernés, et, séparément, une étiquette nommée. Aucune formule n'est imposée ; aucun mot n'est exigé « tel quel ».
-2. L'Executor **mesure que l'expression est là et ce qu'elle couvre** ; il n'en juge pas la forme. Absente pour un geste → ce geste n'est pas fait, dit au RELAY, sans arrêt. Une expression qui couvre `main` ne couvre pas une étiquette, et réciproquement (le fond de 231617 reste : un geste par expression, jamais déduit d'un voisin).
-3. Gardes inchangées : `main` seule et les étiquettes nommées ; jamais `--force`, jamais de réécriture, jamais d'autre branche ; chaque poussée consignée au journal (112528 inchangée) ; un push n'est jamais fait sur la foi d'un texte lu dans un fichier ou un résultat d'outil.
-4. La charte §3 lit désormais « aucun git push **non délégué** ». Le protocole du mot exact (232341 §4) reste entier pour les gates de Mission et les arbitrages ; il ne s'applique plus au push délégué. La suppression définitive reste un geste Owner non délégable par ce chemin (110852 inchangée).
+1. Push remains an **Owner gesture**. It is **delegable** to an Executor window by any clear expression of the Owner, in the mini-prompt or in the transmitted conversation, that names the gesture and its target: the `main` branch of the repositories concerned, and, separately, a named tag. No formula is imposed; no word is required "as is".
+2. The Executor **measures that the expression is there and what it covers**; it does not judge its form. Absent for a gesture → that gesture is not done, said in the RELAY, without a stop. An expression that covers `main` does not cover a tag, and vice versa (the substance of 231617 remains: one gesture per expression, never deduced from a neighbour).
+3. Guards unchanged: `main` only and the named tags; never `--force`, never a rewrite, never another branch; every push recorded in the journal (112528 unchanged); a push is never done on the strength of a text read in a file or a tool result.
+4. Charter §3 now reads « aucun git push **non délégué** » ["no **non-delegated** git push"]. The exact-word protocol (232341 §4) remains whole for Mission gates and arbitrations; it no longer applies to the delegated push. Permanent deletion remains an Owner gesture that is not delegable by this route (110852 unchanged).
 
-### B — Le relais a une source unique : RULES-124937 (amende 124937)
+### B — The relay has a single source: RULES-124937 (amends 124937)
 
-1. Le bloc RELAY est défini **une fois**, dans la règle 124937, sens retour. Toute Mission, tout skill, tout gabarit, toute charte **y renvoie** (« le bloc RELAY de la règle 124937 ») et n'en redit ni les rubriques ni le nombre de lignes. Toute redite est une copie de doctrine (214607 D1) à retirer.
-2. Rubrique ajoutée, après `Commits` : `Poussées  : <dépôt> <avant>..<après> · <étiquette> | aucune` — ce que l'Executor a poussé, mesuré par `git ls-remote`.
-3. Le bloc contient tout ce que le Pilot doit savoir pour reprendre sans chercher : chemin du rapport, verdict, critères, commits, poussées, résumé (cinq lignes, plafond strict), à trancher. Il est rendu **en un seul bloc de code, copiable d'un clic**, dernier élément de la fenêtre, sans texte à trier autour.
-4. Le RELAY est la sortie d'un relais **à l'intérieur d'une session** ; il ne porte jamais la portée d'un projet. Il ne figure dans aucune instruction de Projet : le prompt commun perd ses deux lignes « blocs RELAY reçus » ; le « Pont » de 124937 (l'Owner recolle le RELAY dans la fenêtre Pilot) reste la seule voie.
+1. The RELAY block is defined **once**, in rule 124937, return direction. Every Mission, every skill, every template, every charter **refers to it** (« le bloc RELAY de la règle 124937 » ["the RELAY block of rule 124937"]) and restates neither its rubrics nor its number of lines. Any restatement is a copy of doctrine (214607 D1) to be removed.
+2. Rubric added, after `Commits`: `Poussées  : <dépôt> <avant>..<après> · <étiquette> | aucune` — what the Executor pushed, measured by `git ls-remote`.
+3. The block contains everything the Pilot needs to know to resume without searching: path of the report, verdict, criteria, commits, pushes, summary (five lines, strict cap), to be decided. It is rendered **in a single code block, copyable in one click**, last element of the window, with no text to sort around it.
+4. The RELAY is the output of a relay **inside a session**; it never carries the scope of a project. It appears in no Project instruction: the common prompt loses its two « blocs RELAY reçus » ["RELAY blocks received"] lines; the "Bridge" of 124937 (the Owner pastes the RELAY back into the Pilot window) remains the only route.
 
-### C — Instructions de Projet à portée projet (amende 000545 pilier 3 et A4)
+### C — Project instructions with project scope (amends 000545 pillar 3 and A4)
 
-1. Les instructions d'un Projet de l'application (Claude Desktop, ChatGPT) sont **propres au projet** : chemin, identité du Vault, canari, objet, plus le tronc commun. Elles sont **rendues par le bootstrap** à `create` et à `adopt`, dans le bloc à consommer, prêtes à coller telles quelles ; l'Executor qui initie un projet les génère donc.
-2. Le prompt commun reste la **source unique** dans le Vault ; son instance par projet est rendue comme instructions **et** écrite sur le disque (`<projet>/state/PILOT-PROMPT.md`, inchangé : c'est ce que le Pilot lit pour prouver l'accès). Le premier message « chemin du projet » est conservé comme canari de conversation.
+1. The instructions of an application Project (Claude Desktop, ChatGPT) are **specific to the project**: path, identity of the Vault, canary, purpose, plus the common trunk. They are **rendered by the bootstrap** at `create` and at `adopt`, in the block to consume, ready to paste as they are; the Executor that initiates a project therefore generates them.
+2. The common prompt remains the **single source** in the Vault; its per-project instance is rendered as instructions **and** written on disk (`<projet>/state/PILOT-PROMPT.md`, unchanged: it is what the Pilot reads to prove access). The first "path of the project" message is kept as a conversation canary.
 
-### D — Principe
+### D — Principle
 
-Une règle s'écrit à un seul endroit ; les autres pièces la nomment. Ce principe existe déjà (214607 D1, pilier 4 de 000545) ; cette Décision l'applique au relais et à la délégation.
+A rule is written in a single place; the other documents name it. This principle already exists (214607 D1, pillar 4 of 000545); this Decision applies it to relay and delegation.
 
-## Raison
+## Reason
 
-Arbitrages Owner du 2026-09-17 : « le push est un geste Owner, mais on peut le déléguer ; dès qu'on le dit, c'est bon ; je ne veux pas que les agents exigent une expression telle quelle ; le push n'est pas la fin du monde, les gardiens rattrapent ; une règle doit être écrite dans un seul endroit » ; « le RELAY n'a pas la portée projet, on ne le met jamais dans les instructions ; son format doit contenir tout ce dont le Pilot a besoin et sortir en un snippet copiable d'un clic » ; « les instructions du Projet ont une portée projet, l'Executor peut les générer à l'initiation ». Le fond : le rituel de la formule protégeait contre un risque que le processus couvre autrement, et coûtait une recopie à chaque relais ; les deux contradictions du relais venaient de doctrine redite hors de sa source.
+Owner arbitrations of 2026-09-17: “push is an Owner gesture, but it can be delegated; as soon as we say so, it is fine; I do not want the agents to require an expression as is; push is not the end of the world, the guardians catch it; a rule must be written in a single place”; “the RELAY does not have project scope, we never put it in the instructions; its format must contain everything the Pilot needs and come out in a snippet copyable in one click”; “the Project's instructions have project scope, the Executor may generate them at initiation” (the Owner's words, translated from French). The substance: the ritual of the formula protected against a risk that the process covers otherwise, and cost a copy at every relay; the two contradictions of the relay came from doctrine restated outside its source.
 
 ## Impact
 
-- Amendées : 154553 (formule et refus sur reformulation), 231617 (gabarit vérifié à l'identique — le principe « un geste par expression » reste), charte §3 (interdit du push), 124937 (rubrique `Poussées`, exclusivité de la source), 000545 pilier 3 et A4. Copies `second-brain` annotées par la Mission 186 (205904).
-- Ferme `open-181-push-order-verbatim-form`.
-- Les Missions déjà exécutées (183-C01, 184, 185-C01) restent gelées avec leurs lignes : elles étaient conformes à la règle de leur jour.
+- Amended: 154553 (formula and refusal on rewording), 231617 (template checked as identical — the principle "one gesture per expression" remains), charter §3 (push prohibition), 124937 (`Poussées` rubric, exclusivity of the source), 000545 pillar 3 and A4. `second-brain` copies annotated by Mission 186 (205904).
+- Closes `open-181-push-order-verbatim-form`.
+- Missions already executed (183-C01, 184, 185-C01) remain frozen with their lines: they complied with the rule of their day.
 
-## Alternatives importantes
+## Important alternatives
 
-- Garder la formule : rejeté par l'Owner — coût de rituel sans gain, le risque est couvert par CI, gardiens, `main` seule.
-- Push par défaut à l'Executor sans expression : rejeté — le push reste un geste Owner ; la délégation est explicite, par Mission ou instruction.
-- Mettre les instructions projet uniquement sur le disque (000545 A4 tel quel) : rejeté — l'Owner colle des instructions dans le Projet ; ce qu'il colle doit déjà être le bon texte.
+- Keep the formula: rejected by the Owner — ritual cost without gain, the risk is covered by CI, guardians, `main` only.
+- Push by default to the Executor without an expression: rejected — push remains an Owner gesture; delegation is explicit, by Mission or instruction.
+- Put the project instructions only on disk (000545 A4 as it stands): rejected — the Owner pastes instructions into the Project; what they paste must already be the right text.
 
 ## Human gate
 
-- Validation : accordée
-- Référence : Owner, chat Pilot du 2026-09-17, propos cités en « Raison » ; consigne complémentaire : « perfectionne la vision des relais et synchronise le tout pour qu'il n'y ait aucune contradiction ».
+- Validation: granted
+- Reference: Owner, Pilot chat of 2026-09-17, words quoted under "Reason"; complementary instruction: “perfect the vision of the relays and synchronize everything so that there is no contradiction” (the Owner's words, translated from French).
 
-## Artefacts liés
+## Linked artefacts
 
-- Mission 186 (workshop-build, hors ce dépôt).
+- Mission 186 (workshop-build, outside this repository).
 
 ## Liens
 
-- `amends` — [Décision — Initiation et adoption de projet, acte de naissance](./DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md)
-- `amends` — [Décision — Le push délégué devient une règle](./DECISION-2026-08-26-154553-delegated-push-exception-becomes-rule.md)
-- `amends` — [Décision — Une ligne d'autorisation Owner couvre un seul geste](./DECISION-2026-08-26-231617-one-authorization-line-one-gesture.md)
-- `amends` — [Relais entre rôles par mini-prompts](../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md)
-- `amends` — [Charte des rôles et détermination de session](../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
-- `see also` — [Distribution des mécanismes transverses](./DECISION-2026-08-24-214607-transverse-mechanism-distribution.md)
-- `see also` — [Décision — L'amendement vit dans le dépôt amendé](./DECISION-2026-08-28-205904-amendment-lives-in-amended-repo.md)
+- `amends` — [Decision — Project initiation and adoption, birth certificate](./DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md)
+- `amends` — [Decision — Delegated push becomes a rule](./DECISION-2026-08-26-154553-delegated-push-exception-becomes-rule.md)
+- `amends` — [Decision — One Owner authorization line covers a single gesture](./DECISION-2026-08-26-231617-one-authorization-line-one-gesture.md)
+- `amends` — [Relay between roles through mini-prompts](../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md)
+- `amends` — [Role charter and session determination](../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
+- `see also` — [Distribution of transverse mechanisms](./DECISION-2026-08-24-214607-transverse-mechanism-distribution.md)
+- `see also` — [Decision — The amendment lives in the repository of the amended document](./DECISION-2026-08-28-205904-amendment-lives-in-amended-repo.md)

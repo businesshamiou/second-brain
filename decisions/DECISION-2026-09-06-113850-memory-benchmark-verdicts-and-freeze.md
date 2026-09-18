@@ -1,41 +1,41 @@
 ---
 type: decision
-title: "Décision — Verdicts du benchmark mémoire/retrieval : Vault natif KEEP, Mnemosyne REMOVE, OpenViking DEFER ; FREEZE de la couche après retrait, jusqu'après v1.0.0-stable"
+title: "Decision — Verdicts of the memory/retrieval benchmark: native Vault KEEP, Mnemosyne REMOVE, OpenViking DEFER; FREEZE of the layer after removal, until after v1.0.0-stable"
 created_at: "2026-09-06T11:38:50-04:00"
 timezone: America/Montreal
 status: active
-description: "Arbitrage Owner du 2026-09-06 sur les mesures de la Mission 146 (rapport 112317) : le Vault natif répond 10/10 en 1,484 s et 6 455 octets ; Mnemosyne, tel que réellement installé et alimenté dans cet AIOS, répond 0/10 en 18,989 s et 10 506 octets, avec un faux positif confiant et un fait présent non remonté — REMOVE, portant sur ce déploiement mesuré, pas sur le produit en général ; OpenViking DEFER pour quatre causes mesurées, retourne au LAB/NEXT hors chemin critique V1. Après le retrait de Mnemosyne (Mission 147) : FREEZE de la couche mémoire/retrieval jusqu'après le tag v1.0.0-stable."
+description: "Owner arbitration of 2026-09-06 on the measurements of Mission 146 (report 112317): the native Vault answers 10/10 in 1.484 s and 6,455 bytes; Mnemosyne, as actually installed and fed in this AIOS, answers 0/10 in 18.989 s and 10,506 bytes, with a confident false positive and a present fact not surfaced — REMOVE, bearing on this measured deployment, not on the product in general; OpenViking DEFER for four measured causes, returns to LAB/NEXT outside the V1 critical path. After the removal of Mnemosyne (Mission 147): FREEZE of the memory/retrieval layer until after the v1.0.0-stable tag."
 ---
 
-# DÉCISION — Verdicts du benchmark mémoire/retrieval et FREEZE
+# DECISION — Verdicts of the memory/retrieval benchmark and FREEZE
 
-## Contexte
+## Context
 
-La Décision du 2026-09-05 sur la clôture de la phase mémoire/retrieval (204248) exigeait un benchmark borné et un verdict explicite par outil. La Mission 146 l'a joué le 2026-09-06 : corpus figé (995 fichiers, 16 161 948 octets, vault 0c8ded8 + 3 non suivis, l'atelier (historique, non distribué) bc34443), dix questions écrites avant toute installation, mêmes règles de comptage. Rapport : REPORT-2026-09-06-112317-146-memory-retrieval-benchmark.md (hors Vault, dépôt d'atelier).
+The Decision of 2026-09-05 on the close of the memory/retrieval phase (204248) required a bounded benchmark and an explicit verdict per tool. Mission 146 ran it on 2026-09-06: frozen corpus (995 files, 16,161,948 bytes, vault 0c8ded8 + 3 untracked, the workshop (history, not distributed) bc34443), ten questions written before any installation, same counting rules. Report: REPORT-2026-09-06-112317-146-memory-retrieval-benchmark.md (outside the Vault, workshop repository).
 
-**Mesures.** Vault natif : 10/10 correctes, 15 appels, 6 455 octets chargés, 1 484 ms — la question la plus chère a coûté 3 appels et 580 octets, contre jusqu'à 233 grep avant la réforme des index (audit 139 → Décision 124647 → Mission 140). Mnemosyne : 0/10, 10 appels, 10 506 octets, 18 989 ms — 1,6× plus d'octets et 12,8× plus de temps que le natif pour zéro réponse ; deux sondes d'équité aggravantes : un fait présent dans la banque (la ligne de push 2c8acd4..765543e) non remonté par la question naturelle, et un faux positif confiant (Mission 133 rendue pour « mission 135 », score 0,800, entity match) ; cause structurelle : vectors 0, vec_type none, dense_score 0,0 partout — la banque n'a jamais été indexée vectoriellement. OpenViking : non jouable dans les contraintes — pas de CLI dans le paquet pip (binaire Rust absent par conception), la forme « openviking-server init » falsifiée sur place, l'embedder par défaut qui télécharge hors LAB et échoue sur certificat, le serveur Ollama présent sans support des embeddings.
+**Measurements.** Native Vault: 10/10 correct, 15 calls, 6,455 bytes loaded, 1,484 ms — the most expensive question cost 3 calls and 580 bytes, against up to 233 greps before the index reform (audit 139 → Decision 124647 → Mission 140). Mnemosyne: 0/10, 10 calls, 10,506 bytes, 18,989 ms — 1.6× more bytes and 12.8× more time than the native Vault for zero answers; two aggravating fairness probes: a fact present in the bank (the push line 2c8acd4..765543e) not surfaced by the natural question, and a confident false positive (Mission 133 returned for "mission 135", score 0.800, entity match); structural cause: vectors 0, vec_type none, dense_score 0.0 everywhere — the bank was never vector-indexed. OpenViking: not runnable within the constraints — no CLI in the pip package (Rust binary absent by design), the "openviking-server init" form falsified on the spot, the default embedder that downloads outside the LAB and fails on a certificate, the Ollama server present without support for embeddings.
 
-## Décision (Owner, chat, 2026-09-06)
+## Decision (Owner, chat, 2026-09-06)
 
-1. **Vault natif : KEEP.** Les mécanismes en place — digest, index localisateurs, grep/tail, gardiens — sont la couche de retrieval de la V1.
-2. **Mnemosyne : REMOVE.** Le verdict porte sur **son déploiement réellement installé et mesuré dans cet AIOS** — banque alimentée du seul journal, jamais indexée vectoriellement — pas sur une affirmation générale concernant le produit. Le retrait est propre et vérifiable (Mission 147) : câblage retiré, artefacts déplacés, note « expérimenté / rejeté » avec les mesures.
-3. **OpenViking : DEFER**, pour impossibilité mesurable dans les contraintes (quatre causes ci-dessus). Il retourne au LAB/NEXT et ne fait plus partie du chemin critique V1.
-4. **FREEZE.** Après le retrait de Mnemosyne, la couche mémoire/retrieval est gelée : aucun outil de mémoire, base vectorielle, mémoire en graphe ou retrieval n'est testé ni intégré **jusqu'après le tag v1.0.0-stable**. La reprise éventuelle est une décision NEXT/LAB, sur mesure.
+1. **Native Vault: KEEP.** The mechanisms in place — digest, locator indexes, grep/tail, guardians — are the retrieval layer of V1.
+2. **Mnemosyne: REMOVE.** The verdict bears on **its deployment as actually installed and measured in this AIOS** — bank fed from the journal only, never vector-indexed — not on a general claim about the product. The removal is clean and verifiable (Mission 147): wiring removed, artefacts moved, "experimented / rejected" note with the measurements.
+3. **OpenViking: DEFER**, for measurable impossibility within the constraints (four causes above). It returns to LAB/NEXT and is no longer part of the V1 critical path.
+4. **FREEZE.** After the removal of Mnemosyne, the memory/retrieval layer is frozen: no memory tool, vector base, graph memory or retrieval is tested or integrated **until after the v1.0.0-stable tag**. Any resumption is a NEXT/LAB decision, on measurement.
 
-## Conséquences
+## Consequences
 
-- Mission 147 : retrait de Mnemosyne — câblage remember de tools/append-journal.sh (posé par la Mission 122, fail-open), fichiers d'environnement et de données du projet, références opérationnelles dans les règles et skills (mesurées avant retrait), note de connaissance avec les chiffres du benchmark. La configuration MCP du poste (entrée mnemosyne de Claude Desktop) est un geste Owner, hors Mission.
-- Le LAB du benchmark est purgé sur autorisation Owner du 2026-09-06, les preuves étant recopiées au rapport commité.
-- La présente Décision et la 204248 entrent au Vault avec le commit vault de la Mission 147 (manifeste et index des décisions inclus).
+- Mission 147: removal of Mnemosyne — remember wiring of tools/append-journal.sh (set by Mission 122, fail-open), the project's environment and data files, operational references in the rules and skills (measured before removal), knowledge note with the benchmark figures. The workstation's MCP configuration (mnemosyne entry of Claude Desktop) is an Owner gesture, outside the Mission.
+- The benchmark LAB is purged on Owner authorization of 2026-09-06, the evidence being copied into the committed report.
+- The present Decision and 204248 enter the Vault with the vault commit of Mission 147 (manifest and decisions index included).
 
-## Alternatives écartées
+## Alternatives set aside
 
-- Garder Mnemosyne « au cas où » : contraire au point 1 de la 204248 (pas de dépendance sans valeur mesurée) ; les mesures sont sans ambiguïté.
-- Réparer l'indexation vectorielle avant de trancher : ce serait un nouveau chantier en phase de stabilisation ; la porte reste ouverte en NEXT/LAB, après le tag.
-- Jouer OpenViking en levant les contraintes (clé API, téléchargements hors LAB) : refusé par arbitrages Owner des 2026-09-05/06.
+- Keep Mnemosyne "just in case": contrary to point 1 of 204248 (no dependency without measured value); the measurements are unambiguous.
+- Repair the vector indexing before deciding: that would be a new work item in the stabilization phase; the door remains open in NEXT/LAB, after the tag.
+- Run OpenViking by lifting the constraints (API key, downloads outside the LAB): refused by Owner arbitrations of 2026-09-05/06.
 
 ## Liens
 
-- `prescribed by` — [Cycle de contexte V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
-- `applies` — [Décision — Clôture de la phase mémoire/retrieval](./DECISION-2026-09-05-204248-memory-retrieval-closure-benchmark-freeze.md)
-- `applies` — [Décision — Statut de preuve et contrôle du STOP](./DECISION-2026-08-29-212009-evidence-status-and-stop-control.md)
+- `prescribed by` — [Context cycle V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
+- `applies` — [Decision — Close of the memory/retrieval phase](./DECISION-2026-09-05-204248-memory-retrieval-closure-benchmark-freeze.md)
+- `applies` — [Decision — Evidence status and STOP control](./DECISION-2026-08-29-212009-evidence-status-and-stop-control.md)

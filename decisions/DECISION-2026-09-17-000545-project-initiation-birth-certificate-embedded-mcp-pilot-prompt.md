@@ -1,7 +1,7 @@
 ---
 type: decision
-title: "Initiation et adoption de projet — acte de naissance, résolution du Vault par identité vérifiée, serveur MCP embarqué, prompt Pilot commun : amendements de 124848 §1, 115306 D2/D4, 210731 point 2, 124937 et de la charte des rôles"
-description: "Un projet résout son Vault par un acte de naissance à identité vérifiée, jamais par proximité ; le bootstrap gagne un mode adopter additif et un champ vcs ; un ordre d'initiation permet d'adopter sans Mission ; un serveur MCP embarqué, épinglé au commit du Vault, donne au Pilot un accès borné ; un prompt Pilot commun est personnalisé par projet sur le disque."
+title: "Project initiation and adoption — birth certificate, resolution of the Vault by verified identity, embedded MCP server, common Pilot prompt: amendments of 124848 §1, 115306 D2/D4, 210731 point 2, 124937 and of the role charter"
+description: "A project resolves its Vault through a birth certificate with a verified identity, never by proximity; the bootstrap gains an additive adopt mode and a vcs field; an initiation order makes it possible to adopt without a Mission; an embedded MCP server, pinned to the Vault's commit, gives the Pilot bounded access; a common Pilot prompt is personalized per project on disk."
 created_at: "2026-09-17T00:05:45-04:00"
 timezone: America/Montreal
 status: arbitrated
@@ -14,94 +14,94 @@ amends:
   - "../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md"
 ---
 
-# DÉCISION — INITIATION ET ADOPTION DE PROJET : ACTE DE NAISSANCE, SERVEUR MCP EMBARQUÉ, PROMPT PILOT COMMUN
+# DECISION — PROJECT INITIATION AND ADOPTION: BIRTH CERTIFICATE, EMBEDDED MCP SERVER, COMMON PILOT PROMPT
 
 ## Date
 
-2026-09-17 (arbitrage rendu le 2026-09-16).
+2026-09-17 (arbitration given on 2026-09-16).
 
-## Statut
+## Status
 
 `ARBITRATED`
 
-## Problème mesuré
+## Measured problem
 
-- `tools/project-bootstrap.sh` ne connaissait qu'un mode : naître ; il refusait toute cible existante. Le mode adopter de la Décision 210731 point 3 n'existait que comme doctrine dans le skill `project-bootstrap`. [MESURÉ]
-- Le Vault était résolu par le seul marqueur remonté `VAULT-ROOT.md` (124848 §1), qui porte un nom et un chemin relatif, aucune identité ; deux Vaults dans un même espace de travail ne sont pas distinguables ; un fichier de pointage de l'atelier pointait encore un dossier `vault` voisin en dur, la proximité écartée par 124848 §1 et 214607. [MESURÉ]
-- Le Pilot n'avait d'accès disque que par un serveur MCP installé à la main, hors de tout dépôt, sans version ni périmètre prouvés. [MESURÉ]
-- Un agent qui se découvre dans un dossier non adopté s'arrête toujours (210731 point 2), même quand l'Owner vient d'ordonner l'adoption : la règle bloque le geste qu'elle voulait protéger. [MESURÉ]
-- Le prompt d'ouverture Pilot (gabarit `session-opening-prompt-template.md`) est commun mais rien ne le personnalisait par projet sur le disque ; le Pilot ouvrait de mémoire. [MESURÉ]
+- `tools/project-bootstrap.sh` knew only one mode: to be born; it refused any existing target. The adopt mode of Decision 210731 point 3 existed only as doctrine in the `project-bootstrap` skill. [MESURÉ]
+- The Vault was resolved only by the `VAULT-ROOT.md` marker found by walking up, which carries a name and a relative path, no identity; two Vaults in the same workspace cannot be told apart; a pointer file of the workshop still pointed to a neighbouring `vault` folder, hard-coded, the proximity set aside by 124848 §1 and 214607. [MESURÉ]
+- The Pilot had disk access only through an MCP server installed by hand, outside any repository, with no proven version or perimeter. [MESURÉ]
+- An agent that finds itself in a non-adopted folder always stops (210731 point 2), even when the Owner has just ordered the adoption: the rule blocks the gesture it meant to protect. [MESURÉ]
+- The Pilot opening prompt (template `session-opening-prompt-template.md`) is common but nothing personalized it per project on disk; the Pilot opened from memory. [MESURÉ]
 
-## Décision
+## Decision
 
-### Piliers
+### Pillars
 
-1. **Agnostique** : tout modèle, tout harnais (Claude Code, Codex, Claude Desktop, ChatGPT), même mécanisme.
-2. **Le projet nomme son Vault et sa construction** : rien n'est déduit du voisinage.
-3. **Prompt Pilot commun**, source unique dans le Vault, **personnalisé par projet sur le disque**.
-4. **Source unique, pointeurs explicites** : aucune copie de doctrine, aucune cascade de fichiers d'instructions, aucune résolution par proximité.
+1. **Agnostic**: any model, any harness (Claude Code, Codex, Claude Desktop, ChatGPT), same mechanism.
+2. **The project names its Vault and its build**: nothing is deduced from the neighbourhood.
+3. **Common Pilot prompt**, single source in the Vault, **personalized per project on disk**.
+4. **Single source, explicit pointers**: no copy of doctrine, no cascade of instruction files, no resolution by proximity.
 
-### A1 — Acte de naissance (amende 124848 §1)
+### A1 — Birth certificate (amends 124848 §1)
 
-Chaque projet porte à sa racine un **acte de naissance** : l'épingle `.pre-commit-config.yaml` étendue de quatre données, dans le même fichier — `vault_id` (identifiant du Vault installé), `vault_origin` (origine du clone : URL ou chemin), `vault_ref` (commit du Vault à l'instanciation, remplace l'empreinte `vault_head` de la fiche), `vcs` (`none` | `git`). La forme exacte est celle qui ne produit ni erreur ni avertissement à `pre-commit validate-config` : mesurée, un bloc de commentaires à grammaire fixe en tête du fichier.
+Every project carries at its root a **birth certificate**: the `.pre-commit-config.yaml` pin extended with four data items, in the same file — `vault_id` (identifier of the installed Vault), `vault_origin` (origin of the clone: URL or path), `vault_ref` (commit of the Vault at instantiation, replaces the sheet's `vault_head` fingerprint), `vcs` (`none` | `git`). The exact form is the one that produces neither error nor warning at `pre-commit validate-config`: measured, a block of comments with a fixed grammar at the head of the file.
 
-**Résolution du Vault, dans cet ordre.** (a) L'acte, trouvé en remontant depuis le dossier courant comme `.git` ; il nomme le Vault ; le Vault trouvé doit porter la même identité (`vault_id`), sinon **refus nommant les deux identités**. (b) Sans acte : le marqueur remonté `VAULT-ROOT.md`, qui porte désormais une identité, résout **seulement s'il n'y a qu'un candidat** ; deux Vaults candidats dans l'espace de travail → refus, question à l'Owner. La déclaration écrite reste un confort de lecture (124848 §1 inchangé sur ce point) ; la proximité disparaît de tout fichier de pointage : un chemin écrit dans `AGENTS.md`/`CLAUDE.md` d'un projet est copié de l'acte à la génération, jamais supposé, et un contrôle vérifie leur cohérence.
+**Resolution of the Vault, in this order.** (a) The certificate, found by walking up from the current folder like `.git`; it names the Vault; the Vault found must carry the same identity (`vault_id`), otherwise **refusal naming both identities**. (b) Without a certificate: the `VAULT-ROOT.md` marker found by walking up, which now carries an identity, resolves **only if there is a single candidate**; two candidate Vaults in the workspace → refusal, question to the Owner. The written declaration remains a reading convenience (124848 §1 unchanged on this point); proximity disappears from every pointer file: a path written in a project's `AGENTS.md`/`CLAUDE.md` is copied from the certificate at generation, never assumed, and a check verifies their consistency.
 
-### A2 — Registre : `vcs` et écriture par `adopt` (amende 115306 D2 et D4)
+### A2 — Registry: `vcs` and writing by `adopt` (amends 115306 D2 and D4)
 
-D2 : la fiche projet gagne le champ `vcs` (`none` | `git`) ; l'index gagne la colonne. D4, chemin 1 : `adopt` écrit la ligne de registre, la fiche et l'acte, au même titre que la naissance ; toujours par un Executor, jamais à la main.
+D2: the project sheet gains the `vcs` field (`none` | `git`); the index gains the column. D4, path 1: `adopt` writes the registry line, the sheet and the certificate, in the same way as birth; always by an Executor, never by hand.
 
-### A3 — Arrêt seulement sans ordre (amende 210731 point 2)
+### A3 — Stop only without an order (amends 210731 point 2)
 
-Un agent qui se découvre dans un dossier non adopté : **avec un ordre d'initiation** (A5), il adopte et continue ; **sans ordre**, il s'arrête et **propose l'adoption** en rendant l'ordre à remplir. Le point 2 ne prescrit plus un arrêt inconditionnel.
+An agent that finds itself in a non-adopted folder: **with an initiation order** (A5), it adopts and continues; **without an order**, it stops and **proposes the adoption** by rendering the order to be filled in. Point 2 no longer prescribes an unconditional stop.
 
-### A4 — Bootstrap en deux modes additifs
+### A4 — Bootstrap in two additive modes
 
-`create` et `adopt`, tous deux additifs. `adopt` ne touche aucun fichier existant ; la réorganisation en sept fonctions est **toujours proposée, jamais appliquée** (210731 point 3 inchangé). **Question avant d'écrire** : nom de dossier et emplacement proposés, l'Owner confirme ou change. **Question Git** si l'ordre ne la porte pas : `vcs: none` → contrôles par commande (`tools/check-*.sh <projet>`), aucun hook ; `adopt --git` plus tard ajoute hook et épingle active. **Ligne de base datée et cliquet** : à l'adoption, la liste des fichiers existants est gravée, datée ; les gardiens ne jugent que le nouveau et le touché ; un fichier de la ligne de base touché doit devenir conforme. Les liens cassés d'avant se réparent par un **script qui propose** ; l'application n'a lieu que sous Mission. La cible reçoit un prompt Pilot généré avec un **identifiant canari**, et un **bloc à consommer** est rendu en chat : Projet (claude.ai/ChatGPT) à créer, instructions communes à coller, premier message = chemin du projet.
+`create` and `adopt`, both additive. `adopt` touches no existing file; the reorganization into seven functions is **always proposed, never applied** (210731 point 3 unchanged). **Question before writing**: folder name and location proposed, the Owner confirms or changes. **Git question** if the order does not carry it: `vcs: none` → checks by command (`tools/check-*.sh <projet>`), no hook; `adopt --git` later adds hook and active pin. **Dated baseline and ratchet**: at adoption, the list of existing files is engraved, dated; the guardians judge only what is new and what is touched; a baseline file that is touched must become compliant. Earlier broken links are repaired by a **script that proposes**; application takes place only under a Mission. The target receives a generated Pilot prompt with a **canary identifier**, and a **block to consume** is rendered in chat: Project (claude.ai/ChatGPT) to create, common instructions to paste, first message = path of the project.
 
-### A5 — Ordre d'initiation, type de mini-prompt `initiation` (amende 124937 et la charte §3)
+### A5 — Initiation order, `initiation` mini-prompt type (amends 124937 and charter §3)
 
-Un Pilot **sans Mission** peut émettre un **ordre d'initiation** : `Type` (`create` | `adopt`), `Mode` (`answered` : toutes les réponses portées par l'ordre, aucune question ; `ask` : le bootstrap pose nom, emplacement, Git), `Nom`, `Emplacement`, `Vault + construction` (`vault_id`, `vault_origin`, `vault_ref`), `Git` (`none` | `git`), `Objet`, `Autorisation Owner datée` (verbatim). Il voyage par un mini-prompt de type `initiation`, **seul type sans rubrique « Source à appliquer »** : l'ordre est la source. Charte §3 : un premier prompt Executor peut être une initiation ; l'Executor la consomme comme il consomme une Mission, périmètre borné à la cible et au registre du Vault.
+A Pilot **without a Mission** may issue an **initiation order**: `Type` (`create` | `adopt`), `Mode` (`answered`: all the answers carried by the order, no question; `ask`: the bootstrap asks name, location, Git), `Nom` [name], `Emplacement` [location], `Vault + construction` [Vault + build] (`vault_id`, `vault_origin`, `vault_ref`), `Git` (`none` | `git`), `Objet` [purpose], `Autorisation Owner datée` [dated Owner authorization] (verbatim). It travels by a mini-prompt of type `initiation`, **the only type without a « Source à appliquer » (source to apply) rubric**: the order is the source. Charter §3: a first Executor prompt may be an initiation; the Executor consumes it as it consumes a Mission, perimeter bounded to the target and to the Vault's registry.
 
-### A6 — Serveur MCP embarqué et poste
+### A6 — Embedded MCP server and workstation
 
-`tools/vault-mcp.py` : serveur MCP en Python, transport stdio, dossiers autorisés passés en arguments, refus de tout chemin hors périmètre et de tout lien symbolique qui s'en échappe, **épinglé par le commit** du Vault installé (le serveur rend son commit ; le Pilot le compare). `first-install` détecte les outils présents (`claude`, `codex`, application Claude Desktop) et injecte la configuration (`claude mcp add`, `codex mcp add`, JSON de Claude Desktop **au chemin mesuré**), dossier autorisé = racine de l'espace de travail, vérifie Python, et dit le redémarrage de l'application comme geste restant. Un **contrôle de contenance** vérifie que projet et Vault sont inclus dans les dossiers autorisés. **Canari Pilot à l'ouverture** : `list_allowed_directories` doit contenir le chemin du projet, puis la lecture du prompt Pilot du projet rend l'identifiant canari. Le prompt commun dit que le rôle Pilot exige l'application de bureau (le MCP n'existe pas dans le navigateur).
+`tools/vault-mcp.py`: MCP server in Python, stdio transport, allowed folders passed as arguments, refusal of any path outside the perimeter and of any symbolic link that escapes it, **pinned by the commit** of the installed Vault (the server returns its commit; the Pilot compares it). `first-install` detects the tools present (`claude`, `codex`, Claude Desktop application) and injects the configuration (`claude mcp add`, `codex mcp add`, Claude Desktop JSON **at the measured path**), allowed folder = root of the workspace, checks Python, and states restarting the application as the remaining gesture. A **containment check** verifies that project and Vault are included in the allowed folders. **Pilot canary at opening**: `list_allowed_directories` must contain the path of the project, then reading the project's Pilot prompt returns the canary identifier. The common prompt says that the Pilot role requires the desktop application (MCP does not exist in the browser).
 
-### A7 — Marqueur
+### A7 — Marker
 
-`VAULT-ROOT.md` généré porte l'identité du Vault (`vault_id`, `vault_origin`) en plus du nom et du chemin relatif.
+The generated `VAULT-ROOT.md` carries the identity of the Vault (`vault_id`, `vault_origin`) in addition to the name and the relative path.
 
-## Raison
+## Reason
 
-Arbitrage Owner du 2026-09-16 sur la spécification proposée par le Pilot : « tout ce que tu dis me va, conforme ». Le fond : la proximité et le marqueur seul cassent dès qu'un espace de travail porte deux Vaults ou qu'un projet est cloné seul (214607 D4) ; une identité vérifiée dans un acte de naissance est la seule chose qu'un projet emporte partout. L'accès disque du Pilot doit venir du Vault, versionné et borné, pas d'une installation manuelle invisible aux Missions.
+Owner arbitration of 2026-09-16 on the specification proposed by the Pilot: « tout ce que tu dis me va, conforme » ["everything you say suits me, compliant"]. The substance: proximity and the marker alone break as soon as a workspace carries two Vaults or a project is cloned alone (214607 D4); a verified identity in a birth certificate is the only thing a project carries everywhere. The Pilot's disk access must come from the Vault, versioned and bounded, not from a manual installation invisible to the Missions.
 
 ## Impact
 
-- Livré dans ce dépôt en v0.1.3 : bootstrap `create|adopt|order`, acte de naissance, résolution par identité, ligne de base et cliquet, réparation de liens proposée, prompt Pilot avec canari, serveur MCP, injection et contenance, chacun prouvé en CI avec témoin négatif.
-- Amendées : 124848 §1 ; 115306 D2, D4 ; 210731 point 2 ; règle 124937 (type `initiation`) ; charte §3 (première consommation). Les copies de ces pièces dans ce dépôt portent la mention `amended by` (Décision 205904 : l'amendement vit dans le dépôt amendé).
-- 214607 D4 devient un test de CI (projet cloné seul, ses règles s'appliquent).
+- Delivered in this repository in v0.1.3: bootstrap `create|adopt|order`, birth certificate, resolution by identity, baseline and ratchet, proposed link repair, Pilot prompt with canary, MCP server, injection and containment, each proven in CI with a negative control.
+- Amended: 124848 §1; 115306 D2, D4; 210731 point 2; rule 124937 (`initiation` type); charter §3 (first consumption). The copies of these documents in this repository carry the `amended by` mention (Decision 205904: the amendment lives in the amended repository).
+- 214607 D4 becomes a CI test (project cloned alone, its rules apply).
 
-## Alternatives importantes
+## Important alternatives
 
-- **OpenViking** : écarté — base de contexte, AGPL, autre besoin.
-- **Copie du registre à la racine du projet** : écartée — copie de doctrine (214607 D1).
-- **Sandbox/Vagrant comme base** : écarté — pas une machine neuve, pas un participant.
-- **Réorganisation automatique à l'adoption** : écartée (210731 point 3 maintenu).
-- **Fichier d'acte séparé de l'épingle** : écarté — deux fichiers à tenir cohérents ; l'épingle est déjà le seul fichier que tout projet porte.
+- **OpenViking**: set aside — context base, AGPL, another need.
+- **Copy of the registry at the root of the project**: set aside — copy of doctrine (214607 D1).
+- **Sandbox/Vagrant as a base**: set aside — not a new machine, not a participant.
+- **Automatic reorganization at adoption**: set aside (210731 point 3 maintained).
+- **Certificate file separate from the pin**: set aside — two files to keep consistent; the pin is already the only file that every project carries.
 
 ## Human gate
 
-- Validation : accordée
-- Référence : Owner, 2026-09-16, « tout ce que tu dis me va, conforme » ; confirmé le 2026-09-17.
+- Validation: granted
+- Reference: Owner, 2026-09-16, « tout ce que tu dis me va, conforme » ["everything you say suits me, compliant"]; confirmed on 2026-09-17.
 
 ## Liens
 
-- `amends` — [Sept arbitrages de session du 2026-08-23](./DECISION-2026-08-23-124848-seven-arbitrations-2026-08-23.md)
+- `amends` — [Seven session arbitrations of 2026-08-23](./DECISION-2026-08-23-124848-seven-arbitrations-2026-08-23.md)
 - `amends` — [Project Registry V1](./DECISION-2026-08-19-115306-project-registry-v1.md)
-- `amends` — [Décision — Prise de conscience du Vault par un projet, trois étages](./DECISION-2026-08-31-210731-project-vault-awareness-three-tiers.md)
-- `amends` — [Relais entre rôles par mini-prompts](../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md)
-- `amends` — [Charte des rôles et détermination de session](../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
-- `applies` — [Distribution des mécanismes transverses](./DECISION-2026-08-24-214607-transverse-mechanism-distribution.md)
-- `applies` — [Décision — L'amendement vit dans le dépôt amendé](./DECISION-2026-08-28-205904-amendment-lives-in-amended-repo.md)
-- `prescribed by` — [Cycle de contexte V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
-- `amended by` — [Décision — Relais et délégation, une règle un seul endroit](./DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md)
+- `amends` — [Decision — Awareness of the Vault by a project, in three tiers](./DECISION-2026-08-31-210731-project-vault-awareness-three-tiers.md)
+- `amends` — [Relay between roles through mini-prompts](../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md)
+- `amends` — [Role charter and session determination](../rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md)
+- `applies` — [Distribution of transverse mechanisms](./DECISION-2026-08-24-214607-transverse-mechanism-distribution.md)
+- `applies` — [Decision — The amendment lives in the repository of the amended document](./DECISION-2026-08-28-205904-amendment-lives-in-amended-repo.md)
+- `prescribed by` — [Context cycle V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
+- `amended by` — [Decision — Relay and delegation, one rule in one place](./DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md)

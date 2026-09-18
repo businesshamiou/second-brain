@@ -1,58 +1,58 @@
 ---
 type: decision
-title: "Décision — Dépendances machine avant cutover : sept arbitrages Owner sur le rapport 148, divergence mesurée du distant Legacy annotée, cible disque de la 143 laissée OPEN"
+title: "Decision — Machine dependencies before cutover: seven Owner arbitrations on report 148, measured divergence of the Legacy remote annotated, disk target of 143 left OPEN"
 created_at: "2026-09-07T12:51:56-04:00"
 timezone: America/Montreal
 status: active
 amends:
   - "./DECISION-2026-09-06-114521-legacy-already-prepared-migration-from-acquired-state.md"
-description: "Arbitrages Owner du 2026-09-07 sur les sept questions du rapport 148 (inventaire lecture seule des dépendances du poste). Fait d'architecture mesuré et gravé : le Legacy et le NEXT poussent vers deux dépôts distants distincts (businesshamiou/vault.git et businesshamiou/ai-context-vault.git) ; la Décision 114521 est annotée, jamais réécrite. Cible distante finale confirmée : main moderne + branche legacy dans businesshamiou/vault. vault-view en statut LEGACY-2/UNKNOWN, intact et hors 143 ; sauvegarde backup-vault-migration non confirmée comme canonique ; tâches planifiées, profil PowerShell, Workspaces.lnk et safe.directory : aucune action avant v1.0.0-stable. Un point reste OPEN : l'emplacement disque de la 143 (aios-stable\\vault selon la PROPOSAL 165829, <depot-prive>-works\\vault selon l'arbitrage 5). Ordre de travail confirmé : push 4c9cc09, cette Décision, Mission 149 packed-refs, cold start rejoué, puis 143."
+description: "Owner arbitrations of 2026-09-07 on the seven questions of report 148 (read-only inventory of the workstation's dependencies). Architecture fact measured and engraved: the Legacy and the NEXT push to two distinct remote repositories (businesshamiou/vault.git and businesshamiou/ai-context-vault.git); Decision 114521 is annotated, never rewritten. Final remote target confirmed: modern main + legacy branch in businesshamiou/vault. vault-view in LEGACY-2/UNKNOWN status, intact and outside 143; backup-vault-migration backup not confirmed as canonical; scheduled tasks, PowerShell profile, Workspaces.lnk and safe.directory: no action before v1.0.0-stable. One point remains OPEN: the disk location of 143 (aios-stable\\vault according to PROPOSAL 165829, <depot-prive>-works\\vault according to arbitration 5). Work order confirmed: push 4c9cc09, this Decision, Mission 149 packed-refs, cold start replayed, then 143."
 ---
 
-# DÉCISION — Sept arbitrages sur les dépendances machine avant cutover
+# DECISION — Seven arbitrations on the machine dependencies before cutover
 
-## Contexte
+## Context
 
-La Mission 148 (rapport (historique de l'atelier, non distribué), hors Vault, commit l'atelier (historique, non distribué) `4c9cc09`) a inventorié en lecture seule ce qui, sur le poste, dépend d'un chemin de Vault : 188 tâches planifiées dont 2 retenues, 4 chemins de profil PowerShell dont 1 actif, 3 dépôts mesurés, 0 jonction NTFS, 14 fichiers de configuration, 0 accès refusé. Elle a posé sept questions sans recommandation. L'Owner a arbitré le 2026-09-07.
+Mission 148 (report (workshop history, not distributed), outside the Vault, commit the workshop (history, not distributed) `4c9cc09`) inventoried read-only what, on the workstation, depends on a Vault path: 188 scheduled tasks of which 2 retained, 4 PowerShell profile paths of which 1 active, 3 repositories measured, 0 NTFS junctions, 14 configuration files, 0 access denied. It asked seven questions without recommendation. The Owner arbitrated on 2026-09-07.
 
-## Fait mesuré qui contredit une Décision gravée
+## Measured fact that contradicts an engraved Decision
 
-Le rapport 148 (§5, question 1) mesure que `<depot-prive>-works\vault` a pour `origin` `businesshamiou/vault.git`, et `workshops\vault` (NEXT) `businesshamiou/ai-context-vault.git`. La Décision 114521 énonçait « l'ancien contenu vit comme branche du même dépôt distant que le nouveau Vault ». C'est la divergence nouvelle et mesurée que cette Décision prévoyait. Conformément à la Décision 145256, la 114521 n'est pas réécrite : elle reçoit une annotation datée nommant la présente Décision, avec réciprocité `amends` / `amended by`.
+Report 148 (§5, question 1) measures that `<depot-prive>-works\vault` has `businesshamiou/vault.git` as `origin`, and `workshops\vault` (NEXT) `businesshamiou/ai-context-vault.git`. Decision 114521 stated "the old content lives as a branch of the same remote repository as the new Vault". This is the new and measured divergence that that Decision provided for. In accordance with Decision 145256, 114521 is not rewritten: it receives a dated annotation naming the present Decision, with `amends` / `amended by` reciprocity.
 
-## Décision (Owner, 2026-09-07, verbatim)
+## Decision (Owner, 2026-09-07, verbatim, translated from French)
 
-1. **Distant Legacy.** OUI, `legacy` est bien conservée sur `businesshamiou/vault.git`. En revanche, `ai-context-vault.git` reste le dépôt actuel/source du NEXT ; il ne devient pas automatiquement le dépôt canonique final. La cible déjà décidée reste : futur `main` moderne + branche `legacy` dans `businesshamiou/vault`. Annoter la divergence mesurée sans réécrire la Décision historique.
-2. **`vault-view`.** Statut provisoire LEGACY-2 / UNKNOWN. Le laisser strictement intact, hors cutover et hors scope de la 143. Ne pas le « sécuriser comme le Legacy » ni l'ouvrir davantage tant que son rôle n'est pas établi.
-3. **`backup-vault-migration\2026-09-05-200520\`.** NON CONFIRMÉ comme sauvegarde froide canonique. Ne pas l'utiliser comme preuve de satisfaction de la Décision 114521 sans preuve existante qui l'identifie explicitement. Le laisser intact.
-4. **`VaultDoctorNightly` et `VaultReflect`.** Ne rien modifier pendant la 143. Après `v1.0.0-stable`, vérifier que leurs commandes existent encore dans le Vault moderne ; si oui, les repointer vers la production stable. Si la fonction correspondante n'existe plus, les désactiver plutôt que recréer artificiellement une dépendance.
-5. **Profil PowerShell.** Ne rien modifier avant le cutover/tag. La cible finale étant `<depot-prive>-works\vault`, valider après cutover que le dot-source résout bien vers le nouveau Vault ; ne modifier le profil que si le fichier cible a réellement changé de chemin.
-6. **`Workspaces.lnk`.** Hors produit et hors cutover. Ne pas le déplacer en `_trash` maintenant. Le laisser intact et reporter son éventuel nettoyage après stabilisation ; il ne doit ni bloquer ni entrer dans la 143.
-7. **`safe.directory` global.** Aucune action maintenant. La 143 mesure le comportement sur le clone STABLE. N'ajouter une exception `safe.directory` que si Git la réclame réellement et dans le cadre du geste Owner correspondant.
+1. **Legacy remote.** YES, `legacy` is indeed kept on `businesshamiou/vault.git`. On the other hand, `ai-context-vault.git` remains the current/source repository of the NEXT; it does not automatically become the final canonical repository. The target already decided remains: future modern `main` + `legacy` branch in `businesshamiou/vault`. Annotate the measured divergence without rewriting the historical Decision.
+2. **`vault-view`.** Provisional status LEGACY-2 / UNKNOWN. Leave it strictly intact, outside the cutover and outside the scope of 143. Do not "secure it like the Legacy" nor open it further as long as its role is not established.
+3. **`backup-vault-migration\2026-09-05-200520\`.** NOT CONFIRMED as the canonical cold backup. Do not use it as proof of satisfying Decision 114521 without existing evidence that identifies it explicitly. Leave it intact.
+4. **`VaultDoctorNightly` and `VaultReflect`.** Modify nothing during 143. After `v1.0.0-stable`, check that their commands still exist in the modern Vault; if so, repoint them to the stable production. If the corresponding function no longer exists, disable them rather than artificially recreating a dependency.
+5. **PowerShell profile.** Modify nothing before the cutover/tag. The final target being `<depot-prive>-works\vault`, validate after cutover that the dot-source does resolve to the new Vault; modify the profile only if the target file has really changed path.
+6. **`Workspaces.lnk`.** Outside the product and outside the cutover. Do not move it to `_trash` now. Leave it intact and postpone its possible cleanup until after stabilization; it must neither block nor enter 143.
+7. **Global `safe.directory`.** No action now. 143 measures the behaviour on the STABLE clone. Add a `safe.directory` exception only if Git really demands it and within the corresponding Owner gesture.
 
-Ces arbitrages ne changent pas l'ordre convenu : (1) pousser `4c9cc09` ; (2) enregistrer ces arbitrages ; (3) intervention courte `packed-refs` en Mission 149 ; (4) rejouer le cold start pour vérifier `READY` et le budget d'appels ; (5) seulement après PASS de cette acceptance, reprendre la 143. Ne pas rouvrir Mnemosyne, OpenViking, Legacy ni un chantier d'architecture mémoire.
+These arbitrations do not change the agreed order: (1) push `4c9cc09`; (2) record these arbitrations; (3) short `packed-refs` intervention in Mission 149; (4) replay the cold start to check `READY` and the call budget; (5) only after PASS of this acceptance, resume 143. Do not reopen Mnemosyne, OpenViking, Legacy or a memory architecture work item.
 
-## Point laissé OPEN — non comblé par le Pilot
+## Point left OPEN — not filled in by the Pilot
 
-**Emplacement disque de la 143.** L'arbitrage 5 nomme `<depot-prive>-works\vault` comme cible finale. La PROPOSAL 165829 (acceptée) prescrit un clone vers `<depot-prive>-works\aios-stable\vault`, `<depot-prive>-works\vault` restant LEGACY intact sur disque. Deux emplacements pour un même geste. Tant que l'Owner n'a pas dit lequel est celui de la 143 — ou si le second est une étape ultérieure —, la 143 ne s'écrit pas. Une annotation datée sur la présente Décision fermera ce point.
+**Disk location of 143.** Arbitration 5 names `<depot-prive>-works\vault` as the final target. PROPOSAL 165829 (accepted) prescribes a clone to `<depot-prive>-works\aios-stable\vault`, `<depot-prive>-works\vault` remaining LEGACY intact on disk. Two locations for one and the same gesture. As long as the Owner has not said which one is that of 143 — or whether the second is a later step —, 143 is not written. A dated annotation on the present Decision will close this point.
 
-   **Annotation datée 2026-09-08 (Owner, chat, consignée par la Mission 165).** L'emplacement disque de la 143 est <depot-prive>-works, sous-dossier aios-stable, sous-dossier vault ; <depot-prive>-works, sous-dossier vault seul, reste LEGACY intact sur disque, inchangé par la 143. Le point est fermé.
+   **Dated annotation 2026-09-08 (Owner, chat, recorded by Mission 165).** The disk location of 143 is <depot-prive>-works, subfolder aios-stable, subfolder vault; <depot-prive>-works, subfolder vault alone, remains LEGACY intact on disk, unchanged by 143. The point is closed.
 
-## Conséquences
+## Consequences
 
-- Précondition de la Mission 143 : la branche `legacy` se vérifie par `git ls-remote` sur `businesshamiou/vault.git` ; le clone STABLE part de la tête poussée de `ai-context-vault.git`. Le dépôt canonique final (`businesshamiou/vault`, `main` moderne + `legacy`) est une cible de promotion distante, postérieure au tag, qui exige son propre human gate (nouvelle frontière externe).
-- La Mission 143 ne mentionne ni `vault-view`, ni `backup-vault-migration\`, ni `Workspaces.lnk`, sauf pour constater qu'ils sont intacts.
-- Les gestes 4 et 5 sont des gestes Owner post-`v1.0.0-stable`, à mesurer par une Mission de lecture avant tout repointage.
-- La Mission 149 commite la présente Décision, l'annotation de la 114521 et l'index des Décisions dans son lot vault.
+- Precondition of Mission 143: the `legacy` branch is checked by `git ls-remote` on `businesshamiou/vault.git`; the STABLE clone starts from the pushed head of `ai-context-vault.git`. The final canonical repository (`businesshamiou/vault`, modern `main` + `legacy`) is a remote promotion target, later than the tag, which requires its own human gate (new external frontier).
+- Mission 143 mentions neither `vault-view`, nor `backup-vault-migration\`, nor `Workspaces.lnk`, except to observe that they are intact.
+- Gestures 4 and 5 are Owner gestures post-`v1.0.0-stable`, to be measured by a reading Mission before any repointing.
+- Mission 149 commits the present Decision, the annotation of 114521 and the Decisions index in its vault batch.
 
-## Alternatives écartées
+## Alternatives set aside
 
-- Comprendre l'arbitrage 5 comme un changement de cible de la 143 : c'est une lecture, pas un arbitrage ; le Pilot ne remplit pas un OPEN par proximité (charte §2).
-- Réécrire la Décision 114521 : interdit par la Décision 145256.
+- Understanding arbitration 5 as a change of target for 143: that is a reading, not an arbitration; the Pilot does not fill an OPEN by proximity (charter §2).
+- Rewriting Decision 114521: forbidden by Decision 145256.
 
 ## Liens
 
-- `prescribed by` — [Cycle de contexte V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
-- `amends` — [Décision — Legacy déjà préparé, migration depuis l'acquis](./DECISION-2026-09-06-114521-legacy-already-prepared-migration-from-acquired-state.md)
-- `applies` — [Décision — Statut de preuve et contrôle du STOP](./DECISION-2026-08-29-212009-evidence-status-and-stop-control.md)
-- `source` — Rapport 148 — inventaire lecture seule des dépendances machine (historique de l'atelier, non distribué) (hors Vault)
-- `see also` — PROPOSAL — Fermeture de la V1 (historique de l'atelier, non distribué) (hors Vault)
+- `prescribed by` — [Context cycle V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
+- `amends` — [Decision — Legacy already prepared, migration from the acquired state](./DECISION-2026-09-06-114521-legacy-already-prepared-migration-from-acquired-state.md)
+- `applies` — [Decision — Evidence status and STOP control](./DECISION-2026-08-29-212009-evidence-status-and-stop-control.md)
+- `source` — Report 148 — read-only inventory of the machine dependencies (workshop history, not distributed) (hors Vault)
+- `see also` — PROPOSAL — Closing of V1 (workshop history, not distributed) (hors Vault)

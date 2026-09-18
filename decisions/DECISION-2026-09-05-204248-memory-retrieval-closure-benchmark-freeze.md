@@ -1,45 +1,45 @@
 ---
 type: decision
-title: "Décision — Clôture de la phase mémoire/retrieval avant V1 STABLE : benchmark borné Vault natif / Mnemosyne / OpenViking, verdict KEEP ou REMOVE par outil, pas de coexistence par défaut, puis FREEZE"
+title: "Decision — Close of the memory/retrieval phase before V1 STABLE: bounded benchmark native Vault / Mnemosyne / OpenViking, KEEP or REMOVE verdict per tool, no coexistence by default, then FREEZE"
 created_at: "2026-09-05T20:42:48-04:00"
 timezone: America/Montreal
 status: active
-description: "Amendement Owner du 2026-09-05 au plan de fermeture de la V1 (PROPOSAL 165829) : Mnemosyne n'est pas acquis ; OpenViking reçoit un dernier test en sandbox, sans intégration ni élargissement ; un benchmark compare Vault natif, Vault + Mnemosyne, Vault + OpenViking sur recall, précision, latence, volume de contexte, coût opérationnel ; chaque outil reçoit KEEP, REMOVE ou DEFER motivé ; coexistence seulement sur bénéfice démontré ; toute technologie sans fruit mesurable est retirée proprement et documentée ; puis FREEZE de la couche mémoire/retrieval pour V1 STABLE. Le benchmark ne démarre qu'après fermeture des blockers d'autonomie."
+description: "Owner amendment of 2026-09-05 to the V1 closing plan (PROPOSAL 165829): Mnemosyne is not a given; OpenViking receives one last test in a sandbox, without integration or widening; a benchmark compares native Vault, Vault + Mnemosyne, Vault + OpenViking on recall, precision, latency, context volume, operational cost; each tool receives a reasoned KEEP, REMOVE or DEFER; coexistence only on demonstrated benefit; any technology without measurable fruit is removed cleanly and documented; then FREEZE of the memory/retrieval layer for V1 STABLE. The benchmark starts only after the autonomy blockers are closed."
 ---
 
-# DÉCISION — Clôture de la phase mémoire/retrieval avant V1 STABLE
+# DECISION — Close of the memory/retrieval phase before V1 STABLE
 
-## Contexte
+## Context
 
-La V1 se ferme (PROPOSAL 165829, arbitrages du 2026-09-05) : Vault autonome (Mission 142, objectif atteint, test d'ouverture Owner en attente), puis inventaire Legacy et promotion (Mission 143). Deux outils de mémoire/retrieval sont en jeu : Mnemosyne, installé en recall-only depuis la Mission 126 et jamais mesuré en gain réel (aucune Mission déclenchée par son recall ; recall vide sur « OpenViking » le 2026-09-04, deux faux résultats à score nul) ; OpenViking, évalué sur README et site le 2026-09-04 (base de contexte à trois niveaux L0/L1/L2, serveur local, modèle requis), jamais installé. Quatre autres candidats ont été écartés sur lecture (Rta-Smriti, ModelDeck, Cortex Suite). Le problème mesuré qui motive la question : lire un index entier coûte jusqu'à 58 fois le digest (audit 139) — la réponse structurelle (index localisateurs, Décision 124647) est en cours ; la question de l'outil de recall reste ouverte.
+V1 is closing (PROPOSAL 165829, arbitrations of 2026-09-05): autonomous Vault (Mission 142, objective reached, Owner opening test pending), then Legacy inventory and promotion (Mission 143). Two memory/retrieval tools are in play: Mnemosyne, installed in recall-only mode since Mission 126 and never measured for real gain (no Mission triggered by its recall; empty recall on "OpenViking" on 2026-09-04, two false results with a zero score); OpenViking, evaluated on its README and website on 2026-09-04 (three-level context base L0/L1/L2, local server, model required), never installed. Four other candidates were set aside on reading (Rta-Smriti, ModelDeck, Cortex Suite). The measured problem that motivates the question: reading a whole index costs up to 58 times the digest (audit 139) — the structural answer (locator indexes, Decision 124647) is under way; the question of the recall tool remains open.
 
-## Décision (Owner, chat, 2026-09-05)
+## Decision (Owner, chat, 2026-09-05)
 
-1. **Mnemosyne n'est pas acquis.** Son apport réel est mesuré ; sans gain démontrable, ou si son coût et sa complexité dépassent son utilité, il est retiré proprement. L'absence d'outil est préférée à une dépendance sans valeur mesurée.
-2. **OpenViking reçoit un dernier test, en sandbox/LAB seulement** : aucune intégration permanente avant résultat, aucun élargissement d'architecture, aucun impact sur le chemin critique de stabilisation.
-3. **Benchmark borné**, trois configurations au minimum — Vault natif ; Vault + Mnemosyne ; Vault + OpenViking — sur les mêmes questions et le même corpus ; mesures : qualité du recall, précision, latence, volume de contexte et de tokens chargés, coût et complexité opérationnelle (installation, dépendances, entretien).
-4. **Verdict explicite par outil** à l'issue : KEEP, REMOVE, ou DEFER uniquement si une raison mesurable empêche réellement de conclure — la raison est écrite.
-5. **Pas de coexistence par défaut.** Mnemosyne et OpenViking ne coexistent que si le benchmark démontre deux fonctions complémentaires avec un bénéfice réel.
-6. **Retrait propre et documenté** de toute technologie sans fruit mesurable : désinstallation, câblage retiré, manifeste et règles à jour, note « expérimentée / rejetée » avec les mesures.
-7. **FREEZE** ensuite de la couche mémoire/retrieval pour V1 STABLE : aucun autre outil de mémoire, base vectorielle, mémoire en graphe ou retrieval n'est testé avant la prochaine phase NEXT/LAB. OpenViking est le dernier essai de cette phase, pas l'ouverture d'un chantier.
-8. **Ordre** : le benchmark ne démarre qu'après fermeture des blockers d'autonomie (test d'ouverture Pilot de la 142, dépendance machine du dépôt). Il précède l'inventaire Legacy et la Mission 143 dans le plan de clôture.
+1. **Mnemosyne is not a given.** Its real contribution is measured; without demonstrable gain, or if its cost and complexity exceed its usefulness, it is removed cleanly. The absence of a tool is preferred to a dependency without measured value.
+2. **OpenViking receives one last test, in sandbox/LAB only**: no permanent integration before a result, no widening of the architecture, no impact on the critical path of stabilization.
+3. **Bounded benchmark**, three configurations at minimum — native Vault; Vault + Mnemosyne; Vault + OpenViking — on the same questions and the same corpus; measurements: recall quality, precision, latency, volume of context and tokens loaded, operational cost and complexity (installation, dependencies, maintenance).
+4. **Explicit verdict per tool** at the end: KEEP, REMOVE, or DEFER only if a measurable reason really prevents concluding — the reason is written.
+5. **No coexistence by default.** Mnemosyne and OpenViking coexist only if the benchmark demonstrates two complementary functions with a real benefit.
+6. **Clean and documented removal** of any technology without measurable fruit: uninstallation, wiring removed, manifest and rules up to date, "experimented / rejected" note with the measurements.
+7. **FREEZE** of the memory/retrieval layer afterwards for V1 STABLE: no other memory tool, vector base, graph memory or retrieval is tested before the next NEXT/LAB phase. OpenViking is the last trial of this phase, not the opening of a work item.
+8. **Order**: the benchmark starts only after the autonomy blockers are closed (Pilot opening test of 142, machine dependency of the repository). It precedes the Legacy inventory and Mission 143 in the closing plan.
 
-## Conséquences
+## Consequences
 
-- Mission de benchmark à rédiger (LAB, hors dépôts, dans un dossier jetable) : corpus et questions fixés avant toute installation, trois configurations, mesures collées, verdicts KEEP/REMOVE/DEFER proposés à l'arbitrage Owner.
-- Mission de retrait, si REMOVE : Mnemosyne (serveur MCP, banque, câblage de store sur le journal, règles et skills qui le nomment) et/ou OpenViking (sandbox détruite) ; note d'expérimentation rejetée dans les connaissances du projet.
-- Le plan de clôture (PROPOSAL 165829, section 3) est amendé : étape 2 bis, benchmark et verdicts, entre la 142 et l'inventaire Legacy.
-- La capture OpenViking du 2026-08-24, parquée « post-workshop », est la seule trace antérieure : elle est source du benchmark, jamais une norme.
+- Benchmark Mission to be drafted (LAB, outside the repositories, in a throwaway folder): corpus and questions fixed before any installation, three configurations, measurements pasted, KEEP/REMOVE/DEFER verdicts proposed for Owner arbitration.
+- Removal Mission, if REMOVE: Mnemosyne (MCP server, bank, store wiring on the journal, rules and skills that name it) and/or OpenViking (sandbox destroyed); rejected-experiment note in the project's knowledge.
+- The closing plan (PROPOSAL 165829, section 3) is amended: step 2 bis, benchmark and verdicts, between 142 and the Legacy inventory.
+- The OpenViking capture of 2026-08-24, parked "post-workshop", is the only earlier trace: it is a source of the benchmark, never a norm.
 
-## Alternatives écartées
+## Alternatives set aside
 
-- Garder Mnemosyne par défaut : dépendance sans mesure, contraire au point 1.
-- Intégrer OpenViking sans benchmark : élargissement d'architecture en phase de stabilisation, contraire au principe directeur de la clôture.
-- Reporter toute la question après V1 : laisserait un outil non mesuré dans la version stable ; le benchmark est court et borné, il tient avant le tag.
+- Keep Mnemosyne by default: dependency without measurement, contrary to point 1.
+- Integrate OpenViking without a benchmark: widening of the architecture in the stabilization phase, contrary to the guiding principle of the close.
+- Postpone the whole question until after V1: would leave an unmeasured tool in the stable version; the benchmark is short and bounded, it fits before the tag.
 
 ## Liens
 
-- `prescribed by` — [Cycle de contexte V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
-- `source` — PROPOSAL — Fermeture de la V1 (historique de l'atelier, non distribué) (hors Vault)
-- `see also` — [Décision — Un index est un localisateur](./DECISION-2026-09-05-124647-index-as-locator-8000-cap-live-archive.md)
-- `applies` — [Décision — Statut de preuve et contrôle du STOP](./DECISION-2026-08-29-212009-evidence-status-and-stop-control.md)
+- `prescribed by` — [Context cycle V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
+- `source` — PROPOSAL — Closing of V1 (workshop history, not distributed) (hors Vault)
+- `see also` — [Decision — An index is a locator](./DECISION-2026-09-05-124647-index-as-locator-8000-cap-live-archive.md)
+- `applies` — [Decision — Evidence status and STOP control](./DECISION-2026-08-29-212009-evidence-status-and-stop-control.md)

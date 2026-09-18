@@ -23,14 +23,14 @@ Archive figée : les entrées de cette tranche n'en changent jamais. L'index cou
 - `2026-09-04-121443` · arbitrated · Existence sweep before any creation recommendation; memory is never a source of… · `DECISION-2026-09-04-121443-existence-sweep-memory-hypothesis-measured-existing.md`
 - `2026-09-04-145256` · arbitrated · Amendment of two engraved norms on measurement: tool search by description, rep… · `DECISION-2026-09-04-145256-amend-two-engraved-norms-and-amendment-rule.md`
 - `2026-09-04-154756` · arbitrated · Preflight step 0: all guardians run on the Scope before the first commit, all v… · `DECISION-2026-09-04-154756-mission-preflight-step-zero.md`
-- `2026-09-05-124647` · active · Décision — Un index est un localisateur : ligne sans description, plafond de 8… · `DECISION-2026-09-05-124647-index-as-locator-8000-cap-live-archive.md`
-- `2026-09-05-144700` · active · Décision — Plafond de taille des Missions (20 000 octets) et budget de rédactio… · `DECISION-2026-09-05-144700-mission-size-cap-20000-and-drafting-budget-5.md`
-- `2026-09-05-204248` · active · Décision — Clôture de la phase mémoire/retrieval avant V1 STABLE : benchmark bo… · `DECISION-2026-09-05-204248-memory-retrieval-closure-benchmark-freeze.md`
-- `2026-09-06-113850` · active · Décision — Verdicts du benchmark mémoire/retrieval : Vault natif KEEP, Mnemosyn… · `DECISION-2026-09-06-113850-memory-benchmark-verdicts-and-freeze.md`
-- `2026-09-06-114521` · active · Décision — Legacy déjà préparé : sauvegarde froide vérifiée, branche legacy pou… · `DECISION-2026-09-06-114521-legacy-already-prepared-migration-from-acquired-state.md`
-- `2026-09-07-125156` · active · Décision — Dépendances machine avant cutover : sept arbitrages Owner sur le rap… · `DECISION-2026-09-07-125156-cutover-dependencies-seven-arbitrations.md`
-- `2026-09-17-000545` · arbitrated · Initiation et adoption de projet — acte de naissance, résolution du Vault par i… · `DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md`
-- `2026-09-17-201623` · arbitrated · Relais et délégation — une règle, un seul endroit : le push se délègue par une… · `DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md`
+- `2026-09-05-124647` · active · Decision — An index is a locator: line without description, cap of 8,000 bytes… · `DECISION-2026-09-05-124647-index-as-locator-8000-cap-live-archive.md`
+- `2026-09-05-144700` · active · Decision — Mission size cap (20,000 bytes) and Pilot drafting budget (5 calls b… · `DECISION-2026-09-05-144700-mission-size-cap-20000-and-drafting-budget-5.md`
+- `2026-09-05-204248` · active · Decision — Close of the memory/retrieval phase before V1 STABLE: bounded benchm… · `DECISION-2026-09-05-204248-memory-retrieval-closure-benchmark-freeze.md`
+- `2026-09-06-113850` · active · Decision — Verdicts of the memory/retrieval benchmark: native Vault KEEP, Mnemo… · `DECISION-2026-09-06-113850-memory-benchmark-verdicts-and-freeze.md`
+- `2026-09-06-114521` · active · Decision — Legacy already prepared: cold backup verified, legacy branch pushed;… · `DECISION-2026-09-06-114521-legacy-already-prepared-migration-from-acquired-state.md`
+- `2026-09-07-125156` · active · Decision — Machine dependencies before cutover: seven Owner arbitrations on rep… · `DECISION-2026-09-07-125156-cutover-dependencies-seven-arbitrations.md`
+- `2026-09-17-000545` · arbitrated · Project initiation and adoption — birth certificate, resolution of the Vault by… · `DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md`
+- `2026-09-17-201623` · arbitrated · Relay and delegation — one rule, one place: push is delegated by a clear expres… · `DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md`
 
 ## Liens
 
