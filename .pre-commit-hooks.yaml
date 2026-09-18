@@ -1,27 +1,27 @@
 - id: vault-check-secrets
   name: "Vault : contrôle de secrets"
-  description: Refuse un commit contenant un secret. Mécanisme transverse épinglé (Decision 2026-08-24, D2/D7).
+  description: Refuses a commit containing a secret. Pinned cross-cutting mechanism (Decision 2026-08-24, D2/D7).
   entry: tools/check-secrets.sh
   language: script
   always_run: true
   pass_filenames: false
 - id: vault-check-indexes-fresh
   name: "Vault : contrôle de fraîcheur des index"
-  description: Refuse un commit dont un .md stagé laisse son index.md périmé (entrées, status, description). Ne régénère jamais (Mission 089).
+  description: Refuses a commit where a staged .md leaves its index.md stale (entries, status, description). Never regenerates (Mission 089).
   entry: tools/check-indexes-fresh.sh
   language: script
   always_run: true
   pass_filenames: false
 - id: vault-check-index-weight
   name: "Vault : contrôle de poids des index"
-  description: Refuse un index stagé de plus de 8 000 octets, et une ligne du registre des Missions de plus de 300 caractères (Décision 2026-09-05-124647, Mission 140).
+  description: Refuses a staged index of more than 8,000 bytes, and a line of the Mission register of more than 300 characters (Decision 2026-09-05-124647, Mission 140).
   entry: tools/check-index-weight.sh
   language: script
   always_run: true
   pass_filenames: false
 - id: vault-check-links
   name: "Vault : contrôle de liens"
-  description: Refuse un commit avec un lien de documentation cassé. Mécanisme transverse épinglé (Decision 2026-08-24, D2/D7).
+  description: Refuses a commit with a broken documentation link. Pinned cross-cutting mechanism (Decision 2026-08-24, D2/D7).
   entry: tools/check-links.sh
   language: script
   always_run: true

@@ -1,5 +1,5 @@
-# Motifs de contournement interdits dans un message de commit.
-# Un motif par ligne, syntaxe grep -E, insensible a la casse.
+# Bypass patterns forbidden in a commit message.
+# One pattern per line, grep -E syntax, case-insensitive.
 
 --no-verify
 --force

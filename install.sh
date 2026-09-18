@@ -476,7 +476,7 @@ if [ "$TEST_MODE" = "1" ]; then
   # because that folder happened to be on the runner's PATH (Mission 181,
   # caught once the macOS job ran with a new Mac's PATH).
   CTX_TEST_MODE=1
-  # Mission 173 (Q17, "rien dans le profil"): CTX_CLAUDE_AGENTS_DIR and
+  # Mission 173 (Q17, "rien dans le profil" ["nothing in the profile"]): CTX_CLAUDE_AGENTS_DIR and
   # CTX_CODEX_AGENTS_SKILLS_DIR (the profile-level WRITE targets Mission
   # 171-C01 parity added here) are retired -- nothing writes into the
   # profile any more. CTX_CLAUDE_SKILLS_DIR and CTX_CODEX_SKILLS_DIR stay:
@@ -673,13 +673,13 @@ if [ ! -d "$CLONE_PATH/.git" ]; then
   git -C "$CLONE_PATH" config core.longpaths true
   git -C "$CLONE_PATH" config user.name "$ANSWER_GIT_USERNAME"
   git -C "$CLONE_PATH" config user.email "$ANSWER_GIT_USEREMAIL"
-  # Porte 2 de la capture 2026-09-17-144137 : la source est le clone que le
-  # bootstrap a depose dans le dossier temporaire, donc `origin` du clone
-  # installe -- et, par lui, le `vault_origin` de VAULT-IDENTITY.md, du
-  # marqueur et de chaque acte de naissance -- nommait
-  # %TEMP%\second-brain-install au lieu du depot d'ou tout vient. L'origine
-  # REELLE est celle de la source quand elle en a une ; sinon le chemin de
-  # la source, dit au participant plutot que pose en silence.
+  # Door 2 of capture 2026-09-17-144137: the source is the clone that the
+  # bootstrap dropped in the temporary folder, so the `origin` of the installed
+  # clone -- and, through it, the `vault_origin` of VAULT-IDENTITY.md, of the
+  # marker and of every birth certificate -- named
+  # %TEMP%\second-brain-install instead of the repository everything comes from. The REAL
+  # origin is the source's when it has one; otherwise the path of
+  # the source, told to the participant rather than set silently.
   SOURCE_ORIGIN="$(git -C "$SOURCE_ABS" config --get remote.origin.url 2>/dev/null | head -n 1)"
   if [ -n "$SOURCE_ORIGIN" ]; then
     git -C "$CLONE_PATH" remote set-url origin "$SOURCE_ORIGIN"
@@ -774,7 +774,7 @@ save_clone_pending_changes "$assistant_commit_message"
 step_line "Assistant"
 check_forced_stop "assistant"
 
-# Mission 173 (Q17, "rien dans le profil"): the "assistantDeployed" and
+# Mission 173 (Q17, "rien dans le profil" ["nothing in the profile"]): the "assistantDeployed" and
 # "skillsDeployed" steps that used to live here (Mission 171-C01, steps 6
 # and 4 parity) linked the assistant and the method skills into the user's
 # PROFILE. Both steps, their PYRUN subcommands (deploy-assistant,
@@ -832,15 +832,15 @@ if [ "$ANSWER_FP_CREATE" = "true" ]; then
     BOOTSTRAP_OUTPUT="$("$CLONE_PATH/tools/project-bootstrap.sh" "$FIRST_PROJECT_PATH" "$FIRST_PROJECT_DISPLAY_NAME" "$ANSWER_LANGUAGE")" \
       || fail "project-bootstrap.sh failed"
     step_line "First project"
-    # Relais de tout sauf la derniere ligne (le chemin de la fiche, toujours
-    # imprime en dernier, jamais destine au participant) -- pas un filtre
-    # par prefixe anglais ("Note:", "  - ", "  To use") : depuis que
-    # project-bootstrap.sh parle par les catalogues i18n/ (Mission 177,
-    # etape 5), ce prefixe change de langue ("Remarque :", "Nota:") et un
-    # filtre fige sur l'anglais aurait avale les notes traduites en
-    # silence -- exactement le defaut que cette etape corrige.
-    # sed '$d' plutot que `head -n -1` : le head de BSD (macOS) refuse un
-    # compte negatif -- « head: illegal line count -- -1 » (Mission 180).
+    # Relay of everything but the last line (the path of the fiche, always
+    # printed last, never meant for the participant) -- not a filter
+    # by English prefix ("Note:", "  - ", "  To use"): since
+    # project-bootstrap.sh speaks through the i18n/ catalogues (Mission 177,
+    # step 5), that prefix changes language ("Remarque :", "Nota:") and a
+    # filter frozen on English would have swallowed the translated notes
+    # silently -- exactly the defect this step fixes.
+    # sed '$d' rather than `head -n -1`: BSD's head (macOS) refuses a
+    # negative count -- « head: illegal line count -- -1 » (Mission 180).
     printf '%s\n' "$BOOTSTRAP_OUTPUT" | sed '$d' >&2 || true
     step_line "Project links"
 
@@ -895,14 +895,14 @@ mark_step "profileWritten"
 save_carnet
 check_forced_stop "profile"
 
-# --- Fin d'installation : le Vault installe est rendu propre ---------------
-# Porte 8 de la capture 2026-09-17-144137 : l'installation se terminait sur
-# un clone au porcelain non vide (fiche de projet non suivie, index
-# modifies), si bien que le tout premier commit du participant heritait de
-# fichiers qu'il n'avait pas ecrits. Ce dernier passage regenere les index
-# et commite ce qui reste -- sans rien si tout est deja commite (la
-# fonction est un no-op a porcelain vide), donc une seconde execution ne
-# fabrique aucun commit.
+# --- End of installation: the installed Vault is left clean ----------------
+# Door 8 of capture 2026-09-17-144137: the installation ended on
+# a clone with a non-empty porcelain (untracked project fiche, modified
+# indexes), so that the participant's very first commit inherited
+# files they had not written. This last pass regenerates the indexes
+# and commits what remains -- with nothing if everything is already committed (the
+# function is a no-op on an empty porcelain), so a second run
+# produces no commit.
 save_clone_pending_changes "Installation complete"
 
 # --- Verdict, signed by the assistant's own chosen name --------------------

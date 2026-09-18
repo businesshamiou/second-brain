@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Refuse un message de commit annoncant un contournement.
+# Refuses a commit message announcing a bypass.
 
 set -u
 

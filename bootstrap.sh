@@ -56,10 +56,10 @@ while [ "$#" -gt 0 ]; do
     --answers-file) ANSWERS_FILE="${2:-}"; shift 2 ;;
     --test-mode) TEST_MODE=1; shift ;;
     --test-root) TEST_ROOT="${2:-}"; shift 2 ;;
-    # Test-only, relaye tel quel a install.sh (meme plomberie que
-    # --test-mode) : tests/test-bootstrap-stale-temp-clone.sh mesure l'etape
-    # de clone sur trois systemes sans payer une installation complete par
-    # systeme.
+    # Test-only, relayed as is to install.sh (same plumbing as
+    # --test-mode): tests/test-bootstrap-stale-temp-clone.sh measures the clone
+    # step on three systems without paying for a full installation per
+    # system.
     --stop-after-step) STOP_AFTER_STEP="${2:-}"; shift 2 ;;
     *) stop "unknown argument: $1" ;;
   esac
@@ -126,10 +126,10 @@ else
   GIT_BIN="$GIT_ROOT/git"
 fi
 
-# Deux ecritures de la MEME origine ne doivent pas se lire comme deux
-# origines : un clone de test est donne par un chemin, une URL porte ou non
-# son suffixe .git et une barre finale. Sous Git Bash (Windows), la
-# comparaison ignore la casse, comme le systeme de fichiers.
+# Two spellings of the SAME origin must not read as two
+# origins: a test clone is given by a path, a URL carries or not
+# its .git suffix and a trailing slash. Under Git Bash (Windows), the
+# comparison ignores case, like the file system.
 normalize_repo_url() {
   NRU_V="$(printf '%s' "$1" | tr '\\' '/')"
   while [ "${NRU_V%/}" != "$NRU_V" ]; do NRU_V="${NRU_V%/}"; done
@@ -141,12 +141,12 @@ normalize_repo_url() {
   esac
 }
 
-# canon_dir <chemin> : forme canonique d'un DOSSIER local, ou rien si
-# l'argument n'en est pas un. Sous Git Bash, `/tmp/x` et
-# `C:/Users/.../Temp/x` sont le meme dossier sous deux noms, et
-# `git clone` enregistre l'origine dans la forme native alors que la ligne
-# a pu la donner dans la forme POSIX : sans ce passage, le meme dossier se
-# lirait comme deux depots et la ligne refuserait a tort (mesure par
+# canon_dir <path>: canonical form of a local FOLDER, or nothing if
+# the argument is not one. Under Git Bash, `/tmp/x` and
+# `C:/Users/.../Temp/x` are the same folder under two names, and
+# `git clone` records the origin in the native form while the line
+# may have given it in the POSIX form: without this step, the same folder would
+# read as two repositories and the line would refuse wrongly (measured by
 # tests/test-bootstrap-stale-temp-clone.sh).
 canon_dir() {
   [ -d "$1" ] || return 1
@@ -157,9 +157,9 @@ canon_dir() {
   fi
 }
 
-# same_repo_url <origine lue> <origine demandee> : 0 si les deux nomment le
-# meme depot. Comparaison de texte d'abord (le cas ordinaire : une URL),
-# puis comparaison de dossiers quand les deux sont locaux.
+# same_repo_url <origin read> <origin requested>: 0 if both name the
+# same repository. Text comparison first (the ordinary case: a URL),
+# then folder comparison when both are local.
 same_repo_url() {
   [ "$(normalize_repo_url "$1")" = "$(normalize_repo_url "$2")" ] && return 0
   SRU_A="$(canon_dir "$1")" || return 1
@@ -168,27 +168,27 @@ same_repo_url() {
 }
 
 if [ -d "$TARGET/.git" ]; then
-  # Un clone DEJA present est le cas ordinaire d'un poste qui a deja joue la
-  # ligne publiee : le dossier temporaire survit d'une fois sur l'autre.
-  # Jusqu'a la Mission 185-C01 ce bloc entier etait saute des que .git
-  # existait, et l'installeur jouait le commit sur lequel ce dossier oublie
-  # se trouvait -- mesure sur le poste de l'Owner (capture
-  # 2026-09-17-144137, porte 1) : un commit anterieur a toute etiquette,
-  # installe avec un verdict propre. Le dossier est desormais amene a
-  # --ref : meme origine, fetch, checkout, puis HEAD prouve egal a --ref.
-  # Jamais --force, jamais de suppression : un ecart refuse et nomme le
-  # dossier a ecarter.
-  # `config --get` plutot que `remote get-url` : silencieux quand le remote
-  # manque (code 1, rien sur la sortie d'erreur).
+  # A clone ALREADY present is the ordinary case of a machine that has already
+  # run the published line: the temporary folder survives from one time to the next.
+  # Until Mission 185-C01 this whole block was skipped as soon as .git
+  # existed, and the installer ran the commit that this forgotten folder
+  # was on -- measured on the Owner's machine (capture
+  # 2026-09-17-144137, door 1): a commit older than any tag,
+  # installed with a clean verdict. The folder is now brought to
+  # --ref: same origin, fetch, checkout, then HEAD proven equal to --ref.
+  # Never --force, never a deletion: a mismatch refuses and names the
+  # folder to move aside.
+  # `config --get` rather than `remote get-url`: silent when the remote
+  # is missing (code 1, nothing on standard error).
   EXISTING_ORIGIN="$("$GIT_BIN" -C "$TARGET" config --get remote.origin.url 2>/dev/null | head -n 1)"
   if ! same_repo_url "$EXISTING_ORIGIN" "$REPO_URL"; then
     stop "$TARGET is a clone of '$EXISTING_ORIGIN', not of '$REPO_URL'; move $TARGET aside and run the line again."
   fi
   "$GIT_BIN" -C "$TARGET" fetch --quiet --tags origin \
     || stop "git fetch of $REPO_URL failed in $TARGET; move $TARGET aside and run the line again."
-  # Une etiquette d'abord, puis la branche de suivi, puis un identifiant de
-  # commit : une branche LOCALE perimee nommee `main` ne doit jamais
-  # l'emporter sur ce que le fetch vient de rapporter.
+  # A tag first, then the tracking branch, then a commit
+  # id: a stale LOCAL branch named `main` must never
+  # prevail over what the fetch just brought back.
   WANTED=""
   for CANDIDATE in "refs/tags/$REF^{commit}" "refs/remotes/origin/$REF^{commit}" "$REF^{commit}"; do
     WANTED="$("$GIT_BIN" -C "$TARGET" rev-parse --verify --quiet "$CANDIDATE" | head -n 1)"

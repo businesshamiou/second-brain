@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
-# Refuse un push qui reecrirait l historique distant.
+# Refuses a push that would rewrite the remote history.
 #
-# Mission 165 : gate humain explicite. Une variable d'environnement a usage
-# unique, VAULT_PUSH_GATE, dont la valeur est la ref distante exacte
-# (refs/heads/<b> ou refs/tags/<t>), autorise pour cette ref SEULE une
-# suppression ou un push non en avance rapide ; toute autre ref du meme push
-# reste soumise au refus normal (le gate ne fuit pas d'une ref a l'autre).
-# Avant la 165, le seul gate que ce hook admettait etait --no-verify -- un
-# premier tag v1.0.0-stable a du etre supprime ainsi (handoff 2026-09-08),
-# defaut inscrit en point ouvert. Nom de variable mesure contre les
-# conventions du Vault (BUILD_DIGEST_CAP_OVERRIDE, .obsolescence-guardrail-
-# override) : aucune ne correspond a un gate a usage unique sur une ref ;
-# VAULT_PUSH_GATE est donc introduite, faute de convention existante a
-# reprendre.
+# Mission 165: explicit human gate. A single-use environment
+# variable, VAULT_PUSH_GATE, whose value is the exact remote ref
+# (refs/heads/<b> or refs/tags/<t>), authorizes for that ref ALONE a
+# deletion or a non-fast-forward push; any other ref of the same push
+# remains subject to the normal refusal (the gate does not leak from one ref to another).
+# Before 165, the only gate this hook admitted was --no-verify -- a
+# first tag v1.0.0-stable had to be deleted that way (handoff 2026-09-08),
+# a defect recorded as an open point. Variable name measured against the
+# Vault's conventions (BUILD_DIGEST_CAP_OVERRIDE, .obsolescence-guardrail-
+# override): none corresponds to a single-use gate on a ref;
+# VAULT_PUSH_GATE is therefore introduced, for lack of an existing convention to
+# reuse.
 
 set -u
 
 REMOTE_REF_PREFIX="refs/heads/"
 TAG_REF_PREFIX="refs/tags/"
 
-# Libelle par prefixe : un tag n est pas une branche (defaut signale au
-# handoff 2026-09-08 -- l ancien hook affichait "branche" pour un tag).
+# Label by prefix: a tag is not a branch (defect reported in the
+# handoff 2026-09-08 -- the old hook displayed "branche" for a tag).
 ref_label() {
   case "$1" in
     "$REMOTE_REF_PREFIX"*) printf 'branche' ;;
@@ -49,7 +49,7 @@ while read -r local_ref local_sha remote_ref remote_sha; do
     gated=1
   fi
 
-  # Suppression de ref distante.
+  # Deletion of a remote ref.
   if [ "$local_sha" = "0000000000000000000000000000000000000000" ]; then
     if [ "$gated" -eq 1 ]; then
       echo "GATE accepté : $label $name (geste Owner)" >&2
@@ -61,12 +61,12 @@ while read -r local_ref local_sha remote_ref remote_sha; do
     exit 1
   fi
 
-  # Nouvelle ref distante : autorisee.
+  # New remote ref: authorized.
   if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
     continue
   fi
 
-  # Le distant doit etre un ancetre du local : sinon, reecriture.
+  # The remote must be an ancestor of the local: otherwise, rewrite.
   if ! git merge-base --is-ancestor "$remote_sha" "$local_sha"; then
     if [ "$gated" -eq 1 ]; then
       echo "GATE accepté : $label $name (geste Owner)" >&2

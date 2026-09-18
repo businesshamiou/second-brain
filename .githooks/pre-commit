@@ -1,30 +1,31 @@
 #!/usr/bin/env bash
-# Refuse un commit contenant un secret.
-# Actif pour tout client Git : agent, humain, script.
+# Refuses a commit containing a secret.
+# Active for any Git client: agent, human, script.
 
 set -u
 
 VAULT_ROOT="$(git rev-parse --show-toplevel)"
 
-# Invocation via `bash "$SCRIPT"` dans les deux cas : le bit executable du
-# fichier sur disque n'est pas fiable (mesure, build history, Windows/MSYS,
-# noacl) et ne doit jamais decider si un controle s'enchaine ou saute.
+# Invocation via `bash "$SCRIPT"` in both cases: the executable bit of the
+# file on disk is not reliable (measured, build history, Windows/MSYS,
+# noacl) and must never decide whether a check runs next or is skipped.
 
-# --- Pre-vol agregateur (build history, Decision 154756) --------------------
-# Chaque gardien tourne, meme si un autre a deja echoue : plus de sortie au
-# premier `|| exit 1` (defaut mesure, build history -- "reciprocite au
-# premier passage, chemin nu au second"). Un gardien qui exige un prealable
-# le declare en DEPS ; si ce prealable echoue ou est lui-meme SKIPPED, les
-# gardiens qui en dependent sont SKIPPED (blocked by <x>), jamais executes
-# a l'aveugle -- la dependance se propage en chaine (transitif). Les scripts
-# gardiens eux-memes ne sont pas modifies -- seul cet enchainement l'est.
-# Ordre des gardiens conserve (identique a l'ancien enchainement sequentiel) :
-# le tampon de preflight (build history) devient le premier gardien du meme
-# rapport plutot qu'une muraille silencieuse a part -- une session dont le
-# preflight est perime doit voir, dans le meme rapport, que tout le reste a
-# ete saute a cause de ca, pas recevoir une ligne isolee sans contexte.
+# --- Aggregating preflight (build history, Decision 154756) -----------------
+# Every guardian runs, even if another has already failed: no more exit at the
+# first `|| exit 1` (measured defect, build history -- "reciprocite au
+# premier passage, chemin nu au second" ["reciprocity on the first pass, bare
+# path on the second"]). A guardian that requires a prerequisite
+# declares it in DEPS; if that prerequisite fails or is itself SKIPPED, the
+# guardians that depend on it are SKIPPED (blocked by <x>), never run
+# blindly -- the dependency propagates down the chain (transitive). The guardian
+# scripts themselves are not modified -- only this chaining is.
+# Order of the guardians kept (identical to the old sequential chaining):
+# the preflight stamp (build history) becomes the first guardian of the same
+# report rather than a separate silent wall -- a session whose
+# preflight is stale must see, in the same report, that everything else was
+# skipped because of it, not receive an isolated line with no context.
 
-# --- Gardien 0 : tampon de preflight (build history) -------------------------
+# --- Guardian 0: preflight stamp (build history) ----------------------------
 preflight_guardian() {
   local stamp="$VAULT_ROOT/.claude/.preflight_stamp.json"
   if [ ! -f "$stamp" ]; then
@@ -42,8 +43,9 @@ preflight_guardian() {
   return 0
 }
 
-# Un gardien introuvable ou son interprete absent = FAIL (fail-closed),
-# jamais un saut silencieux : "le controle ne peut pas verifier, il refuse."
+# A guardian not found or its interpreter missing = FAIL (fail-closed),
+# never a silent skip: "le controle ne peut pas verifier, il refuse."
+# ["the check cannot verify, it refuses."]
 uv_guardian() {
   local script="$1"
   if [ ! -f "$script" ]; then
@@ -83,15 +85,15 @@ add_guardian "manifeste"        "bash_guardian \"$VAULT_ROOT/tools/check-distrib
 add_guardian "sans-agents"      "bash_guardian \"$VAULT_ROOT/tools/check-no-slash-agents.sh\"" "preflight"
 add_guardian "bit-execution"    "bash_guardian \"$VAULT_ROOT/tools/check-exec-bit-bare-scripts.sh\"" "preflight"
 
-# Verdicts et sorties en tableaux indices, partageant l'indice de G_NAME
-# plutot qu'en tableaux associatifs : ceux-ci n'existent qu'a partir de bash
-# 4.0, et macOS livre le bash 3.2 (Mission 180). Meme ordre, memes valeurs.
+# Verdicts and outputs in indexed arrays, sharing the index of G_NAME,
+# rather than in associative arrays: those only exist from bash
+# 4.0 on, and macOS ships bash 3.2 (Mission 180). Same order, same values.
 declare -a G_VERDICT=()
 declare -a G_OUTPUT=()
 FAIL_COUNT=0
 
 index_of() {
-  # Indice du gardien nomme $1, ou -1. Dix entrees : un balayage suffit.
+  # Index of the guardian named $1, or -1. Ten entries: one scan is enough.
   local needle="$1" i=0
   while [ "$i" -lt "${#G_NAME[@]}" ]; do
     if [ "${G_NAME[$i]}" = "$needle" ]; then
@@ -104,7 +106,7 @@ index_of() {
 }
 
 blocked() {
-  # Vrai si la dependance $1 a echoue ou a ete elle-meme sautee (transitif).
+  # True if dependency $1 failed or was itself skipped (transitive).
   local idx
   idx="$(index_of "$1")"
   [ "$idx" -ge 0 ] || return 1

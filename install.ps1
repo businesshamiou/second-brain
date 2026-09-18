@@ -333,10 +333,10 @@ function Save-ClonePendingChanges {
 
 function New-InstallerContext {
     # Builds the redirection context (Mission constraint: "Environnement de
-    # l'Owner intact"). Real mode reads the real profile; test mode redirects
+    # l'Owner intact" ["Owner's environment intact"]). Real mode reads the real profile; test mode redirects
     # the same things (profile-rooted defaults, PATH) under -TestRoot.
     #
-    # Mission 173 (Q17, "rien dans le profil"): ClaudeAgentsDir and
+    # Mission 173 (Q17, "rien dans le profil" ["nothing in the profile"]): ClaudeAgentsDir and
     # CodexAgentsSkillsDir -- the profile-level WRITE targets Mission
     # 171-C01 (steps 4 and 6) added here -- are retired. Nothing this
     # installer does writes into the profile any more: the assistant and
@@ -555,7 +555,7 @@ try {
         # "something changed" is confirmed -- T06 complement 2 orders it as
         # Question 1 like the rest, and nothing in the spec exempts it from
         # update mode. Only the workspace path is architecturally fixed
-        # (T06: "sans deplacement ulterieur"), never this one. Offered with
+        # (T06: "sans deplacement ulterieur" ["with no later move"]), never this one. Offered with
         # the previously recorded language as the default, so Enter keeps
         # it unchanged; the catalog is reloaded if it actually changed, so
         # every question asked from here on speaks the newly chosen
@@ -776,7 +776,7 @@ try {
     Write-StepLine -Name 'Assistant'
     Test-ForcedStop -StopAfterStep $StopAfterStep -StepName 'assistant'
 
-    # Mission 173 (Q17, "rien dans le profil"): the 'assistantDeployed' and
+    # Mission 173 (Q17, "rien dans le profil" ["nothing in the profile"]): the 'assistantDeployed' and
     # 'skillsDeployed' steps that used to live here (Mission 171-C01, steps
     # 6 and 4) linked the assistant and the method skills into the user's
     # PROFILE (~/.claude/agents, ~/.claude/skills, ~/.agents/skills) so they
@@ -921,7 +921,7 @@ try {
     Save-ClonePendingChanges -BashExe $bashExe -ClonePath $clonePath -CommitMessage 'Installation complete'
 
     # Signed by the assistant's own chosen name (T07: "il signe... en fin de
-    # verdict"; ticket 05's own report named this explicitly out of scope
+    # verdict" ["it signs... at the end of the verdict"]; ticket 05's own report named this explicitly out of scope
     # until the assistant had a name -- ticket 06 closes that gap here).
     $verdict = (Format-CatalogText -Catalog $catalog -Key 'verdict.success') + ' ' + `
         (Format-CatalogText -Catalog $catalog -Key 'verdict.signature' -FormatArgs @($vaultName))
