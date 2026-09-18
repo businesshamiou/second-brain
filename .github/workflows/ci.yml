@@ -11,6 +11,12 @@ name: Second Brain CI
 # each push. Since Mission 183-C01 a fifth job writes the acceptance report
 # itself (eleven lines, S9 under a standard account) and keeps it as an
 # artifact.
+# Since Mission 188 no job lists tests or installs uv by hand: the suite is
+# tests/suite.tsv, played by tests/run-suite.sh (tests/run-suite.ps1 on
+# Windows) exactly as it is played locally, and every job sets up uv,
+# Python and pre-commit through the cached action
+# ./.github/actions/setup-test-env. What each test proves, and the Mission
+# that brought it, is written next to it in the manifest.
 
 on:
   push:
@@ -26,234 +32,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # "Gardiens hors ligne" (spec, Testing Decisions): the native
-      # .githooks/pre-commit suite (10 guardians) run against this exact
-      # checkout, no staged diff needed for the tree-wide checks to be
-      # meaningful. uv is required by one guardian (reciprocite, via `uv
-      # run`) -- installed here only if the runner does not already have
-      # it, from the same official script and pinned SHA-256 already
-      # trusted by tools/prerequisites.lock.json (ticket 04), into a
-      # scratch $RUNNER_TEMP directory -- never the runner's profile paths
-      # that a real install would touch, matching every other test in this
-      # repo's own safety discipline.
-      - name: Guardians offline (session-preflight + .githooks/pre-commit)
+      # uv pinned by tools/prerequisites.lock.json, into $RUNNER_TEMP, cached;
+      # nothing on PATH, never the runner's profile paths.
+      - uses: ./.github/actions/setup-test-env
+
+      # Every Windows line of tests/suite.tsv, from a PowerShell parent as the
+      # former powershell steps ran them, bash lines through Git's bash. All
+      # lines run even after a red one; the summary names the red ones.
+      - name: Suite -- tests/suite.tsv, Windows lines
         shell: powershell
         run: |
-          if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
-            $uvBin = Join-Path $env:RUNNER_TEMP "uv-bin"
-            New-Item -ItemType Directory -Path $uvBin -Force | Out-Null
-            $env:UV_UNMANAGED_INSTALL = $uvBin
-            $env:UV_NO_MODIFY_PATH = '1'
-            $env:UV_SYSTEM_CERTS = '1'
-            $scriptPath = Join-Path $env:RUNNER_TEMP "install-uv.ps1"
-            Invoke-WebRequest -Uri "https://astral.sh/uv/0.12.13/install.ps1" -OutFile $scriptPath -UseBasicParsing
-            $hash = (Get-FileHash -Algorithm SHA256 -Path $scriptPath).Hash
-            if ($hash -ne "6A749FE05B2617EDE62127832D6F4C37E7B406740C7BC0DC62FE77F5E5EBDB20") {
-              throw "uv install script hash mismatch: $hash"
-            }
-            & powershell -NoProfile -ExecutionPolicy Bypass -File $scriptPath
-            $env:Path = "$uvBin;$env:Path"
-          }
-          bash tools/session-preflight.sh
-          bash .githooks/pre-commit
-
-      # Mission 181: CI used to call the guardians directly, never through
-      # Git, so hooks tracked without their execute bit ran for no
-      # participant on macOS or Linux and nothing here noticed. This one
-      # commits in a fresh clone, the way a participant does.
-      - name: Main -- a participant's commit runs the guardians (through Git)
-        shell: bash
-        run: bash tests/test-githooks-run-on-commit.sh
-
-      - name: Main -- participant path free of bash 4+ and GNU-only constructs
-        shell: bash
-        run: bash tests/test-participant-shell-portability.sh
-
-      # Mission 181, step 6 resumed: a root holding `&` or a backslash
-      # reached two guardians mangled by sed; this sandbox proves it no
-      # longer does (the backslash half runs where a name can hold one).
-      - name: Main -- guardians read paths holding & or a backslash intact
-        shell: bash
-        run: bash tests/test-guardian-path-special-chars.sh
-
-      # Mission 183-C01: the S7/S8 oracles, proven with stub providers -- no
-      # model call, so it runs everywhere, on every push.
-      - name: Main -- acceptance harness oracles each know how to fail
-        shell: bash
-        run: bash tests/test-acceptance-harness-oracles.sh
-
-      # Mission 184: project initiation and adoption (birth certificate,
-      # dated baseline and ratchet, two Vaults, a project copied alone,
-      # vcs: none, initiation order), the embedded MCP server with its
-      # injection on a simulated profile and the containment check, and the
-      # catalog parity -- every case with its negative control, on the three
-      # systems. The escaping link is a junction here (no symlink privilege).
-      - name: Main -- project initiation and adoption (create, adopt, baseline, two Vaults, D4, vcs none, order)
-        shell: bash
-        run: bash tests/test-project-initiation.sh
-
-      - name: Main -- embedded MCP server, injection on a simulated profile, containment
-        shell: bash
-        run: bash tests/test-vault-mcp.sh
-
-      - name: Main -- catalog key parity (fr/en/es), shell twin
-        shell: bash
-        run: bash tests/test-catalog-key-parity.sh
-
-      # Mission 185-C01: the twelve gates measured by the human acceptance of
-      # 2026-09-17 (capture 144137). Each test carries its own negative
-      # control -- the same measurement on a case built to fail -- and none
-      # is informational: a red one turns the job red.
-      - name: Main (185) -- a stale temp clone is brought to -Ref, never installed as is (T1)
-        shell: powershell
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-bootstrap-stale-temp-clone.ps1
-
-      - name: Main (185) -- a stale temp clone, shell twin (T1)
-        shell: bash
-        run: bash tests/test-bootstrap-stale-temp-clone.sh
-
-      - name: Main (185) -- the installed Vault records its REAL origin (T2)
-        shell: bash
-        run: bash tests/test-install-vault-origin.sh
-
-      - name: Main (185) -- a finished install leaves the Vault at empty porcelain (T3)
-        shell: bash
-        run: bash tests/test-install-leaves-vault-clean.sh
-
-      - name: Main (185) -- every project repository carries an author identity (T4)
-        shell: bash
-        run: bash tests/test-project-bootstrap-git-identity.sh
-
-      - name: Main (185) -- adopt --git asks nothing and reads no stdin (T5)
-        shell: bash
-        run: bash tests/test-project-bootstrap-adopt-git-no-question.sh
-
-      - name: Main (185) -- an MCP refusal names the path and the perimeter (T6)
-        shell: bash
-        run: |
-          . tests/sandbox-vault.sh
-          sandbox_find_uv || { echo 'REFUS : uv introuvable'; exit 1; }
-          uv run --no-project tests/test-vault-mcp-refusal-message.py
-
-      - name: Main (185) -- native paths under Windows (T7)
-        shell: powershell
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-project-bootstrap-native-paths.ps1
-
-      - name: Main (185) -- native paths, shell twin (T7)
-        shell: bash
-        run: bash tests/test-project-bootstrap-native-paths.sh
-
-      - name: Main (185) -- the adoption plan speaks only of what was already there (T8)
-        shell: bash
-        run: bash tests/test-project-bootstrap-adopt-plan.sh
-
-      - name: Main (185) -- the common Pilot prompt names its only file server (T9)
-        shell: bash
-        run: bash tests/test-common-prompt-exclusivity.sh
-
-      - name: Main (185) -- INSTALL.md and README.md carry the Windows invocation (T10)
-        shell: bash
-        run: bash tests/test-install-doc-windows-invocation.sh
-
-      - name: Main (186) -- the Project instructions block is rendered ready to paste (T4)
-        shell: bash
-        run: bash tests/test-project-bootstrap-instructions-block.sh
-
-      # Mission 183-C01: the published bootstrap installs from a PATH with no
-      # Git and no uv (same account; the standard-account half is S9 in the
-      # acceptance job).
-      - name: Main -- bootstrap installs with no Git on PATH (test mode)
-        shell: powershell
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-bootstrap-no-git.ps1
-
-      # Mission 183-C01, reprise 2: uv already present somewhere else than its
-      # own tool directory made the prerequisites step look for pre-commit in
-      # the wrong place (CI run 35157346970). Reproduced here, whether or not
-      # the runner has uv.
-      - name: Main -- pre-commit installed when uv is already present elsewhere
-        shell: powershell
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-precommit-with-existing-uv.ps1
-
-      - name: Main install test -- answers file, second pass at empty porcelain
-        shell: powershell
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-install-e2e.ps1
-
-      - name: Main -- nominal flow shows no atelier vocabulary (T21)
-        shell: powershell
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-nominal-flow-no-atelier-vocabulary.ps1
-
-      - name: Secondary -- resume after forced stop
-        shell: powershell
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-questionnaire-resume.ps1
-
-      - name: Secondary -- simulated network failure
-        shell: powershell
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-questionnaire-network-failure.ps1
-
-      - name: Secondary -- assistant generation (Ibrahim, rename)
-        shell: powershell
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-assistant-generation.ps1
-
-      - name: Secondary -- web package README matches its own contents
-        shell: powershell
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-web-package-readme-matches-contents.ps1
-
-      - name: Secondary -- catalog key parity (fr/en/es)
-        shell: powershell
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-catalog-key-parity.ps1
-
-      - name: Secondary -- third-party licenses
-        shell: bash
-        run: bash tests/test-third-party-licenses.sh
-
-      # --tree-only: blocking, catches any NEW private-pattern leak in the
-      # current checkout. The full history is checked separately below and
-      # stays informational because it now doubles this one: the published
-      # history was rebuilt from a single root on 2026-09-15 and carries no
-      # private pattern, so both modes read the same content. Full mode
-      # earns its place the day a pattern is committed and then removed
-      # from the tree -- it would still see it, this step would not.
-      - name: Secondary -- private patterns (P4), current tree
-        shell: bash
-        run: bash tools/check-private-patterns.sh --tree-only
-
-      - name: Secondary -- private patterns (P4), full history (informational, doubles the blocking tree check)
-        shell: bash
-        continue-on-error: true
-        run: bash tools/check-private-patterns.sh
-
-      - name: Secondary -- update mode, no change
-        shell: powershell
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-questionnaire-update-mode.ps1
-
-      - name: Secondary -- project assistant and skills links
-        shell: powershell
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-project-assistant-and-skills-links.ps1
-
-      # continue-on-error: a real, pre-existing environment drift (named in
-      # the Mission 168 ticket 07 report, S23, finding 1) makes this one
-      # fail on any machine that already has a machine-wide Git install
-      # under Program Files -- confirmed on the Executor's own dev box, and
-      # GitHub's windows-latest image is documented to ship Git the same
-      # way, so this is expected to reproduce on the real runner too. Not
-      # this ticket's to fix (ticket 04's test, not ticket 10's workflow) --
-      # kept informational rather than reworded into a false green.
-      - name: Additional -- prerequisites auto-install (informational; known environment drift)
-        shell: powershell
-        continue-on-error: true
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/test-prerequisites-e2e.ps1
-
-      # Vault-suite precedents (spec: "precedents existants a reutiliser"),
-      # kept informational -- not literally named by this ticket's own
-      # checklist, reused here for extra coverage rather than left unrun.
-      - name: Additional -- Vault-suite precedents (informational)
-        shell: bash
-        continue-on-error: true
-        run: |
-          bash tests/standalone.sh
-          bash tests/test-check-links-cross-repo.sh
-          bash tests/test-check-links-code-block-scope.sh
-          bash tests/test-link-graph-drone-view-empty-status-field.sh
+          powershell -NoProfile -ExecutionPolicy Bypass -File tests/run-suite.ps1
+          exit $LASTEXITCODE
 
   ubuntu:
     name: Ubuntu -- install.sh, full suite
@@ -261,165 +51,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Guardians offline (session-preflight + .githooks/pre-commit)
-        run: |
-          if ! command -v uv >/dev/null 2>&1; then
-            UV_BIN="$RUNNER_TEMP/uv-bin"
-            mkdir -p "$UV_BIN"
-            export UV_UNMANAGED_INSTALL="$UV_BIN"
-            export UV_NO_MODIFY_PATH=1
-            export UV_SYSTEM_CERTS=1
-            curl -fsSL -o "$RUNNER_TEMP/install-uv.sh" "https://astral.sh/uv/0.12.13/install.sh"
-            HASH="$(sha256sum "$RUNNER_TEMP/install-uv.sh" | awk '{print $1}')"
-            if [ "$HASH" != "e7265962d703f3ca66b3e90fae8fcdc6d4e4b587027e9479ccc29b25c3f68d4e" ]; then
-              echo "REFUS : hash uv installer inattendu : $HASH" >&2
-              exit 1
-            fi
-            sh "$RUNNER_TEMP/install-uv.sh"
-            export PATH="$UV_BIN:$PATH"
-          fi
-          bash tools/session-preflight.sh
-          bash .githooks/pre-commit
+      - uses: ./.github/actions/setup-test-env
 
-      # Mission 181: CI used to call the guardians directly, never through
-      # Git, so hooks tracked without their execute bit ran for no
-      # participant on macOS or Linux and nothing here noticed. This one
-      # commits in a fresh clone, the way a participant does.
-      - name: Main -- a participant's commit runs the guardians (through Git)
-        run: bash tests/test-githooks-run-on-commit.sh
-
-      - name: Main -- participant path free of bash 4+ and GNU-only constructs
-        run: bash tests/test-participant-shell-portability.sh
-
-      # Mission 181, step 6 resumed: a root holding `&` or a backslash
-      # reached two guardians mangled by sed; this sandbox proves it no
-      # longer does (the backslash half runs where a name can hold one).
-      - name: Main -- guardians read paths holding & or a backslash intact
-        run: bash tests/test-guardian-path-special-chars.sh
-
-      # Mission 183-C01: the S7/S8 oracles, proven with stub providers -- no
-      # model call, so it runs everywhere, on every push.
-      - name: Main -- acceptance harness oracles each know how to fail
-        run: bash tests/test-acceptance-harness-oracles.sh
-
-      # Mission 184: project initiation and adoption, the embedded MCP
-      # server (injection on a simulated profile, containment) and the
-      # catalog parity -- every case with its negative control.
-      - name: Main -- project initiation and adoption (create, adopt, baseline, two Vaults, D4, vcs none, order)
-        run: bash tests/test-project-initiation.sh
-
-      - name: Main -- embedded MCP server, injection on a simulated profile, containment
-        run: bash tests/test-vault-mcp.sh
-
-      - name: Main -- catalog key parity (fr/en/es), shell twin
-        run: bash tests/test-catalog-key-parity.sh
-
-      # Mission 185-C01: the twelve gates measured by the human acceptance of
-      # 2026-09-17 (capture 144137). Each test carries its own negative
-      # control -- the same measurement on a case built to fail -- and none
-      # is informational: a red one turns the job red.
-      - name: Main (185) -- a stale temp clone is brought to --ref, never installed as is (T1)
-        run: bash tests/test-bootstrap-stale-temp-clone.sh
-
-      - name: Main (185) -- the installed Vault records its REAL origin (T2)
-        run: bash tests/test-install-vault-origin.sh
-
-      - name: Main (185) -- a finished install leaves the Vault at empty porcelain (T3)
-        run: bash tests/test-install-leaves-vault-clean.sh
-
-      - name: Main (185) -- every project repository carries an author identity (T4)
-        run: bash tests/test-project-bootstrap-git-identity.sh
-
-      - name: Main (185) -- adopt --git asks nothing and reads no stdin (T5)
-        run: bash tests/test-project-bootstrap-adopt-git-no-question.sh
-
-      - name: Main (185) -- an MCP refusal names the path and the perimeter (T6)
-        run: |
-          . tests/sandbox-vault.sh
-          sandbox_find_uv || { echo 'REFUS : uv introuvable'; exit 1; }
-          uv run --no-project tests/test-vault-mcp-refusal-message.py
-
-      - name: Main (185) -- native paths, POSIX side of the control (T7)
-        run: bash tests/test-project-bootstrap-native-paths.sh
-
-      - name: Main (185) -- the adoption plan speaks only of what was already there (T8)
-        run: bash tests/test-project-bootstrap-adopt-plan.sh
-
-      - name: Main (185) -- the common Pilot prompt names its only file server (T9)
-        run: bash tests/test-common-prompt-exclusivity.sh
-
-      - name: Main (185) -- INSTALL.md and README.md carry the Windows invocation (T10)
-        run: bash tests/test-install-doc-windows-invocation.sh
-
-      # Mission 186: the relay's single source of truth (DECISION-2026-09-17-
-      # 201623) synchronized across the distributed corpus, the Project
-      # instructions block rendered ready to paste, and the reworked install
-      # docs.
-      - name: Main (186) -- no leftover push-formula wording in the distributed corpus (T1)
-        run: bash tests/test-no-push-formula.sh
-
-      - name: Main (186) -- the RELAY grammar lives only in RULES-124937 (T2)
-        run: bash tests/test-relay-single-source.sh
-
-      - name: Main (186) -- the common Pilot prompt carries no RELAY wording (T3)
-        run: bash tests/test-common-prompt-no-relay.sh
-
-      - name: Main (186) -- the Project instructions block is rendered ready to paste (T4)
-        run: bash tests/test-project-bootstrap-instructions-block.sh
-
-      - name: Main (186) -- README.md and INSTALL.md carry the four-step participant path and FAQ (T5)
-        run: bash tests/test-install-doc-participant-path.sh
-
-      - name: Main (186) -- i18n catalog key parity, shell twin (T6)
-        run: bash tests/test-i18n-parity.sh
-
-      - name: Main install test -- answers file, second pass at empty porcelain
-        run: bash tests/test-install-e2e.sh
-
-      - name: Main -- nominal flow shows no atelier vocabulary (T21)
-        run: bash tests/test-nominal-flow-no-atelier-vocabulary.sh
-
-      - name: Secondary -- third-party licenses
-        run: bash tests/test-third-party-licenses.sh
-
-      - name: Secondary -- private patterns (P4), current tree
-        run: bash tools/check-private-patterns.sh --tree-only
-
-      - name: Secondary -- private patterns (P4), full history (informational, doubles the blocking tree check)
-        continue-on-error: true
-        run: bash tools/check-private-patterns.sh
-
-      - name: Additional -- Vault-suite precedents (informational)
-        continue-on-error: true
-        run: |
-          bash tests/standalone.sh
-          bash tests/test-check-links-cross-repo.sh
-          bash tests/test-check-links-code-block-scope.sh
-          bash tests/test-link-graph-drone-view-empty-status-field.sh
-
-      # HYPOTHESIS (Mission 168 report, ticket 08 S24; Mission Validation 4
-      # explicitly allows "indetermine, cause a nommer" on Linux): tickets
-      # 03-09 only ever built these five checks as PowerShell scripts
-      # driving install.ps1 -- there is no shell/install.sh equivalent.
-      # ubuntu-latest ships pwsh (DECLARED, GitHub runner-images), so they
-      # are chained here too, but install.ps1's own behaviour under pwsh on
-      # genuine Linux (registry-free PATH handling, Windows-only cmdlets
-      # such as Get-WinSystemLocale) has never been exercised anywhere --
-      # this machine has neither a real Linux box nor WSL (measured absent,
-      # same finding as ticket 08's report). Cause named; not this ticket's
-      # gap to close by inventing untested behaviour.
-      - name: Secondary (HYPOTHESIS, not locally verifiable) -- resume, network failure, Ibrahim, catalogues, update mode, skills, prerequisites via pwsh
-        shell: pwsh
-        continue-on-error: true
-        run: |
-          pwsh -NoProfile -File tests/test-questionnaire-resume.ps1
-          pwsh -NoProfile -File tests/test-questionnaire-network-failure.ps1
-          pwsh -NoProfile -File tests/test-assistant-generation.ps1
-          pwsh -NoProfile -File tests/test-web-package-readme-matches-contents.ps1
-          pwsh -NoProfile -File tests/test-catalog-key-parity.ps1
-          pwsh -NoProfile -File tests/test-questionnaire-update-mode.ps1
-          pwsh -NoProfile -File tests/test-project-assistant-and-skills-links.ps1
-          pwsh -NoProfile -File tests/test-prerequisites-e2e.ps1
+      # Every Ubuntu line of tests/suite.tsv, including the PowerShell tests
+      # played under pwsh as informational (install.ps1 on Linux is a named
+      # HYPOTHESIS, Mission 168 ticket 08).
+      - name: Suite -- tests/suite.tsv, Ubuntu lines
+        run: bash tests/run-suite.sh
 
   macos:
     name: macOS -- install.sh, full suite
@@ -475,114 +113,12 @@ jobs:
           [ "$fail" -eq 0 ] || exit 1
           echo "PASS : Apple's bash 3.2, awk, sed, find and xargs are the ones every following step uses."
 
-      - name: Guardians offline (session-preflight + .githooks/pre-commit)
-        run: |
-          if ! command -v uv >/dev/null 2>&1; then
-            UV_BIN="$RUNNER_TEMP/uv-bin"
-            mkdir -p "$UV_BIN"
-            export UV_UNMANAGED_INSTALL="$UV_BIN"
-            export UV_NO_MODIFY_PATH=1
-            export UV_SYSTEM_CERTS=1
-            curl -fsSL -o "$RUNNER_TEMP/install-uv.sh" "https://astral.sh/uv/0.12.13/install.sh"
-            HASH="$(shasum -a 256 "$RUNNER_TEMP/install-uv.sh" | awk '{print $1}')"
-            if [ "$HASH" != "e7265962d703f3ca66b3e90fae8fcdc6d4e4b587027e9479ccc29b25c3f68d4e" ]; then
-              echo "REFUS : hash uv installer inattendu : $HASH" >&2
-              exit 1
-            fi
-            sh "$RUNNER_TEMP/install-uv.sh"
-            export PATH="$UV_BIN:$PATH"
-          fi
-          bash tools/session-preflight.sh
-          bash .githooks/pre-commit
+      # After the two steps above: the action runs with Apple's tools only.
+      - uses: ./.github/actions/setup-test-env
 
-      # Mission 181: CI used to call the guardians directly, never through
-      # Git, so hooks tracked without their execute bit ran for no
-      # participant on macOS or Linux and nothing here noticed. This one
-      # commits in a fresh clone, the way a participant does.
-      - name: Main -- a participant's commit runs the guardians (through Git)
-        run: bash tests/test-githooks-run-on-commit.sh
-
-      - name: Main -- participant path free of bash 4+ and GNU-only constructs
-        run: bash tests/test-participant-shell-portability.sh
-
-      # Mission 181, step 6 resumed: a root holding `&` or a backslash
-      # reached two guardians mangled by sed; this sandbox proves it no
-      # longer does (the backslash half runs where a name can hold one).
-      - name: Main -- guardians read paths holding & or a backslash intact
-        run: bash tests/test-guardian-path-special-chars.sh
-
-      # Mission 183-C01: the S7/S8 oracles, proven with stub providers -- no
-      # model call, so it runs everywhere, on every push.
-      - name: Main -- acceptance harness oracles each know how to fail
-        run: bash tests/test-acceptance-harness-oracles.sh
-
-      # Mission 184: project initiation and adoption, the embedded MCP
-      # server (injection on a simulated profile, containment) and the
-      # catalog parity -- every case with its negative control.
-      - name: Main -- project initiation and adoption (create, adopt, baseline, two Vaults, D4, vcs none, order)
-        run: bash tests/test-project-initiation.sh
-
-      - name: Main -- embedded MCP server, injection on a simulated profile, containment
-        run: bash tests/test-vault-mcp.sh
-
-      - name: Main -- catalog key parity (fr/en/es), shell twin
-        run: bash tests/test-catalog-key-parity.sh
-
-      # Mission 185-C01: the twelve gates measured by the human acceptance of
-      # 2026-09-17 (capture 144137). Each test carries its own negative
-      # control -- the same measurement on a case built to fail -- and none
-      # is informational: a red one turns the job red.
-      - name: Main (185) -- a stale temp clone is brought to --ref, never installed as is (T1)
-        run: bash tests/test-bootstrap-stale-temp-clone.sh
-
-      - name: Main (185) -- the installed Vault records its REAL origin (T2)
-        run: bash tests/test-install-vault-origin.sh
-
-      - name: Main (185) -- a finished install leaves the Vault at empty porcelain (T3)
-        run: bash tests/test-install-leaves-vault-clean.sh
-
-      - name: Main (185) -- every project repository carries an author identity (T4)
-        run: bash tests/test-project-bootstrap-git-identity.sh
-
-      - name: Main (185) -- adopt --git asks nothing and reads no stdin (T5)
-        run: bash tests/test-project-bootstrap-adopt-git-no-question.sh
-
-      - name: Main (185) -- an MCP refusal names the path and the perimeter (T6)
-        run: |
-          . tests/sandbox-vault.sh
-          sandbox_find_uv || { echo 'REFUS : uv introuvable'; exit 1; }
-          uv run --no-project tests/test-vault-mcp-refusal-message.py
-
-      - name: Main (185) -- native paths, POSIX side of the control (T7)
-        run: bash tests/test-project-bootstrap-native-paths.sh
-
-      - name: Main (185) -- the adoption plan speaks only of what was already there (T8)
-        run: bash tests/test-project-bootstrap-adopt-plan.sh
-
-      - name: Main (185) -- the common Pilot prompt names its only file server (T9)
-        run: bash tests/test-common-prompt-exclusivity.sh
-
-      - name: Main (185) -- INSTALL.md and README.md carry the Windows invocation (T10)
-        run: bash tests/test-install-doc-windows-invocation.sh
-
-      - name: Main (186) -- the Project instructions block is rendered ready to paste (T4)
-        run: bash tests/test-project-bootstrap-instructions-block.sh
-
-      - name: Main install test -- answers file, second pass at empty porcelain
-        run: bash tests/test-install-e2e.sh
-
-      - name: Main -- nominal flow shows no atelier vocabulary (T21)
-        run: bash tests/test-nominal-flow-no-atelier-vocabulary.sh
-
-      - name: Secondary -- third-party licenses
-        run: bash tests/test-third-party-licenses.sh
-
-      - name: Secondary -- private patterns (P4), current tree
-        run: bash tools/check-private-patterns.sh --tree-only
-
-      - name: Secondary -- private patterns (P4), full history (informational, doubles the blocking tree check)
-        continue-on-error: true
-        run: bash tools/check-private-patterns.sh
+      # Every macOS line of tests/suite.tsv, under Apple's bash 3.2.
+      - name: Suite -- tests/suite.tsv, macOS lines
+        run: bash tests/run-suite.sh
 
   smoke-from-github:
     name: Smoke test -- real install line from GitHub
@@ -613,6 +149,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: ./.github/actions/setup-test-env
+
       # Mission 183-C01, Decision 142112: the acceptance of a commit is the
       # dated report of tests/run-mechanical-acceptance.ps1. On this
       # throwaway runner S9 is played for real: a standard local account,
@@ -640,20 +178,10 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
+          # uv comes from the setup-test-env action above, found where the
+          # former inline install left it.
           if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
-            $uvBin = Join-Path $env:RUNNER_TEMP "uv-bin"
-            New-Item -ItemType Directory -Path $uvBin -Force | Out-Null
-            $env:UV_UNMANAGED_INSTALL = $uvBin
-            $env:UV_NO_MODIFY_PATH = '1'
-            $env:UV_SYSTEM_CERTS = '1'
-            $scriptPath = Join-Path $env:RUNNER_TEMP "install-uv.ps1"
-            Invoke-WebRequest -Uri "https://astral.sh/uv/0.12.13/install.ps1" -OutFile $scriptPath -UseBasicParsing
-            $hash = (Get-FileHash -Algorithm SHA256 -Path $scriptPath).Hash
-            if ($hash -ne "6A749FE05B2617EDE62127832D6F4C37E7B406740C7BC0DC62FE77F5E5EBDB20") {
-              throw "uv install script hash mismatch: $hash"
-            }
-            & powershell -NoProfile -ExecutionPolicy Bypass -File $scriptPath
-            $env:Path = "$uvBin;$env:Path"
+            $env:Path = "$env:RUNNER_TEMP\uv-bin;$env:Path"
           }
           $report = Join-Path $env:RUNNER_TEMP "second-brain-acceptance-${{ github.sha }}.md"
           powershell -NoProfile -ExecutionPolicy Bypass -File tests/run-mechanical-acceptance.ps1 -Out $report -RequireS9

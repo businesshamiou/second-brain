@@ -1,0 +1,70 @@
+# The test suite, one list played the same way locally and in CI (Mission 188).
+# Played by tests/run-suite.sh (and tests/run-suite.ps1 on Windows); CI calls those runners, it no longer lists tests.
+# Columns, tab-separated, "-" for an empty field:
+#   path          file to run, relative to the repository root
+#   args          arguments passed to it
+#   interpreter   bash | bash+uv (bash, uv put on PATH first, as the guardians need) | uv-python (uv run --no-project) | ps1 (powershell -File on Windows, pwsh -File elsewhere)
+#   platforms     W = Windows, U = Ubuntu, M = macOS
+#   severity      blocking (a red one fails the run) | informational (reported, never fails the run -- the former continue-on-error steps)
+#   origin        the Mission that brought the test and what it proves; a leading "+" marks a line added after the frozen reference tests/fixtures/ci-42f74e6a-steps.tsv
+# A test may exit 77 to report SKIP (cause printed by the test itself).
+tools/session-preflight.sh	-	bash+uv	WUM	blocking	M168 -- guardians offline: session preflight stamp
+.githooks/pre-commit	-	bash+uv	WUM	blocking	M168 -- guardians offline: the ten guardians on this checkout
+tests/test-githooks-run-on-commit.sh	-	bash	WUM	blocking	M181 -- a participant's commit runs the guardians (through Git)
+tests/test-participant-shell-portability.sh	-	bash	WUM	blocking	M181 -- participant path free of bash 4+ and GNU-only constructs
+tests/test-guardian-path-special-chars.sh	-	bash	WUM	blocking	M181 -- guardians read paths holding & or a backslash intact
+tests/test-acceptance-harness-oracles.sh	-	bash	WUM	blocking	M183-C01 -- acceptance harness oracles each know how to fail (stub providers, no model call)
+tests/test-project-initiation.sh	-	bash	WUM	blocking	M184 -- project initiation and adoption (create, adopt, baseline, two Vaults, D4, vcs none, order)
+tests/test-vault-mcp.sh	-	bash	WUM	blocking	M184 -- embedded MCP server, injection on a simulated profile, containment
+tests/test-catalog-key-parity.sh	-	bash	WUM	blocking	M184 -- catalog key parity (fr/en/es), shell twin
+tests/test-bootstrap-stale-temp-clone.ps1	-	ps1	W	blocking	M185-C01 T1 -- a stale temp clone is brought to -Ref, never installed as is
+tests/test-bootstrap-stale-temp-clone.sh	-	bash	WUM	blocking	M185-C01 T1 -- a stale temp clone is brought to --ref, shell twin
+tests/test-install-vault-origin.sh	-	bash	WUM	blocking	M185-C01 T2 -- the installed Vault records its REAL origin
+tests/test-install-leaves-vault-clean.sh	-	bash	WUM	blocking	M185-C01 T3 -- a finished install leaves the Vault at empty porcelain
+tests/test-project-bootstrap-git-identity.sh	-	bash	WUM	blocking	M185-C01 T4 -- every project repository carries an author identity
+tests/test-project-bootstrap-adopt-git-no-question.sh	-	bash	WUM	blocking	M185-C01 T5 -- adopt --git asks nothing and reads no stdin
+tests/test-vault-mcp-refusal-message.py	-	uv-python	WUM	blocking	M185-C01 T6 -- an MCP refusal names the path and the perimeter
+tests/test-project-bootstrap-native-paths.ps1	-	ps1	W	blocking	M185-C01 T7 -- native paths under Windows
+tests/test-project-bootstrap-native-paths.sh	-	bash	WUM	blocking	M185-C01 T7 -- native paths, shell twin (POSIX side of the control)
+tests/test-project-bootstrap-adopt-plan.sh	-	bash	WUM	blocking	M185-C01 T8 -- the adoption plan speaks only of what was already there
+tests/test-common-prompt-exclusivity.sh	-	bash	WUM	blocking	M185-C01 T9 -- the common Pilot prompt names its only file server
+tests/test-install-doc-windows-invocation.sh	-	bash	WUM	blocking	M185-C01 T10 -- INSTALL.md and README.md carry the Windows invocation
+tests/test-no-push-formula.sh	-	bash	U	blocking	M186 T1 -- no leftover push-formula wording in the distributed corpus
+tests/test-relay-single-source.sh	-	bash	U	blocking	M186 T2 -- the RELAY grammar lives only in RULES-124937
+tests/test-common-prompt-no-relay.sh	-	bash	U	blocking	M186 T3 -- the common Pilot prompt carries no RELAY wording
+tests/test-project-bootstrap-instructions-block.sh	-	bash	WUM	blocking	M186 T4 -- the Project instructions block is rendered ready to paste
+tests/test-install-doc-participant-path.sh	-	bash	U	blocking	M186 T5 -- README.md and INSTALL.md carry the four-step participant path and FAQ
+tests/test-i18n-parity.sh	-	bash	U	blocking	M186 T6 -- i18n catalog key parity, shell twin
+tests/test-bootstrap-no-git.ps1	-	ps1	W	blocking	M183-C01 -- bootstrap installs with no Git on PATH (test mode)
+tests/test-precommit-with-existing-uv.ps1	-	ps1	W	blocking	M183-C01 reprise 2 -- pre-commit installed when uv is already present elsewhere
+tests/test-install-e2e.ps1	-	ps1	W	blocking	M168 -- main install test: answers file, second pass at empty porcelain
+tests/test-install-e2e.sh	-	bash	UM	blocking	M168 -- main install test: answers file, second pass at empty porcelain
+tests/test-nominal-flow-no-atelier-vocabulary.ps1	-	ps1	W	blocking	T21 -- nominal flow shows no atelier vocabulary
+tests/test-nominal-flow-no-atelier-vocabulary.sh	-	bash	UM	blocking	T21 -- nominal flow shows no atelier vocabulary
+tests/test-questionnaire-resume.ps1	-	ps1	W	blocking	M168 -- resume after forced stop
+tests/test-questionnaire-network-failure.ps1	-	ps1	W	blocking	M168 -- simulated network failure
+tests/test-assistant-generation.ps1	-	ps1	W	blocking	M168 -- assistant generation (Ibrahim, rename)
+tests/test-web-package-readme-matches-contents.ps1	-	ps1	W	blocking	M168 -- web package README matches its own contents
+tests/test-catalog-key-parity.ps1	-	ps1	W	blocking	M177 -- catalog key parity (fr/en/es)
+tests/test-third-party-licenses.sh	-	bash	WUM	blocking	M168 -- third-party licenses
+tools/check-private-patterns.sh	--tree-only	bash	WUM	blocking	P4 -- private patterns, current tree (catches any new leak)
+tools/check-private-patterns.sh	-	bash	WUM	informational	P4 -- private patterns, full history (doubles the blocking tree check since the 2026-09-15 single-root history)
+tests/test-questionnaire-update-mode.ps1	-	ps1	W	blocking	M168 -- update mode, no change
+tests/test-project-assistant-and-skills-links.ps1	-	ps1	W	blocking	M168 -- project assistant and skills links
+tests/test-prerequisites-e2e.ps1	-	ps1	W	informational	M168 ticket 04 -- prerequisites auto-install (known environment drift: machine-wide Git under Program Files)
+tests/standalone.sh	-	bash	WU	informational	M142 -- Vault-suite precedent: a Vault clone stands alone
+tests/test-check-links-cross-repo.sh	-	bash	WU	informational	Vault-suite precedent -- cross-repository links
+tests/test-check-links-code-block-scope.sh	-	bash	WU	informational	Vault-suite precedent -- links inside code blocks
+tests/test-link-graph-drone-view-empty-status-field.sh	-	bash	WU	informational	Vault-suite precedent -- link graph drone view, empty status field
+tests/test-questionnaire-resume.ps1	-	ps1	U	informational	M168 HYPOTHESIS -- install.ps1 under pwsh on Linux never exercised elsewhere: resume
+tests/test-questionnaire-network-failure.ps1	-	ps1	U	informational	M168 HYPOTHESIS -- pwsh on Linux: network failure
+tests/test-assistant-generation.ps1	-	ps1	U	informational	M168 HYPOTHESIS -- pwsh on Linux: assistant generation
+tests/test-web-package-readme-matches-contents.ps1	-	ps1	U	informational	M168 HYPOTHESIS -- pwsh on Linux: web package README
+tests/test-catalog-key-parity.ps1	-	ps1	U	informational	M168 HYPOTHESIS -- pwsh on Linux: catalogues
+tests/test-questionnaire-update-mode.ps1	-	ps1	U	informational	M168 HYPOTHESIS -- pwsh on Linux: update mode
+tests/test-project-assistant-and-skills-links.ps1	-	ps1	U	informational	M168 HYPOTHESIS -- pwsh on Linux: project assistant and skills links
+tests/test-prerequisites-e2e.ps1	-	ps1	U	informational	M168 HYPOTHESIS -- pwsh on Linux: prerequisites
+tests/test-suite-manifest-matches-ci.sh	-	bash	U	blocking	+M188 T1 -- this manifest plays exactly the suite ci.yml played at 42f74e6a, and ci.yml lists no test any more
+tests/test-run-suite-reports-red.sh	-	bash	WUM	blocking	+M188 T2 -- the runner plays every line, counts n/total, names the red ones and fails on a blocking red
+tests/test-setup-test-env-offline.sh	-	bash	U	blocking	+M188 T3 -- after the setup-test-env action, uv, Python and pre-commit answer offline; an empty cache reinstalls the same versions (CI only, SKIP elsewhere)
+tests/test-reference-clone-equivalence.sh	-	bash	U	blocking	+M188 T4 -- an install from the shared reference clone equals an install from a network clone; a stale reference is refused

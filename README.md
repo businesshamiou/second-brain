@@ -157,6 +157,16 @@ Sans déclaration : silence, comme si l'outil n'existait pas. Avec une déclarat
 
 **Pourquoi le Pilot doit-il utiliser exclusivement le serveur `second-brain-vault`, même si un autre serveur de fichiers est configuré ?** Cette exclusivité existe parce que rien d'autre ne borne son accès disque à ton espace de travail : un autre serveur (par exemple celui d'un autre projet) pourrait laisser le Pilot lire ou écrire hors du dossier prévu, ou mélanger deux projets sans que tu t'en rendes compte — `templates/session-opening-prompt-template.md` le lui interdit explicitement. Si le Pilot semble confus sur le contexte (mauvais projet, chemins qui ne correspondent pas), vérifie avec `check-mcp-containment.sh <configuration> <projet>` que `second-brain-vault` est bien configuré avec ton espace de travail comme dossier autorisé, puis redemande-lui explicitement de relire le disque par ce serveur.
 
+## Jouer la suite de tests
+
+Toute la suite tient dans une liste, [`tests/suite.tsv`](./tests/suite.tsv) : un test par ligne, avec les systèmes où il tourne, s'il est bloquant ou informatif, et la Mission qui l'a apporté. La CI ne liste plus aucun test, elle joue cette liste ; la même commande la joue sur ton poste, depuis la racine du dépôt :
+
+```bash
+bash tests/run-suite.sh
+```
+
+Sous Windows, le même lanceur existe en PowerShell, celui qu'utilise la CI : `powershell -NoProfile -ExecutionPolicy Bypass -File tests/run-suite.ps1`. Chaque test tourne, même après un rouge ; la dernière ligne donne `RESULT: <n>/<total> PASS` et la liste des tests rouges la précède. `--list` affiche seulement ce qui serait joué sur ton système.
+
 ## Licence
 
 Second Brain est distribué sous licence MIT — voir [LICENSE](./LICENSE). Les skills tiers adoptés dans le warehouse portent chacun leur propre licence, recensée dans [THIRD-PARTY-LICENSES.md](./THIRD-PARTY-LICENSES.md).

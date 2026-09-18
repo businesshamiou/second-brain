@@ -572,3 +572,14 @@ tests/test-common-prompt-no-relay.sh	DISTRIBUABLE
 tests/test-project-bootstrap-instructions-block.sh	DISTRIBUABLE
 tests/test-install-doc-participant-path.sh	DISTRIBUABLE
 tests/test-i18n-parity.sh	DISTRIBUABLE
+.github/actions/setup-test-env/action.yml	DISTRIBUABLE
+.github/actions/setup-test-env/setup.sh	DISTRIBUABLE
+.github/actions/setup-test-env/setup.ps1	DISTRIBUABLE
+tests/suite.tsv	DISTRIBUABLE
+tests/run-suite.sh	DISTRIBUABLE
+tests/run-suite.ps1	DISTRIBUABLE
+tests/fixtures/ci-42f74e6a-steps.tsv	DISTRIBUABLE
+tests/test-suite-manifest-matches-ci.sh	DISTRIBUABLE
+tests/test-run-suite-reports-red.sh	DISTRIBUABLE
+tests/test-setup-test-env-offline.sh	DISTRIBUABLE
+tests/test-reference-clone-equivalence.sh	DISTRIBUABLE

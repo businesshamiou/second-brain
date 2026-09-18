@@ -11,11 +11,20 @@ status: active
 
 Scénarios de vérification du comportement du système.
 
-Ce fichier est tenu à la main : `tools/build-indexes.sh` n'indexe que les documents Markdown à front matter, et un test est un script. L'inventaire complet reste le dossier lui-même ; l'enchaînement par système est [`.github/workflows/ci.yml`](../.github/workflows/ci.yml), seule source de vérité de ce qui tourne où.
+Ce fichier est tenu à la main : `tools/build-indexes.sh` n'indexe que les documents Markdown à front matter, et un test est un script. L'inventaire complet reste le dossier lui-même ; l'enchaînement par système est [`suite.tsv`](./suite.tsv), seule source de vérité de ce qui tourne où, joué à l'identique en local et en CI par [`run-suite.sh`](./run-suite.sh) (et [`run-suite.ps1`](./run-suite.ps1) sous Windows) — `bash tests/run-suite.sh` joue toute la suite. [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) n'appelle plus que ce lanceur, après l'action partagée [`setup-test-env`](../.github/actions/setup-test-env/action.yml) (uv, Python et pre-commit, en cache).
 
 ## Contenu
 
 Chaque test rend un verdict fermé — `PASS`, `FAIL`, ou `SKIP (cause, plateforme)` — et porte son propre témoin négatif : la même mesure, sur un cas fabriqué pour échouer. Un test sans témoin ne prouve pas qu'il sait échouer.
+
+### Banc de test réutilisable — Mission 188
+
+Chaque fichier porte en tête son oracle et son témoin négatif.
+
+- T1 `test-suite-manifest-matches-ci.sh` (U) — `suite.tsv` = la suite de `ci.yml` à `42f74e6a` (108 triplets).
+- T2 `test-run-suite-reports-red.sh` (W / U / M) — le lanceur joue tout, compte, nomme les rouges.
+- T3 `test-setup-test-env-offline.sh` (U, CI) — l'environnement en cache répond hors réseau.
+- T4 `test-reference-clone-equivalence.sh` (U) — le clone de référence installe la même chose.
 
 ### Portes fermées par la Mission 186 (v0.1.5)
 

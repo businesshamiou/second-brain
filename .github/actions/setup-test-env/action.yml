@@ -1,0 +1,48 @@
+name: Set up the test environment
+description: >-
+  Mission 188. One place for what every test job used to rebuild by hand:
+  uv at the version pinned in tools/prerequisites.lock.json (install script
+  checked against its SHA-256), a Python managed by uv, and pre-commit as a
+  uv tool -- all under the runner's temp directory, never the runner's
+  profile, and cached. The cache key is the fingerprint of the files that
+  decide what is installed, so a changed pin is never served stale. The
+  action puts nothing on PATH and exports nothing: uv lands in
+  $RUNNER_TEMP/uv-bin, where tests/sandbox-vault.sh (sandbox_find_uv) has
+  always looked for it, so every test sees the same world as before.
+  A missing or stale cache gives the same result, only slower
+  (tests/test-setup-test-env-offline.sh).
+
+inputs:
+  python-version:
+    description: Python version installed through uv
+    required: false
+    default: '3.12'
+
+outputs:
+  env-dir:
+    description: Directory holding the uv cache, the managed Python and the pre-commit tool
+    value: ${{ runner.temp }}/sb-test-env
+  uv-bin:
+    description: Directory holding the uv binary
+    value: ${{ runner.temp }}/uv-bin
+
+runs:
+  using: composite
+  steps:
+    - name: Restore the test environment cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ runner.temp }}/uv-bin
+          ${{ runner.temp }}/sb-test-env
+        key: sb-test-env-v1-${{ runner.os }}-${{ runner.arch }}-py${{ inputs.python-version }}-${{ hashFiles('tools/prerequisites.lock.json', '.pre-commit-config.yaml', '.pre-commit-hooks.yaml', '.github/actions/setup-test-env/*') }}
+
+    - name: Install what the cache did not bring (Windows)
+      if: runner.os == 'Windows'
+      shell: powershell
+      run: powershell -NoProfile -ExecutionPolicy Bypass -File "${{ github.action_path }}\setup.ps1" -EnvDir "${{ runner.temp }}\sb-test-env" -UvBin "${{ runner.temp }}\uv-bin" -PythonVersion "${{ inputs.python-version }}"
+
+    - name: Install what the cache did not bring (Linux, macOS)
+      if: runner.os != 'Windows'
+      shell: bash
+      run: bash "${{ github.action_path }}/setup.sh" "${{ runner.temp }}/sb-test-env" "${{ runner.temp }}/uv-bin" "${{ inputs.python-version }}"

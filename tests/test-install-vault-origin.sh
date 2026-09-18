@@ -81,7 +81,11 @@ run_install() {
 echo ""
 echo "=== (a) oracle : source portant un remote ==="
 SRC_A="$TMP/source-a"
-if ! git clone --quiet -- "$REPO_ROOT" "$SRC_A" >/dev/null 2>&1; then
+# Mission 188 : copie du clone de reference partage, au meme commit que ce
+# depot (HEAD remesure par sandbox_reference_clone), au lieu d'un clone
+# fait par ce seul test. Le remote est repose juste apres, comme avant.
+REF_CLONE="$(sandbox_reference_clone "$REPO_ROOT")" || { echo "FAIL : clone de reference non construit"; exit 1; }
+if ! git clone --quiet -- "$REF_CLONE" "$SRC_A" >/dev/null 2>&1; then
   echo "FAIL : source (clone de ce depot) non construite"
   exit 1
 fi
@@ -148,7 +152,7 @@ fi
 echo ""
 echo "=== temoin negatif : source SANS remote ==="
 SRC_B="$TMP/source-b"
-if ! git clone --quiet -- "$REPO_ROOT" "$SRC_B" >/dev/null 2>&1; then
+if ! git clone --quiet -- "$REF_CLONE" "$SRC_B" >/dev/null 2>&1; then
   echo "FAIL : source (clone de ce depot) non construite"
   exit 1
 fi

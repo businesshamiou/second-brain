@@ -50,7 +50,11 @@ echo "=== T3 : le Vault installe est rendu au porcelain vide ==="
 echo "  TestRoot: $TMP"
 
 SRC="$TMP/source"
-if ! git clone --quiet -- "$REPO_ROOT" "$SRC" >/dev/null 2>&1; then
+# Mission 188 : copie du clone de reference partage, au meme commit que ce
+# depot (HEAD remesure par sandbox_reference_clone), au lieu d'un clone
+# fait par ce seul test.
+REF_CLONE="$(sandbox_reference_clone "$REPO_ROOT")" || { echo "FAIL : clone de reference non construit"; exit 1; }
+if ! git clone --quiet -- "$REF_CLONE" "$SRC" >/dev/null 2>&1; then
   echo "FAIL : source (clone de ce depot) non construite"
   exit 1
 fi
