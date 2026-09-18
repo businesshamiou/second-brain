@@ -1,6 +1,6 @@
 ---
 type: brief
-title: "Modèle opératoire des projets V2 — frontière Vault/projet et hiérarchie Vault rules → Project rules → Mission/task instructions"
+title: "Project operating model V2 — Vault/project boundary and hierarchy Vault rules → Project rules → Mission/task instructions"
 created_at: 2026-08-17T21:15:22-04:00
 timezone: America/Montreal
 status: active
@@ -8,23 +8,23 @@ scope: transverse-project-guidance
 supersedes: "BRIEF-2026-08-17-140100-project-operating-model.md"
 ---
 
-# MODÈLE OPÉRATOIRE DES PROJETS V2 — FRONTIÈRE VAULT/PROJET ET HIÉRARCHIE DES INSTRUCTIONS
+# PROJECT OPERATING MODEL V2 — VAULT/PROJECT BOUNDARY AND HIERARCHY OF INSTRUCTIONS
 
-## But
+## Purpose
 
-Expliquer comment un projet collabore avec le Vault, versionne ses Missions et reçoit des outputs générés sans copier toute l’architecture du Vault.
+Explain how a project collaborates with the Vault, versions its Missions and receives generated outputs without copying the whole architecture of the Vault.
 
-Ce modèle applique l’[architecture Vault/projets](../decisions/DECISION-2026-08-17-003000-vault-central-architecture.md), le [cycle de contexte V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md) et la [règle de versionnement des Missions et outputs générés](../rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md).
+This model applies the [Vault/projects architecture](../decisions/DECISION-2026-08-17-003000-vault-central-architecture.md), the [context lifecycle V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md) and the [rule on versioning Missions and generated outputs](../rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md).
 
-## 1. Vault vs projet
+## 1. Vault vs projet (Vault vs project)
 
-Le Vault conserve la manière de travailler : règles, méthodes, connaissance transverse et templates. Le projet conserve ce sur quoi on travaille : objectif, contexte, état, règles spécifiques et productions métier.
+The Vault keeps the way of working: rules, methods, cross-project knowledge and templates. The project keeps what is being worked on: objective, context, state, specific rules and business productions.
 
-Le Vault ne remplace jamais le contexte local et n’importe pas automatiquement les décisions ou artefacts d’un projet.
+The Vault never replaces the local context and does not automatically import a project's decisions or artefacts.
 
-## 2. Noyau minimal recommandé
+## 2. Recommended minimal core
 
-Un projet piloté par l’IA peut commencer par :
+A project driven by AI may start with:
 
 ```text
 project/
@@ -37,36 +37,36 @@ project/
 └── generated/
 ```
 
-`generated/` reçoit seulement les outputs sans destination canonique connue. Il est non canonique par défaut et chaque contenu attend une review ou une promotion explicite.
+`generated/` receives only the outputs without a known canonical destination. It is non-canonical by default and each content awaits a review or an explicit promotion.
 
-Si aucun tel output n’existe, le dossier n’a pas besoin d’être créé : **besoin réel → structure**.
+If no such output exists, the folder does not need to be created: **real need → structure**.
 
-## 3. Structure à la demande
+## 3. Structure on demand
 
-Ajouter uniquement lorsque le besoin apparaît :
+Add only when the need appears:
 
 ```text
-rules/          # règles propres au projet
-missions/       # Missions et registre actif
-proposals/      # options importantes à arbitrer
-decisions/      # décisions spécifiques au projet
-captures/       # apprentissages durables
-handoffs/       # vraies passations
-resources/      # inventaire des ressources externes
-src/            # code si applicable
-tests/          # tests si applicable
-assets/         # assets versionnables si applicable
+rules/          # rules specific to the project
+missions/       # Missions and active register
+proposals/      # important options to arbitrate
+decisions/      # decisions specific to the project
+captures/       # durable learnings
+handoffs/       # real handoffs
+resources/      # inventory of external resources
+src/            # code if applicable
+tests/          # tests if applicable
+assets/         # versionable assets if applicable
 ```
 
-## 4. Missions et versions actives
+## 4. Missions and active versions
 
-Lorsqu’un projet utilise des Missions, chaque objectif reçoit un ID `NNN`. Les corrections `Cxx` conservent cet ID, utilisent un nouveau timestamp réel et restent complètes et autonomes.
+When a project uses Missions, each objective receives an ID `NNN`. The `Cxx` corrections keep that ID, use a new real timestamp and remain complete and self-contained.
 
-La Mission et son Prompt Executor portent le même `NNN/Cxx`. Les anciennes versions sont historiques; `<projet>/missions/MISSION-INDEX.md` résout la version active sans recopier d’état Git périssable.
+The Mission and its Executor Prompt carry the same `NNN/Cxx`. The old versions are historical; `<projet>/missions/MISSION-INDEX.md` resolves the active version without copying perishable Git state.
 
-Les Decisions restent cumulatives et ne sont jamais requalifiées silencieusement.
+Decisions remain cumulative and are never silently requalified.
 
-## 5. Héritage des règles
+## 5. Inheritance of rules
 
 ```text
 Vault rules
@@ -76,20 +76,20 @@ Project rules
 Mission / task instructions
 ```
 
-Les règles projet spécialisent le métier, la stack et les contraintes locales. Elles ne neutralisent pas silencieusement les garde-fous de sécurité, de preuve ou de frontière externe.
+Project rules specialize the business domain, the stack and the local constraints. They do not silently neutralize the guardrails of security, of evidence or of external boundary.
 
-## 6. Git et ressources externes
+## 6. Git and external resources
 
-Versionner de préférence code, Markdown, configuration, tests, schémas, petits assets et sources reproductibles.
+Preferably version code, Markdown, configuration, tests, schemas, small assets and reproducible sources.
 
-Les vidéos, datasets volumineux, gros médias, assets sous licence et autres binaires lourds peuvent rester hors Git, mais le projet conserve leur rôle et leur provenance dans un manifeste sans secret.
+Videos, large datasets, heavy media, licensed assets and other heavy binaries may stay outside Git, but the project keeps their role and their provenance in a manifest without secrets.
 
-Règle par défaut : un projet possède un repo principal. Plusieurs repos ne sont justifiés que par des permissions, cycles de déploiement, produits ou contraintes de sécurité réellement distincts.
+Default rule: a project has one main repo. Several repos are justified only by really distinct permissions, deployment cycles, products or security constraints.
 
-## 7. Principe de conception
+## 7. Design principle
 
-> **Le Vault définit le cadre commun. Le projet conserve son contexte et spécialise le cadre. Besoin réel → structure.**
+> **The Vault defines the common frame. The project keeps its context and specializes the frame. Real need → structure.**
 
 ## Liens
 
-- `supersedes` — [BRIEF-2026-08-17-140100-project-operating-model — Modèle opératoire des projets](BRIEF-2026-08-17-140100-project-operating-model.md)
+- `supersedes` — [BRIEF-2026-08-17-140100-project-operating-model — Project operating model](BRIEF-2026-08-17-140100-project-operating-model.md)

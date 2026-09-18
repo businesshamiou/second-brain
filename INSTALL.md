@@ -1,100 +1,100 @@
 ---
-title: "Installer Second Brain"
-description: "Guide d'installation : prérequis, ligne d'installation par plateforme, ce que fait le questionnaire, l'installation par archive refusée."
+title: "Install Second Brain"
+description: "Installation guide: prerequisites, installation line per platform, what the questionnaire does, installation from an archive refused."
 status: active
 ---
 
-# INSTALLER SECOND BRAIN
+# INSTALL SECOND BRAIN
 
-**Première condition : un abonnement payant à au moins un agent IA** (Claude Pro ou plus, ou ChatGPT Plus ou plus). Rien dans Second Brain n'est conçu ni testé pour un compte gratuit.
+**First condition: a paid subscription to at least one AI agent** (Claude Pro or higher, or ChatGPT Plus or higher). Nothing in Second Brain is designed or tested for a free account.
 
-Ce dépôt contient Second Brain : une mémoire durable et un système opératoire transversal pour travailler avec l'IA (voir [README.md](./README.md) pour le pourquoi et le quoi). Une seule ligne suffit pour l'installer.
+This repository contains Second Brain: a durable memory and a cross-project operating system for working with AI (see [README.md](./README.md) for the why and the what). A single line is enough to install it.
 
-## 1. Prérequis
+## 1. Prerequisites
 
-- L'abonnement payant ci-dessus.
-- Rien d'autre à installer à la main. Git, Python et `pre-commit` sont réutilisés s'ils sont déjà sur ton poste ; sinon, la ligne ci-dessous les pose elle-même dans ton profil utilisateur, sans droits administrateur. Sur macOS, Git vient avec les outils en ligne de commande d'Apple : s'ils manquent, Apple propose de les installer, puis tu relances la même ligne.
-- Windows (PowerShell 5.1 ou plus), macOS ou Linux (Bash).
+- The paid subscription above.
+- Nothing else to install by hand. Git, Python and `pre-commit` are reused if they are already on your machine; otherwise, the line below sets them up itself in your user profile, without administrator rights. On macOS, Git comes with Apple's command line tools: if they are missing, Apple offers to install them, then you rerun the same line.
+- Windows (PowerShell 5.1 or higher), macOS or Linux (Bash).
 
-## 2. Ligne d'installation
+## 2. Installation line
 
-**Windows (PowerShell, compte standard suffisant) :**
+**Windows (PowerShell, a standard account is enough):**
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.5/bootstrap.ps1)))"
 ```
 
-**macOS / Linux (Terminal) :**
+**macOS / Linux (Terminal):**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.5/bootstrap.sh | bash
 ```
 
-La ligne télécharge un script d'amorçage (`bootstrap.ps1` ou `bootstrap.sh`, à la racine de ce dépôt) qui n'exige rien d'installé : il pose Git dans ton profil si besoin, vérifie son empreinte, récupère le dépôt à la version indiquée, puis lance l'installeur (`install.ps1` ou `install.sh`). Aucune invite d'élévation, aucune écriture hors de ton profil.
+The line downloads a bootstrap script (`bootstrap.ps1` or `bootstrap.sh`, at the root of this repository) that requires nothing installed: it sets up Git in your profile if needed, verifies its fingerprint, fetches the repository at the indicated version, then launches the installer (`install.ps1` or `install.sh`). No elevation prompt, no writing outside your profile.
 
-**Depuis Claude Code ou Codex** (poste déjà équipé, ou clone existant à examiner) : ouvre une session dans n'importe quel dossier et lance `/first-install`. L'agent pose les mêmes questions dans son propre chat, écrit un fichier de réponses, puis appelle le même installeur — comportement identique à un participant qui répond en direct dans le terminal.
+**From Claude Code or Codex** (machine already equipped, or existing clone to examine): open a session in any folder and run `/first-install`. The agent asks the same questions in its own chat, writes an answers file, then calls the same installer — behaviour identical to a participant who answers live in the terminal.
 
-**Ne pas extraire une archive.** Second Brain se publie par étiquette de version (« tag ») sur le dépôt Git, jamais par une archive zip qui l'accompagnerait. Les gardiens de ce dépôt (contrôle de secrets, de liens, de fraîcheur des index — `.githooks/pre-commit`) et le script d'installation exigent un dépôt Git réel (`git rev-parse --show-toplevel` doit répondre) : sans `.git`, ils refusent explicitement plutôt que de s'exécuter à moitié. Un dossier extrait d'une archive n'est pas un dépôt Git et ne peut exécuter ni les gardiens ni `/first-install` correctement — la ligne ci-dessus récupère toujours un vrai dépôt.
+**Do not extract an archive.** Second Brain is published by version tag on the Git repository, never by a zip archive that would accompany it. The guardians of this repository (checks of secrets, of links, of index freshness — `.githooks/pre-commit`) and the installation script require a real Git repository (`git rev-parse --show-toplevel` must answer): without `.git`, they refuse explicitly rather than run halfway. A folder extracted from an archive is not a Git repository and can run neither the guardians nor `/first-install` correctly — the line above always fetches a real repository.
 
-## 3. Ce que fait l'installeur
+## 3. What the installer does
 
-Dans l'ordre :
+In order:
 
-1. Il s'assure que Git, `uv` et `pre-commit` sont utilisables (récupérés dans ton profil au besoin, jamais globalement, jamais avec élévation).
-2. Il crée ton espace de travail (dossier qui contiendra `second-brain` et tes projets), y clone `second-brain` à sa place définitive, et y pose le marqueur `VAULT-ROOT.md`.
-3. Il pose sept questions courtes, dans la langue que tu choisis à la première (français, anglais ou espagnol) : nom de l'assistant, emplacement de l'espace de travail, prénom, ce que tu fais, comment tu travailles avec l'IA, ce qui compte pour toi — puis confirme un premier projet.
-4. Il écrit `USER.md` à partir de tes réponses, génère l'assistant (sous-agent Claude Code, skill Codex, paquet web à téléverser toi-même) et pose un `CLAUDE.md`/`AGENTS.md` de dix lignes au plus à côté de `VAULT-ROOT.md`.
-5. Il crée ton premier projet si tu l'as confirmé, avec son propre `CLAUDE.md`/`AGENTS.md`, et y lie l'assistant et les skills de la méthode (`skills/` et `skills/external/`) — jamais dans ton profil.
-6. Il rend un verdict d'une ligne, signé par le nom de ton assistant : installation terminée, ou étape d'arrêt et cause.
+1. It makes sure that Git, `uv` and `pre-commit` are usable (fetched into your profile as needed, never globally, never with elevation).
+2. It creates your workspace (the folder that will contain `second-brain` and your projects), clones `second-brain` into it at its final location, and sets up the `VAULT-ROOT.md` marker there.
+3. It asks seven short questions, in the language you choose at the first one (French, English or Spanish): assistant's name, location of the workspace, first name, what you do, how you work with AI, what matters to you — then confirms a first project.
+4. It writes `USER.md` from your answers, generates the assistant (Claude Code subagent, Codex skill, web package to upload yourself) and sets up a `CLAUDE.md`/`AGENTS.md` of ten lines at most next to `VAULT-ROOT.md`.
+5. It creates your first project if you confirmed it, with its own `CLAUDE.md`/`AGENTS.md`, and links the assistant and the method's skills (`skills/` and `skills/external/`) into it — never into your profile.
+6. It returns a one-line verdict, signed with your assistant's name: installation finished, or the step where it stopped and the cause.
 
-L'installeur génère aussi l'**identité** de ton Second Brain (`VAULT-IDENTITY.md`, suivie par Git comme `USER.md`) : chaque projet la recopie dans son acte de naissance, et le marqueur `VAULT-ROOT.md` la porte.
+The installer also generates the **identity** of your Second Brain (`VAULT-IDENTITY.md`, tracked by Git like `USER.md`): each project copies it into its birth certificate, and the `VAULT-ROOT.md` marker carries it.
 
-Chaque étape est notée dans un carnet (`.install/state.json`, à la racine de ton clone, jamais suivi par Git) : une interruption reprend à l'étape manquante, sans reposer les questions déjà répondues. Relancer l'installeur sur un poste déjà installé bascule en mode mise à jour (réponses actuelles affichées, confirmation de tout changement, `USER.md` réécrit) — ce mode ne touche jamais le code ; voir [« Reprise et mise à jour » du README](./README.md#reprise-et-mise-à-jour) pour ce que cette version promet et ne promet pas.
+Each step is noted in a logbook (`.install/state.json`, at the root of your clone, never tracked by Git): an interruption resumes at the missing step, without asking again the questions already answered. Rerunning the installer on an already-installed machine switches to update mode (current answers displayed, confirmation of any change, `USER.md` rewritten) — this mode never touches the code; see ["Resume and update" in the README](./README.md#reprise-et-mise-à-jour) for what this version promises and does not promise.
 
-## 4. Le serveur MCP
+## 4. The MCP server
 
-L'installeur n'écrit rien dans ton profil. **L'accès disque du Pilot (application de bureau)** se pose ensuite par `/first-install` (ou à la main, ligne ci-dessous) : il détecte Claude Code, Codex et l'application de bureau Claude, y déclare le serveur `second-brain-vault` avec ton espace de travail comme seul dossier autorisé, vérifie Python par `uv`, puis te demande de redémarrer l'application. `check-mcp-containment.sh <configuration> <projet>` vérifie que le projet et Second Brain sont bien dans le périmètre autorisé.
+The installer writes nothing into your profile. **The Pilot's disk access (desktop application)** is set up afterwards by `/first-install` (or by hand, line below): it detects Claude Code, Codex and the Claude desktop application, declares the `second-brain-vault` server in them with your workspace as the only authorized folder, checks Python through `uv`, then asks you to restart the application. `check-mcp-containment.sh <configuration> <projet>` verifies that the project and Second Brain are indeed within the authorized perimeter.
 
-À la main, depuis la racine de ton clone `second-brain` :
+By hand, from the root of your `second-brain` clone:
 
 ```bash
 bash tools/install-vault-mcp.sh <espace de travail>
 bash tools/check-mcp-containment.sh <configuration> <projet>
 ```
 
-**Sous Windows, dans PowerShell**, `bash` n'est pas sur le PATH ; appelle celui de Git par son chemin complet (mesuré à l'acceptation du 2026-09-17) :
+**Under Windows, in PowerShell**, `bash` is not on the PATH; call Git's by its full path (measured at the acceptance of 2026-09-17):
 
 ```powershell
 & "C:\Program Files\Git\bin\bash.exe" tools/install-vault-mcp.sh <espace de travail>
 & "C:\Program Files\Git\bin\bash.exe" tools/check-mcp-containment.sh <configuration> <projet>
 ```
 
-**Comment vérifier qu'il tourne.** `check-mcp-containment.sh` valide la configuration écrite sur disque. Que le serveur soit réellement actif dans l'application redémarrée se confirme à l'ouverture du Pilot (section suivante) : sa première réponse porte un **canari**, la preuve qu'il a lu le disque par ce serveur plutôt que sa mémoire.
+**How to verify that it is running.** `check-mcp-containment.sh` validates the configuration written on disk. That the server is really active in the restarted application is confirmed at the opening of the Pilot (next section): its first answer carries a **canary**, the proof that it read the disk through this server rather than from its memory.
 
-## 5. Ouvrir le Pilot
+## 5. Open the Pilot
 
-La première fois que tu ouvres un projet dans Claude Code, il détecte que les liens vers l'assistant et les skills sortent du dossier de travail (import externe) et demande une approbation, une fois par projet. Réponds oui : voir la question « Pourquoi Claude Code me demande une approbation » dans les questions fréquentes du [README](./README.md).
+The first time you open a project in Claude Code, it detects that the links to the assistant and the skills leave the working folder (external import) and asks for an approval, once per project. Answer yes: see the question "Why does Claude Code ask me for an approval" in the frequently asked questions of the [README](./README.md).
 
-Le rôle Pilot (penser, arbitrer, écrire les Missions) se joue dans l'application de bureau Claude. Chaque projet porte son prompt Pilot, `<projet>/state/PILOT-PROMPT.md`, généré à sa création : crée un **Projet** portant le nom de ton projet, colle comme instructions le prompt commun (`templates/session-opening-prompt-template.md`), et donne comme premier message le chemin du projet. Détail complet du geste dans [« Ouvrir le Pilot d'un projet » du README](./README.md).
+The Pilot role (thinking, arbitrating, writing the Missions) is played in the Claude desktop application. Each project carries its Pilot prompt, `<projet>/state/PILOT-PROMPT.md`, generated at its creation: create a **Project** bearing the name of your project, paste the common prompt (`templates/session-opening-prompt-template.md`) as instructions, and give the project's path as first message. Complete details of the gesture in ["Open a project's Pilot" in the README](./README.md).
 
-## 6. Adopter un dossier existant
+## 6. Adopt an existing folder
 
-Un dossier qui existe déjà (avec ou sans Git) devient un projet sans que rien de ce qu'il contient ne soit modifié :
+A folder that already exists (with or without Git) becomes a project without anything it contains being modified:
 
 ```bash
 bash second-brain/tools/project-bootstrap.sh adopt /chemin/du/dossier --vcs git
 ```
 
-Le script ajoute seulement ce qui manque (acte de naissance, fichiers de pointage, prompt Pilot, ligne au registre) et ne réorganise rien sans confirmation. Détail complet (ligne de base, `--vcs none`, ordre d'initiation) dans [« Adopter un dossier existant » du README](./README.md).
+The script adds only what is missing (birth certificate, pointer files, Pilot prompt, line in the registry) and reorganizes nothing without confirmation. Complete details (baseline, `--vcs none`, initiation order) in ["Adopt an existing folder" in the README](./README.md).
 
-## Licence
+## License
 
-Second Brain, y compris les skills fabriqués par ce dépôt, est distribué sous licence MIT. Voir [LICENSE](./LICENSE). Les skills tiers adoptés dans le warehouse portent chacun leur propre licence, recensée dans [THIRD-PARTY-LICENSES.md](./THIRD-PARTY-LICENSES.md), généré par script depuis les manifestes du warehouse.
+Second Brain, including the skills built by this repository, is distributed under the MIT license. See [LICENSE](./LICENSE). The third-party skills adopted in the warehouse each carry their own license, listed in [THIRD-PARTY-LICENSES.md](./THIRD-PARTY-LICENSES.md), generated by script from the warehouse's manifests.
 
 ## Liens
 
 - `see also` — [README](./README.md)
-- `see also` — [Notes de publication](./RELEASE-NOTES.md)
-- `see also` — [Glossaire du produit](./CONTEXT.md)
-- `see also` — [Licence MIT](./LICENSE)
-- `see also` — [Licences tierces](./THIRD-PARTY-LICENSES.md)
+- `see also` — [Release notes](./RELEASE-NOTES.md)
+- `see also` — [Product glossary](./CONTEXT.md)
+- `see also` — [MIT license](./LICENSE)
+- `see also` — [Third-party licenses](./THIRD-PARTY-LICENSES.md)

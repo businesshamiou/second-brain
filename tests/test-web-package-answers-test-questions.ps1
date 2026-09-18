@@ -127,7 +127,7 @@ try {
     # The refusal answer lives in assistant/ASSISTANT.md's own body, copied
     # verbatim into INSTRUCTIONS.md -- unaffected by this Mission's change
     # to the knowledge-file list; checked here only to prove no regression.
-    Assert-True $instructionsText.Contains('lecture seule') "INSTRUCTIONS.md still carries the read-only refusal ('lecture seule')"
+    Assert-True $instructionsText.Contains('read-only') "INSTRUCTIONS.md still carries the read-only refusal ('read-only')"
 
     Write-Output ""
     Write-Output "--- File-count ceiling still respected (Owner DECIDED: 5 files at most) ---"

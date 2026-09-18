@@ -1,129 +1,129 @@
 ---
 type: knowledge
-title: "Stratification du corpus : où vit un artefact, et s'il entre dans un graphe"
-description: "Deux axes — portée et nature — qui déterminent l'emplacement d'un artefact et son entrée dans un graphe de connaissance."
+title: "Corpus layering: where an artefact lives, and whether it enters a graph"
+description: "Two axes — scope and nature — that determine where an artefact lives and whether it enters a knowledge graph."
 created_at: 2026-08-19T16:14:22-04:00
 timezone: America/Montreal
 status: active
 scope: vault-and-project-corpus
 ---
 
-# STRATIFICATION DU CORPUS
+# CORPUS LAYERING
 
-## Le problème
+## The problem
 
-Deux questions se posent pour chaque artefact produit, et elles sont souvent confondues :
+Two questions arise for every artefact produced, and they are often confused:
 
-1. **Où vit-il ?** Dans le Vault transverse, ou dans le dossier d'un projet ?
-2. **Entre-t-il dans un graphe de connaissance ?** Ou reste-t-il accessible en lecture directe seulement ?
+1. **Where does it live?** In the cross-project Vault, or in a project's folder?
+2. **Does it enter a knowledge graph?** Or does it remain accessible through direct reading only?
 
-Les traiter comme une seule question conduit à des règles bancales : soit on remonte du métier dans le Vault, soit on noie le graphe sous l'historique. Ce sont deux axes indépendants.
+Treating them as a single question leads to shaky rules: either business matters are brought up into the Vault, or the graph is drowned under history. They are two independent axes.
 
-## Axe 1 — la portée
+## Axis 1 — scope
 
-> Ce qui vaut pour n'importe quel projet vit dans le Vault.
-> Ce qui n'a de sens que dans un projet vit dans ce projet.
+> What holds for any project lives in the Vault.
+> What makes sense only in one project lives in that project.
 
-Le Vault porte le **comment universel** : processus, garde-fous, doctrine de preuve, conventions, cycle documentaire, comportements d'agent, [registre des projets](../projects/PROJECT-REGISTRY.md).
+The Vault carries the **universal how**: processes, guardrails, doctrine of evidence, conventions, document lifecycle, agent behaviours, [project registry](../projects/PROJECT-REGISTRY.md).
 
-Chaque projet porte son **comment métier** : ses règles propres, ses contraintes, son glossaire, ses décisions de fabrication, son contexte. Ces règles ne remontent jamais dans le Vault — un projet client, un produit, une mission de conseil ont chacun un domaine qui n'a rien à faire dans une couche transverse.
+Each project carries its **business how**: its own rules, its constraints, its glossary, its production decisions, its context. These rules never go up into the Vault — a client project, a product, a consulting assignment each have a domain that has no business in a cross-project layer.
 
-Ce point est souvent mal compris : le Vault n'est pas le seul endroit où l'on écrit des règles. Il est l'endroit où l'on écrit les règles **communes**. Chaque projet a besoin de sa propre couche d'instruction, symétrique de celle du Vault.
+This point is often misunderstood: the Vault is not the only place where rules are written. It is the place where the **common** rules are written. Each project needs its own instruction layer, symmetrical to the Vault's.
 
-## Axe 2 — la nature
+## Axis 2 — nature
 
-> Ce qui explique comment ou pourquoi entre dans le graphe.
-> Ce qui atteste qu'un travail a eu lieu reste dehors.
+> What explains how or why enters the graph.
+> What attests that work took place stays outside.
 
-Une règle, une décision, une connaissance, un contexte, un registre expliquent. Un audit, un prompt archivé, une mission close, un handoff ancien prouvent.
+A rule, a decision, a piece of knowledge, a context, a registry explain. An audit, an archived prompt, a closed mission, an old handoff prove.
 
-La preuve garde toute sa valeur : elle reste sur disque, versionnée dans Git, lisible à la demande. Elle n'entre simplement pas dans la couche de navigation sémantique, parce qu'elle en dégrade le signal sans rien ajouter à la compréhension.
+Evidence keeps its full value: it stays on disk, versioned in Git, readable on demand. It simply does not enter the semantic navigation layer, because it degrades its signal without adding anything to understanding.
 
-Cette distinction est mesurée, pas supposée : réduire le corpus de dix-sept à quinze documents mieux choisis a fait passer un graphe de seize à vingt-huit arêtes, et trois tests de connaissance de partiels à concluants.
+This distinction is measured, not assumed: reducing the corpus from seventeen to fifteen better-chosen documents took a graph from sixteen to twenty-eight edges, and three knowledge tests from partial to conclusive.
 
-## La matrice
+## The matrix
 
 ```text
-                    INSTRUCTION                    PREUVE
-                    (comment / pourquoi)           (ça a été fait)
+                    INSTRUCTION                    EVIDENCE
+                    (how / why)                    (it was done)
               ┌────────────────────────────┬────────────────────────────┐
- TRANSVERSE   │  rules                     │  handoffs anciens          │
- (Vault)      │  decisions                 │  résultats de test         │
-              │  knowledge                 │                            │
+ CROSS-       │  rules                     │  old handoffs              │
+ PROJECT      │  decisions                 │  test results              │
+ (Vault)      │  knowledge                 │                            │
               │  skills                    │                            │
-              │  registre des projets      │                            │
-              │  standards de test         │                            │
-              │  → graphe du Vault         │  → hors graphe             │
+              │  project registry          │                            │
+              │  test standards            │                            │
+              │  → Vault graph             │  → outside the graph       │
               ├────────────────────────────┼────────────────────────────┤
- MÉTIER       │  règles métier du projet   │  missions closes           │
- (Projet)     │  décisions de fabrication  │  prompts archivés          │
-              │  contexte maître           │  audits                    │
-              │  contraintes, glossaire    │  handoffs anciens          │
-              │  stratégies de test        │  résultats d'exécution     │
-              │  → graphe du projet        │  → hors graphe             │
+ BUSINESS     │  project business rules    │  closed missions           │
+ (Project)    │  production decisions      │  archived prompts          │
+              │  master context            │  audits                    │
+              │  constraints, glossary     │  old handoffs              │
+              │  test strategies           │  execution results         │
+              │  → project graph           │  → outside the graph       │
               └────────────────────────────┴────────────────────────────┘
 ```
 
-Le principe se lit en deux temps :
+The principle reads in two steps:
 
-- **où ça vit** : la portée décide ;
-- **si ça entre dans le graphe** : la nature décide.
+- **where it lives**: scope decides;
+- **whether it enters the graph**: nature decides.
 
-## Le modèle de graphes
+## The graph model
 
-Chaque périmètre a son propre graphe. Aucun graphe global fusionné : fusionner ferait perdre les frontières, mélangerait des contextes sans rapport et dégraderait la portabilité de chaque projet pris isolément.
+Each perimeter has its own graph. No merged global graph: merging would lose the boundaries, mix unrelated contexts and degrade the portability of each project taken in isolation.
 
 ```text
                   ┌─────────────────────────────┐
-                  │   VAULT — le comment         │
-                  │   universel                  │
+                  │   VAULT — the universal      │
+                  │   how                        │
                   │   ────────────────────       │
-                  │   registre des projets ●─────┼──┐
+                  │   project registry ●─────────┼──┐
                   └─────────────────────────────┘  │
-                             graphe A               │
+                             graph A                │
                                                     │
         ┌───────────────────────┬───────────────────┴──────┐
         ▼                       ▼                          ▼
   ┌───────────┐          ┌───────────┐            ┌───────────┐
-  │ projet 1  │          │ projet 2  │            │ projet N  │
-  │ comment   │          │ comment   │            │ comment   │
-  │ métier    │          │ métier    │            │ métier    │
-  │ + quoi    │          │ + quoi    │            │ + quoi    │
-  │ graphe B  │          │ graphe C  │            │ graphe D  │
+  │ project 1 │          │ project 2 │            │ project N │
+  │ business  │          │ business  │            │ business  │
+  │ how       │          │ how       │            │ how       │
+  │ + what    │          │ + what    │            │ + what    │
+  │ graph B   │          │ graph C   │            │ graph D   │
   └───────────┘          └───────────┘            └───────────┘
 ```
 
-Le registre des projets est le lien : le Vault connaît l'adresse de chaque projet, jamais son contenu. Les graphes restent séparés mais reliés par ce point d'entrée unique.
+The project registry is the link: the Vault knows the address of each project, never its content. The graphs stay separate but connected through this single entry point.
 
-## Le piège du dossier qui mélange
+## The trap of the mixed folder
 
-Un même dossier peut contenir les deux natures. Le cas le plus net est celui des tests :
+A single folder may contain both natures. The clearest case is that of tests:
 
-- une **stratégie de test** dit comment vérifier — c'est une instruction, elle entre dans le graphe ;
-- un **résultat de test** atteste qu'une vérification a eu lieu — c'est une preuve, elle reste dehors.
+- a **test strategy** says how to verify — it is an instruction, it enters the graph;
+- a **test result** attests that a verification took place — it is evidence, it stays outside.
 
-L'axe de portée s'y applique aussi : les standards communs — doctrine de preuve, définition des marques de confiance, exigences avant clôture d'une Mission — vivent dans le Vault ; les stratégies propres à un domaine — comment tester une interface, une page, un flux métier — vivent dans le projet concerné.
+The scope axis applies there too: the common standards — doctrine of evidence, definition of the confidence marks, requirements before a Mission is closed — live in the Vault; the strategies specific to a domain — how to test an interface, a page, a business flow — live in the project concerned.
 
-Le même piège vaut pour les passations : le handoff courant est une instruction sur l'état du moment, les handoffs anciens sont des preuves.
+The same trap holds for handoffs: the current handoff is an instruction on the state of the moment, old handoffs are evidence.
 
-D'où un principe pratique :
+Hence a practical principle:
 
-> Quand un dossier mélange instruction et preuve, séparer physiquement plutôt que filtrer finement.
+> When a folder mixes instruction and evidence, separate physically rather than filter finely.
 
-Un filtre qui doit deviner la nature d'un fichier à partir de son nom ou de sa date est fragile et se dégrade à chaque ajout. Deux emplacements distincts rendent le tri mécanique, lisible par un humain comme par un agent, et robuste dans le temps.
+A filter that must guess a file's nature from its name or its date is fragile and degrades with every addition. Two distinct locations make the sorting mechanical, readable by a human as by an agent, and robust over time.
 
-## Le cas particulier de l'état courant
+## The special case of the current state
 
-La couche d'instruction se subdivise en deux temporalités :
+The instruction layer subdivides into two temporalities:
 
-- **stable** : ce qui est vrai durablement — règles, décisions, connaissances ;
-- **courant** : ce qui décrit l'état du moment — état courant, index des missions, handoff en cours.
+- **stable**: what is durably true — rules, decisions, knowledge;
+- **current**: what describes the state of the moment — current state, mission index, handoff in progress.
 
-Les deux entrent dans le graphe. Mais le courant, par nature, est remplacé plutôt qu'accumulé : un seul fichier d'état mis à jour en place, plutôt qu'une série datée. Sans cette discipline, la couche courante devient une couche d'historique déguisée, et le graphe se dégrade.
+Both enter the graph. But the current, by nature, is replaced rather than accumulated: a single state file updated in place, rather than a dated series. Without this discipline, the current layer becomes a disguised history layer, and the graph degrades.
 
-## Ce que ce document ne tranche pas
+## What this document does not settle
 
-L'application de ces principes à des cas précis — quels dossiers exactement, par quel mécanisme distinguer un handoff courant d'un handoff ancien, quand créer le graphe d'un projet — relève d'arbitrages distincts, à mener projet par projet.
+Applying these principles to specific cases — which folders exactly, by which mechanism to distinguish a current handoff from an old one, when to create a project's graph — belongs to separate arbitrations, to be carried out project by project.
 
 ## Liens
 

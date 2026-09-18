@@ -12,7 +12,7 @@ Index généré automatiquement. Ne pas éditer à la main : régénérer via `t
 
 ## Contenu
 
-- `ASSISTANT` · active · Identité de l'assistant — source générique · `ASSISTANT.md`
+- `ASSISTANT` · active · Assistant identity — generic source · `ASSISTANT.md`
 
 ## Liens
 

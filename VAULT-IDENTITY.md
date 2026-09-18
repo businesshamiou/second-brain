@@ -1,17 +1,17 @@
 ---
 type: vault-identity
-title: "Identité de ce Vault — squelette"
-description: "Squelette vide, remplacé à l'installation par une identité générée (vault_id, vault_origin). Aucune identité avant l'installation."
+title: "Identity of this Vault — skeleton"
+description: "Empty skeleton, replaced at installation by a generated identity (vault_id, vault_origin). No identity before installation."
 status: template
 vault_id: ""
 vault_origin: ""
 created_at: ""
 ---
 
-# IDENTITÉ DE CE VAULT
+# IDENTITY OF THIS VAULT
 
-_(Ce fichier est généré à l'installation par `tools/vault-identity.sh ensure`. Avant l'installation, il ne porte aucune identité : chaque installation génère la sienne.)_
+_(This file is generated at installation by `tools/vault-identity.sh ensure`. Before installation, it carries no identity: each installation generates its own.)_
 
 ## Liens
 
-- `see also` — [Décision — Initiation et adoption de projet, acte de naissance](./decisions/DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md)
+- `see also` — [Decision — Project initiation and adoption, birth certificate](./decisions/DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md)

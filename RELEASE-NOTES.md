@@ -1,156 +1,156 @@
 ---
-title: "Notes de publication"
-description: "Ce que contient chaque version publiée de Second Brain, et ce qu'elle ne promet pas."
+title: "Release notes"
+description: "What each published version of Second Brain contains, and what it does not promise."
 status: active
 ---
 
-# NOTES DE PUBLICATION
+# RELEASE NOTES
 
 ## v0.1.5
 
-Version de confort : trois retouches à la manière dont tu délègues un geste à l'agent et dont tu démarres un nouveau Projet — rien qui change ce qui s'exécute.
+Comfort version: three touch-ups to the way you delegate a gesture to the agent and the way you start a new Project — nothing that changes what is executed.
 
-**Ce que cette version apporte.**
+**What this version brings.**
 
-- **Déléguer un push ne demande plus une formule à réciter.** Jusqu'ici, autoriser un push exigeait une phrase précise, recopiée mot pour mot. Une phrase claire de ta part, qui dit quoi pousser, suffit désormais — l'agent la mesure, il n'en juge plus la forme.
-- **Les instructions à coller dans un Projet (Claude Desktop ou ChatGPT) sont prêtes à l'emploi.** L'installeur les génère en entier, au moment de créer ou d'adopter un projet, dans le texte même à coller : tu n'as plus besoin d'aller ouvrir un fichier séparé pour les retrouver.
-- **La documentation d'installation est retravaillée, avec une FAQ étoffée.** README.md et INSTALL.md suivent désormais le même parcours en quatre étapes (installer, le serveur MCP, ouvrir le Pilot, adopter un dossier existant), et la FAQ répond aux questions les plus fréquentes rencontrées à l'installation.
+- **Delegating a push no longer requires a formula to recite.** Until now, authorizing a push required a precise sentence, copied word for word. A clear sentence from you, which says what to push, is now enough — the agent measures it, it no longer judges its form.
+- **The instructions to paste into a Project (Claude Desktop or ChatGPT) are ready to use.** The installer generates them in full, at the moment a project is created or adopted, in the very text to paste: you no longer need to go and open a separate file to find them.
+- **The installation documentation is reworked, with an expanded FAQ.** README.md and INSTALL.md now follow the same four-step path (install, the MCP server, open the Pilot, adopt an existing folder), and the FAQ answers the most frequent questions met during installation.
 
-**Comment c'est prouvé.** Six tests nommés, chacun avec son témoin négatif, enchaînés dans la CI publique. L'inventaire est dans [`tests/index.md`](./tests/index.md).
+**How it is proven.** Six named tests, each with its negative control, chained in the public CI. The inventory is in [`tests/index.md`](./tests/index.md).
 
-**Ce que cette version ne promet pas.**
+**What this version does not promise.**
 
-- Rien de neuf côté fonctionnalités d'exécution : cette version clarifie ce qui se lit et se colle, elle ne touche à aucun geste que l'agent exécute pour toi.
-- Les limites des versions précédentes restent valables : aucun mécanisme de mise à jour, S7 et S8 en `SKIP` sans clé de fournisseur.
+- Nothing new on the execution features side: this version clarifies what is read and pasted, it touches no gesture that the agent executes for you.
+- The limits of the previous versions remain valid: no update mechanism, S7 and S8 at `SKIP` without a provider key.
 
-**Ce qui reste à faire de ton côté.**
+**What remains to be done on your side.**
 
-- Rien d'immédiat : ces changements s'appliquent la prochaine fois que tu délègues un push ou que tu crées ou adoptes un projet. Si tu veux repartir de cette version, relance la ligne publiée ci-dessus.
+- Nothing immediate: these changes apply the next time you delegate a push or create or adopt a project. If you want to start again from this version, rerun the published line above.
 
 ## v0.1.4
 
-Version corrective : la v0.1.3 rejouée à la main sur un poste Windows déjà utilisé, dans l'application de bureau, a montré onze défauts que la CI ne pouvait pas voir — ses scénarios partent toujours d'une machine vierge. Si tu as déjà lancé la ligne publiée au moins une fois, installe depuis cette version.
+Corrective version: v0.1.3 replayed by hand on an already-used Windows machine, in the desktop application, showed eleven defects that the CI could not see — its scenarios always start from a blank machine. If you have already run the published line at least once, install from this version.
 
-**Ce que cette version corrige.**
+**What this version fixes.**
 
-- **Un poste déjà utilisé n'installe plus une version périmée.** C'est le défaut le plus grave. La ligne d'installation télécharge le dépôt dans un dossier temporaire ; ce dossier survit d'une fois sur l'autre, et l'amorçage le réutilisait tel quel. Un dossier oublié de la semaine précédente installait donc son vieux contenu — sans identité, sans acte de naissance, sans prompt Pilot — en annonçant « Installé, tout est en place ». Le dossier est désormais mis à jour et amené à la version demandée, et l'amorçage vérifie qu'il y est arrivé. En cas d'écart (autre dépôt, version inexistante), il refuse en nommant le dossier à écarter : jamais de suppression, jamais de `--force`.
-- **Ton Second Brain sait d'où il vient.** `vault_origin` — dans `VAULT-IDENTITY.md`, dans le marqueur `VAULT-ROOT.md` et dans l'acte de naissance de chaque projet — nommait le dossier temporaire au lieu du dépôt d'origine. Il porte maintenant l'origine réelle ; quand la source n'en a pas, le repli sur son chemin t'est dit, jamais posé en silence.
-- **Un refus du serveur MCP est lisible.** Dans l'application de bureau, une lecture hors périmètre affichait « Tool execution failed », sans chemin ni raison. Le serveur rend désormais un texte qui nomme le fichier demandé **et** la liste des dossiers autorisés.
-- **Le premier commit d'un projet aboutit.** `adopt` créait le dépôt Git sans identité d'auteur : sur un poste sans `user.email` global, le premier commit mourait sur « Author identity unknown ». Tout dépôt créé ou repris reçoit une identité locale — celle de ton Second Brain, sinon une identité neutre.
-- **`--git` vaut réponse.** `project-bootstrap.sh adopt <projet> --git` posait quand même la question « Suivre ce projet avec Git ? », ce qui bloquait tout appel sans terminal. L'option tranche la question au lieu de la précéder.
-- **Le Pilot sait que le serveur de Second Brain est son seul outil de fichiers.** Le prompt commun le dit désormais en une phrase : tout autre outil de fichiers est hors périmètre, même s'il est disponible.
-- **L'installation rend ton Second Brain propre.** Elle se terminait en laissant la fiche du premier projet non suivie et deux index modifiés — l'état que les gardiens refusent. Un dernier passage régénère les index et enregistre ce qui reste.
-- **Les chemins affichés sont ceux de ton système.** Sous Windows, le prompt Pilot, la fiche de projet et le bloc à consommer portaient le chemin du projet dans la forme de Git Bash, avec la lettre de lecteur en tête et des barres obliques ; ils portent maintenant la forme native de Windows, celle que l'application et le serveur MCP rendent.
-- **La documentation donne une ligne qu'on peut coller.** `INSTALL.md` et `README.md` écrivaient `bash tools/install-vault-mcp.sh` ; `bash` n'est pas sur le `PATH` de PowerShell. L'invocation Windows exacte, par le bash de Git, y figure.
-- **Le plan d'adoption ne parle plus que de l'existant.** Il proposait de ranger l'index que le même appel venait d'écrire.
+- **An already-used machine no longer installs an outdated version.** This is the most serious defect. The installation line downloads the repository into a temporary folder; that folder survives from one time to the next, and the bootstrap reused it as is. A folder forgotten from the previous week therefore installed its old content — without identity, without birth certificate, without Pilot prompt — while announcing « Installé, tout est en place » ["Installation complete: everything is in place."]. The folder is now updated and brought to the requested version, and the bootstrap verifies that it got there. In case of a gap (another repository, a nonexistent version), it refuses, naming the folder to set aside: never a deletion, never `--force`.
+- **Your Second Brain knows where it comes from.** `vault_origin` — in `VAULT-IDENTITY.md`, in the `VAULT-ROOT.md` marker and in each project's birth certificate — named the temporary folder instead of the origin repository. It now carries the real origin; when the source has none, the fallback to its path is told to you, never set silently.
+- **A refusal from the MCP server is readable.** In the desktop application, a read outside the perimeter displayed "Tool execution failed", with neither path nor reason. The server now returns a text that names the requested file **and** the list of authorized folders.
+- **A project's first commit succeeds.** `adopt` created the Git repository without an author identity: on a machine without a global `user.email`, the first commit died on "Author identity unknown". Every repository created or taken over receives a local identity — that of your Second Brain, otherwise a neutral identity.
+- **`--git` counts as an answer.** `project-bootstrap.sh adopt <projet> --git` still asked the question « Suivre ce projet avec Git ? » ["Track this project with Git?"], which blocked any call without a terminal. The option settles the question instead of preceding it.
+- **The Pilot knows that Second Brain's server is its only file tool.** The common prompt now says so in one sentence: any other file tool is outside the perimeter, even if it is available.
+- **The installation leaves your Second Brain clean.** It used to end leaving the first project's sheet untracked and two indexes modified — the state the guardians refuse. A last pass regenerates the indexes and records what remains.
+- **The paths displayed are those of your system.** Under Windows, the Pilot prompt, the project sheet and the block to consume carried the project's path in Git Bash form, with the drive letter at the start and forward slashes; they now carry the native Windows form, the one the application and the MCP server return.
+- **The documentation gives a line that can be pasted.** `INSTALL.md` and `README.md` wrote `bash tools/install-vault-mcp.sh`; `bash` is not on PowerShell's `PATH`. The exact Windows invocation, through Git's bash, now appears there.
+- **The adoption plan now speaks only of what already exists.** It used to propose filing away the index that the same call had just written.
 
-**Comment c'est prouvé.** Douze tests nommés, chacun avec son témoin négatif — la même mesure sur un cas fabriqué pour échouer — enchaînés dans les jobs Windows, Ubuntu et macOS de la CI publique. L'inventaire est dans [`tests/index.md`](./tests/index.md).
+**How it is proven.** Twelve named tests, each with its negative control — the same measurement on a case built to fail — chained in the Windows, Ubuntu and macOS jobs of the public CI. The inventory is in [`tests/index.md`](./tests/index.md).
 
-**Ce que cette version ne promet pas.**
+**What this version does not promise.**
 
-- Rien de neuf côté fonctionnalités : cette version ferme des portes, elle n'en ouvre pas.
-- Le dossier du Projet de l'application de bureau (les outils de fichiers propres à l'application, hors serveur MCP) reste une question ouverte, non tranchée ici.
-- Les limites des versions précédentes restent valables : aucun mécanisme de mise à jour, S7 et S8 en `SKIP` sans clé de fournisseur, injection du serveur MCP prouvée sur un profil simulé.
+- Nothing new on the features side: this version closes doors, it does not open any.
+- The folder of the desktop application's Project (the application's own file tools, outside the MCP server) remains an open question, not settled here.
+- The limits of the previous versions remain valid: no update mechanism, S7 and S8 at `SKIP` without a provider key, injection of the MCP server proven on a simulated profile.
 
-**Ce qui reste à faire de ton côté.**
+**What remains to be done on your side.**
 
-- Si tu as déjà installé une version précédente : relance simplement la ligne publiée ci-dessus. Si elle refuse en nommant un dossier temporaire, écarte ce dossier comme elle le demande, puis relance.
-- Pour le reste, rien ne change : `/first-install` pour le serveur MCP, puis un Projet par projet avec le prompt commun et le chemin en premier message.
+- If you have already installed a previous version: simply rerun the published line above. If it refuses, naming a temporary folder, set that folder aside as it asks, then rerun.
+- For the rest, nothing changes: `/first-install` for the MCP server, then one Project per project with the common prompt and the path as first message.
 
 ## v0.1.3
 
-Version d'initiation : un projet naît ou est adopté en nommant son Second Brain, et le Pilot reçoit un accès disque versionné avec lui.
+Initiation version: a project is born or is adopted by naming its Second Brain, and the Pilot receives a disk access versioned with it.
 
-**Ce que cette version apporte.**
+**What this version brings.**
 
-- **Adopter un dossier existant sans le modifier.** `tools/project-bootstrap.sh adopt` n'ajoute que ce qui manque. Il grave une ligne de base datée des fichiers présents :
-  - les gardiens ne jugent que le neuf et le touché ;
-  - un fichier ancien modifié doit devenir conforme ;
-  - la réorganisation en sept fonctions et la réparation des liens cassés sont proposées, jamais appliquées.
-- **Un acte de naissance par projet.** En tête de `.pre-commit-config.yaml`, un bloc de commentaires nomme :
-  - l'identité du Second Brain (`vault_id`, générée à l'installation dans `VAULT-IDENTITY.md`) ;
-  - son origine et son commit ;
-  - le suivi Git (`vcs: git` ou `none`).
-  `tools/resolve-vault.sh` résout le Second Brain d'un projet par cet acte, puis par le marqueur s'il n'y a qu'un candidat, jamais par voisinage. Deux Second Brain dans un même espace de travail ne se confondent plus, et un projet copié seul garde ses contrôles.
-- **Sans Git aussi.** Avec `vcs: none`, aucun hook : `check-links.sh`, `check-secrets.sh`, `check-indexes-fresh.sh`, `check-index-weight.sh` et `check-project-conformity.sh` acceptent un dossier en argument. `adopt --git` ajoute Git plus tard.
-- **Un ordre d'initiation.** Un agent qui ouvre un dossier non adopté s'arrête et rend l'ordre à remplir (`project-bootstrap.sh order`). Avec l'ordre daté par l'Owner, il adopte sans Mission (`--order`).
-- **Un serveur MCP embarqué.** `tools/vault-mcp.py` (Python, bibliothèque standard, lancé par `uv`) :
-  - borne l'accès du Pilot aux dossiers autorisés ;
-  - refuse un lien qui s'en échappe ;
-  - rend le commit de Second Brain.
-  `tools/install-vault-mcp.sh`, appelé par `/first-install`, le déclare dans Claude Code, Codex et l'application de bureau. `tools/check-mcp-containment.sh` vérifie le périmètre.
-- **Un prompt Pilot par projet.** `<projet>/state/PILOT-PROMPT.md` porte le chemin du projet, l'identité de Second Brain et un canari que le Pilot rend à l'ouverture ; la création rend le bloc à consommer (Projet à créer, prompt commun à coller, premier message).
-- **La conformité mesure l'étage projet** : acte, épingle, hook Git, cohérence des fichiers de pointage avec l'acte. Le registre gagne la colonne `vcs`.
+- **Adopt an existing folder without modifying it.** `tools/project-bootstrap.sh adopt` adds only what is missing. It records a dated baseline of the files present:
+  - the guardians judge only what is new and what is touched;
+  - an old file that is modified must become compliant;
+  - the reorganization into seven functions and the repair of broken links are proposed, never applied.
+- **One birth certificate per project.** At the head of `.pre-commit-config.yaml`, a block of comments names:
+  - the identity of the Second Brain (`vault_id`, generated at installation in `VAULT-IDENTITY.md`);
+  - its origin and its commit;
+  - the Git tracking (`vcs: git` or `none`).
+  `tools/resolve-vault.sh` resolves a project's Second Brain through this certificate, then through the marker if there is only one candidate, never by proximity. Two Second Brains in the same workspace are no longer confused, and a project copied on its own keeps its checks.
+- **Without Git too.** With `vcs: none`, no hook: `check-links.sh`, `check-secrets.sh`, `check-indexes-fresh.sh`, `check-index-weight.sh` and `check-project-conformity.sh` accept a folder as argument. `adopt --git` adds Git later.
+- **An initiation order.** An agent that opens a non-adopted folder stops and renders the order to fill in (`project-bootstrap.sh order`). With the order dated by the Owner, it adopts without a Mission (`--order`).
+- **An embedded MCP server.** `tools/vault-mcp.py` (Python, standard library, launched by `uv`):
+  - bounds the Pilot's access to the authorized folders;
+  - refuses a link that escapes them;
+  - returns Second Brain's commit.
+  `tools/install-vault-mcp.sh`, called by `/first-install`, declares it in Claude Code, Codex and the desktop application. `tools/check-mcp-containment.sh` verifies the perimeter.
+- **One Pilot prompt per project.** `<projet>/state/PILOT-PROMPT.md` carries the project's path, Second Brain's identity and a canary that the Pilot returns at opening; creation returns the block to consume (Project to create, common prompt to paste, first message).
+- **Conformity measures the project tier**: certificate, pin, Git hook, consistency of the pointer files with the certificate. The registry gains the `vcs` column.
 
-La CI publique exerce chacun de ces comportements sur Windows, macOS et Linux, chacun avec son témoin négatif, en plus des cinq jobs existants.
+The public CI exercises each of these behaviours on Windows, macOS and Linux, each with its negative control, in addition to the five existing jobs.
 
-**Ce que cette version ne promet pas.**
+**What this version does not promise.**
 
-- L'injection du serveur MCP est prouvée sur un profil simulé, avec des substituts de `claude` et `codex` : la CI ne lance pas les vrais outils ni l'application de bureau.
-- L'application de bureau lit la configuration au chemin mesuré sur ton poste ; sous Windows, les deux emplacements connus sont renseignés quand ils existent, sans preuve de celui que l'application lit.
-- Les limites des versions précédentes restent valables : aucun mécanisme de mise à jour, S7 et S8 en `SKIP` sans clé de fournisseur.
+- Injection of the MCP server is proven on a simulated profile, with stand-ins for `claude` and `codex`: the CI launches neither the real tools nor the desktop application.
+- The desktop application reads the configuration at the path measured on your machine; under Windows, the two known locations are filled in when they exist, without proof of which one the application reads.
+- The limits of the previous versions remain valid: no update mechanism, S7 and S8 at `SKIP` without a provider key.
 
-**Ce qui reste à faire de ton côté.**
+**What remains to be done on your side.**
 
-- Lancer `/first-install` pour poser le serveur MCP, puis redémarrer l'application Claude.
-- Pour chaque projet : créer le Projet, coller le prompt commun, donner le chemin du projet comme premier message.
+- Run `/first-install` to set up the MCP server, then restart the Claude application.
+- For each project: create the Project, paste the common prompt, give the project's path as first message.
 
 ## v0.1.2
 
-Version corrective : la ligne d'installation de la v0.1.1 échoue sous Windows sur un poste qui porte le lanceur WSL (`C:\Windows\System32\bash.exe`). Si c'est ton cas, installe depuis cette version.
+Corrective version: the installation line of v0.1.1 fails under Windows on a machine that carries the WSL launcher (`C:\Windows\System32\bash.exe`). If that is your case, install from this version.
 
-**Ce que cette version corrige.**
+**What this version fixes.**
 
-- **Git Bash est trouvé même quand WSL est présent.** L'installeur prenait le `bash.exe` de WSL pour celui de Git et s'arrêtait. Il part désormais de `git.exe`, remonte jusqu'au `bash.exe` de Git quelle que soit la profondeur du dossier, et refuse un `bash.exe` situé sous le dossier de Windows.
-- **pre-commit est trouvé quand uv vient d'ailleurs.** Si uv était déjà installé (winget, scoop), l'installeur cherchait pre-commit à côté de uv au lieu du dossier d'outils de uv, et s'arrêtait. Il demande maintenant ce dossier à uv et l'ajoute à ton `PATH`.
-- **Des tests qui mesurent ce qu'ils disent.** Aucun de ces changements ne touche l'installation :
-  - le test du paquet web obtient uv comme l'installeur et lance la copie du générateur d'index présente dans le clone ;
-  - le test S9 donne au compte standard le droit d'ouvrir une session en tant que tâche, sans lequel la tâche planifiée ne démarrait pas, puis vérifie ce droit.
+- **Git Bash is found even when WSL is present.** The installer took WSL's `bash.exe` for Git's and stopped. It now starts from `git.exe`, goes up to Git's `bash.exe` whatever the depth of the folder, and refuses a `bash.exe` located under the Windows folder.
+- **pre-commit is found when uv comes from elsewhere.** If uv was already installed (winget, scoop), the installer looked for pre-commit next to uv instead of in uv's tools folder, and stopped. It now asks uv for that folder and adds it to your `PATH`.
+- **Tests that measure what they say.** None of these changes touches the installation:
+  - the web package test obtains uv the way the installer does and launches the copy of the index generator present in the clone;
+  - the S9 test gives the standard account the right to log on as a batch job, without which the scheduled task did not start, then verifies that right.
 
-La CI publique passe sur ce contenu, avec ses cinq jobs, dont S9 sous un compte standard. S7 et S8 y restent notés `SKIP`.
+The public CI passes on this content, with its five jobs, including S9 under a standard account. S7 and S8 remain marked `SKIP` there.
 
-**Ce que cette version ne promet pas.**
+**What this version does not promise.**
 
-- Les limites de la v0.1.1 restent valables (voir ci-dessous) : aucun mécanisme de mise à jour, S7 et S8 en `SKIP` sans clé de fournisseur, téléversement du paquet web non prouvé.
+- The limits of v0.1.1 remain valid (see below): no update mechanism, S7 and S8 at `SKIP` without a provider key, upload of the web package not proven.
 
 ## v0.1.1
 
-Version de preuve : tout ce qui servait à accepter Second Brain devient rejouable, sans geste humain.
+Proof version: everything that served to accept Second Brain becomes replayable, without a human gesture.
 
-**Ce que cette version apporte.**
+**What this version brings.**
 
-- **Une ligne d'installation qui n'exige rien d'installé.** Elle télécharge un script d'amorçage (`bootstrap.ps1`, `bootstrap.sh`). Celui-ci pose Git dans ton profil s'il manque, en vérifiant son empreinte, puis récupère le dépôt et lance l'installeur. La ligne de la v0.1.0 commençait par `git clone` : un poste sans Git ne pouvait pas démarrer. Rien ne demande de droits administrateur.
-- **Une acceptation entièrement mécanique.** `tests/run-mechanical-acceptance.ps1` rend onze lignes datées (S1 à S10 et T21) :
-  - l'assistant (S7) et le paquet web (S8) sont interrogés sur les trois questions de `assistant/ASSISTANT.md`, trois fois chacune, par deux fournisseurs ;
-  - S9 installe la ligne publiée sous un compte Windows standard, sans Git, avec un témoin qui prouve qu'aucune élévation n'est possible ;
-  - le wizard humain de la v0.1.0 est retiré (conservé dans `_trash/`).
-- **Le paquet web contient exactement ce que son README annonce.** Un `index.md` en trop disparaît, et le compte de fichiers du README redevient exact.
-- **L'assistant se charge dans Codex.** Sous Windows, les formes générées portaient une marque d'ordre des octets (BOM), qui empêchait Codex de lire le skill.
-- **macOS et Linux tels qu'ils sont livrés.** Depuis la v0.1.0 :
-  - les gardiens tournent réellement au commit (les hooks n'étaient pas exécutables) ;
-  - les outils fonctionnent avec le bash 3.2 et les outils BSD d'Apple, que la CI exerce désormais sur macOS à chaque poussée ;
-  - un chemin contenant `&` ou une barre oblique inverse n'échappe plus à deux gardiens ;
-  - le mode test de l'installeur Unix n'écrit plus dans ton profil réel.
+- **An installation line that requires nothing installed.** It downloads a bootstrap script (`bootstrap.ps1`, `bootstrap.sh`). That script sets up Git in your profile if it is missing, verifying its fingerprint, then fetches the repository and launches the installer. The line of v0.1.0 started with `git clone`: a machine without Git could not start. Nothing asks for administrator rights.
+- **A fully mechanical acceptance.** `tests/run-mechanical-acceptance.ps1` returns eleven dated lines (S1 to S10 and T21):
+  - the assistant (S7) and the web package (S8) are asked the three questions of `assistant/ASSISTANT.md`, three times each, by two providers;
+  - S9 installs the published line under a standard Windows account, without Git, with a control that proves no elevation is possible;
+  - the human wizard of v0.1.0 is withdrawn (kept in `_trash/`).
+- **The web package contains exactly what its README announces.** A superfluous `index.md` disappears, and the README's file count becomes exact again.
+- **The assistant loads in Codex.** Under Windows, the generated forms carried a byte order mark (BOM), which prevented Codex from reading the skill.
+- **macOS and Linux as they are shipped.** Since v0.1.0:
+  - the guardians really run at commit (the hooks were not executable);
+  - the tools work with Apple's bash 3.2 and BSD tools, which the CI now exercises on macOS at every push;
+  - a path containing `&` or a backslash no longer escapes two guardians;
+  - the Unix installer's test mode no longer writes into your real profile.
 
-**Ce que cette version ne promet pas.**
+**What this version does not promise.**
 
-- Toujours aucun mécanisme de mise à jour : une installation v0.1.0 ne devient pas v0.1.1 d'elle-même. Réinstalle depuis la ligne publiée si tu veux cette version.
-- S7 et S8 appellent un modèle : dans la CI publique, sans clé de fournisseur, ces deux lignes sont notées `SKIP`, jamais réussies par défaut.
-- S8 prouve le contenu du paquet et les réponses obtenues par équivalence ; il ne prouve pas le geste de téléversement dans l'interface web.
+- Still no update mechanism: a v0.1.0 installation does not become v0.1.1 by itself. Reinstall from the published line if you want this version.
+- S7 and S8 call a model: in the public CI, without a provider key, these two lines are marked `SKIP`, never passed by default.
+- S8 proves the content of the package and the answers obtained by equivalence; it does not prove the upload gesture in the web interface.
 
-**Ce qui reste à faire de ton côté.**
+**What remains to be done on your side.**
 
-- Coller la ligne d'installation.
-- Sous macOS, accepter l'installation des outils en ligne de commande d'Apple si elle est proposée.
-- Dans un Projet claude.ai ou ChatGPT, coller le fichier d'instructions du paquet web et téléverser les fichiers que son README liste.
+- Paste the installation line.
+- Under macOS, accept the installation of Apple's command line tools if it is offered.
+- In a claude.ai or ChatGPT Project, paste the web package's instructions file and upload the files its README lists.
 
 ## v0.1.0
 
-Première version publiée : un historique neuf, sans aucun ancêtre de l'historique de développement, et aucun motif privé ni dans l'arbre ni dans l'historique (vérifié par `tools/check-private-patterns.sh` en mode complet).
+First published version: a fresh history, without any ancestor from the development history, and no private pattern either in the tree or in the history (verified by `tools/check-private-patterns.sh` in full mode).
 
-**Ce que cette version contient.** L'installeur en une ligne (Windows, macOS, Linux) ; le questionnaire de sept questions ; l'assistant généré (sous-agent Claude Code, skill Codex, paquet web) ; les skills de la méthode et le warehouse de skills tiers ; les gardiens automatiques (`.githooks/pre-commit`) ; le registre de Missions et les gabarits de projet.
+**What this version contains.** The one-line installer (Windows, macOS, Linux); the seven-question questionnaire; the generated assistant (Claude Code subagent, Codex skill, web package); the method's skills and the warehouse of third-party skills; the automatic guardians (`.githooks/pre-commit`); the Mission register and the project templates.
 
-**Ce que cette version ne promet pas.** Aucun mécanisme de mise à jour : une installation vaut pour la version installée, elle ne peut pas en récupérer une plus récente. Pour une version plus récente, réinstalle depuis le dépôt publié — voir [« Reprise et mise à jour » du README](./README.md#reprise-et-mise-à-jour). Un projet créé pendant le questionnaire ne se renomme pas après coup. macOS n'est pas exercé par la CI automatique : son job ne part que sur déclenchement manuel.
+**What this version does not promise.** No update mechanism: an installation holds for the installed version, it cannot fetch a more recent one. For a more recent version, reinstall from the published repository — see ["Resume and update" in the README](./README.md#reprise-et-mise-à-jour). A project created during the questionnaire cannot be renamed afterwards. macOS is not exercised by the automatic CI: its job starts only on manual trigger.
 
 ## Liens
 

@@ -1,74 +1,74 @@
 ---
 type: context
-title: "Second Brain — glossaire"
-description: "Glossaire des termes du produit, validé en T18, au format CONTEXT.md du skill domain-modeling."
+title: "Second Brain — glossary"
+description: "Glossary of the product's terms, validated in T18, in the CONTEXT.md format of the domain-modeling skill."
 status: active
 ---
 
-# Second Brain — glossaire
+# Second Brain — glossary
 
-Les termes du produit, tels qu'un utilisateur ou un agent les rencontre dans ce dépôt. Validé par l'Owner (DECISION, T18 de la Mission 168), livré ici tel quel.
+The product's terms, as a user or an agent meets them in this repository. Validated by the Owner (DECISION, T18 of Mission 168), delivered here as is.
 
-## Langage
+## Language
 
 **Second Brain**:
-Le système installé — règles, méthodes, gabarits, skills, gardiens — versionné dans le dépôt `second-brain`.
-_Éviter_ : OS, framework.
+The installed system — rules, methods, templates, skills, guardians — versioned in the `second-brain` repository.
+_Avoid_: OS, framework.
 
 **Vault**:
-Nom interne de Second Brain dans les règles et les outils ; même chose.
+Internal name of Second Brain in the rules and the tools; the same thing.
 
 **Workspace**:
-Le dossier qui contient `second-brain` et tes projets, marqué par `VAULT-ROOT.md`.
-_Éviter_ : dossier racine.
+The folder that contains `second-brain` and your projects, marked by `VAULT-ROOT.md`.
+_Avoid_: root folder.
 
-**Projet**:
-Un dossier de travail à côté de `second-brain`, inscrit au registre, qui hérite de la méthode.
+**Project**:
+A work folder next to `second-brain`, entered in the registry, which inherits the method.
 
-**Skill fabriqué**:
-Un skill écrit pour Second Brain, dans `skills/`.
+**Built skill**:
+A skill written for Second Brain, in `skills/`.
 
-**Skill adopté**:
-Un skill tiers vérifié, entré par ingestion.
-_Éviter_ : plugin, extension.
+**Adopted skill**:
+A verified third-party skill, brought in through ingestion.
+_Avoid_: plugin, extension.
 
 **Warehouse**:
-La bibliothèque des skills adoptés, `skills-warehouse/`.
+The library of adopted skills, `skills-warehouse/`.
 
 **Assistant**:
-L'agent de Second Brain, nommé par l'utilisateur à l'installation ; nom proposé par défaut : Brian. Il guide l'installation, puis répond en lecture seule.
-_Éviter_ : bot.
+Second Brain's agent, named by the user at installation; default proposed name: Brian. It guides the installation, then answers read-only.
+_Avoid_: bot.
 
 **Owner**:
-Toi, qui décides et qui pousses.
-_Éviter_ : admin.
+You, who decide and who push.
+_Avoid_: admin.
 
 **Pilot**:
-Le rôle de session qui réfléchit, arbitre et rédige, sans exécuter.
+The session role that thinks, arbitrates and drafts, without executing.
 
 **Executor**:
-Le rôle de session qui exécute, mesure et commite, dans le périmètre d'une Mission.
+The session role that executes, measures and commits, within a Mission's scope.
 
 **Mission**:
-Le fichier qui prescrit un travail à l'Executor, gelé à son émission.
-_Éviter_ : tâche, prompt.
+The file that prescribes a piece of work to the Executor, frozen when issued.
+_Avoid_: task, prompt.
 
-**Décision**:
-Un choix gravé et daté qui fait autorité.
-_Éviter_ : ADR.
+**Decision**:
+A recorded and dated choice that is authoritative.
+_Avoid_: ADR.
 
-**Gardien**:
-Un contrôle automatique au commit, qui refuse ce qui viole une règle.
-_Éviter_ : hook, linter.
+**Guardian**:
+An automatic check at commit, which refuses what violates a rule.
+_Avoid_: hook, linter.
 
-**Carnet d'installation**:
-La trace qui permet de reprendre une installation interrompue.
+**Installation logbook**:
+The trace that makes it possible to resume an interrupted installation.
 
 ## Note
 
-« Atelier » est absent de ce glossaire : ce terme n'existe pas pour l'utilisateur de Second Brain — voir la [règle de frontière entre un projet et Second Brain](./rules/RULES-2026-09-11-190000-project-second-brain-boundary.md).
+« Atelier » ["workshop"] is absent from this glossary: this term does not exist for the user of Second Brain — see the [boundary rule between a project and Second Brain](./rules/RULES-2026-09-11-190000-project-second-brain-boundary.md).
 
 ## Liens
 
 - `see also` — [README](./README.md)
-- `see also` — [Règle de frontière entre un projet et Second Brain](./rules/RULES-2026-09-11-190000-project-second-brain-boundary.md)
+- `see also` — [Boundary rule between a project and Second Brain](./rules/RULES-2026-09-11-190000-project-second-brain-boundary.md)

@@ -32,8 +32,8 @@ echo "=== T5 : parcours participant en quatre etapes, et FAQ des lecons d'accept
 #
 # Format d'une entree : "fichier|motif installer|motif MCP|motif Pilot|motif adopter"
 CHECKS=(
-  "README.md|## Ligne d'installation|## Le serveur MCP|## Ouvrir le Pilot d'un projet|## Adopter un dossier existant"
-  "INSTALL.md|## 2. Ligne d'installation|## 4. Le serveur MCP|## 5. Ouvrir le Pilot|## 6. Adopter un dossier existant"
+  "README.md|## Installation line|## The MCP server|## Open a project's Pilot|## Adopt an existing folder"
+  "INSTALL.md|## 2. Installation line|## 4. The MCP server|## 5. Open the Pilot|## 6. Adopt an existing folder"
 )
 
 # section_order_ok <fichier> <motif1> <motif2> <motif3> <motif4> : 0 si les
@@ -68,11 +68,11 @@ done
 # La FAQ vit dans README.md, section "## Questions frequentes" jusqu'au "## "
 # suivant. Format d'une entree : "nom du theme|motif1|motif2"
 FAQ_FILE="$REPO_ROOT/README.md"
-FAQ_BLOCK="$(awk '/^## Questions fréquentes/{flag=1; next} /^## /{if (flag) exit} flag' "$FAQ_FILE" 2>/dev/null)"
+FAQ_BLOCK="$(awk '/^## Frequently asked questions/{flag=1; next} /^## /{if (flag) exit} flag' "$FAQ_FILE" 2>/dev/null)"
 
 FAQ_THEMES=(
   "bash hors PATH sous Windows|PATH|bash"
-  "dossier temporaire reutilise|temporaire|second-brain-install"
+  "dossier temporaire reutilise|temporary|second-brain-install"
   "deux emplacements de claude_desktop_config.json|Packages|APPDATA"
   "exclusivite du serveur second-brain-vault|second-brain-vault|exclusiv"
 )
@@ -121,7 +121,7 @@ fi
 # theme correspondant doit alors echouer, les trois autres doivent tenir.
 WITNESS_FAQ="$TMP/README-no-faq-entry.md"
 grep -v "second-brain-vault" "$FAQ_FILE" > "$WITNESS_FAQ"
-WITNESS_FAQ_BLOCK="$(awk '/^## Questions fréquentes/{flag=1; next} /^## /{if (flag) exit} flag' "$WITNESS_FAQ" 2>/dev/null)"
+WITNESS_FAQ_BLOCK="$(awk '/^## Frequently asked questions/{flag=1; next} /^## /{if (flag) exit} flag' "$WITNESS_FAQ" 2>/dev/null)"
 
 if faq_has_theme "$WITNESS_FAQ_BLOCK" "second-brain-vault" "exclusiv"; then
   fail "temoin : une copie de README.md privee des mentions « second-brain-vault » passe quand meme le controle FAQ"
@@ -132,7 +132,7 @@ fi
 # amputee -- preuve que le controle FAQ cible bien le theme retire, pas tout
 # le bloc.
 OTHER_THEMES_OK=1
-for ENTRY in "bash hors PATH sous Windows|PATH|bash" "dossier temporaire reutilise|temporaire|second-brain-install" "deux emplacements de claude_desktop_config.json|Packages|APPDATA"; do
+for ENTRY in "bash hors PATH sous Windows|PATH|bash" "dossier temporaire reutilise|temporary|second-brain-install" "deux emplacements de claude_desktop_config.json|Packages|APPDATA"; do
   IFS='|' read -r NOM MOTIF1 MOTIF2 <<< "$ENTRY"
   faq_has_theme "$WITNESS_FAQ_BLOCK" "$MOTIF1" "$MOTIF2" || OTHER_THEMES_OK=0
 done

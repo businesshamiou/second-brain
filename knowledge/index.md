@@ -12,10 +12,10 @@ Index généré automatiquement. Ne pas éditer à la main : régénérer via `t
 
 ## Contenu
 
-- `2026-08-17-140100` · superseded · Modèle opératoire des projets · `BRIEF-2026-08-17-140100-project-operating-model.md` — REMPLACÉ par BRIEF-2026-08-17-211522-project-operating-model-v2.md
-- `2026-08-17-211522` · active · Modèle opératoire des projets V2 — frontière Vault/projet et hiérarchie Vault r… · `BRIEF-2026-08-17-211522-project-operating-model-v2.md`
-- `corpus-layering` · active · Stratification du corpus : où vit un artefact, et s'il entre dans un graphe · `corpus-layering.md`
-- `verification-and-evidence` · active · Vérification et preuves — STATE → CHANGE → VALIDATION → SNAPSHOT → EXTERNAL BOU… · `verification-and-evidence.md`
+- `2026-08-17-140100` · superseded · Project operating model · `BRIEF-2026-08-17-140100-project-operating-model.md` — REMPLACÉ par BRIEF-2026-08-17-211522-project-operating-model-v2.md
+- `2026-08-17-211522` · active · Project operating model V2 — Vault/project boundary and hierarchy Vault rules →… · `BRIEF-2026-08-17-211522-project-operating-model-v2.md`
+- `corpus-layering` · active · Corpus layering: where an artefact lives, and whether it enters a graph · `corpus-layering.md`
+- `verification-and-evidence` · active · Verification and evidence — STATE → CHANGE → VALIDATION → SNAPSHOT → EXTERNAL B… · `verification-and-evidence.md`
 
 ## Liens
 

@@ -1,33 +1,33 @@
 ---
 type: brief
-title: "Modèle opératoire des projets"
+title: "Project operating model"
 created_at: 2026-08-17T14:01:00-04:00
 timezone: America/Montreal
 status: superseded
 scope: transverse-project-guidance
 ---
 
-# MODÈLE OPÉRATOIRE DES PROJETS
+# PROJECT OPERATING MODEL
 
-## But
+## Purpose
 
-Expliquer comment un projet externe doit collaborer avec le Vault sans copier l'architecture du Vault.
+Explain how an external project must collaborate with the Vault without copying the architecture of the Vault.
 
-Ce modèle applique la [séparation entre Vault et projets frères](../decisions/DECISION-2026-08-17-003000-vault-central-architecture.md) ainsi que l'[architecture d'information V1](../decisions/DECISION-2026-08-17-111018-vault-v1-information-architecture.md). Les artefacts optionnels suivent le [cycle de contexte V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md) et les [modèles du Vault](../templates/).
+This model applies the [separation between the Vault and sibling projects](../decisions/DECISION-2026-08-17-003000-vault-central-architecture.md) as well as the [information architecture V1](../decisions/DECISION-2026-08-17-111018-vault-v1-information-architecture.md). Optional artefacts follow the [context lifecycle V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md) and the [Vault's templates](../templates/).
 
-## 1. Vault vs projet
+## 1. Vault vs project
 
-Le Vault garde la manière de travailler.
+The Vault keeps the way of working.
 
-Le projet garde ce sur quoi on travaille.
+The project keeps what is being worked on.
 
-Le Vault contient les règles, méthodes, connaissances transversales et modèles réutilisables.
+The Vault contains the rules, methods, cross-project knowledge and reusable templates.
 
-Le projet contient son objectif, son contexte, son état, ses règles spécifiques et ses productions métier.
+The project contains its objective, its context, its state, its specific rules and its business productions.
 
-## 2. Noyau minimal recommandé
+## 2. Recommended minimal core
 
-Un nouveau projet peut commencer par :
+A new project may start with:
 
 ```text
 project/
@@ -39,31 +39,31 @@ project/
     └── current-state.md
 ```
 
-Ne pas créer d'autres dossiers par anticipation.
+Do not create other folders in anticipation.
 
-## 3. Structure à la demande
+## 3. Structure on demand
 
-Ajouter uniquement quand le besoin apparaît :
+Add only when the need appears:
 
 ```text
-rules/          # règles propres au projet
-proposals/      # options importantes à arbitrer
-decisions/      # décisions spécifiques au projet
-captures/       # apprentissages durables
-handoffs/       # vraies passations
-resources/      # inventaire des ressources externes
-src/            # code si applicable
-tests/          # tests si applicable
-assets/         # assets versionnables si applicable
+rules/          # rules specific to the project
+proposals/      # important options to arbitrate
+decisions/      # decisions specific to the project
+captures/       # durable learnings
+handoffs/       # real handoffs
+resources/      # inventory of external resources
+src/            # code if applicable
+tests/          # tests if applicable
+assets/         # versionable assets if applicable
 ```
 
-La structure métier reste libre et dépend du type de projet.
+The business structure remains free and depends on the type of project.
 
-Les dossiers apparaissent pour porter un besoin réel ; leur simple disponibilité dans le Vault ne justifie pas leur création dans chaque projet.
+Folders appear to carry a real need; their mere availability in the Vault does not justify creating them in every project.
 
-## 4. Règles du Vault et règles du projet
+## 4. Vault rules and project rules
 
-Ordre de spécialisation :
+Order of specialization:
 
 ```text
 Vault rules
@@ -73,41 +73,41 @@ Project rules
 Mission / task instructions
 ```
 
-Les règles du Vault portent le transverse.
+The Vault's rules carry what is cross-project.
 
-Les règles projet portent le métier, la stack, le format, les contraintes ou les conventions propres au projet.
+Project rules carry the business domain, the stack, the format, the constraints or the conventions specific to the project.
 
-Une règle projet peut spécialiser le cadre, mais ne doit pas neutraliser silencieusement les garde-fous structurants du Vault.
+A project rule may specialize the frame, but must not silently neutralize the Vault's structuring guardrails.
 
-## 5. Git : ce qui entre dans le repo
+## 5. Git: what goes into the repo
 
-À versionner de préférence :
+Preferably version:
 
-- code et scripts ;
-- fichiers Markdown ;
-- configuration ;
-- tests ;
-- petits assets ;
-- schémas ;
-- fichiers source raisonnablement petits ;
-- tout artefact textuel important et reproductible.
+- code and scripts;
+- Markdown files;
+- configuration;
+- tests;
+- small assets;
+- schemas;
+- reasonably small source files;
+- any important and reproducible textual artefact.
 
-## 6. Ressources hors Git
+## 6. Resources outside Git
 
-Certains éléments peuvent rester hors Git :
+Some elements may stay outside Git:
 
-- vidéos brutes ;
-- gros médias ;
-- datasets volumineux ;
-- fichiers binaires lourds ;
-- assets achetés ou soumis à licence ;
-- exports temporaires.
+- raw videos;
+- large media;
+- voluminous datasets;
+- heavy binary files;
+- purchased or licensed assets;
+- temporary exports.
 
-Ils restent néanmoins connus du projet via un manifeste, par exemple :
+They nevertheless remain known to the project through a manifest, for example:
 
 `resources/resources-manifest.md`
 
-Le manifeste peut contenir :
+The manifest may contain:
 
 - `name`
 - `purpose`
@@ -115,32 +115,32 @@ Le manifeste peut contenir :
 - `version`
 - `license`
 - `git_tracked`
-- `checksum` lorsque pertinent
+- `checksum` when relevant
 
-Le manifeste ne doit pas contenir de secret.
+The manifest must not contain any secret.
 
-## 7. Un repo ou plusieurs ?
+## 7. One repo or several?
 
-Règle par défaut :
+Default rule:
 
-> Un projet = un repo principal.
+> One project = one main repo.
 
-Séparer en plusieurs repos uniquement si un besoin réel le justifie :
+Split into several repos only if a real need justifies it:
 
-- permissions différentes ;
-- cycles de déploiement indépendants ;
-- produits distincts ;
-- contraintes de sécurité ;
-- forte autonomie technique.
+- different permissions;
+- independent deployment cycles;
+- distinct products;
+- security constraints;
+- strong technical autonomy.
 
-Ne pas multiplier les repos seulement pour classer des fichiers.
+Do not multiply repos only to file away files.
 
-## 8. Principe de conception
+## 8. Design principle
 
-> **Besoin réel → structure.**
+> **Real need → structure.**
 
-L'objectif est de rendre les projets suffisamment structurés pour être pilotables par les agents, sans reproduire la complexité du Vault.
+The objective is to make projects structured enough to be driven by agents, without reproducing the complexity of the Vault.
 
 ## Liens
 
-- `superseded by` — [BRIEF-2026-08-17-211522-project-operating-model-v2 — Modèle opératoire des projets V2 — frontière Vault/projet et hiérarchie Vault rules → Project rules → Mission/task instructions](BRIEF-2026-08-17-211522-project-operating-model-v2.md)
+- `superseded by` — [BRIEF-2026-08-17-211522-project-operating-model-v2 — Project operating model V2 — Vault/project boundary and hierarchy Vault rules → Project rules → Mission/task instructions](BRIEF-2026-08-17-211522-project-operating-model-v2.md)

@@ -1,20 +1,20 @@
 ---
 type: index
-title: "Passations du Vault"
-description: "Deltas de continuité entre sessions et acteurs."
+title: "Vault handoffs"
+description: "Continuity deltas between sessions and actors."
 created_at: 2026-08-19T11:53:06-04:00
 timezone: America/Montreal
 status: active
 ---
 
-# Passations du Vault
+# Vault handoffs
 
-Deltas de continuité entre sessions et acteurs.
+Continuity deltas between sessions and actors.
 
 ## Contenu
 
-Ce dossier ne contient encore aucun artefact.
+This folder does not yet contain any artefact.
 
 ## Liens
 
-- `prescribed by` — [Standard de liens entre documents](../rules/RULES-2026-08-21-115658-document-linking-standard.md)
+- `prescribed by` — [Document linking standard](../rules/RULES-2026-08-21-115658-document-linking-standard.md)

@@ -1,6 +1,6 @@
 ---
 title: "Second Brain"
-description: "Page d'entrée du dépôt : ce qu'est Second Brain, comment l'installer, ce qui est installé et où, comment le désinstaller."
+description: "Entry page of the repository: what Second Brain is, how to install it, what is installed and where, how to uninstall it."
 status: active
 ---
 
@@ -10,174 +10,176 @@ status: active
 
 # SECOND BRAIN
 
-## Ce que c'est
+## What it is
 
-Second Brain est une mémoire durable et un système opératoire transversal pour travailler avec des agents IA : règles, méthodes, gabarits, skills et gardiens automatiques, versionnés dans un seul dépôt Git dont tu es propriétaire. Les fichiers restent la source de vérité ; les outils gravitent autour d'eux.
+Second Brain is a durable memory and a cross-project operating system for working with AI agents: rules, methods, templates, skills and automatic guardians, versioned in a single Git repository that you own. The files remain the source of truth; the tools revolve around them.
 
-Il embarque aussi une bibliothèque de skills tiers déjà vérifiés (licence, portabilité) — voir « ce qui est installé et où » — et un assistant, nommé par toi à l'installation (par défaut « Brian »), qui guide l'installation puis répond en lecture seule une fois celle-ci terminée.
+It also ships a library of already-verified third-party skills (license, portability) — see "What is installed, and where" — and an assistant, named by you at installation (by default « Brian »), which guides the installation and then answers read-only once it is finished.
 
-Le glossaire complet des termes du produit vit dans [CONTEXT.md](./CONTEXT.md).
+The complete glossary of the product's terms lives in [CONTEXT.md](./CONTEXT.md).
 
-## Prérequis
+## Prerequisites
 
-- **Un abonnement payant à au moins un agent IA** : Claude Pro (ou plus), ou ChatGPT Plus (ou plus). Rien dans Second Brain n'est conçu ni testé pour un compte gratuit — l'installeur ne le vérifie pas lui-même, mais le questionnaire suppose cet accès.
-- **Git.** Détecté et réutilisé s'il est déjà sur ton poste ; installé pour toi dans ton propre profil, sans droits administrateur, sinon.
-- Python et `pre-commit` : mêmes conditions que Git, installés au besoin par l'installeur (gestionnaire `uv`), jamais de façon globale ni élevée.
-- Windows, macOS ou Linux. L'installeur PowerShell (`install.ps1`) et l'installeur shell (`install.sh`) posent les mêmes questions, écrivent le même carnet et produisent le même verdict.
+- **A paid subscription to at least one AI agent**: Claude Pro (or higher), or ChatGPT Plus (or higher). Nothing in Second Brain is designed or tested for a free account — the installer does not check it itself, but the questionnaire assumes that access.
+- **Git.** Detected and reused if it is already on your machine; otherwise installed for you in your own profile, without administrator rights.
+- Python and `pre-commit`: same conditions as Git, installed as needed by the installer (the `uv` manager), never globally nor with elevation.
+- Windows, macOS or Linux. The PowerShell installer (`install.ps1`) and the shell installer (`install.sh`) ask the same questions, write the same logbook and produce the same verdict.
 
-## Ligne d'installation
+## Installation line
 
-**Windows (PowerShell, compte standard suffisant) :**
+**Windows (PowerShell, a standard account is enough):**
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.5/bootstrap.ps1)))"
 ```
 
-**macOS / Linux (Terminal) :**
+**macOS / Linux (Terminal):**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.5/bootstrap.sh | bash
 ```
 
-Rien n'est à installer avant : le script d'amorçage pose Git dans ton profil s'il manque, récupère ce dépôt, puis lance l'installeur (détail dans [INSTALL.md](./INSTALL.md)).
+Nothing needs to be installed beforehand: the bootstrap script sets up Git in your profile if it is missing, fetches this repository, then launches the installer (details in [INSTALL.md](./INSTALL.md)).
 
-**Depuis Claude Code ou Codex**, ouvre une session dans un dossier quelconque et lance `/first-install` : l'agent pose les mêmes questions dans son propre chat, écrit le fichier de réponses, puis appelle le même installeur.
+**From Claude Code or Codex**, open a session in any folder and run `/first-install`: the agent asks the same questions in its own chat, writes the answers file, then calls the same installer.
 
-Dans les trois cas, l'installeur crée ton espace de travail, y clone `second-brain` à sa place définitive, pose le marqueur `VAULT-ROOT.md`, et te pose sept questions courtes (langue, nom de l'assistant, emplacement de l'espace de travail, prénom, activité, façon de travailler avec l'IA, ce qui compte pour toi) avant de te proposer un premier projet.
+In all three cases, the installer creates your workspace, clones `second-brain` into it at its final location, sets up the `VAULT-ROOT.md` marker, and asks you seven short questions (language, assistant's name, location of the workspace, first name, activity, way of working with AI, what matters to you) before proposing a first project to you.
 
-**L'installation par archive (zip) reste refusée.** Second Brain se publie par étiquette de version (« tag ») sur un dépôt Git, jamais accompagné d'une archive : les gardiens de ce dépôt (contrôle de secrets, de liens, de fraîcheur des index) exigent un dépôt Git réel (`git rev-parse` doit répondre) pour s'exécuter, et un dossier extrait d'une archive n'en est pas un — ni les gardiens ni `/first-install` n'y fonctionnent correctement. La ligne ci-dessus récupère toujours un vrai dépôt.
+**Installation from an archive (zip) remains refused.** Second Brain is published by version tag on a Git repository, never accompanied by an archive: the guardians of this repository (checks of secrets, of links, of index freshness) require a real Git repository (`git rev-parse` must answer) in order to run, and a folder extracted from an archive is not one — neither the guardians nor `/first-install` work correctly there. The line above always fetches a real repository.
 
-**Acceptation :** aucune étape ne demande de geste humain. `tests/run-mechanical-acceptance.ps1` (PowerShell) rejoue les onze scénarios d'acceptation (S1 à S10 et T21) et écrit leur rapport daté à côté du dépôt ; les scripts `.sh` qu'il appelle passent par le Bash livré avec Git, qu'il retrouve tout seul.
+**Acceptance:** no step requires a human gesture. `tests/run-mechanical-acceptance.ps1` (PowerShell) replays the eleven acceptance scenarios (S1 to S10 and T21) and writes their dated report next to the repository; the `.sh` scripts it calls go through the Bash shipped with Git, which it finds on its own.
 
-## Ce qui est installé, et où
+## What is installed, and where
 
-| Composant | Emplacement | Portée |
+| Component | Location | Scope |
 |---|---|---|
-| Le dépôt `second-brain` lui-même (règles, skills fabriqués, warehouse, outils) | dossier choisi par toi à la question 3, dans ton espace de travail | ce dépôt uniquement |
-| Skills de la méthode, toujours déployés (`skills/` et `skills/external/`) | liens dans `.claude/skills/` et `.agents/skills/` de **chaque projet**, posés à sa création (Codex reçoit `skills/` seul si le budget de description dépasse le plafond mesuré) | ce projet uniquement |
-| L'assistant (par défaut « Brian ») | sous-agent Claude Code et skill Codex liés dans `.claude/agents/` et `.agents/skills/` de **chaque projet**, plus un paquet web à téléverser toi-même dans un Projet claude.ai ou ChatGPT | ce projet uniquement, plus un geste manuel pour le paquet web |
-| Git, Python et `pre-commit`, si absents de ton poste | ton profil utilisateur uniquement (jamais un emplacement machine, jamais avec élévation) | ton profil utilisateur |
-| Ta fiche `USER.md`, ton premier projet éventuel | dans `second-brain` (`USER.md`) et à côté de lui dans l'espace de travail (le projet) | ton espace de travail |
-| Le carnet d'installation | `.install/state.json`, à la racine de ton clone, jamais suivi par Git | ton clone local |
+| The `second-brain` repository itself (rules, built skills, warehouse, tools) | folder chosen by you at question 3, in your workspace | this repository only |
+| The method's skills, always deployed (`skills/` and `skills/external/`) | links in `.claude/skills/` and `.agents/skills/` of **each project**, set up at its creation (Codex receives `skills/` alone if the description budget exceeds the measured ceiling) | that project only |
+| The assistant (by default « Brian ») | Claude Code subagent and Codex skill linked in `.claude/agents/` and `.agents/skills/` of **each project**, plus a web package to upload yourself into a claude.ai or ChatGPT Project | that project only, plus one manual gesture for the web package |
+| Git, Python and `pre-commit`, if absent from your machine | your user profile only (never a machine-wide location, never with elevation) | your user profile |
+| Your `USER.md` sheet, your possible first project | in `second-brain` (`USER.md`) and next to it in the workspace (the project) | your workspace |
+| The installation logbook | `.install/state.json`, at the root of your clone, never tracked by Git | your local clone |
 
-Rien n'est installé à un emplacement machine (registre système, dossier partagé), rien ne demande de droits administrateur, et rien n'est posé dans ton profil (les dossiers *.claude*, *.agents* ou *.codex* de ton compte) : l'assistant et les skills de la méthode vivent uniquement dans le clone `second-brain` et dans les projets qui les lient — supprimer un projet ou l'espace de travail entier suffit à tout retirer, sans geste de nettoyage séparé. Seul un projet non listé ici perd ces liens ; recrée-le avec le skill `first-install`/`project-bootstrap` pour les obtenir.
+Nothing is installed at a machine-wide location (system registry, shared folder), nothing asks for administrator rights, and nothing is placed in your profile (the *.claude*, *.agents* or *.codex* folders of your account): the assistant and the method's skills live only in the `second-brain` clone and in the projects that link them — deleting a project or the whole workspace is enough to remove everything, without a separate cleanup gesture. Only a project not listed here loses these links; recreate it with the `first-install`/`project-bootstrap` skill to get them.
 
-## Le serveur MCP
+## The MCP server
 
-Le rôle Pilot (penser, arbitrer, écrire les Missions) se joue dans **l'application de bureau Claude** : c'est là que vit le serveur MCP de Second Brain (`second-brain-vault`), qui donne au Pilot un accès disque borné à ton espace de travail. Il n'existe pas dans le navigateur.
+The Pilot role (thinking, arbitrating, writing the Missions) is played in **the Claude desktop application**: that is where Second Brain's MCP server (`second-brain-vault`) lives, which gives the Pilot disk access bounded to your workspace. It does not exist in the browser.
 
-Depuis Claude Code ou Codex, `/first-install` pose ce serveur (`tools/install-vault-mcp.sh`) dans les outils qu'il trouve — Claude Code, Codex, l'application de bureau — avec ton espace de travail comme seul dossier autorisé. Redémarre ensuite l'application. À la main, depuis la racine de ton clone :
+From Claude Code or Codex, `/first-install` sets up this server (`tools/install-vault-mcp.sh`) in the tools it finds — Claude Code, Codex, the desktop application — with your workspace as the only authorized folder. Then restart the application. By hand, from the root of your clone:
 
 ```bash
 bash tools/install-vault-mcp.sh <espace de travail>
 bash tools/check-mcp-containment.sh <configuration> <projet>
 ```
 
-**Sous Windows, dans PowerShell**, `bash` n'est pas sur le PATH ; appelle celui de Git par son chemin complet :
+**Under Windows, in PowerShell**, `bash` is not on the PATH; call Git's by its full path:
 
 ```powershell
 & "C:\Program Files\Git\bin\bash.exe" tools/install-vault-mcp.sh <espace de travail>
 & "C:\Program Files\Git\bin\bash.exe" tools/check-mcp-containment.sh <configuration> <projet>
 ```
 
-**Comment vérifier qu'il tourne.** `check-mcp-containment.sh` te dit si la configuration écrite est correcte. Pour confirmer que le serveur est bien actif une fois l'application redémarrée, ouvre le Pilot (section suivante) : sa toute première réponse porte un **canari**, la preuve qu'il a lu le disque par ce serveur plutôt que sa mémoire.
+**How to verify that it is running.** `check-mcp-containment.sh` tells you whether the configuration written is correct. To confirm that the server is indeed active once the application has restarted, open the Pilot (next section): its very first answer carries a **canary**, the proof that it read the disk through this server rather than from its memory.
 
-## Ouvrir le Pilot d'un projet (application de bureau)
+## Open a project's Pilot (desktop application)
 
-Chaque projet porte son prompt Pilot, `<projet>/state/PILOT-PROMPT.md`, généré à sa création. La création te rend un **bloc à consommer** :
+Each project carries its Pilot prompt, `<projet>/state/PILOT-PROMPT.md`, generated at its creation. The creation returns a **block to consume**:
 
-1. Crée un **Projet** (dans claude.ai ou l'application de bureau) portant le nom de ton projet.
-2. Colle comme instructions le prompt commun (`templates/session-opening-prompt-template.md`).
-3. Donne comme premier message le chemin du projet.
+1. Create a **Project** (in claude.ai or the desktop application) bearing the name of your project.
+2. Paste the common prompt (`templates/session-opening-prompt-template.md`) as instructions.
+3. Give the project's path as first message.
 
-À l'ouverture, le Pilot vérifie que le serveur voit ce chemin, puis lit le prompt du projet et rend son **canari** : la preuve qu'il a lu le disque plutôt que sa mémoire.
+At opening, the Pilot verifies that the server sees this path, then reads the project's prompt and returns its **canary**: the proof that it read the disk rather than its memory.
 
-## Adopter un dossier existant
+## Adopt an existing folder
 
-Un dossier qui existe déjà (avec ou sans Git) devient un projet sans que rien de ce qu'il contient ne soit modifié :
+A folder that already exists (with or without Git) becomes a project without anything it contains being modified:
 
 ```bash
 bash second-brain/tools/project-bootstrap.sh adopt /chemin/du/dossier --vcs git
 ```
 
-Le script ajoute seulement ce qui manque : l'**acte de naissance** (en tête de `.pre-commit-config.yaml` : identité du Second Brain qui l'a adopté, commit, `vcs`), les fichiers de pointage, le prompt Pilot, la ligne au registre. Il grave une **ligne de base datée** des fichiers présents : les gardiens ne jugent que ce qui est neuf ou modifié, un fichier ancien que tu touches doit devenir conforme. Il **propose** un plan de réorganisation en sept fonctions et n'en applique rien ; `tools/propose-link-repairs.sh` propose de même la réparation des liens cassés. Sans Git (`--vcs none`), aucun hook n'est posé : les contrôles se lancent à la main, `tools/check-links.sh <dossier>` et ses voisins ; `adopt --git` ajoute Git plus tard.
+The script adds only what is missing: the **birth certificate** (at the head of `.pre-commit-config.yaml`: identity of the Second Brain that adopted it, commit, `vcs`), the pointer files, the Pilot prompt, the line in the registry. It records a **dated baseline** of the files present: the guardians judge only what is new or modified, and an old file that you touch must become compliant. It **proposes** a reorganization plan into seven functions and applies none of it; `tools/propose-link-repairs.sh` likewise proposes the repair of broken links. Without Git (`--vcs none`), no hook is set up: the checks are run by hand, `tools/check-links.sh <dossier>` and its neighbours; `adopt --git` adds Git later.
 
-Un projet se rattache à son Second Brain par cet acte, jamais par voisinage : deux Second Brain dans un même espace de travail ne se confondent pas, et un projet copié seul ailleurs garde ses contrôles. Un agent qui ouvre un dossier non adopté s'arrête et rend un **ordre d'initiation** à remplir (`project-bootstrap.sh order <dossier>`, gabarit `templates/initiation-order-template.md`) ; avec cet ordre daté par toi, il adopte sans Mission.
+A project attaches to its Second Brain through this certificate, never by proximity: two Second Brains in the same workspace are not confused, and a project copied on its own elsewhere keeps its checks. An agent that opens a non-adopted folder stops and renders an **initiation order** to fill in (`project-bootstrap.sh order <dossier>`, template `templates/initiation-order-template.md`); with this order dated by you, it adopts without a Mission.
 
-## Reprise et mise à jour
+<a id="reprise-et-mise-à-jour"></a>
 
-Si l'installation s'interrompt (fermeture accidentelle, panne réseau pendant la récupération de Git), relance la même ligne d'installation : le carnet (`.install/state.json`, à la racine de ton clone) retient chaque étape déjà faite et chaque réponse déjà donnée, et l'installeur reprend à l'étape manquante sans reposer les questions déjà répondues.
+## Resume and update
 
-Relancer l'installateur sur un poste déjà installé bascule en **mode mise à jour** : tes réponses actuelles s'affichent, une question te demande si quelque chose a changé, et `USER.md` est réécrit proprement avec sa nouvelle date si tu confirmes un changement.
+If the installation is interrupted (accidental closing, network failure while fetching Git), rerun the same installation line: the logbook (`.install/state.json`, at the root of your clone) retains each step already done and each answer already given, and the installer resumes at the missing step without asking again the questions already answered.
 
-**Ce mode ne touche jamais le code.** Cette version s'installe telle quelle, et aucun mécanisme ne rapatrie une version plus récente dans une installation existante : pour l'obtenir, réinstalle depuis le dépôt publié (dans un nouveau dossier, ou dans celui-ci après en avoir sauvegardé ton `USER.md` et tes projets).
+Rerunning the installer on an already-installed machine switches to **update mode**: your current answers are displayed, a question asks you whether something has changed, and `USER.md` is cleanly rewritten with its new date if you confirm a change.
 
-## Désinstallation
+**This mode never touches the code.** This version installs as is, and no mechanism brings a more recent version into an existing installation: to get one, reinstall from the published repository (in a new folder, or in this one after having backed up your `USER.md` and your projects).
 
-Depuis la Mission 173 (rien dans le profil), désinstaller Second Brain consiste à **supprimer le dossier de ton espace de travail — rien d'autre**. Le clone `second-brain`, l'assistant, les skills de la méthode : tout vit à l'intérieur de ce dossier ou dans des liens que tes projets y font pointer ; rien n'est écrit ailleurs sur ton poste.
+## Uninstallation
 
-Si tu veux aussi retirer les outils installés pour toi (Git portable et `uv`, avec `pre-commit`, si tu ne veux plus les garder) : ils vivent dans le sous-dossier local caché de ton profil (Windows : `%USERPROFILE%\.local\`), en dehors de l'espace de travail — supprime ce dossier, puis retire les entrées correspondantes de la variable `Path` de ton compte (Windows : Paramètres → Variables d'environnement).
+Since Mission 173 (nothing in the profile), uninstalling Second Brain consists of **deleting your workspace folder — nothing else**. The `second-brain` clone, the assistant, the method's skills: everything lives inside that folder or in links that your projects point into it; nothing is written elsewhere on your machine.
 
-**Installation antérieure à la Mission 173 ?** Si tu as installé Second Brain avant cette Mission, une version plus ancienne peut avoir posé des liens dans ton profil (*.claude/agents/*, *.claude/skills/*, *.agents/skills/*, dans ton compte). Le script `tools/remove-profile-links.ps1` (dans ton clone) les liste et les retire sur confirmation, sans jamais toucher au contenu qu'ils pointaient — lance-le, lis ce qu'il propose, puis confirme.
+If you also want to remove the tools installed for you (portable Git and `uv`, with `pre-commit`, if you no longer want to keep them): they live in the hidden local subfolder of your profile (Windows: `%USERPROFILE%\.local\`), outside the workspace — delete that folder, then remove the corresponding entries from your account's `Path` variable (Windows: Settings → Environment variables).
 
-## Relier un second dépôt (avancé)
+**Installation older than Mission 173?** If you installed Second Brain before that Mission, an older version may have placed links in your profile (*.claude/agents/*, *.claude/skills/*, *.agents/skills/*, in your account). The `tools/remove-profile-links.ps1` script (in your clone) lists them and removes them on confirmation, without ever touching the content they pointed to — run it, read what it proposes, then confirm.
 
-Par défaut, Second Brain ne suppose l'existence d'aucun autre dépôt à côté du tien : les outils qui pourraient comparer ton clone à un dépôt voisin (`tools/session-preflight.sh`, `tools/check-asserted-paths.sh`, `tools/link-graph-drone-view.sh`) ne cherchent rien et n'avertissent de rien tant que tu n'en déclares pas un explicitement.
+## Link a second repository (advanced)
 
-Si tu utilises un second dépôt à côté de `second-brain` dans ton espace de travail (par exemple pour y garder tes propres missions et rapports) et que tu veux que ces outils le voient, déclare-le d'une des deux façons suivantes :
+By default, Second Brain assumes the existence of no other repository next to yours: the tools that could compare your clone with a neighbouring repository (`tools/session-preflight.sh`, `tools/check-asserted-paths.sh`, `tools/link-graph-drone-view.sh`) look for nothing and warn about nothing as long as you do not declare one explicitly.
 
-- variable d'environnement `SECOND_BRAIN_SIBLING_REPO` (le nom du dossier, pas un chemin) avant de lancer une commande ; ou
-- un fichier *SIBLING-REPO.txt* (que tu crées toi-même), une seule ligne avec ce même nom, à la racine de ton espace de travail (à côté de `VAULT-ROOT.md`) — pratique pour une déclaration durable, valable pour toute session ouverte depuis ce dossier.
+If you use a second repository next to `second-brain` in your workspace (for example to keep your own missions and reports there) and you want these tools to see it, declare it in one of the following two ways:
 
-Sans déclaration : silence, comme si l'outil n'existait pas. Avec une déclaration dont le dossier est introuvable : un seul avertissement clair, jamais un refus.
+- the environment variable `SECOND_BRAIN_SIBLING_REPO` (the folder's name, not a path) before running a command; or
+- a *SIBLING-REPO.txt* file (which you create yourself), a single line with that same name, at the root of your workspace (next to `VAULT-ROOT.md`) — handy for a lasting declaration, valid for every session opened from that folder.
 
-## Questions fréquentes
+Without a declaration: silence, as if the tool did not exist. With a declaration whose folder cannot be found: a single clear warning, never a refusal.
 
-**Comment je demande quelque chose à mon assistant ?** Nomme-le explicitement dans ta question, par exemple `Demande à Brian : quelles sont les décisions actives sur la structure des projets ?` — Claude Code délègue alors réellement au sous-agent en lecture seule dédié, qui cite ses sources par chemin. Sans le nommer, l'agent principal de Claude Code peut répondre lui-même à ta place ; sa réponse est en général correcte, mais elle n'a pas la garantie de lecture seule que porte ton assistant dédié.
+## Frequently asked questions
 
-**Pourquoi Claude Code me demande une approbation la première fois que j'ouvre un projet ?** Ton assistant et tes skills sont liés dans ce projet (`.claude/agents/`, `.claude/skills/`, `.agents/skills/`) par jonction ou lien direct vers ton clone `second-brain`, un dossier voisin. Claude Code traite un lien dont la cible sort du dossier de travail comme un **import externe** et demande une approbation — une fois par projet, jamais à chaque session. Réponds **oui** (le texte exact dépend de ta version de Claude Code) : c'est sûr, parce que ces liens ne donnent accès en lecture qu'à `second-brain` lui-même, jamais en écriture (un projet n'y écrit jamais, voir la [règle de frontière](./rules/RULES-2026-09-11-190000-project-second-brain-boundary.md) ci-dessous), et parce que c'est le clone que tu as toi-même installé.
+**How do I ask my assistant something?** Name it explicitly in your question, for example `Demande à Brian : quelles sont les décisions actives sur la structure des projets ?` (in English: "Ask Brian: which decisions are active on the structure of projects?") — Claude Code then really delegates to the dedicated read-only subagent, which cites its sources by path. Without naming it, Claude Code's main agent may answer by itself in its place; its answer is generally correct, but it does not have the read-only guarantee that your dedicated assistant carries.
 
-**Puis-je installer Second Brain sans abonnement payant à un agent IA ?** Techniquement l'installeur ne le vérifie pas, mais rien n'est conçu ni testé pour un compte gratuit : les résultats ne sont pas garantis.
+**Why does Claude Code ask me for an approval the first time I open a project?** Your assistant and your skills are linked into that project (`.claude/agents/`, `.claude/skills/`, `.agents/skills/`) by junction or direct link to your `second-brain` clone, a neighbouring folder. Claude Code treats a link whose target leaves the working folder as an **external import** and asks for an approval — once per project, never at each session. Answer **yes** (the exact text depends on your version of Claude Code): it is safe, because these links give only read access to `second-brain` itself, never write access (a project never writes there, see the [boundary rule](./rules/RULES-2026-09-11-190000-project-second-brain-boundary.md) below), and because it is the clone that you installed yourself.
 
-**Puis-je installer depuis une archive zip téléchargée sur GitHub ?** Non, par construction : voir « Ligne d'installation » ci-dessus. Clone toujours le dépôt avec `git clone`.
+**Can I install Second Brain without a paid subscription to an AI agent?** Technically the installer does not check it, but nothing is designed or tested for a free account: the results are not guaranteed.
 
-**Qu'est-ce que le warehouse, et est-ce que j'en ai besoin ?** `skills-warehouse/` est une bibliothèque de skills tiers déjà vérifiés (licence, portabilité). L'installeur n'en déploie aucune collection : seuls les skills de la méthode (`skills/` et `skills/external/`) sont liés dans tes projets ; ton assistant t'explique comment ajouter une collection du warehouse plus tard.
+**Can I install from a zip archive downloaded from GitHub?** No, by construction: see "Installation line" above. Always clone the repository with `git clone`.
 
-**« Vault » et « Second Brain », c'est la même chose ?** Oui : « Vault » est le nom interne, utilisé dans les règles et les outils ; « Second Brain » est le nom que tu vois. Voir [CONTEXT.md](./CONTEXT.md).
+**What is the warehouse, and do I need it?** `skills-warehouse/` is a library of already-verified third-party skills (license, portability). The installer deploys none of its collections: only the method's skills (`skills/` and `skills/external/`) are linked into your projects; your assistant explains to you how to add a collection from the warehouse later.
 
-**Qui décide ce qui rentre dans `second-brain` par rapport à mes projets ?** Voir la [règle de frontière entre tes projets et Second Brain](./rules/RULES-2026-09-11-190000-project-second-brain-boundary.md).
+**Are « Vault » and « Second Brain » the same thing?** Yes: « Vault » is the internal name, used in the rules and the tools; « Second Brain » is the name you see. See [CONTEXT.md](./CONTEXT.md).
 
-**Quelle licence pour les skills tiers du warehouse ?** Chacun porte la sienne, recensée dans [THIRD-PARTY-LICENSES.md](./THIRD-PARTY-LICENSES.md), généré depuis les manifestes du warehouse.
+**Who decides what goes into `second-brain` as opposed to my projects?** See the [boundary rule between your projects and Second Brain](./rules/RULES-2026-09-11-190000-project-second-brain-boundary.md).
 
-**Sous Windows, `bash tools/...` renvoie « commande introuvable » — que faire ?** Sous PowerShell nu, `bash` n'est pas sur le PATH ; seul `git` y est en général. Lance-le par le chemin complet de Git, par exemple `& "C:\Program Files\Git\bin\bash.exe" tools/install-vault-mcp.sh <espace de travail>` (remplace la fin par la commande voulue), ou ouvre directement **« Git Bash »** depuis le menu Démarrer et tape la commande sans le préfixe `bash`.
+**Which license for the warehouse's third-party skills?** Each carries its own, listed in [THIRD-PARTY-LICENSES.md](./THIRD-PARTY-LICENSES.md), generated from the warehouse's manifests.
 
-**Après une installation ratée ou interrompue, l'installeur se comporte bizarrement — que faire ?** Supprime d'abord le dossier temporaire que l'installeur réutilise, puis relance la ligne d'installation : `%TEMP%\second-brain-install` sous Windows, `${TMPDIR:-/tmp}/second-brain-install` sous macOS/Linux. L'installeur remet normalement ce dossier à jour tout seul et refuse explicitement s'il n'y arrive pas, mais un dossier laissé par un essai précédent reste la première chose à écarter si le comportement observé ne correspond pas à ce que tu attends.
+**Under Windows, `bash tools/...` returns "command not found" — what should I do?** In bare PowerShell, `bash` is not on the PATH; usually only `git` is. Launch it by Git's full path, for example `& "C:\Program Files\Git\bin\bash.exe" tools/install-vault-mcp.sh <espace de travail>` (replace the end with the command you want), or open **"Git Bash"** directly from the Start menu and type the command without the `bash` prefix.
 
-**Je veux vérifier `claude_desktop_config.json` à la main — où le trouver ?** Deux emplacements possibles selon comment l'application de bureau Claude a été installée : version **Microsoft Store**, sous `%LOCALAPPDATA%\Packages\Claude_<identifiant>\LocalCache\Roaming\Claude\claude_desktop_config.json` ; version **classique** (site officiel), sous `%APPDATA%\Claude\claude_desktop_config.json`. `tools/install-vault-mcp.sh` détecte et écrit dans le bon fichier automatiquement — cette vérification manuelle ne sert qu'à confirmer après coup.
+**After a failed or interrupted installation, the installer behaves strangely — what should I do?** First delete the temporary folder that the installer reuses, then rerun the installation line: `%TEMP%\second-brain-install` under Windows, `${TMPDIR:-/tmp}/second-brain-install` under macOS/Linux. The installer normally brings this folder up to date on its own and refuses explicitly if it cannot, but a folder left by a previous attempt remains the first thing to set aside if the behaviour observed does not match what you expect.
 
-**Pourquoi le Pilot doit-il utiliser exclusivement le serveur `second-brain-vault`, même si un autre serveur de fichiers est configuré ?** Cette exclusivité existe parce que rien d'autre ne borne son accès disque à ton espace de travail : un autre serveur (par exemple celui d'un autre projet) pourrait laisser le Pilot lire ou écrire hors du dossier prévu, ou mélanger deux projets sans que tu t'en rendes compte — `templates/session-opening-prompt-template.md` le lui interdit explicitement. Si le Pilot semble confus sur le contexte (mauvais projet, chemins qui ne correspondent pas), vérifie avec `check-mcp-containment.sh <configuration> <projet>` que `second-brain-vault` est bien configuré avec ton espace de travail comme dossier autorisé, puis redemande-lui explicitement de relire le disque par ce serveur.
+**I want to check `claude_desktop_config.json` by hand — where do I find it?** Two possible locations depending on how the Claude desktop application was installed: **Microsoft Store** version, under `%LOCALAPPDATA%\Packages\Claude_<identifiant>\LocalCache\Roaming\Claude\claude_desktop_config.json`; **classic** version (official site), under `%APPDATA%\Claude\claude_desktop_config.json`. `tools/install-vault-mcp.sh` detects and writes to the right file automatically — this manual check serves only to confirm afterwards.
 
-## Jouer la suite de tests
+**Why must the Pilot use exclusively the `second-brain-vault` server, even if another file server is configured?** This exclusivity exists because nothing else bounds its disk access to your workspace: another server (for example that of another project) could let the Pilot read or write outside the intended folder, or mix two projects without your noticing — `templates/session-opening-prompt-template.md` explicitly forbids it to do so. If the Pilot seems confused about the context (wrong project, paths that do not match), check with `check-mcp-containment.sh <configuration> <projet>` that `second-brain-vault` is indeed configured with your workspace as authorized folder, then explicitly ask it again to reread the disk through this server.
 
-Toute la suite tient dans une liste, [`tests/suite.tsv`](./tests/suite.tsv) : un test par ligne, avec les systèmes où il tourne, s'il est bloquant ou informatif, et la Mission qui l'a apporté. La CI ne liste plus aucun test, elle joue cette liste ; la même commande la joue sur ton poste, depuis la racine du dépôt :
+## Run the test suite
+
+The whole suite fits in one list, [`tests/suite.tsv`](./tests/suite.tsv): one test per line, with the systems where it runs, whether it is blocking or informational, and the Mission that brought it. The CI no longer lists any test, it plays this list; the same command plays it on your machine, from the root of the repository:
 
 ```bash
 bash tests/run-suite.sh
 ```
 
-Sous Windows, le même lanceur existe en PowerShell, celui qu'utilise la CI : `powershell -NoProfile -ExecutionPolicy Bypass -File tests/run-suite.ps1`. Chaque test tourne, même après un rouge ; la dernière ligne donne `RESULT: <n>/<total> PASS` et la liste des tests rouges la précède. `--list` affiche seulement ce qui serait joué sur ton système.
+Under Windows, the same runner exists in PowerShell, the one the CI uses: `powershell -NoProfile -ExecutionPolicy Bypass -File tests/run-suite.ps1`. Each test runs, even after a red one; the last line gives `RESULT: <n>/<total> PASS` and the list of red tests precedes it. `--list` displays only what would be played on your system.
 
-## Licence
+## License
 
-Second Brain est distribué sous licence MIT — voir [LICENSE](./LICENSE). Les skills tiers adoptés dans le warehouse portent chacun leur propre licence, recensée dans [THIRD-PARTY-LICENSES.md](./THIRD-PARTY-LICENSES.md).
+Second Brain is distributed under the MIT license — see [LICENSE](./LICENSE). The third-party skills adopted in the warehouse each carry their own license, listed in [THIRD-PARTY-LICENSES.md](./THIRD-PARTY-LICENSES.md).
 
 ## Liens
 
-- `see also` — [Guide d'installation](./INSTALL.md)
-- `see also` — [Notes de publication](./RELEASE-NOTES.md)
-- `see also` — [Glossaire du produit](./CONTEXT.md)
-- `see also` — [Règle de frontière entre un projet et Second Brain](./rules/RULES-2026-09-11-190000-project-second-brain-boundary.md)
-- `see also` — [Licences tierces](./THIRD-PARTY-LICENSES.md)
-- `see also` — [Licence MIT](./LICENSE)
-- `see also` — [Instructions pour les agents](./AGENTS.md)
-- `see also` — [Standard de liens entre documents](./rules/RULES-2026-08-21-115658-document-linking-standard.md)
+- `see also` — [Installation guide](./INSTALL.md)
+- `see also` — [Release notes](./RELEASE-NOTES.md)
+- `see also` — [Product glossary](./CONTEXT.md)
+- `see also` — [Boundary rule between a project and Second Brain](./rules/RULES-2026-09-11-190000-project-second-brain-boundary.md)
+- `see also` — [Third-party licenses](./THIRD-PARTY-LICENSES.md)
+- `see also` — [MIT license](./LICENSE)
+- `see also` — [Instructions for agents](./AGENTS.md)
+- `see also` — [Document linking standard](./rules/RULES-2026-08-21-115658-document-linking-standard.md)

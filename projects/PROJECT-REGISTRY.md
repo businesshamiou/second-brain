@@ -1,16 +1,16 @@
 ---
 type: registry
 title: "Project Registry"
-description: "Index des projets connus de ce Second Brain, instancié vide à l'installation. Le Second Brain connaît l'adresse des projets, pas leur contenu."
+description: "Index of the projects known to this Second Brain, instantiated empty at installation. The Second Brain knows the address of the projects, not their content."
 status: active
 write_contract: "executor-only — voir DECISION project-registry-v1"
 ---
 
 # PROJECT REGISTRY
 
-Index des projets connus de ce Second Brain. Chaque projet reste la source canonique de sa propre mémoire ; le détail de chaque projet vit dans sa fiche `PROJECT-<project_id>.md`.
+Index of the projects known to this Second Brain. Each project remains the canonical source of its own memory; the detail of each project lives in its sheet `PROJECT-<project_id>.md`.
 
-Les chemins sont relatifs au parent de ce dépôt. La colonne `vcs` vaut `git` ou `none`.
+Paths are relative to the parent of this repository. The `vcs` column is `git` or `none`.
 
 ## Active
 
@@ -19,13 +19,13 @@ Les chemins sont relatifs au parent de ce dépôt. La colonne `vcs` vaut `git` o
 
 ## Paused
 
-Aucun projet.
+No project.
 
 ## Archived
 
-Aucun projet.
+No project.
 
 ## Liens
 
-- `see also` — [Gabarit — Project Registry](../templates/project-registry-template.md)
+- `see also` — [Template — Project Registry](../templates/project-registry-template.md)
 - `source` — [Decision — Project Registry V1](../decisions/DECISION-2026-08-19-115306-project-registry-v1.md)

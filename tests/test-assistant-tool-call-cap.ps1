@@ -69,16 +69,17 @@ function Assert-True {
 # ever changes, this test (and the source) should be updated together,
 # never silently left checking stale phrasing. French since Mission 172
 # step 5 moved this block to French (171-C01's own debt: the block used to
-# be the only English text in an otherwise-French body).
-$capNeedle = '8 appels d''outils au plus'
+# be the only English text in an otherwise-French body); English again since
+# Mission 187 translated the whole body (DECISION-2026-09-18-001438).
+$capNeedle = 'at most 8 tool calls'
 $orderNeedles = @(
-    "exactement par la question"
-    "dossier le plus proche du sujet"
-    "recherche large dans tout l'espace de travail"
+    "named exactly by the question"
+    "folder closest to the subject"
+    "wide search across the whole workspace"
 )
 $permissionNeedles = @(
-    "avec ce qu'il a lu"
-    "en nommant clairement ce qu'il n'a pas lu"
+    "with what it has read"
+    "naming clearly what it has not read"
 )
 
 function Test-GeneratedForm {

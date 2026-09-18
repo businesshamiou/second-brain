@@ -1,118 +1,118 @@
 ---
 type: knowledge
-title: "Vérification et preuves — STATE → CHANGE → VALIDATION → SNAPSHOT → EXTERNAL BOUNDARY"
+title: "Verification and evidence — STATE → CHANGE → VALIDATION → SNAPSHOT → EXTERNAL BOUNDARY"
 created_at: 2026-08-17T11:10:18-04:00
 timezone: America/Montreal
 status: active
 ---
 
-# VÉRIFICATION ET PREUVES — STATE → CHANGE → VALIDATION → SNAPSHOT → EXTERNAL BOUNDARY
+# VERIFICATION AND EVIDENCE — STATE → CHANGE → VALIDATION → SNAPSHOT → EXTERNAL BOUNDARY
 
-La vérification transforme une affirmation sur le travail en observation reproductible. Elle suit la [décision d'architecture d'information V1](../decisions/DECISION-2026-08-17-111018-vault-v1-information-architecture.md) et complète les [règles de conduite](../rules/RULES-2026-08-17-005717-vault-operating-rules.md).
+Verification turns a claim about the work into a reproducible observation. It follows the [information architecture decision V1](../decisions/DECISION-2026-08-17-111018-vault-v1-information-architecture.md) and complements the [rules of conduct](../rules/RULES-2026-08-17-005717-vault-operating-rules.md).
 
-## Deux principes
+## Two principles
 
 ### Measure, don't copy
 
-Un état technique qui peut être recalculé doit être mesuré au moment où il sert. Recopier durablement un hash, un compteur ou un ancien `git status` crée une valeur périssable qui peut diverger de la réalité.
+A technical state that can be recomputed must be measured at the moment it is used. Durably copying a hash, a counter or an old `git status` creates a perishable value that may diverge from reality.
 
-Un rapport daté peut enregistrer une mesure comme preuve de son exécution. Il ne doit pas présenter cette mesure historique comme l'état courant permanent.
+A dated report may record a measurement as evidence of its execution. It must not present that historical measurement as the permanent current state.
 
-### Un contrôle existe ≠ le contrôle fonctionne
+### A check exists ≠ the check works
 
-La présence d'un test, d'une règle, d'un hook ou d'une configuration prouve seulement que le contrôle existe. Pour savoir s'il fonctionne, il faut l'exécuter dans les conditions pertinentes, observer son résultat et, lorsque le risque le justifie, vérifier qu'il détecte bien un cas invalide.
+The presence of a test, a rule, a hook or a configuration proves only that the check exists. To know whether it works, it must be executed under the relevant conditions, its result observed and, when the risk justifies it, verified that it does detect an invalid case.
 
-## Modèle de preuve V1
+## Evidence model V1
 
 ```text
 STATE → CHANGE → VALIDATION → SNAPSHOT → EXTERNAL BOUNDARY
 ```
 
-Ces niveaux répondent à des questions différentes et se complètent. Aucun compteur ni message de succès isolé ne remplace l'ensemble des preuves pertinentes.
+These levels answer different questions and complement one another. No counter or isolated success message replaces the whole of the relevant evidence.
 
 ## `git status` — STATE
 
-- **Rôle** : montrer l'état réel du working tree et de l'index par rapport à Git.
-- **Problème détecté** : fichiers modifiés, ajoutés, supprimés, non suivis ou déjà staged ; branche inattendue.
-- **Bénéfice** : établit rapidement le périmètre local avant et après une intervention.
-- **Limites** : ne montre pas le contenu des changements, ne valide pas leur comportement et ne prouve pas l'absence d'effets externes antérieurs.
-- **Quand l'utiliser** : au début, avant staging, avant commit et à la fin d'une mission.
+- **Role**: show the real state of the working tree and of the index relative to Git.
+- **Problem detected**: files modified, added, deleted, untracked or already staged; unexpected branch.
+- **Benefit**: quickly establishes the local perimeter before and after an intervention.
+- **Limits**: does not show the content of the changes, does not validate their behaviour and does not prove the absence of earlier external effects.
+- **When to use it**: at the start, before staging, before commit and at the end of a mission.
 
-La forme courte `git status --short --branch` facilite une preuve compacte ; la forme complète fournit davantage d'explications.
+The short form `git status --short --branch` makes for compact evidence; the full form provides more explanations.
 
-## `git diff` et diff staged — CHANGE
+## `git diff` and staged diff — CHANGE
 
-- **Rôle** : montrer le contenu exact du changement local.
-- **Problème détecté** : modification accidentelle, contenu hors périmètre, suppression involontaire, secret visible, lien ou texte incorrect.
-- **Bénéfice** : permet une revue ligne par ligne avant d'enregistrer un snapshot.
-- **Limites** : `git diff` ne montre par défaut que les changements non staged ; `git diff --staged` ne montre que l'index. Les fichiers non suivis doivent aussi être repérés par `git status` et inspectés directement avant staging.
-- **Quand l'utiliser** : après modification, avant staging pour chaque fichier, puis après staging sur l'ensemble du futur commit.
+- **Role**: show the exact content of the local change.
+- **Problem detected**: accidental modification, content outside the perimeter, unintended deletion, visible secret, incorrect link or text.
+- **Benefit**: allows a line-by-line review before recording a snapshot.
+- **Limits**: `git diff` shows by default only the unstaged changes; `git diff --staged` shows only the index. Untracked files must also be spotted through `git status` and inspected directly before staging.
+- **When to use it**: after modification, before staging for each file, then after staging on the whole of the future commit.
 
-Pour une mission sûre, consulter les deux vues : `git diff -- <fichier>` pour le working tree et `git diff --staged` pour le contenu qui sera réellement commité.
+For a safe mission, consult both views: `git diff -- <fichier>` for the working tree and `git diff --staged` for the content that will really be committed.
 
-## Tests et checks — VALIDATION
+## Tests and checks — VALIDATION
 
-- **Rôle** : confronter le résultat aux comportements, contraintes ou formats attendus.
-- **Problème détecté** : régression fonctionnelle, syntaxe invalide, lien cassé, structure incorrecte ou exigence non satisfaite, selon le contrôle choisi.
-- **Bénéfice** : apporte une preuve comportementale ou structurelle que le diff seul ne fournit pas.
-- **Limites** : un check ne couvre que ce qu'il teste. Un succès ne démontre pas l'absence de tous les défauts ; un contrôle non exécuté ne fournit aucune validation.
-- **Quand l'utiliser** : après les changements et de nouveau sur le contenu staged lorsque le staging ou la génération peut modifier le résultat.
+- **Role**: confront the result with the expected behaviours, constraints or formats.
+- **Problem detected**: functional regression, invalid syntax, broken link, incorrect structure or unmet requirement, depending on the check chosen.
+- **Benefit**: provides behavioural or structural evidence that the diff alone does not provide.
+- **Limits**: a check covers only what it tests. A success does not demonstrate the absence of all defects; a check not executed provides no validation.
+- **When to use it**: after the changes and again on the staged content when staging or generation may modify the result.
 
-Les checks doivent être proportionnés au risque et explicitement rapportés avec leur commande, leur portée et leur résultat.
+Checks must be proportionate to the risk and explicitly reported with their command, their scope and their result.
 
-## Commit et hash — SNAPSHOT
+## Commit and hash — SNAPSHOT
 
-- **Rôle** : figer un ensemble cohérent de changements dans l'historique local et lui donner un identifiant mesurable.
-- **Problème détecté** : le hash, combiné au diff du commit, permet de constater qu'un contenu ou un historique n'est plus celui qui avait été validé.
-- **Bénéfice** : fournit un point de reprise et une référence exacte pour la revue.
-- **Limites** : un commit ne prouve ni la qualité du changement, ni le succès des tests, ni un push. Le hash dépend de l'objet Git complet et change si le commit est réécrit.
-- **Quand l'utiliser** : après inspection du diff staged et réussite des checks pertinents.
+- **Role**: freeze a coherent set of changes in the local history and give it a measurable identifier.
+- **Problem detected**: the hash, combined with the commit's diff, makes it possible to establish that a content or a history is no longer the one that had been validated.
+- **Benefit**: provides a resume point and an exact reference for review.
+- **Limits**: a commit proves neither the quality of the change, nor the success of the tests, nor a push. The hash depends on the complete Git object and changes if the commit is rewritten.
+- **When to use it**: after inspection of the staged diff and success of the relevant checks.
 
-Mesurer le snapshot courant avec `git rev-parse HEAD` et inspecter son contenu avec `git show --stat --oneline HEAD` ou `git show HEAD` selon le niveau de détail requis.
+Measure the current snapshot with `git rev-parse HEAD` and inspect its content with `git show --stat --oneline HEAD` or `git show HEAD` depending on the level of detail required.
 
-## Compteurs — sanity checks
+## Counters — sanity checks
 
-- **Rôle** : fournir un contrôle rapide de plausibilité, par exemple le nombre de fichiers, de liens ou de résultats.
-- **Problème détecté** : écart grossier, élément manquant, doublon ou ordre de grandeur inattendu.
-- **Bénéfice** : signale rapidement qu'une inspection plus précise est nécessaire.
-- **Limites** : un total correct peut masquer un contenu faux, et un total différent peut être légitime. Un compteur n'est jamais une preuve suffisante de conformité.
-- **Quand l'utiliser** : comme complément à une inspection de contenu, jamais comme substitut au diff, aux tests ou à la revue.
+- **Role**: provide a quick plausibility check, for example the number of files, links or results.
+- **Problem detected**: gross discrepancy, missing element, duplicate or unexpected order of magnitude.
+- **Benefit**: quickly signals that a more precise inspection is necessary.
+- **Limits**: a correct total may hide wrong content, and a different total may be legitimate. A counter is never sufficient evidence of compliance.
+- **When to use it**: as a complement to a content inspection, never as a substitute for the diff, the tests or the review.
 
 ## `git remote -v` — EXTERNAL BOUNDARY
 
-- **Rôle** : révéler les remotes Git configurés et leurs URL de fetch/push.
-- **Problème détecté** : frontière externe inattendue, destination de push erronée ou remote ajouté hors périmètre.
-- **Bénéfice** : rend visible une partie de la frontière entre travail local et systèmes externes.
-- **Limites** : une sortie vide prouve seulement qu'aucun remote n'est configuré à cet instant. La commande ne prouve pas à elle seule qu'aucune publication ou autre opération réseau n'a eu lieu.
-- **Quand l'utiliser** : lors de la vérification initiale, avant toute action distante envisagée et dans les preuves finales d'une mission locale bornée.
+- **Role**: reveal the configured Git remotes and their fetch/push URLs.
+- **Problem detected**: unexpected external boundary, wrong push destination or remote added outside the perimeter.
+- **Benefit**: makes visible part of the boundary between local work and external systems.
+- **Limits**: an empty output proves only that no remote is configured at that instant. The command does not prove on its own that no publication or other network operation took place.
+- **When to use it**: during the initial verification, before any remote action considered, and in the final evidence of a bounded local mission.
 
-Un remote, un push ou une publication constitue un effet externe distinct. Sa présence dans le plan exige le human gate prévu par les règles applicables.
+A remote, a push or a publication constitutes a distinct external effect. Its presence in the plan requires the human gate provided for by the applicable rules.
 
-## Checksums et empreintes — frontière read-only
+## Checksums and fingerprints — read-only boundary
 
-- **Rôle** : comparer ponctuellement les octets d'une source lue avec ceux observés avant ou après une opération.
-- **Problème détecté** : modification involontaire d'un fichier ou différence entre deux copies supposées identiques.
-- **Bénéfice** : fournit une vérification précise d'intégrité à une frontière en lecture seule.
-- **Limites** : une empreinte identique ne prouve ni la qualité ni l'authenticité de la source ; une empreinte copiée sans chaîne de confiance peut elle-même être fausse. Elle devient périssable si le fichier est autorisé à évoluer.
-- **Quand l'utiliser** : lorsqu'une mission exige de démontrer qu'une source read-only n'a pas changé ou de comparer deux objets exacts.
+- **Role**: compare at a given point the bytes of a source read with those observed before or after an operation.
+- **Problem detected**: unintended modification of a file or difference between two copies assumed identical.
+- **Benefit**: provides a precise integrity verification at a read-only boundary.
+- **Limits**: an identical fingerprint proves neither the quality nor the authenticity of the source; a fingerprint copied without a chain of trust may itself be false. It becomes perishable if the file is allowed to evolve.
+- **When to use it**: when a mission requires demonstrating that a read-only source has not changed, or comparing two exact objects.
 
-Utiliser un algorithme de hash adapté et mesurer les deux côtés de la comparaison. Ne conserver l'empreinte que dans la preuve ponctuelle qui explique ce qu'elle vérifie.
+Use a suitable hash algorithm and measure both sides of the comparison. Keep the fingerprint only in the one-off evidence that explains what it verifies.
 
-## Séquence de vérification proportionnée
+## Proportionate verification sequence
 
-Pour une modification locale bornée :
+For a bounded local modification:
 
-1. mesurer la racine, la branche, le HEAD, le status et les remotes ;
-2. inspecter les sources et les fichiers ciblés ;
-3. examiner le status et chaque changement ;
-4. exécuter les tests et checks pertinents ;
-5. stage fichier par fichier ;
-6. inspecter `git diff --staged` et vérifier l'absence de secret ;
-7. créer le commit local autorisé ;
-8. remesurer le HEAD, le status et la frontière externe.
+1. measure the root, the branch, the HEAD, the status and the remotes;
+2. inspect the sources and the targeted files;
+3. examine the status and each change;
+4. execute the relevant tests and checks;
+5. stage file by file;
+6. inspect `git diff --staged` and verify the absence of secrets;
+7. create the authorized local commit;
+8. measure again the HEAD, the status and the external boundary.
 
-Cette séquence produit des preuves complémentaires : elle ne transforme pas une mesure isolée en garantie générale.
+This sequence produces complementary evidence: it does not turn an isolated measurement into a general guarantee.
 
 ## Liens
 
-- `see also` — [Garde-fous et niveaux de preuve](../rules/RULES-2026-08-19-210803-guardrails-and-evidence-levels.md)
+- `see also` — [Guardrails and evidence levels](../rules/RULES-2026-08-19-210803-guardrails-and-evidence-levels.md)

@@ -14,13 +14,13 @@ Index généré automatiquement. Ne pas éditer à la main : régénérer via `t
 
 - `AGENTS` · inconnu · (sans titre) · `AGENTS.md`
 - `CLAUDE` · inconnu · (sans titre) · `CLAUDE.md`
-- `CONTEXT` · active · Second Brain — glossaire · `CONTEXT.md`
-- `INSTALL` · active · Installer Second Brain · `INSTALL.md`
+- `CONTEXT` · active · Second Brain — glossary · `CONTEXT.md`
+- `INSTALL` · active · Install Second Brain · `INSTALL.md`
 - `README` · active · Second Brain · `README.md`
-- `RELEASE-NOTES` · active · Notes de publication · `RELEASE-NOTES.md`
+- `RELEASE-NOTES` · active · Release notes · `RELEASE-NOTES.md`
 - `THIRD-PARTY-LICENSES` · active · Licences tierces — skills adoptés · `THIRD-PARTY-LICENSES.md`
 - `USER` · template · Fiche utilisateur — squelette · `USER.md`
-- `VAULT-IDENTITY` · template · Identité de ce Vault — squelette · `VAULT-IDENTITY.md`
+- `VAULT-IDENTITY` · template · Identity of this Vault — skeleton · `VAULT-IDENTITY.md`
 
 ## Liens
 
