@@ -107,7 +107,10 @@ for keep in "${KEEP_FROM_RELEASE[@]}"; do
   done
 done
 bash "$PUB/tools/build-indexes.sh" "$PUB" >/dev/null 2>&1 || refuse "reconstruction des index a echoue"
-P add -A . || refuse "git add a echoue dans le worktree de publication"
+# read-tree set the index to the laboratory's tree; the tool itself changes
+# only the closed list and the rebuilt indexes: only those are staged, never
+# a stray untracked file (preflight stamp, caches) of the worktree.
+P add -A -- "${KEEP_FROM_RELEASE[@]}" ':(glob)**/index.md' ':(glob)**/index-archive*.md' || refuse "git add a echoue dans le worktree de publication"
 
 if P diff --cached --quiet "$PUBLISH_HEAD"; then
   say "publish porte deja l'arbre du laboratoire ($LAB_HEAD)"

@@ -132,6 +132,10 @@ check "(a) le changement du laboratoire est publie" sh -c "[ \"\$(git -C '$LAB' 
 
 # --- (b) second run --------------------------------------------------------------
 OUT_B="$(bash "$TOOL" 2>&1)"; RC_B=$?
+if [ "$(printf '%s\n' "$OUT_B" | tail -n 1)" != "NOTHING-TO-PUBLISH" ]; then
+  printf '%s\n' "$OUT_B" | tail -n 12 | sed 's/^/    /'
+  git -C "$WS/m-publish/second-brain" show --stat --format='    %h %s' HEAD | tail -n 12
+fi
 check "(b) second passage : NOTHING-TO-PUBLISH, release inchangee" sh -c "[ '$RC_B' = '0' ] && [ \"\$(printf '%s\n' \"\$1\" | tail -n 1)\" = 'NOTHING-TO-PUBLISH' ] && [ \"\$(git -C '$TMP/release.git' rev-parse main)\" = '$R1' ]" _ "$OUT_B"
 
 # --- (d) witness: never from publish itself --------------------------------------
