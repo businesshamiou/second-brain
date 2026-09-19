@@ -81,7 +81,7 @@ tests/test-project-instructions-name-server.sh	-	bash	WUM	blocking	+M191-C01 T3 
 tests/test-agents-language-line.sh	-	bash	U	blocking	+M191-C01 T4 -- AGENTS.md and CLAUDE.md: corpus in English, the participant's language from USER.md	-
 tests/test-update-installed-vault.sh	-	bash	WUM	blocking	+M191-C01 T5 -- second-brain update: v0.1.7 to v0.1.8 over local commits, refusals leave everything as it was	2
 tests/test-update-installed-vault.ps1	-	ps1	W	blocking	+M191-C01 T5 -- second-brain-update.ps1 runs the one implementation and keeps its verdict	3
-tests/test-publish-from-laboratory.sh	-	bash	WUM	blocking	+M192 T1 -- the laboratory publishes by one command: fast-forward, closed list kept from release, nothing to publish twice, third-party advance refused	1
+tests/test-publish-from-laboratory.sh	-	bash	WUM	blocking	+M192 T1 -- the laboratory publishes by one command: fast-forward, closed list kept from release, nothing to publish twice, third-party advance refused	2
 tests/test-private-patterns-lab-exemption.sh	-	bash	U	blocking	+M192 T2 -- projects/ exempt from the private-pattern check in a laboratory only, never on publish, never outside projects/	-
 tests/test-workshop-gitignore-links.sh	-	bash	U	blocking	+M192 T3 -- an existing .gitignore given the three link exclusions gets its links, and git status shows none	-
 tests/test-backup-oracle.sh	-	bash	U	blocking	+M192 T4 -- a backup bundle is proven by restoring it; a truncated pack fails where bundle verify alone passes	-
