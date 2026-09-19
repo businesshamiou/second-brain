@@ -83,8 +83,13 @@ L merge-base --is-ancestor "$RELEASE_HEAD" "$PUBLISH_HEAD" \
 # --- Publication worktree (recreated when absent, reset when present) -------
 HOLDER="$(L worktree list --porcelain | awk -v pub="refs/heads/publish" '/^worktree /{w=substr($0,10)} $0=="branch " pub {print w}')"
 if [ -n "$HOLDER" ]; then
-  HOLDER_ABS="$(cd "$HOLDER" 2>/dev/null && pwd || printf '%s' "$HOLDER")"
-  [ "$HOLDER_ABS" = "$PUB" ] || refuse "publish est deja extraite dans un autre worktree : $HOLDER (attendu : $PUB)"
+  # Compared in Git's own canonical form: the shell and Git spell the same
+  # folder differently (/var and /private/var on macOS, /tmp and
+  # C:/Users/.../Temp under Git Bash -- measured, CI round 2 of Mission 192).
+  PUB_CANON=""
+  [ -d "$PUB" ] && PUB_CANON="$(git -C "$PUB" rev-parse --show-toplevel 2>/dev/null)"
+  [ -n "$PUB_CANON" ] && [ "$PUB_CANON" = "$HOLDER" ] \
+    || refuse "publish est deja extraite dans un autre worktree : $HOLDER (attendu : $PUB)"
 else
   mkdir -p "$(dirname "$PUB")"
   L -c core.longpaths=true worktree add --quiet "$PUB" publish >/dev/null 2>&1 || refuse "worktree de publication non cree : $PUB"
