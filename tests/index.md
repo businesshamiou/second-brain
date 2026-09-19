@@ -17,6 +17,13 @@ This file is kept by hand: `tools/build-indexes.sh` indexes only Markdown docume
 
 Each test returns a closed verdict — `PASS`, `FAIL`, or `SKIP (cause, platform)` — and carries its own negative control: the same measurement, on a case built to fail. A test without a control does not prove it can fail.
 
+### Publishing from the laboratory — Mission 192 (v0.1.9)
+
+- `test-publish-from-laboratory.sh` (W / U / M) — one command publishes the laboratory as a fast-forward, the closed list kept from `release`; second run: nothing to publish; third-party advance and a widening argument refused.
+- `test-private-patterns-lab-exemption.sh` (U) — `projects/` exempt in a laboratory only; never on `publish`, never outside `projects/`.
+- `test-workshop-gitignore-links.sh` (U) — an existing `.gitignore` given the three link exclusions gets its links; `git status` shows none.
+- `test-backup-oracle.sh` (U) — a bundle is proven by restoring it; a truncated pack fails where `git bundle verify` passes.
+
 ### One MCP server per Vault, and the update — Mission 191-C01 (v0.1.8)
 
 - `test-install-vault-mcp-name-per-vault.sh` (W / U / M) — two Vaults, two servers named after their identity; idempotent; former name migrated; crossed identity refused.

@@ -91,6 +91,27 @@ for excluded in "${EXCLUDE_PATHS[@]}"; do
   EXCLUDE_PATHSPECS+=(":(exclude)$excluded")
 done
 
+# Laboratory exemption (Decision 210904 B, Mission 192): a laboratory adopts
+# the Owner's projects, whose sheets under projects/ carry their absolute
+# path -- a private pattern by definition, and never published (the
+# publication keeps release's projects/, tools/publish-from-laboratory.sh).
+# The criterion is measured in Git only, never a path nor a machine name:
+# this repository declares a `release` remote AND the checked-out branch does
+# not follow that remote. The branch `publish` follows release/main: the
+# exemption is not inherited there, where the check stays entire. Without a
+# `release` remote (every installation), nothing changes.
+LAB_EXEMPT=0
+if git -C "$REPO_ROOT" remote get-url release >/dev/null 2>&1; then
+  case "$(git -C "$REPO_ROOT" rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null)" in
+    release/*) : ;;
+    *) LAB_EXEMPT=1 ;;
+  esac
+fi
+if [ "$LAB_EXEMPT" -eq 1 ]; then
+  EXCLUDE_PATHSPECS+=(":(exclude)projects/")
+  echo "Laboratoire (distant release declare) : projects/ exempte (Decision 210904 B)."
+fi
+
 check_plain() {
   local pattern="$1"
   local tree_hits hist_hits

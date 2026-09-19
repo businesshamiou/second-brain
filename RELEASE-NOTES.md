@@ -6,6 +6,22 @@ status: active
 
 # RELEASE NOTES
 
+## v0.1.9
+
+A maintenance version for the people who build Second Brain: nothing changes for an installation.
+
+**What this version brings.**
+
+- **Publishing from the laboratory is one command.** `tools/publish-from-laboratory.sh` publishes the laboratory Vault's `main` to the published repository as a fast-forward, keeping a closed list of laboratory-local paths (its identity, its project sheets) as they are in the published repository; it refuses anything that would not be a fast-forward, and says "nothing to publish" when there is nothing new. This very version was published by it.
+- **A laboratory's own project sheets no longer trip the private-pattern check.** The exemption applies only to `projects/`, only in a repository that declares a `release` remote, and never on the branch that is published. Nothing changes for an installation: without a `release` remote, the check is exactly what it was.
+- **A backup is proven by restoring it.** `tools/check-backup-bundle.sh` checks a Git bundle by fetching it into a throwaway repository and checking its objects: `git bundle verify` alone accepts a bundle whose pack is truncated.
+
+**How it is proven.** Named tests, each with its negative control, chained in the public CI; the inventory is in [`tests/index.md`](./tests/index.md).
+
+**What this version does not promise.** The limits of v0.1.8 remain valid.
+
+**What remains to be done on your side.** Nothing if you run v0.1.8: `bash second-brain/tools/second-brain-update.sh v0.1.9` brings this version, and nothing in it concerns an installation's behaviour.
+
 ## v0.1.8
 
 The version you will not have to reinstall: from now on, a new version is received by an update.

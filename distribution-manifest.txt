@@ -450,6 +450,7 @@ tools/build-indexes.sh	DISTRIBUABLE
 tools/build-state.sh	DISTRIBUABLE
 tools/build_indexes.py	DISTRIBUABLE
 tools/check-asserted-paths.sh	DISTRIBUABLE
+tools/check-backup-bundle.sh	DISTRIBUABLE
 tools/check-distribution-manifest.sh	DISTRIBUABLE
 tools/check-exec-bit-bare-scripts.sh	DISTRIBUABLE
 tools/check-obsolescence-guardrail.py	DISTRIBUABLE
@@ -552,6 +553,7 @@ tools/check-mcp-containment.sh	DISTRIBUABLE
 tools/install-vault-mcp.sh	DISTRIBUABLE
 tools/project-baseline.sh	DISTRIBUABLE
 tools/project_baseline.py	DISTRIBUABLE
+tools/publish-from-laboratory.sh	DISTRIBUABLE
 tools/propose-link-repairs.sh	DISTRIBUABLE
 tools/propose_link_repairs.py	DISTRIBUABLE
 tools/resolve-vault.sh	DISTRIBUABLE
@@ -602,3 +604,7 @@ tests/test-project-instructions-name-server.sh	DISTRIBUABLE
 tests/test-agents-language-line.sh	DISTRIBUABLE
 tests/test-update-installed-vault.sh	DISTRIBUABLE
 tests/test-update-installed-vault.ps1	DISTRIBUABLE
+tests/test-publish-from-laboratory.sh	DISTRIBUABLE
+tests/test-private-patterns-lab-exemption.sh	DISTRIBUABLE
+tests/test-workshop-gitignore-links.sh	DISTRIBUABLE
+tests/test-backup-oracle.sh	DISTRIBUABLE
