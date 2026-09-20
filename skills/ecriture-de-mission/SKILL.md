@@ -9,6 +9,10 @@ metadata:
 
 Drafts a Vault Mission and the Executor mini-prompt that leads to it, from the template, with measured links, a mandatory Context section and a cross-review. **Pilot surface only**: filing an artefact is a Pilot gesture; the Executor does not invoke this skill. This skill executes nothing and does not decide the architecture: a choice that is not a "way of implementing" becomes a question to the Owner, recommendation and gate word included.
 
+## 0. Choose the regime first
+
+Ask the check, never your own judgement. A gesture that is reversible and stays on the workstation or in a private repository is written as an execution Note ([the template](../../templates/execution-note-template.md)), not as a Mission: fill its six rubrics, then run `tools/check-work-regime.sh note <file>`. `REGIME-LIGHT-OK` means no Mission is needed and this skill stops here. Any refusal (`R1` to `R7`) means the full regime: continue with the sections below. The criteria are the tool's and the rule's ([the two work regimes](../../rules/RULES-2026-09-20-012259-two-work-regimes-light-note-and-full-mission.md)); this skill never loosens them.
+
 ## 1. Read the template at the moment of writing
 
 Open the Vault's `templates/mission-template.md` **now**, never from memory: it changed on 1 September (Mission 111: `## Context` section [formerly « Contexte »], cross-review comment). The list of sections is the template's, in its order.
@@ -23,6 +27,14 @@ Open the Vault's `templates/mission-template.md` **now**, never from memory: it 
 ## 3. Draft, section by section
 
 `## Context` (the four contents of DECISION-115547 point 1, in order) · `## Objective` [« Objectif »] · `## Scope` [« Périmètre »] with an explicit out-of-scope · `## Preconditions` [« Préconditions »] with evidence status and STOP at the slightest non-trivial gap · `## Sources` · `## Applicable decisions` [« Décisions applicables »] · `## Constraints` [« Contraintes »] · `## Prior measurements` [« Mesures préalables »] (mandatory as soon as a step creates, copies, installs, pins, wires or configures: one row per target, with the command that measures its state before laying it down) · `## Steps` [« Étapes »] (never "delete": "move to `_trash/`" with fingerprint, or human gate) · `## Gates` (Owner word **verbatim**, dated; human gate not granted listed) · `## Validations` with figures (before → after) · `## Exit contract` [« Contrat de sortie »] · `## Resume contract` [« Contrat de reprise »] · `## Doors` [« Portes »] · `## Liens` (`prescribed by` the Mission versioning standard + `applies` on each applied Decision).
+
+### Fan-out (optional rubric)
+
+`## Fan-out` lists batches of measurements that do not depend on one another; leave it out otherwise, and the Mission is valid and worked as before. When it is filled, the Executor applies the skill `dispatching-parallel-agents` (kept in the skills warehouse, not delivered to this Vault yet): its eligibility gate, its sequential fallback, and its rule that delegation does not widen the authority of the task.
+
+- One sub-agent per batch, **read only**: read commands, its output file under the temporary folder the batch names, no commit, no push, no move, no write anywhere else.
+- Only the Executor writes to a repository: it gathers the output files, checks each against its batch's targets, and cites it in the report with the batch that produced it.
+- A batch that fails the gate, or a runtime with no sub-agents, is measured one after the other; the rubric never makes a Mission depend on delegation.
 
 ## 4. Cross-review before filing
 
@@ -48,6 +60,8 @@ Execute the Mission (Executor) · decide the architecture in the Owner's place (
 
 - `see also` — [Form checklist for a Pilot artefact, one fault per line](./mission-checklist.md)
 - `see also` — [Mission template](../../templates/mission-template.md)
+- `see also` — [Two work regimes: the light Note and the full Mission](../../rules/RULES-2026-09-20-012259-two-work-regimes-light-note-and-full-mission.md)
+- `see also` — [Execution Note template](../../templates/execution-note-template.md)
 - `applies` — Decision — Internal consistency of Missions (workshop history, not distributed) (hors Vault)
 - `applies` — [Relay between roles through mini-prompts with fixed rubrics](../../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md)
 - `applies` — [Versioning of Missions and generated outputs](../../rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md)

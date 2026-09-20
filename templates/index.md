@@ -15,6 +15,7 @@ Index généré automatiquement. Ne pas éditer à la main : régénérer via `t
 - `capture-template` · draft · <concise title> · `capture-template.md`
 - `current-state-template` · active · Current state — <project name> · `current-state-template.md`
 - `decision-template` · proposed · <decision title> · `decision-template.md`
+- `execution-note-template` · note · <what the gesture does, in one line> · `execution-note-template.md`
 - `handoff-template` · active · <subject of the handoff> · `handoff-template.md`
 - `initiation-order-template` · active · Template — initiation order · `initiation-order-template.md`
 - `mission-index-template` · active · Mission register · `mission-index-template.md`

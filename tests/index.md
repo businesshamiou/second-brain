@@ -24,6 +24,18 @@ Each test returns a closed verdict — `PASS`, `FAIL`, or `SKIP (cause, platform
 - `test-workshop-gitignore-links.sh` (U) — an existing `.gitignore` given the three link exclusions gets its links; `git status` shows none.
 - `test-backup-oracle.sh` (U) — a bundle is proven by restoring it; a truncated pack fails where `git bundle verify` passes.
 
+### Publishing, the check before every push — Mission 198
+
+- `test-publish-private-check-before-push.sh` (W / U / M) — the private-pattern check runs once before every push of the publication tool, also when `publish` is already ahead of `release` with nothing to commit; a private pattern is refused on both paths, a clean tree is published on both, a laboratory already published is left alone.
+
+### Two work regimes — Mission 199
+
+- `test-check-work-regime.sh` (W / U / M) — the work-regime check refuses a gesture that meets a full-regime criterion (push to the published repository, deletion, doctrine, refs, company repository, guardians) and the Note's wrong form, each refusal with its accepted twin; `diff` on a real change; the template is a valid Note; the criterion ids of the tool and of the rule stay the same set.
+
+### Fan-out — Mission 201
+
+- `test-fan-out-rubric.sh` (W / U / M) — the Mission template's optional `## Fan-out` rubric: exactly one, before `## Steps`, every other rubric kept, additions only; the skill instruction in at most ten lines naming `dispatching-parallel-agents`; the rubric form refused for a batch with no output, an output inside a repository, a duplicate name, no targets; an absent or empty rubric stays valid.
+
 ### One MCP server per Vault, and the update — Mission 191-C01 (v0.1.8)
 
 - `test-install-vault-mcp-name-per-vault.sh` (W / U / M) — two Vaults, two servers named after their identity; idempotent; former name migrated; crossed identity refused.

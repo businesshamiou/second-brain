@@ -496,6 +496,7 @@ decisions/DECISION-2026-09-02-005041-cross-repo-links-checked-only-when-target-r
 CONTEXT.md	DISTRIBUABLE
 THIRD-PARTY-LICENSES.md	DISTRIBUABLE
 rules/RULES-2026-09-11-190000-project-second-brain-boundary.md	DISTRIBUABLE
+rules/RULES-2026-09-20-012259-two-work-regimes-light-note-and-full-mission.md	DISTRIBUABLE
 .github/workflows/ci.yml	DISTRIBUABLE
 tools/check-private-patterns.sh	DISTRIBUABLE
 tools/lint-ci-workflow.py	DISTRIBUABLE
@@ -545,6 +546,7 @@ tests/test-distribution-manifest-no-heredoc-hang.sh	DISTRIBUABLE
 VAULT-IDENTITY.md	DISTRIBUABLE
 decisions/DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md	DISTRIBUABLE
 templates/initiation-order-template.md	DISTRIBUABLE
+templates/execution-note-template.md	DISTRIBUABLE
 tests/sandbox-vault.sh	DISTRIBUABLE
 tests/test-catalog-key-parity.sh	DISTRIBUABLE
 tests/test-project-initiation.sh	DISTRIBUABLE
@@ -554,6 +556,7 @@ tools/install-vault-mcp.sh	DISTRIBUABLE
 tools/project-baseline.sh	DISTRIBUABLE
 tools/project_baseline.py	DISTRIBUABLE
 tools/publish-from-laboratory.sh	DISTRIBUABLE
+tools/check-work-regime.sh	DISTRIBUABLE
 tools/propose-link-repairs.sh	DISTRIBUABLE
 tools/propose_link_repairs.py	DISTRIBUABLE
 tools/resolve-vault.sh	DISTRIBUABLE
@@ -608,3 +611,6 @@ tests/test-publish-from-laboratory.sh	DISTRIBUABLE
 tests/test-private-patterns-lab-exemption.sh	DISTRIBUABLE
 tests/test-workshop-gitignore-links.sh	DISTRIBUABLE
 tests/test-backup-oracle.sh	DISTRIBUABLE
+tests/test-publish-private-check-before-push.sh	DISTRIBUABLE
+tests/test-check-work-regime.sh	DISTRIBUABLE
+tests/test-fan-out-rubric.sh	DISTRIBUABLE

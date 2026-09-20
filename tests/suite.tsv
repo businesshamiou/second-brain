@@ -85,3 +85,6 @@ tests/test-publish-from-laboratory.sh	-	bash	WUM	blocking	+M192 T1 -- the labora
 tests/test-private-patterns-lab-exemption.sh	-	bash	U	blocking	+M192 T2 -- projects/ exempt from the private-pattern check in a laboratory only, never on publish, never outside projects/	-
 tests/test-workshop-gitignore-links.sh	-	bash	U	blocking	+M192 T3 -- an existing .gitignore given the three link exclusions gets its links, and git status shows none	-
 tests/test-backup-oracle.sh	-	bash	U	blocking	+M192 T4 -- a backup bundle is proven by restoring it; a truncated pack fails where bundle verify alone passes	-
+tests/test-publish-private-check-before-push.sh	-	bash	WUM	blocking	+M198 T5 -- the private-pattern check stands before every push of the publication tool, also when publish is already ahead of release with nothing to commit	2
+tests/test-check-work-regime.sh	-	bash	WUM	blocking	+M199 T6 -- the work-regime check refuses the wrong regime (six criteria and the Note form), each refusal with its accepted twin; the template is a valid Note	3
+tests/test-fan-out-rubric.sh	-	bash	WUM	blocking	+M201 -- the optional Fan-out rubric of the Mission template: optional, additions only, the skill instruction in at most ten lines, the rubric form refused when a batch has no output or writes inside a repository	1

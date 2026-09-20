@@ -74,6 +74,14 @@ Out of scope: <what is explicitly excluded.>
 Any expected behaviour of a tool, a hook or a flag that has not been exercised by a command is written `HYPOTHÈSE` [hypothesis] in the Context.
 <!-- Commit simulation (checklist, line 24): a "## Commit simulation" section follows this rubric as soon as a commit is prescribed — per commit, staged files, guardians run, expected verdict and its reason, hook configuration as it will be after the Mission. -->
 
+## Fan-out
+
+<!-- OPTIONAL (« Fan-out » [parallel read-only batches]). Leave the rubric out, or leave it empty, and the Mission is valid and the Executor works as before; it is never required and never a reason to refuse a Mission. Fill it only for measurements that do not depend on one another: one batch = one folder or one set of targets that can be measured without waiting for another batch. Each batch names its targets, its read commands and its output file under the Executor's temporary folder. The batches are READ-ONLY: a sub-agent measures and writes its own output file, nothing else; no commit, no push, no move. Only the Executor writes to a repository, gathers the output files and cites each one in the report with the batch that produced it. Eligibility, sequential fallback and "delegation does not widen the authority of the task": the skill `dispatching-parallel-agents` (not delivered to the Vault yet). -->
+
+| Batch | Targets | Measures | Output |
+|---|---|---|---|
+| <B1> | <targets measurable on their own> | <read commands> | <output file under the Executor's temporary folder> |
+
 ## Steps
 
 <!-- No "delete" step: either "move to _trash/" (agent step, fingerprint + absence remeasured in validation), or "deletion by the Owner" as a human gate outside the steps, measured at the resume (DECISION-2026-08-29-110852). -->

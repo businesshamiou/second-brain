@@ -11,7 +11,9 @@
 # published tree (in a folder named `second-brain`: index titles derive from
 # it), the private-pattern check and the ten guardians run on `publish`, and
 # `git push release publish:main` goes out as a fast-forward -- never
-# --force. The tag is not this tool's job: it is posed after a green run.
+# --force. The private-pattern check runs once, before EVERY push -- also when
+# `publish` is already ahead of release/main and there is nothing new to commit
+# (Mission 198). The tag is not this tool's job: it is posed after a green run.
 #
 # Refusals, nothing pushed: not a laboratory (no `release` remote); run from
 # anything but the laboratory's `main` (never from `publish` itself);
@@ -117,20 +119,33 @@ bash "$PUB/tools/build-indexes.sh" "$PUB" >/dev/null 2>&1 || refuse "reconstruct
 # a stray untracked file (preflight stamp, caches) of the worktree.
 P add -A -- "${KEEP_FROM_RELEASE[@]}" ':(glob)**/index.md' ':(glob)**/index-archive*.md' || refuse "git add a echoue dans le worktree de publication"
 
+NEED_COMMIT=1
 if P diff --cached --quiet "$PUBLISH_HEAD"; then
   say "publish porte deja l'arbre du laboratoire ($LAB_HEAD)"
-  if [ "$PUBLISH_HEAD" != "$RELEASE_HEAD" ]; then
-    P push --quiet release publish:main || refuse "poussee de publish (en avance sur release/main) refusee"
-    say "publish poussee : $RELEASE_HEAD..$PUBLISH_HEAD"
-    echo "PUBLISHED $PUBLISH_HEAD"
+  if [ "$PUBLISH_HEAD" = "$RELEASE_HEAD" ]; then
+    echo "NOTHING-TO-PUBLISH"
     exit 0
   fi
-  echo "NOTHING-TO-PUBLISH"
+  # publish is ahead of release/main with nothing new to commit: what is
+  # pushed is a commit that reached publish by another path, unchecked so far.
+  NEED_COMMIT=0
+fi
+
+# --- The private-pattern check: the one call, before any push -----------------
+# Every path that ends in `git push release` passes here first -- the one that
+# commits and the one that pushes a publish already ahead of release/main
+# (Mission 198: the second one used to skip the check). It reads the tree that
+# is about to go out, in the publication worktree.
+bash "$PUB/tools/check-private-patterns.sh" --tree-only || refuse "motif prive dans l'arbre publie"
+
+if [ "$NEED_COMMIT" -eq 0 ]; then
+  P push --quiet release publish:main || refuse "poussee de publish (en avance sur release/main) refusee"
+  say "publish poussee : $RELEASE_HEAD..$PUBLISH_HEAD"
+  echo "PUBLISHED $PUBLISH_HEAD"
   exit 0
 fi
 
-# --- Checks on the published tree, then one guarded commit -------------------
-bash "$PUB/tools/check-private-patterns.sh" --tree-only || refuse "motif prive dans l'arbre publie"
+# --- One guarded commit, then the push -----------------------------------------
 bash "$PUB/tools/session-preflight.sh" >/dev/null 2>&1 || true
 if [ -n "$MESSAGE_FILE" ]; then
   P commit --quiet -F "$MESSAGE_FILE" || refuse "commit de publication refuse (gardiens)"

@@ -23,6 +23,7 @@ Index généré automatiquement. Ne pas éditer à la main : régénérer via `t
 - `2026-08-23-224706` · active · Role charter and session determination · `RULES-2026-08-23-224706-role-charter-and-session-determination.md`
 - `2026-08-26-142800` · active · Project structure standard — seven functions, skeleton, Vault/project boundary,… · `RULES-2026-08-26-142800-project-structure-standard.md`
 - `2026-09-11-190000` · active · Boundary between a project and Second Brain · `RULES-2026-09-11-190000-project-second-brain-boundary.md`
+- `2026-09-20-012259` · active · Two work regimes: the light Note and the full Mission · `RULES-2026-09-20-012259-two-work-regimes-light-note-and-full-mission.md`
 
 ## Liens
 
