@@ -125,3 +125,15 @@ sandbox_vault() {
     done
   ) || return 1
 }
+
+# sandbox_before_203 <dest>: the laboratory's tools/, rules/patterns/ and templates/ as they
+# stood before Mission 203 (commit f34b405), extracted into <dest>. The RED
+# witnesses of the Mission 203 tests replay the old tool against the case the
+# new one must handle. Returns 1 when that history is absent (a clone without
+# it): the caller then says the witness was not played, it never fails the test.
+sandbox_before_203() {
+  local dest="$1" root="${REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+  git -C "$root" cat-file -e 'f34b405^{commit}' 2>/dev/null || return 1
+  mkdir -p "$dest" || return 1
+  git -C "$root" archive f34b405 tools rules/patterns templates | tar -x -C "$dest"
+}

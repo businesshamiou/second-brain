@@ -100,11 +100,16 @@ def main():
 
     # Baseline: an index engraved at adoption and not touched is not judged.
     baseline = project_baseline.Baseline(top)
+    # Mission 203: the certificate's `# exempt:` prefixes are outside this
+    # guardian's perimeter (same key, same grammar as the link and freshness
+    # guardians). No key: nothing exempt.
+    exempt = project_baseline.Exempt(top)
 
     targets = [
         p for p in staged
         if (INDEX_RE.search(p) or ARCHIVE_RE.search(p) or p == MISSION_INDEX_PATH)
         and not baseline.untouched(p)
+        and not exempt.covers_file(p)
     ]
     if not targets:
         return 0

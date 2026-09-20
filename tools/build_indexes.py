@@ -68,6 +68,10 @@ import os
 import re
 import sys
 
+# Mission 203: the certificate's `# exempt:` prefixes (same reader as the guardians).
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import project_baseline  # noqa: E402
+
 WEIGHT_CAP = 8000  # DECISION-2026-09-05-124647 point 3
 TITLE_MAX = 80  # delegated choice 1
 ARCHIVE_SLICE = 20  # delegated choice 3: slice of numbers, computed
@@ -195,11 +199,25 @@ def supersedes_values(text):
 
 # --- Bash block l.85 and l.127-135: worktree walk --------------------------
 def walk_dirs(root_abs):
-    """Folders under the root, pruning identical to the Bash find -prune."""
+    """Folders under the root, pruning identical to the Bash find -prune.
+
+    Mission 203 (report 202, A7): pruning is decided on the folder names BELOW
+    the root, never on the absolute path of the root. The old test looked at
+    every component of the absolute path, so a project living under a folder
+    named `tools`, `state` or `skills-warehouse` was pruned whole -- zero
+    folders indexed, the guardian's own hint a dead end. Names in PRUNE_NAMES
+    are still pruned at any depth below the root; the certificate's
+    `# exempt:` prefixes (paths of third parties that must stay
+    byte-identical) are pruned too. A root without certificate: unchanged.
+    """
+    exempt = project_baseline.Exempt(root_abs)
     for dirpath, dirnames, _ in os.walk(root_abs):
-        dirnames[:] = [d for d in dirnames if d not in PRUNE_NAMES]
-        if any(part in PRUNE_NAMES for part in dirpath.replace("\\", "/").split("/")):
-            continue
+        rel = os.path.relpath(dirpath, root_abs).replace("\\", "/")
+        rel = "" if rel == "." else rel + "/"
+        dirnames[:] = [
+            d for d in dirnames
+            if d not in PRUNE_NAMES and not exempt.covers_dir(rel + d)
+        ]
         yield dirpath
 
 

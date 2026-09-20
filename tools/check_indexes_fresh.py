@@ -106,6 +106,11 @@ def is_index_name(name):
 def is_pruned_dir(d):
     if d == ".":
         return False
+    # Mission 203: the certificate's `# exempt:` prefixes are outside this
+    # guardian's perimeter, like the pruned names (third-party trees that must
+    # stay byte-identical). No key: EXEMPT covers nothing.
+    if EXEMPT.covers_dir(d):
+        return True
     return any(comp in PRUNE_NAMES for comp in d.split("/"))
 
 
@@ -154,6 +159,7 @@ def decode(b):
 
 # Baseline (Decision 000545, A4): files engraved at adoption.
 BASELINE = project_baseline.Baseline(REPO_ROOT)
+EXEMPT = project_baseline.Exempt(REPO_ROOT)
 
 if DIR_MODE:
     TRACKED = project_baseline.list_files(REPO_ROOT)

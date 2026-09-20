@@ -57,6 +57,45 @@ def read_certificate(root):
     return cert
 
 
+def parse_exempt(value):
+    """Path prefixes of the certificate's `# exempt:` key (Mission 203).
+
+    Grammar: prefixes relative to the project root, separated by spaces, each
+    ending with `/`. Returns (valid prefixes, rejected tokens). A rejected token
+    exempts nothing: an absolute path, a `..`, a backslash, a drive letter or a
+    token without the final `/` is ignored -- the exemption only ever shrinks.
+    Twin of bc_exempt in tools/resolve-vault.sh (same grammar, one source of
+    truth in the tests).
+    """
+    valid, rejected = [], []
+    for tok in (value or "").split():
+        bad = (
+            tok.startswith("/") or ".." in tok or "\\" in tok or ":" in tok
+            or not tok.endswith("/") or tok == "/"
+        )
+        (rejected if bad else valid).append(tok)
+    return valid, rejected
+
+
+class Exempt:
+    """Paths the three index/link guardians do not judge (never the secrets).
+
+    Read from the birth certificate of `root`; no certificate or no key: nothing
+    exempt, behaviour unchanged.
+    """
+
+    def __init__(self, root):
+        self.prefixes, self.rejected = parse_exempt(read_certificate(root).get("exempt", ""))
+        for tok in self.rejected:
+            sys.stderr.write("EXEMPT : entree ignoree (forme invalide) : %s\n" % tok)
+
+    def covers_file(self, rel):
+        return any(rel.startswith(p) for p in self.prefixes)
+
+    def covers_dir(self, rel):
+        return rel != "." and any((rel + "/").startswith(p) for p in self.prefixes)
+
+
 def _is_link(path):
     if os.path.islink(path):
         return True

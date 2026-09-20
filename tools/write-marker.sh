@@ -2,15 +2,26 @@
 # Writes VAULT-ROOT.md at the work root from templates/vault-root-template.md.
 # File name: the Pilot's choice, open to revision.
 #
-# usage: write-marker.sh <work-root> [vault-name]
+# usage: write-marker.sh [--marker-only] <work-root> [vault-name]
+#
+# --marker-only (Mission 203, report 202 A3): writes VAULT-ROOT.md and nothing
+# else. Without it the script also writes the workspace-level CLAUDE.md and
+# AGENTS.md at <work-root> -- right for a workspace root, wrong for a project
+# root, whose own CLAUDE.md and AGENTS.md it would overwrite. Default unchanged.
 
 set -u
+
+MARKER_ONLY=0
+if [ "${1:-}" = "--marker-only" ]; then
+  MARKER_ONLY=1
+  shift
+fi
 
 WORK_ROOT="${1:-}"
 VAULT_NAME="${2:-Brian}"
 
 if [ -z "$WORK_ROOT" ]; then
-  echo "usage: write-marker.sh <racine-de-travail> [nom-du-vault]" >&2
+  echo "usage: write-marker.sh [--marker-only] <racine-de-travail> [nom-du-vault]" >&2
   exit 1
 fi
 
@@ -59,6 +70,7 @@ sed \
 # standard of second-brain. Identical content in both files (same
 # instruction as the second-brain and project levels). Idempotent: rewritten at
 # each installation (the assistant's name may change), never appended. ---
+if [ "$MARKER_ONLY" = "0" ]; then
 WORKSPACE_GUIDE_CONTENT="La méthode de ce workspace vit dans \`$REL_PATH/\` (Second Brain) : règles, skills, assistant.
 
 Ouvrir une session : lire \`$REL_PATH/skills/session-start/SKILL.md\`.
@@ -67,5 +79,6 @@ Poser une question : « Demande à $VAULT_NAME : ... » — il cite ses sources 
 
 printf '%s\n' "$WORKSPACE_GUIDE_CONTENT" > "$WORK_ROOT_ABS/CLAUDE.md"
 printf '%s\n' "$WORKSPACE_GUIDE_CONTENT" > "$WORK_ROOT_ABS/AGENTS.md"
+fi
 
 echo "$MARKER"

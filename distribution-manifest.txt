@@ -557,6 +557,7 @@ tools/project-baseline.sh	DISTRIBUABLE
 tools/project_baseline.py	DISTRIBUABLE
 tools/publish-from-laboratory.sh	DISTRIBUABLE
 tools/check-work-regime.sh	DISTRIBUABLE
+tools/phase-report.sh	DISTRIBUABLE
 tools/propose-link-repairs.sh	DISTRIBUABLE
 tools/propose_link_repairs.py	DISTRIBUABLE
 tools/resolve-vault.sh	DISTRIBUABLE
@@ -614,3 +615,10 @@ tests/test-backup-oracle.sh	DISTRIBUABLE
 tests/test-publish-private-check-before-push.sh	DISTRIBUABLE
 tests/test-check-work-regime.sh	DISTRIBUABLE
 tests/test-fan-out-rubric.sh	DISTRIBUABLE
+tests/test-exempt-paths-key.sh	DISTRIBUABLE
+tests/test-build-indexes-relative-prune.sh	DISTRIBUABLE
+tests/test-adopt-replaces-certificate-less-config.sh	DISTRIBUABLE
+tests/test-write-marker-only.sh	DISTRIBUABLE
+tests/test-conformity-charter-pointer.sh	DISTRIBUABLE
+tests/test-phase-report.sh	DISTRIBUABLE
+tests/test-vault-mcp-server-name.sh	DISTRIBUABLE

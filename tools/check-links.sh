@@ -57,6 +57,24 @@ PB_EOF
   STAGED="$KEPT"
 fi
 
+# Exempt paths (Mission 203): the certificate's `# exempt:` prefixes hold files of
+# third parties that must stay byte-identical (no `## Liens`). Read by this
+# guardian, the index-freshness and the index-weight guardians, and by no other:
+# the secrets check never reads the key. No key: nothing changes.
+bc_exempt_load "$VAULT_ROOT"
+if [ -n "$BC_EXEMPT_LIST" ] && [ -n "$STAGED" ]; then
+  KEPT=""
+  while IFS= read -r f; do
+    [ -z "$f" ] && continue
+    bc_exempt_covers "$f" && continue
+    KEPT="${KEPT}${KEPT:+
+}$f"
+  done <<EX_EOF
+$STAGED
+EX_EOF
+  STAGED="$KEPT"
+fi
+
 if [ -z "$STAGED" ]; then
   exit 0
 fi

@@ -107,7 +107,13 @@ MCP="$REPO_ROOT/tools/vault-mcp.py"
 RESP="$(uv run --no-project "$MCP" --vault "$REPO_ROOT" --allow "$TMP/g/ws" < "$REQS" 2>"$TMP/g/stderr.log")"
 line_of() { printf '%s\n' "$RESP" | grep "\"id\": $1[,}]" | head -n 1; }
 HEAD_SHA="$(git -C "$REPO_ROOT" rev-parse HEAD)"
-check "(g) initialize : serverInfo second-brain-vault" has "$(line_of 1)" '"name": "second-brain-vault"'
+# Mission 205: the server announces the name derived from its Vault's identity (the
+# installer's own rule, `vault-identity.sh get server_name`), and the fixed name only
+# for a Vault with no generated identity (the distributed skeleton). This assertion
+# used to expect the fixed name for every Vault -- the defect Mission 205 corrects.
+EXPECTED_NAME="$(bash "$REPO_ROOT/tools/vault-identity.sh" get server_name "$REPO_ROOT" 2>/dev/null)"
+[ -n "$EXPECTED_NAME" ] || EXPECTED_NAME="second-brain-vault"
+check "(g) initialize : serverInfo $EXPECTED_NAME" has "$(line_of 1)" "\"name\": \"$EXPECTED_NAME\""
 TOOLS_LINE="$(line_of 2)"
 MISSING_TOOLS=""
 for t in list_allowed_directories list_directory read_text_file read_multiple_files write_file edit_file create_directory search_files get_file_info move_file; do

@@ -52,6 +52,47 @@ bc_get() {
     /^[^#]/ { exit }'
 }
 
+# bc_exempt <project-root>: the path prefixes of the certificate's `# exempt:`
+# key (Mission 203), one per line -- the paths the link, index-freshness and
+# index-weight guardians do not judge (never the secrets check). Grammar: prefixes
+# relative to the project root, separated by spaces, each ending with `/`. A
+# token that is absolute, holds `..`, a backslash or a colon, or lacks the final
+# `/`, is ignored with a line on stderr: the exemption only ever shrinks. No
+# certificate or no key: prints nothing, behaviour unchanged. Python twin:
+# parse_exempt in tools/project_baseline.py.
+bc_exempt() {
+  local cfg="$1/.pre-commit-config.yaml" raw tok
+  bc_file_has_certificate "$cfg" || return 0
+  raw="$(bc_get "$cfg" exempt)"
+  [ -n "$raw" ] || return 0
+  printf '%s\n' "$raw" | tr -s ' \t' '\n\n' | while IFS= read -r tok; do
+    [ -n "$tok" ] || continue
+    case "$tok" in
+      /|/*|*..*|*\\*|*:*) echo "EXEMPT : entree ignoree (forme invalide) : $tok" >&2 ;;
+      */) printf '%s\n' "$tok" ;;
+      *) echo "EXEMPT : entree ignoree (forme invalide) : $tok" >&2 ;;
+    esac
+  done
+}
+
+# bc_exempt_load <project-root>: reads the key once into BC_EXEMPT_LIST.
+# bc_exempt_covers <relative path>: 0 if a listed prefix starts the path.
+BC_EXEMPT_LIST=""
+bc_exempt_load() {
+  BC_EXEMPT_LIST="$(bc_exempt "$1")"
+}
+bc_exempt_covers() {
+  local p
+  [ -n "$BC_EXEMPT_LIST" ] || return 1
+  while IFS= read -r p; do
+    [ -n "$p" ] || continue
+    case "$1" in "$p"*) return 0 ;; esac
+  done <<BC_EXEMPT_EOF
+$BC_EXEMPT_LIST
+BC_EXEMPT_EOF
+  return 1
+}
+
 # bc_find <folder>: root of the project that carries the certificate, walking up.
 bc_find() {
   local dir

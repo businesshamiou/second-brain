@@ -422,7 +422,18 @@ BASELINE_NAME=""
 BASELINE_TMP=""
 CONFIG_EXISTED=0
 [ -e "$TARGET/.pre-commit-config.yaml" ] && CONFIG_EXISTED=1
-if [ "$MODE" = "adopt" ] && [ "$CONFIG_EXISTED" = "0" ]; then
+# Mission 203 (report 202, A4): a config WITHOUT certificate is replaced by the
+# current form when it holds nothing but Vault guardians (an older pin such as
+# `repo: <url>` + `rev:` + `vault-check-*` ids); the old one is cited and kept
+# next to it, dated, never deleted. A config that carries anything else (a hook
+# of the project, another top-level key) is never replaced: the certificate to add is
+# returned, as before.
+CONFIG_REPLACE=0
+if [ "$MODE" = "adopt" ] && [ "$CONFIG_EXISTED" = "1" ] && ! bc_file_has_certificate "$TARGET/.pre-commit-config.yaml"; then
+  FOREIGN_LINES="$(tr -d '\r' < "$TARGET/.pre-commit-config.yaml" | grep -v -E '^[[:space:]]*(#.*)?$|^repos:[[:space:]]*(\[\])?[[:space:]]*$|^[[:space:]]*-[[:space:]]*repo:|^[[:space:]]*rev:|^[[:space:]]*hooks:[[:space:]]*$|^[[:space:]]*-[[:space:]]*id:[[:space:]]*"?vault-check-[a-z-]+"?[[:space:]]*$' || true)"
+  [ -z "$FOREIGN_LINES" ] && CONFIG_REPLACE=1
+fi
+if [ "$MODE" = "adopt" ] && { [ "$CONFIG_EXISTED" = "0" ] || [ "$CONFIG_REPLACE" = "1" ]; }; then
   BASELINE_NAME=".vault-baseline-$STAMP.tsv"
   BASELINE_TMP="$(mktemp)"
   BASELINE_COUNT="$(uv run --no-project "$BASELINE_TOOL" write "$TARGET" "$BASELINE_TMP")" \
@@ -546,6 +557,21 @@ elif bc_file_has_certificate "$CONFIG"; then
   elif [ -n "$CURRENT_VCS" ]; then
     VCS="$CURRENT_VCS"
   fi
+elif [ "$CONFIG_REPLACE" = "1" ]; then
+  # Old config cited in full, copied next to it (dated, never overwritten),
+  # then replaced by the certificate form; the baseline recorded above is put in place.
+  CONFIG_COPY="$TARGET_ABS/.pre-commit-config.yaml.before-adopt-$TODAY"
+  [ -e "$CONFIG_COPY" ] && CONFIG_COPY="$CONFIG_COPY-$(date +"%H%M%S")"
+  cp -p "$CONFIG" "$CONFIG_COPY"
+  echo "Ancienne .pre-commit-config.yaml (sans acte de naissance) remplacee ; copie datee : $(basename "$CONFIG_COPY")"
+  tr -d '\r' < "$CONFIG_COPY" | sed 's/^/  | /'
+  write_certificate_config
+  note_added ".pre-commit-config.yaml (remplacee : acte de naissance et crochets locaux)"
+  note_added "$(basename "$CONFIG_COPY")"
+  if [ -n "$BASELINE_NAME" ]; then
+    mv "$BASELINE_TMP" "$TARGET_ABS/$BASELINE_NAME"
+    note_added "$BASELINE_NAME ($BASELINE_COUNT)"
+  fi
 else
   note_existing ".pre-commit-config.yaml"
   CATALOG "projectBootstrap.adopt.pinWithoutCertificate" ".pre-commit-config.yaml"
@@ -630,6 +656,10 @@ done
 # in the Vault (single source); this file personalises it on disk --
 # project path, Vault identity, canary to return at opening. ---
 PILOT_PROMPT="$TARGET_ABS/state/PILOT-PROMPT.md"
+# Mission 203 (report 202, A6): the folder exists BEFORE the relative paths are
+# computed -- rel_path answers nothing for a folder that is not there yet, which
+# left the prompt's links empty when an adopted project had no state/.
+mkdir -p "$TARGET_ABS/state"
 CANARY="pp-$(od -An -N6 -tx1 /dev/urandom 2>/dev/null | tr -d ' \n')"
 REL_PROMPT_TEMPLATE="$(rel_path "$TARGET_ABS/state" "$PILOT_PROMPT_TEMPLATE")"
 REL_CHARTER_FROM_STATE="$(rel_path "$TARGET_ABS/state" "$CHARTER")"

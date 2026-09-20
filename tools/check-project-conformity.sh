@@ -122,6 +122,11 @@ for GUIDE in AGENTS.md CLAUDE.md; do
     continue
   fi
   POINTERS="$(tr -d '\r' < "$PROJECT_ABS/$GUIDE" | grep -oE '(@|\]\()\.\.[^ )]*/(CLAUDE|AGENTS)\.md' | sed -E 's/^(@|\]\()//; s#/(CLAUDE|AGENTS)\.md$##' | sort -u)"
+  # Mission 203 (report 202, A5): a link to the role charter of the Vault also
+  # names the Vault -- accepted IN ADDITION to CLAUDE.md / AGENTS.md, never in
+  # their place. The folder it names is checked against the certificate's like the others.
+  CHARTER_POINTERS="$(tr -d '\r' < "$PROJECT_ABS/$GUIDE" | grep -oE '(@|\]\()\.\.[^ )]*/rules/RULES-2026-08-23-224706-role-charter-and-session-determination\.md' | sed -E 's/^(@|\]\()//; s#/rules/RULES-2026-08-23-224706-role-charter-and-session-determination\.md$##' | sort -u)"
+  POINTERS="$(printf '%s\n%s\n' "$POINTERS" "$CHARTER_POINTERS" | grep -v '^$' | sort -u || true)"
   if [ -z "$POINTERS" ]; then
     add_missing "fichier de pointage sans chemin vers le Vault ($GUIDE)"
     continue

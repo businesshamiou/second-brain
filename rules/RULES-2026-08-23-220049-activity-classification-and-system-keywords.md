@@ -56,6 +56,8 @@ Journal lines are from now on written **entirely in English** — tags and conte
 
 **Note (2026-08-26, Mission 066)**: this enumeration has since been extended — the `CLOSE:` tag was added by [DECISION-2026-08-25-110935](../decisions/DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md); the list of tags is extended by Decision, never by silent editing of this paragraph.
 
+**Note (2026-09-20, Mission 203)**: a measurement line, `PHASE:<name>:<debut|fin>`, may be appended to a project journal by `tools/append-journal.sh` at each boundary of a piece of work (the Owner asked, on 2026-09-20, to measure where the minutes of a Mission go). The name is one word (`lecture`, `preflight`, ...); the closed pair `debut` / `fin` is spelled as the reader expects it. It is not a state tag: `tools/build-state.sh` ignores it, as it ignores any line with no recognised tag. `tools/phase-report.sh <project>` reads the last run (from the last opening of its first phase) and renders `phase | debut | fin | secondes`; it refuses a phase opened before the previous one is closed, a phase opened twice, and a closing without an opening. Whether the list of state tags itself should grow is left to a Decision, as the note above requires.
+
 - The journal is append-only: the historical French lines (`ETAT:`, `PROCHAIN:`, `OUVERT:`, `REPRISE:`) are never rewritten.
 - The reading tools recognize both sets of tags.
 - Documents intended for the Owner (state sheet, handoffs, Decisions) remain in French.

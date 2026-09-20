@@ -30,6 +30,8 @@ import os
 import subprocess
 import sys
 
+# Fixed name: the fallback for a Vault with no generated identity (the distributed
+# repository carries a skeleton, `status: template`, with empty values).
 SERVER_NAME = "second-brain-vault"
 DEFAULT_PROTOCOL = "2025-06-18"
 ACCESS_DENIED = -32001
@@ -52,6 +54,40 @@ class ToolError(Exception):
 
 def norm(path):
     return os.path.normcase(os.path.realpath(path))
+
+
+def server_name(vault_root):
+    """Name this server announces: derived from the identity of THIS Vault.
+
+    Same rule as `vid_server_name` in tools/vault-identity.sh (Decision 152251 C,
+    Mission 191-C01, which the installer already applies to the configuration key):
+    `second-brain-vault-` followed by the first 8 characters of `vault_id`, after its
+    `sb-` prefix, read from the front matter of VAULT-IDENTITY.md at the root of the
+    Vault. The desktop application keeps ONE server per announced name: two Vaults
+    announcing the same fixed name were one server (Mission 205). CRLF line endings
+    are tolerated (Windows clone with autocrlf), like `vid_get`. A missing file, no
+    front matter or an empty `vault_id` (the skeleton of the distributed repository):
+    the fixed name, silently -- standard output is reserved for JSON-RPC.
+    """
+    try:
+        with open(os.path.join(vault_root, "VAULT-IDENTITY.md"), "r", encoding="utf-8", errors="replace", newline="") as f:
+            text = f.read()
+    except OSError:
+        return SERVER_NAME
+    lines = text.replace(chr(13), "").split(chr(10))
+    if lines[0] != "---":
+        return SERVER_NAME
+    for line in lines[1:]:
+        if line == "---":
+            break
+        i = line.find(":")
+        if i > 0 and line[:i] == "vault_id":
+            value = line[i + 1:].strip()
+            if len(value) >= 2 and value[0] == '"' and value[-1] == '"':
+                value = value[1:-1]
+            short = (value[3:] if value.startswith("sb-") else value)[:8]
+            return "%s-%s" % (SERVER_NAME, short) if short else SERVER_NAME
+    return SERVER_NAME
 
 
 def vault_commit(vault_root):
@@ -90,6 +126,7 @@ class Sandbox:
         self.allowed_display = [os.path.abspath(a) for a in allowed]
         self.allowed = [norm(a) for a in allowed]
         self.vault_root = os.path.abspath(vault_root)
+        self.server_name = server_name(self.vault_root)
 
     def inside(self, resolved):
         for root in self.allowed:
@@ -302,7 +339,7 @@ def handle(sb, msg):
         return {
             "protocolVersion": params.get("protocolVersion") or DEFAULT_PROTOCOL,
             "capabilities": {"tools": {"listChanged": False}},
-            "serverInfo": {"name": SERVER_NAME, "version": vault_commit(sb.vault_root)[:12]},
+            "serverInfo": {"name": sb.server_name, "version": vault_commit(sb.vault_root)[:12]},
         }
     if method == "ping":
         return {}
@@ -352,7 +389,7 @@ def main(argv):
             log("dossier autorisé introuvable : %s" % a)
             return 2
     sb = Sandbox(args.allow, args.vault)
-    log("prêt ; dossiers autorisés : %s" % ", ".join(sb.allowed_display))
+    log("prêt ; serveur %s ; dossiers autorisés : %s" % (sb.server_name, ", ".join(sb.allowed_display)))
     for raw in sys.stdin.buffer:
         line = raw.decode("utf-8", "replace").strip()
         if not line:
