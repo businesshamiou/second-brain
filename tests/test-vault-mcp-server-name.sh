@@ -20,7 +20,12 @@
 #   (e) the protocol is unchanged: `tools/list` is the same as the old script's (same
 #       tools, same schemas, same count);
 #   (f) the old script (commit f34b405) announces the same fixed name for two
-#       different Vaults -- the defect reproduced, when that history is available.
+#       different Vaults -- the defect reproduced, when that history is available;
+#   (g) Mission 206 (Decision 162812 A): a Vault whose identity carries `workspace_label`
+#       announces `second-brain-vault-<label>`, the same name as
+#       `tools/vault-identity.sh get server_name`; the label is normalised, CRLF is
+#       tolerated, an empty label falls back to the identity, a label without a
+#       generated identity keeps the fixed name.
 #
 # Writes only in a temporary folder (prefix m205).
 #
@@ -48,7 +53,7 @@ TMP="$(cd "$TMP" && pwd)"
 NATIVE() { if command -v cygpath >/dev/null 2>&1; then cygpath -m "$1"; else printf '%s' "$1"; fi; }
 
 # make_vault <name> <identity mode> [script]: a Vault-shaped folder holding the server script.
-#   ids modes: lf | crlf | unquoted | short | template | empty | none
+#   ids modes: lf | crlf | unquoted | short | template | empty | none | label | labelcrlf | labelnoid | labelempty
 make_vault() {
   local dir="$TMP/$1" mode="$2" script="${3:-$REPO_ROOT/tools/vault-mcp.py}"
   mkdir -p "$dir/tools"
@@ -62,6 +67,33 @@ make_vault() {
     template) printf -- '---\ntype: vault-identity\nstatus: template\nvault_id: ""\nvault_origin: ""\n---\n\n# skeleton\n' > "$dir/VAULT-IDENTITY.md" ;;
     empty)    : > "$dir/VAULT-IDENTITY.md" ;;
     none)     : ;;
+    label)      printf -- '---
+type: vault-identity
+status: generated
+vault_id: "%s"
+vault_origin: "x"
+workspace_label: "workspaces"
+---
+' "$id" > "$dir/VAULT-IDENTITY.md" ;;
+    labelcrlf)  printf -- '---
+status: generated
+vault_id: "%s"
+workspace_label: "Mon Espace (2)"
+---
+' "$id" > "$dir/VAULT-IDENTITY.md" ;;
+    labelnoid)  printf -- '---
+type: vault-identity
+status: template
+vault_id: ""
+workspace_label: "workspaces"
+---
+' > "$dir/VAULT-IDENTITY.md" ;;
+    labelempty) printf -- '---
+status: generated
+vault_id: "%s"
+workspace_label: ""
+---
+' "$id" > "$dir/VAULT-IDENTITY.md" ;;
   esac
 }
 
@@ -150,6 +182,23 @@ for pair in "crlf:v6" "unq:v7" "short:v8"; do
   [ -n "$want" ] && [ "$(field "$OUT" $k 2)" = "$want" ] && pass "(c) $k : $(field "$OUT" $k 2) = nom de l'installateur" \
     || fail "(c) $k : annonce '$(field "$OUT" $k 2)', installateur '$want'"
 done
+
+# --- (g) workspace label (Mission 206) ------------------------------------------------------------------
+make_vault g1 label "$REPO_ROOT/tools/vault-mcp.py" sb-eeeeeeee55555555
+make_vault g2 labelcrlf "$REPO_ROOT/tools/vault-mcp.py" sb-ffffffff66666666
+make_vault g3 labelnoid "$REPO_ROOT/tools/vault-mcp.py"
+make_vault g4 labelempty "$REPO_ROOT/tools/vault-mcp.py" sb-99999999aaaaaaaa
+OUT="$(run_servers "lab=$(NATIVE "$TMP/g1/tools/vault-mcp.py")|$ALLOW|" "crlf=$(NATIVE "$TMP/g2/tools/vault-mcp.py")|$ALLOW|" "noid=$(NATIVE "$TMP/g3/tools/vault-mcp.py")|$ALLOW|" "empty=$(NATIVE "$TMP/g4/tools/vault-mcp.py")|$ALLOW|")"
+for pair in "lab:g1:second-brain-vault-workspaces" "crlf:g2:second-brain-vault-mon-espace-2" "empty:g4:second-brain-vault-99999999"; do
+  k="${pair%%:*}"; rest="${pair#*:}"; v="${rest%%:*}"; want="${rest#*:}"
+  inst="$(bash "$REPO_ROOT/tools/vault-identity.sh" get server_name "$TMP/$v")"
+  if [ "$(field "$OUT" $k 2)" = "$want" ] && [ "$inst" = "$want" ] && [ "$(field "$OUT" $k 5)" = "1" ]; then
+    pass "(g) $k : le serveur annonce $want, comme l'installateur, sortie propre"
+  else
+    fail "(g) $k : annonce '$(field "$OUT" $k 2)', installateur '$inst', attendu '$want'"
+  fi
+done
+[ "$(field "$OUT" noid 2)" = "second-brain-vault" ] && [ -z "$(bash "$REPO_ROOT/tools/vault-identity.sh" get server_name "$TMP/g3")" ]   && pass "(g) libelle sans identite generee : nom fixe, l'installateur refuse"   || fail "(g) libelle sans identite : annonce '$(field "$OUT" noid 2)'"
 
 # --- (d) --vault absent: the script's own root; --vault given: that one ---------------------------------
 OUT="$(run_servers "own=$(NATIVE "$TMP/v1/tools/vault-mcp.py")|$(NATIVE "$TMP/v2")|" "given=$(NATIVE "$TMP/v1/tools/vault-mcp.py")|$ALLOW|$(NATIVE "$TMP/v2")")"

@@ -27,6 +27,7 @@ import difflib
 import fnmatch
 import json
 import os
+import re
 import subprocess
 import sys
 
@@ -56,17 +57,40 @@ def norm(path):
     return os.path.normcase(os.path.realpath(path))
 
 
-def server_name(vault_root):
-    """Name this server announces: derived from the identity of THIS Vault.
+# Accents folded to their letter by `normalize_label`: the same table as
+# `vid_label_normalize` in tools/vault-identity.sh (Latin-1 letters, ae, oe, ss).
+_LABEL_FOLD = {}
+for _letters, _plain in (("àáâãäå", "a"), ("æ", "ae"), ("ç", "c"), ("èéêë", "e"), ("ìíîï", "i"), ("ñ", "n"),
+                         ("òóôõö", "o"), ("œ", "oe"), ("ùúûü", "u"), ("ýÿ", "y"), ("ß", "ss")):
+    for _letter in _letters:
+        _LABEL_FOLD[_letter] = _plain
 
-    Same rule as `vid_server_name` in tools/vault-identity.sh (Decision 152251 C,
-    Mission 191-C01, which the installer already applies to the configuration key):
+
+def normalize_label(text):
+    """The workspace label in kebab case, the twin of `vid_label_normalize` (shell).
+
+    Lower-cased, accents folded (Latin-1 letters, ae, oe, ss), every run of characters
+    that is not a-z or 0-9 becomes ONE hyphen, no hyphen at either end: `Workspaces` ->
+    `workspaces`, `Mon Espace (2)` -> `mon-espace-2`, `ÉTÉ` -> `ete`. Both implementations
+    are played on the same cases (tests/test-install-vault-mcp-workspace-label.sh).
+    """
+    folded = "".join(_LABEL_FOLD.get(c, c) for c in text.lower())
+    return re.sub("[^a-z0-9]+", "-", folded).strip("-")
+
+
+def server_name(vault_root):
+    """Name this server announces: derived from THIS Vault's identity file.
+
+    Same rule as `vid_server_name` in tools/vault-identity.sh (Decision 162812 A,
+    Mission 206, which amends 152251 C): `second-brain-vault-<workspace_label>` when the
+    front matter of VAULT-IDENTITY.md, at the root of the Vault, carries a label (posed
+    by the installer from the workspace folder, normalised here as there); otherwise
     `second-brain-vault-` followed by the first 8 characters of `vault_id`, after its
-    `sb-` prefix, read from the front matter of VAULT-IDENTITY.md at the root of the
-    Vault. The desktop application keeps ONE server per announced name: two Vaults
-    announcing the same fixed name were one server (Mission 205). CRLF line endings
-    are tolerated (Windows clone with autocrlf), like `vid_get`. A missing file, no
-    front matter or an empty `vault_id` (the skeleton of the distributed repository):
+    `sb-` prefix (Mission 205; the identity is what the system checks, the label is what
+    the Owner reads). The desktop application keeps ONE server per announced name: two
+    Vaults announcing the same fixed name were one server (Mission 205). CRLF line
+    endings are tolerated (Windows clone with autocrlf), like `vid_get`. A missing file,
+    no front matter or an empty `vault_id` (the skeleton of the distributed repository):
     the fixed name, silently -- standard output is reserved for JSON-RPC.
     """
     try:
@@ -77,17 +101,23 @@ def server_name(vault_root):
     lines = text.replace(chr(13), "").split(chr(10))
     if lines[0] != "---":
         return SERVER_NAME
+    found = {}
     for line in lines[1:]:
         if line == "---":
             break
         i = line.find(":")
-        if i > 0 and line[:i] == "vault_id":
+        key = line[:i] if i > 0 else ""
+        if key in ("vault_id", "workspace_label") and key not in found:
             value = line[i + 1:].strip()
             if len(value) >= 2 and value[0] == '"' and value[-1] == '"':
                 value = value[1:-1]
-            short = (value[3:] if value.startswith("sb-") else value)[:8]
-            return "%s-%s" % (SERVER_NAME, short) if short else SERVER_NAME
-    return SERVER_NAME
+            found[key] = value
+    vault_id = found.get("vault_id", "")
+    short = (vault_id[3:] if vault_id.startswith("sb-") else vault_id)[:8]
+    if not short:
+        return SERVER_NAME
+    label = normalize_label(found.get("workspace_label", ""))
+    return "%s-%s" % (SERVER_NAME, label or short)
 
 
 def vault_commit(vault_root):

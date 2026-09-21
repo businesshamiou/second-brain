@@ -235,10 +235,13 @@ export PATH="$TMP/h/bin:$PATH"
 check "(h) substituts en tete du PATH (jamais les vrais outils)" sh -c "[ \"\$(command -v claude)\" = '$TMP/h/bin/claude' ] && [ \"\$(command -v codex)\" = '$TMP/h/bin/codex' ]"
 
 # Mission 191-C01 (Decision 152251 C): the server is named after THIS
-# Vault's identity; the oracle reads that name, never the former fixed one.
-SERVER_H="$(bash "$V/tools/vault-identity.sh" get server_name "$V")"
+# Vault; the oracle reads that name, never the former fixed one.
+# Mission 206 (Decision 162812 A): the installer poses the workspace label, and the name
+# follows the workspace (second-brain-vault-<label>) instead of the identity: the oracle
+# reads it AFTER the run, it used to read it before -- the naming Decision 162812 replaces.
 OUT_H1="$(bash "$V/tools/install-vault-mcp.sh" "$WS" --lang FR 2>&1)"
 check "(h) premier passage rend 0" [ "$?" = "0" ]
+SERVER_H="$(bash "$V/tools/vault-identity.sh" get server_name "$V")"
 # Form written by the injection: the system's native path (C:\... under Windows).
 if command -v cygpath >/dev/null 2>&1; then
   WS_H_N="$(cygpath -w "$WS")"

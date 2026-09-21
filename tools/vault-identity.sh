@@ -10,10 +10,12 @@
 #
 # usage (execute):
 #   vault-identity.sh ensure [<vault-root>]   generates if missing, idempotent
-#   vault-identity.sh get <key> [<vault-root>] vault_id | vault_origin | vault_ref | server_name
+#   vault-identity.sh get <key> [<vault-root>] vault_id | vault_origin | vault_ref | server_name | workspace_label
+#   vault-identity.sh set-label <label> [<vault-root>]  poses workspace_label (normalised)
+#   vault-identity.sh label-normalize <text>            the normalisation, alone
 # usage (source):
 #   . tools/vault-identity.sh
-#   vid_ensure "$VAULT_ROOT" ; vid_get "$VAULT_ROOT" vault_id ; vid_ref "$VAULT_ROOT"
+#   vid_ensure "$VAULT_ROOT" [label] ; vid_get "$VAULT_ROOT" vault_id ; vid_ref "$VAULT_ROOT"
 #
 # No dependency on Python: this file is read by the guardians and by the
 # Vault resolution, which must run without uv.
@@ -46,14 +48,36 @@ vid_get() {
     }'
 }
 
-# vid_server_name <root>: name of THIS Vault's MCP server (Decision 152251 C,
-# Mission 191-C01): `second-brain-vault-` followed by the first 8 characters
-# of vault_id after its `sb-` prefix (the prefix is the same for every Vault
-# and would leave only 5 distinguishing characters). Derived from the
-# identity, never from a path. Empty (code 1) when the Vault has no generated
-# identity: the caller refuses, it never falls back to the fixed name.
+# vid_label_normalize <text>: the workspace label in kebab case (Decision 162812
+# A-B, Mission 206): accents folded to their letter (Latin-1 letters, ae, oe, ss),
+# lower-cased, every run of characters that is not a-z or 0-9 becomes ONE hyphen,
+# no hyphen at either end. `Workspaces` -> `workspaces`, `Mon Espace (2)` ->
+# `mon-espace-2`, `ÉTÉ` -> `ete`. Its Python twin is `normalize_label` in
+# tools/vault-mcp.py: same cases, same results, tested together. Empty when nothing
+# of the text survives.
+vid_label_normalize() {
+  printf '%s' "$1" | sed \
+    -e 's/à\|á\|â\|ã\|ä\|å\|À\|Á\|Â\|Ã\|Ä\|Å/a/g' \
+    -e 's/æ\|Æ/ae/g' \
+    -e 's/ç\|Ç/c/g' \
+    -e 's/è\|é\|ê\|ë\|È\|É\|Ê\|Ë/e/g' \
+    -e 's/ì\|í\|î\|ï\|Ì\|Í\|Î\|Ï/i/g' \
+    -e 's/ñ\|Ñ/n/g' \
+    -e 's/ò\|ó\|ô\|õ\|ö\|Ò\|Ó\|Ô\|Õ\|Ö/o/g' \
+    -e 's/œ\|Œ/oe/g' \
+    -e 's/ù\|ú\|û\|ü\|Ù\|Ú\|Û\|Ü/u/g' \
+    -e 's/ý\|ÿ\|Ý/y/g' \
+    -e 's/ß/ss/g' \
+  | tr 'A-Z' 'a-z' \
+  | sed -e 's/[^a-z0-9][^a-z0-9]*/-/g' -e 's/^-//' -e 's/-$//'
+}
+
+# vid_identity_name <root>: the name derived from the IDENTITY alone (Decision 152251
+# C, Mission 191-C01): `second-brain-vault-` followed by the first 8 characters of
+# vault_id after its `sb-` prefix (the prefix is the same for every Vault and would
+# leave only 5 distinguishing characters). Empty (code 1) without a generated identity.
 VID_SERVER_PREFIX="second-brain-vault"
-vid_server_name() {
+vid_identity_name() {
   local id short
   id="$(vid_get "$1" vault_id)"
   [ -n "$id" ] || return 1
@@ -61,6 +85,50 @@ vid_server_name() {
   short="$(printf '%s' "$short" | cut -c1-8)"
   [ -n "$short" ] || return 1
   printf '%s-%s\n' "$VID_SERVER_PREFIX" "$short"
+}
+
+# vid_server_name <root>: name of THIS Vault's MCP server (Decision 162812 A,
+# Mission 206, which amends 152251 C): `second-brain-vault-<workspace_label>` when
+# VAULT-IDENTITY.md carries a label (posed by the installer from the workspace
+# folder), else the name by identity. The name is what the Owner reads; the identity
+# stays what the system checks. Empty (code 1) when the Vault has no generated
+# identity: the caller refuses, it never falls back to the fixed name.
+vid_server_name() {
+  local label
+  vid_identity_name "$1" >/dev/null || return 1
+  label="$(vid_label_normalize "$(vid_get "$1" workspace_label)")"
+  if [ -n "$label" ]; then
+    printf '%s-%s\n' "$VID_SERVER_PREFIX" "$label"
+    return 0
+  fi
+  vid_identity_name "$1"
+}
+
+# vid_set_label <root> <label>: poses (or replaces) `workspace_label` in the front
+# matter of VAULT-IDENTITY.md, the value normalised and quoted. Line endings are kept
+# as they are (a CRLF file stays CRLF); the rest of the file is byte for byte.
+# vid_ensure never calls it on a label already there: the installer decides.
+vid_set_label() {
+  local root="$1" label f tmp
+  label="$(vid_label_normalize "$2")"
+  [ -n "$label" ] || return 1
+  f="$(vid_file "$root")"
+  [ -f "$f" ] || return 1
+  tmp="$(mktemp)" || return 1
+  if awk -v lab="$label" '
+    { cr = ($0 ~ /\r$/) ? "\r" : ""; line = $0; sub(/\r$/, "", line) }
+    NR == 1 { if (line != "---") bad = 1; infm = 1; print $0; next }
+    infm && line == "---" { if (!done) print "workspace_label: \"" lab "\"" cr; infm = 0; done = 1; print $0; next }
+    infm && index(line, "workspace_label:") == 1 { print "workspace_label: \"" lab "\"" cr; done = 1; next }
+    { print $0 }
+    END { if (bad || !done) exit 3 }
+  ' "$f" > "$tmp"; then
+    cat "$tmp" > "$f"
+    rm -f "$tmp"
+    return 0
+  fi
+  rm -f "$tmp"
+  return 1
 }
 
 # vid_ref <root>: current commit of the Vault, "unknown" without Git.
@@ -87,19 +155,26 @@ vid_origin_detect() {
   fi
 }
 
-# vid_ensure <root>: generates the identity if the file is missing, still at
-# the skeleton, or without vault_id. Never rewrites a generated identity.
+# vid_ensure <root> [label]: generates the identity if the file is missing, still at
+# the skeleton, or without vault_id, carrying `workspace_label` when a label is given.
+# Never rewrites a generated identity; on one that has no label yet, a given label
+# is added (the identity itself is untouched).
 vid_ensure() {
-  local root="$1" f status id origin created
+  local root="$1" f status id origin created label labelline=""
+  label="$(vid_label_normalize "${2:-}")"
   f="$(vid_file "$root")"
   status="$(vid_get "$root" status)"
   id="$(vid_get "$root" vault_id)"
   if [ "$status" = "generated" ] && [ -n "$id" ]; then
+    if [ -n "$label" ] && [ -z "$(vid_get "$root" workspace_label)" ]; then
+      vid_set_label "$root" "$label"
+    fi
     return 0
   fi
   id="$(vid_new_id)"
   origin="$(vid_origin_detect "$root")"
   created="$(date +"%Y-%m-%dT%H:%M:%S%z")"
+  [ -n "$label" ] && labelline="workspace_label: \"$label\""
   cat > "$f" <<EOF
 ---
 type: vault-identity
@@ -108,7 +183,8 @@ description: "Identity generated at installation: a project checks that it talks
 status: generated
 vault_id: "$id"
 vault_origin: "$origin"
-created_at: "$created"
+${labelline:+$labelline
+}created_at: "$created"
 ---
 
 # IDENTITY OF THIS VAULT
@@ -117,6 +193,7 @@ This file is generated once, at installation, by \`tools/vault-identity.sh ensur
 
 - \`vault_id\`: identifier of this Vault, copied into the birth certificate of each project (\`.pre-commit-config.yaml\`), and the source of the name of its MCP server.
 - \`vault_origin\`: origin of the clone.
+- \`workspace_label\` (optional): the normalised name of the workspace folder, posed by \`tools/install-vault-mcp.sh\`; the name of the MCP server is \`second-brain-vault-<workspace_label>\` (the first 8 characters of \`vault_id\` when there is none).
 
 A project whose certificate names another \`vault_id\` is refused by the resolution (\`tools/resolve-vault.sh\`), which names both identities.
 
@@ -134,6 +211,14 @@ if [ "${BASH_SOURCE[0]}" = "$0" ]; then
       vid_ensure "${2:-$VID_SELF_ROOT}"
       vid_get "${2:-$VID_SELF_ROOT}" vault_id
       ;;
+    set-label)
+      [ -n "${2:-}" ] || { echo "usage: vault-identity.sh set-label <libelle> [<racine-du-vault>]" >&2; exit 1; }
+      vid_set_label "${3:-$VID_SELF_ROOT}" "$2" || { echo "REFUS : libelle non pose (libelle vide ou identite absente)" >&2; exit 1; }
+      vid_get "${3:-$VID_SELF_ROOT}" workspace_label
+      ;;
+    label-normalize)
+      printf '%s\n' "$(vid_label_normalize "${2:-}")"
+      ;;
     get)
       [ -n "${2:-}" ] || { echo "usage: vault-identity.sh get <cle> [<racine-du-vault>]" >&2; exit 1; }
       if [ "$2" = "vault_ref" ]; then
@@ -145,7 +230,7 @@ if [ "${BASH_SOURCE[0]}" = "$0" ]; then
       fi
       ;;
     *)
-      echo "usage: vault-identity.sh ensure|get <cle> [<racine-du-vault>]" >&2
+      echo "usage: vault-identity.sh ensure|get <cle>|set-label <libelle>|label-normalize <texte> [<racine-du-vault>]" >&2
       exit 1
       ;;
   esac

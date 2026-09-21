@@ -5,9 +5,12 @@
 # SIMULATED profile (HOME, APPDATA, LOCALAPPDATA redirected, `claude` and
 # `codex` replaced by stand-ins at the head of the PATH):
 #   (a) Vault 1 then Vault 2: two servers in each of the three
-#       configurations, names = second-brain-vault-<8 characters of their
-#       vault_id>, each allowed on its own workspace; the first is intact
-#       after the second was added;
+#       configurations, each allowed on its own workspace; the first is intact
+#       after the second was added. Names: by identity before the installer has
+#       posed a workspace label (second-brain-vault-<8 characters of vault_id>),
+#       by workspace once it has (second-brain-vault-<label>, Mission 206 --
+#       the label-based names are proved in test-install-vault-mcp-workspace-label.sh;
+#       here they are only re-read after the run);
 #   (b) idempotent: a second run leaves the three files byte for byte;
 #   (c) the former fixed name `second-brain-vault`: pointing to Vault 1, it
 #       is migrated by Vault 1's run (removed, new name kept); pointing to
@@ -160,10 +163,19 @@ all_three_have() {
 # --- (a) two Vaults, two servers ---------------------------------------------
 OUT1="$(bash "$V1/tools/install-vault-mcp.sh" "$TMP/ws1" --lang FR 2>&1)"
 check "(a) Vault 1 : sortie 0" [ "$?" = "0" ]
+# Mission 206: the installer poses the workspace label (ws1), the name becomes
+# second-brain-vault-ws1. These assertions used to expect the name by identity read
+# BEFORE the run -- the naming Decision 162812 replaces; what they prove (two Vaults,
+# two servers, each on its own folder) is unchanged.
+S1_BY_IDENTITY="$S1"
+S1="$(bash "$V1/tools/vault-identity.sh" get server_name "$V1")"
+check "(a) Vault 1 : le nom suit l'espace de travail ($S1), plus l'identite ($S1_BY_IDENTITY)" [ "$S1" = "second-brain-vault-ws1" ]
 check "(a) Vault 1 : $S1 dans les trois configurations, dossier = ws1" all_three_have "$S1" "$TMP/ws1"
 BEFORE_V2="$(args_of "$DESKTOP" "$S1")|$(args_of "$CLAUDE_JSON" "$S1")|$(args_of "$CODEX_TOML" "$S1")"
 bash "$V2/tools/install-vault-mcp.sh" "$TMP/ws2" --lang FR >/dev/null 2>&1
 check "(a) Vault 2 : sortie 0" [ "$?" = "0" ]
+S2="$(bash "$V2/tools/vault-identity.sh" get server_name "$V2")"
+check "(a) Vault 2 : le nom suit l'espace de travail ($S2)" [ "$S2" = "second-brain-vault-ws2" ]
 check "(a) Vault 2 : $S2 dans les trois configurations, dossier = ws2" all_three_have "$S2" "$TMP/ws2"
 AFTER_V2="$(args_of "$DESKTOP" "$S1")|$(args_of "$CLAUDE_JSON" "$S1")|$(args_of "$CODEX_TOML" "$S1")"
 check "(a) le serveur du Vault 1 est intact apres le Vault 2" [ "$BEFORE_V2" = "$AFTER_V2" ]

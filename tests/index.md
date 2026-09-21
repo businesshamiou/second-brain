@@ -36,6 +36,11 @@ Each test returns a closed verdict — `PASS`, `FAIL`, or `SKIP (cause, platform
 
 - `test-fan-out-rubric.sh` (W / U / M) — the Mission template's optional `## Fan-out` rubric: exactly one, before `## Steps`, every other rubric kept, additions only; the skill instruction in at most ten lines naming `dispatching-parallel-agents`; the rubric form refused for a batch with no output, an output inside a repository, a duplicate name, no targets; an absent or empty rubric stays valid.
 
+### The server named after its workspace — Mission 206 (v0.1.12)
+
+- `test-install-vault-mcp-workspace-label.sh` (W / U / M) — the server is `second-brain-vault-<workspace_label>`: label posed by the installer and normalised alike in shell and Python; former key of the same Vault migrated; `workshops` retired on request, a Vault's key never; two Vaults with one label refused, suffixed name proposed, nothing written; `--skip-desktop`.
+- `test-project-bootstrap-refresh-prompt.sh` (W / U / M) — `project-bootstrap.sh prompt <dossier>` regenerates a project's Pilot prompt (old and current formats), keeping its canary and identity.
+
 ### One MCP server per Vault, and the update — Mission 191-C01 (v0.1.8)
 
 - `test-install-vault-mcp-name-per-vault.sh` (W / U / M) — two Vaults, two servers named after their identity; idempotent; former name migrated; crossed identity refused.
