@@ -624,3 +624,4 @@ tests/test-phase-report.sh	DISTRIBUABLE
 tests/test-vault-mcp-server-name.sh	DISTRIBUABLE
 tests/test-install-vault-mcp-workspace-label.sh	DISTRIBUABLE
 tests/test-project-bootstrap-refresh-prompt.sh	DISTRIBUABLE
+tests/test-run-suite-changed.sh	DISTRIBUABLE

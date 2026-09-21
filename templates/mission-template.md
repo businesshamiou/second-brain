@@ -50,6 +50,7 @@ Out of scope: <what is explicitly excluded.>
 <!-- A git status tolerance already named by the previous Mission is not carried over: a batch 0 that settles it, or a cited Owner arbitration (checklist, line 26). -->
 
 1. <Expected state, measured before any writing; non-trivial gap = STOP.>
+2. <When the Mission changes a file of the Vault: `bash tests/run-suite.sh --changed origin/main` green, before any writing. Never a hand-made list of reference tests (Mission 209, Decision 235129): the runner plays the two guardian lines and the tests the changed files call for.>
 
 ## Sources
 

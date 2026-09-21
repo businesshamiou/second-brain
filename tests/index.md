@@ -69,6 +69,10 @@ Each test returns a closed verdict — `PASS`, `FAIL`, or `SKIP (cause, platform
 - T3 `test-setup-test-env-offline.sh` (U, CI) — the cached environment answers offline.
 - T4 `test-reference-clone-equivalence.sh` (U) — the reference clone installs the same thing.
 
+### Play only what changed — Mission 209
+
+- `test-run-suite-changed.sh` (W / U / M) — `run-suite.sh --changed [<ref>]` plays the two guardian lines and the lines the changed files name, the whole suite when the runner or the manifest changes; `run-suite.ps1 -Changed` lists the same lines.
+
 ### Missions 186 and 185-C01
 
 Their tables are frozen in [`index-archive-2026-09.md`](./index-archive-2026-09.md).

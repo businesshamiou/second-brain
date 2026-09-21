@@ -4,10 +4,17 @@
 # GitHub's `shell: bash` uses (Mission 188). Same manifest, same verdicts and
 # same summary as tests/run-suite.sh.
 #
-# usage: powershell -NoProfile -ExecutionPolicy Bypass -File tests/run-suite.ps1 [-Manifest <file>] [-Shard k/n] [-List]
+# usage: powershell -NoProfile -ExecutionPolicy Bypass -File tests/run-suite.ps1 [-Manifest <file>] [-Shard k/n] [-Changed [-Ref <ref>]] [-List]
 #
 # -Shard k/n (Mission 189) plays only the lines whose shard column is k, and
 # refuses when the manifest's highest Windows shard is not n.
+#
+# -Changed [-Ref <ref>] (Mission 209) is the twin of `run-suite.sh --changed
+# [<ref>]`: same selection, same messages (on standard error), same intersection
+# with -Shard. PowerShell cannot give a switch an optional value, so the ref is
+# the separate -Ref parameter; without it, origin/main, or HEAD when there is
+# no origin/main. Parity with the bash runner is proved by
+# tests/test-run-suite-changed.sh.
 #
 # Every line for Windows is played, even after a red one; exit code 1 if a
 # blocking line is red, 0 otherwise. A test exiting 77 reports SKIP. The exit
@@ -17,6 +24,8 @@
 param(
     [string]$Manifest,
     [string]$Shard,
+    [switch]$Changed,
+    [string]$Ref,
     [switch]$List
 )
 
@@ -71,6 +80,66 @@ if (-not $bash) {
 $uvPrelude = '. tests/sandbox-vault.sh; sandbox_find_uv || { echo REFUS : uv introuvable; exit 1; }'
 $inCi = ($env:GITHUB_ACTIONS -eq 'true')
 
+# --- -Changed (Mission 209): which files changed, which lines they call for ---
+$guardians = @('tools/session-preflight.sh', '.githooks/pre-commit')
+$changedFiles = @()
+$changedBases = @()
+$selectAll = $false
+$changedRef = ''
+
+function Test-ChangedSelects([string]$path, [string]$origin) {
+    if ($selectAll) { return $true }
+    if ($guardians -ccontains $path) { return $true }
+    if ($changedFiles -ccontains $path) { return $true }
+    $lc = ("$path $origin").ToLowerInvariant()
+    foreach ($b in $changedBases) { if ($lc.Contains($b)) { return $true } }
+    return $false
+}
+
+if ($Changed) {
+    & git -C $RepoRoot rev-parse --git-dir *> $null
+    if ($LASTEXITCODE -ne 0) { Write-Output "REFUS : -Changed needs a Git checkout: $RepoRoot"; exit 2 }
+    $changedRef = $Ref
+    if (-not $changedRef) {
+        & git -C $RepoRoot rev-parse --verify -q ('origin/main' + '^{commit}') *> $null
+        if ($LASTEXITCODE -eq 0) { $changedRef = 'origin/main' } else { $changedRef = 'HEAD' }
+    }
+    & git -C $RepoRoot rev-parse --verify -q ($changedRef + '^{commit}') *> $null
+    if ($LASTEXITCODE -ne 0) { Write-Output "REFUS : -Changed: unknown ref '$changedRef'"; exit 2 }
+    # Tracked files that differ from the ref (staged or not), then untracked ones.
+    $diffOut = & git -C $RepoRoot -c core.quotepath=off diff --name-only $changedRef -- 2>$null
+    $untrackedOut = & git -C $RepoRoot -c core.quotepath=off ls-files --others --exclude-standard 2>$null
+    $changedFiles = @((@($diffOut) + @($untrackedOut)) | Where-Object { $_ -and $_.Trim() -ne '' })
+    foreach ($cf in $changedFiles) {
+        if (@('tests/suite.tsv', 'tests/run-suite.sh', 'tests/run-suite.ps1') -ccontains $cf) { $selectAll = $true }
+        if ($cf -clike 'tools/*' -or $cf -clike 'tests/*' -or $cf -clike '.githooks/*') {
+            $b = ($cf -split '/')[-1]
+            $dot = $b.LastIndexOf('.')
+            if ($dot -ge 0) { $b = $b.Substring(0, $dot) }
+            if ($b -eq '' -or $b -eq 'index' -or $b.StartsWith('index-archive')) { continue }
+            $changedBases += $b.ToLowerInvariant()
+        }
+    }
+    # Announce the selection before anything is played ("N sur M" counts the
+    # lines of Windows, and of the shard when one is given).
+    $selN = 0; $selM = 0; $selTests = 0
+    foreach ($pl in (Get-Content -LiteralPath $Manifest -Encoding UTF8)) {
+        if ($pl -eq '' -or $pl.StartsWith('#')) { continue }
+        $pf = $pl.Split("`t")
+        if ($pf.Count -lt 6) { continue }
+        if (-not $pf[3].Contains('W')) { continue }
+        if ($shardK -and ($pf.Count -lt 7 -or $pf[6] -ne $shardK)) { continue }
+        $selM++
+        if (Test-ChangedSelects $pf[0] $pf[5]) {
+            $selN++
+            if ($guardians -cnotcontains $pf[0]) { $selTests++ }
+        }
+    }
+    [Console]::Error.WriteLine("--changed : $selN ligne(s) selectionnee(s) sur $selM (ref $changedRef)")
+    if ($selectAll) { [Console]::Error.WriteLine('--changed : le lanceur ou le manifeste a change : toute la suite est selectionnee') }
+    elseif ($selTests -eq 0) { [Console]::Error.WriteLine('--changed : aucun test ne nomme les fichiers changes ; seuls les gardiens jouent') }
+}
+
 $total = 0; $passed = 0; $skipped = 0; $failBlocking = 0; $failInfo = 0
 $verdicts = New-Object System.Collections.Generic.List[string]
 
@@ -81,6 +150,7 @@ foreach ($line in (Get-Content -LiteralPath $Manifest -Encoding UTF8)) {
     $path = $f[0]; $argText = $f[1]; $interp = $f[2]; $platforms = $f[3]; $severity = $f[4]; $origin = $f[5]
     if (-not $platforms.Contains('W')) { continue }
     if ($shardK -and ($f.Count -lt 7 -or $f[6] -ne $shardK)) { continue }
+    if ($Changed -and -not (Test-ChangedSelects $path $origin)) { continue }
     $lineArgs = @()
     if ($argText -ne '-') { $lineArgs = @($argText.Split(' ') | Where-Object { $_ -ne '' }) }
     $total++

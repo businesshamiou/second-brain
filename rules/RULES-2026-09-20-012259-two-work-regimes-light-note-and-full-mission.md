@@ -6,6 +6,7 @@ created_at: "2026-09-20T01:22:59-04:00"
 timezone: America/Montreal
 status: active
 scope: work-regimes
+amended_by: "DECISION-2026-09-20-235129-one-proof-pass-when-green-two-for-git-and-publication (workshop history, not distributed)"
 ---
 
 # TWO WORK REGIMES: THE LIGHT NOTE AND THE FULL MISSION
@@ -25,6 +26,8 @@ So the Mission is not lightened. A second regime is added beside it, and the cho
 | Proofs | **kept**: a measure before, a measure after | kept, and replayed |
 | What falls | the long context, the commit simulation, the two passes, the multi-page report, the mini-prompt | nothing |
 | Who decides it applies | `tools/check-work-regime.sh`, before the gesture and after | the same command, by its refusal |
+
+**Annotation (2026-09-21, Decision 235129, Mission 209).** In the table above, "the two passes" names the exception, not the rule. Proofs are played once when the first pass is green. Two passes are kept only for a Mission whose Scope holds a commit in the Vault or a publication, and only for the proofs that bear on that commit or that publication. A red proof is corrected, then the corrected proof alone is replayed; the whole suite is replayed only when the correction touches a shared tool. To know which tests a change calls for, `bash tests/run-suite.sh --changed origin/main` lists and plays exactly those, the two guardian lines included.
 
 The light regime keeps the proofs. What is dropped is the ceremony around the proof, never the proof.
 
@@ -74,3 +77,4 @@ The light regime becomes the default if nothing watches it. After ten Notes, mea
 - `see also` — [Role charter and session determination](./RULES-2026-08-23-224706-role-charter-and-session-determination.md)
 - `see also` — [Versioning of Missions and generated outputs](./RULES-2026-08-17-211522-mission-versioning-and-generated-output.md)
 - `applies` — [Decision — Evidence status and STOP control](../decisions/DECISION-2026-08-29-212009-evidence-status-and-stop-control.md)
+- `amended by` — Decision — One proof pass when green, two only for Git and publication (workshop history, not distributed) (hors Vault)
