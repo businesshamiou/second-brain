@@ -625,3 +625,5 @@ tests/test-vault-mcp-server-name.sh	DISTRIBUABLE
 tests/test-install-vault-mcp-workspace-label.sh	DISTRIBUABLE
 tests/test-project-bootstrap-refresh-prompt.sh	DISTRIBUABLE
 tests/test-run-suite-changed.sh	DISTRIBUABLE
+tests/test-pilot-opening-step-zero.sh	DISTRIBUABLE
+tests/test-check-asserted-paths-constant-launches.sh	DISTRIBUABLE

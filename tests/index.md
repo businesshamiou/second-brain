@@ -73,6 +73,11 @@ Each test returns a closed verdict — `PASS`, `FAIL`, or `SKIP (cause, platform
 
 - `test-run-suite-changed.sh` (W / U / M) — `run-suite.sh --changed [<ref>]` plays the two guardian lines and the lines the changed files name, the whole suite when the runner or the manifest changes; `run-suite.ps1 -Changed` lists the same lines.
 
+### Opening step zero and guardian launches — Missions 215 and 214
+
+- `test-pilot-opening-step-zero.sh` (W / U / M) — the opening carries a step zero, in the reading list, the opening prompt and the rendered block; a copy without it fails.
+- `test-check-asserted-paths-constant-launches.sh` (W / U / M) — the guardian's external launches are counted, and a larger corpus adds none.
+
 ### Missions 186 and 185-C01
 
 Their tables are frozen in [`index-archive-2026-09.md`](./index-archive-2026-09.md).

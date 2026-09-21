@@ -20,6 +20,15 @@
 # A token immediately followed, in the prose, by the literal mark
 # `(supprimé, Mission NNN)` or `(supprimé)` is accepted without resolution.
 #
+# Mission 214: constant launches. Under Git Bash an external command costs
+# about 43.5 ms to launch (Mission 210), and this guardian used to launch 316
+# of them per pass -- a `grep -o` and a `tr` per perimeter document, a
+# `git ls-files | sort | grep` per unresolved bare token, a `dirname` per
+# climbing token -- 13.3 s for a block of 23.7 s (Mission 212). It now reads
+# the corpus in three `awk` passes and lists the tracked files once: about eight
+# launches whatever the size of the corpus, the same verdicts byte for byte
+# (tests/test-check-asserted-paths-constant-launches.sh counts them).
+#
 # usage: check-asserted-paths.sh
 
 set -u
@@ -39,10 +48,14 @@ WORKSPACE_ROOT="$(cd "$VAULT_ROOT/.." && pwd)"
 # prior behaviour for a Vault-only checkout (a token that would have
 # resolved against the sibling now simply falls through to the other
 # candidate roots, same as before this repo ever existed).
-. "$(dirname "$0")/resolve-sibling-repo.sh"
-# Portable associative arrays (Mission 181): `declare -A` does not exist
-# in the bash 3.2 shipped by Apple.
-. "$(dirname "$0")/kvmap.sh"
+# Folder of this script, in pure bash (Mission 214): a `$(dirname "$0")` is a
+# subshell and a launch, and there were two.
+case "$0" in
+  */*) TOOLS_DIR="${0%/*}" ;;
+  *) TOOLS_DIR="." ;;
+esac
+[ -n "$TOOLS_DIR" ] || TOOLS_DIR="/"
+. "$TOOLS_DIR/resolve-sibling-repo.sh"
 resolve_declared_sibling "$WORKSPACE_ROOT"
 
 FAIL=0
@@ -62,79 +75,70 @@ TAB="$(printf '\t')"
 # --- 1. Selecting the files of the perimeter ---
 ALL_MD="$(git -C "$VAULT_ROOT" ls-files -- '*.md')"
 
-# Grouped pre-pass (Mission 127): a single awk process for the whole corpus
-# instead of one awk per file in is_in_perimeter()/is_superseded() -- on
-# this machine (Git Bash/Windows) process forking is the dominant cost, not
-# the processing itself (same diagnosis and same pattern as
-# tools/build-indexes.sh list_fields(): FNR==1 resets the state per
-# file within a single awk call, one line emitted per file).
-# Emission on change of file and in END rather than via ENDFILE:
-# ENDFILE is a gawk extension, which Apple's awk reads as a null
-# variable -- no line, empty table, and this guardian passed without checking
-# anything (Mission 181). An empty file no longer emits a line: its two
-# fields were already the empty string, which the lookup also returns.
-# Behaviour unchanged: same two fields (type/status) read in the same
-# front-matter block --- ... --- in the same sense, measured by the oracle of
-# Mission 127 (byte-identical output before/after).
-# Paths prefixed in bash, never via `sed "s#^#$VAULT_ROOT/#"`: sed
-# reinterprets the root as a replacement -- an `&` in it becomes the matched
-# text, a backslash an escape (GNU sed: `\U` turns everything to
-# upper case). Empty table, perimeter 105 -> 42 and false refusal at the
-# installer's commit (Mission 181, resumption of step 6, smoke test).
-FM_TABLE="$(printf '%s\n' "$ALL_MD" | while IFS= read -r p; do
-  [ -n "$p" ] && printf '%s/%s\0' "$VAULT_ROOT" "$p"
-done | xargs -0 awk '
-  function flush() { if (cur != "") print cur "\t" type "\t" status }
-  FNR==1 { flush(); cur=FILENAME; infm=0; type=""; status="" }
-  FNR==1 && $0=="---" { infm=1; next }
-  infm && $0=="---" { infm=0 }
-  infm && /^type:/   { v=$0; sub(/^type:[[:space:]]*/,"",v);   gsub(/^"|"$/,"",v); type=v }
-  infm && /^status:/ { v=$0; sub(/^status:[[:space:]]*/,"",v); gsub(/^"|"$/,"",v); status=v }
-  END { flush() }
-' 2>/dev/null)"
-
-while IFS="$TAB" read -r fpath ftype fstatus; do
-  [ -z "$fpath" ] && continue
-  frel="${fpath#"$VAULT_ROOT"/}"
-  kv_set FM_TYPE "$frel" "$ftype"
-  kv_set FM_STATUS "$frel" "$fstatus"
-done <<EOF_FMTABLE
-$FM_TABLE
-EOF_FMTABLE
-
-is_in_perimeter() {
-  local rel="$1"
-  case "$rel" in
-    */*) : ;;
-    *) return 0 ;;  # at the repository root
-  esac
-  case "$rel" in
-    knowledge/*|templates/*) return 0 ;;
-  esac
-  local ftype
-  kv_get FM_TYPE "$rel"; ftype="$KV_VALUE"
-  [ "$ftype" = "rules" ] && return 0
-  [ "$ftype" = "decision" ] && return 0
-  return 1
-}
-
-is_superseded() {
-  local rel="$1"
-  local status
-  kv_get FM_STATUS "$rel"; status="$KV_VALUE"
-  [ "$status" = "superseded" ]
-}
-
+# Grouped pre-pass (Mission 127, rewritten by Mission 214): ONE awk process
+# selects the perimeter for the whole corpus. On this machine (Git
+# Bash/Windows) process forking is the dominant cost, not the processing
+# itself (same diagnosis and same pattern as tools/build-indexes.sh
+# list_fields()). Mission 127 replaced one awk per document by one awk per
+# batch of `xargs` (four on this Vault, more as the corpus grew); the list of
+# paths now goes to the standard input of a single awk that opens each
+# document itself (`getline`): no `xargs`, no batch.
+#
+# The perimeter is decided IN awk, not in bash: a table of the front matter of
+# every tracked document, filled by two `kv_set` each and read back by as
+# many `kv_get`, cost 0.8 s of bash function calls. Rules, unchanged: a
+# document is in the perimeter when it lives at the repository root, or
+# under knowledge/ or templates/, or its front-matter `type` is `rules` or
+# `decision`; and it is out when its front-matter `status` is `superseded`.
+# The front matter is the block between a first line `---` and the next
+# `---`: nothing after it can change either field, so awk stops reading
+# there, and at once on a document that does not open with `---` (only the
+# perimeter is then read to its end, by the pre-passes below).
+#
+# awk prints its lines and never uses ENDFILE (a gawk extension which
+# Apple's awk reads as a null variable -- no line, empty table, and this
+# guardian passed without checking anything: Mission 181). Paths stay
+# relative to the root, entered by `cd` in the substitution's subshell, and
+# no root is handed to awk as an assignment: an `&` or a backslash in a root
+# was mangled by `sed "s#^#$VAULT_ROOT/#"` (Mission 181, resumption of step 6,
+# smoke test) and `awk -v` reads a backslash as an escape. A path that git
+# prints quoted names no file: `getline` fails, type and status stay empty,
+# as the lookup of a document absent from the table returned before.
+AWK_PERIMETER='
+  function scan(f,    line, n, type, status, v, keep) {
+    n = 0; type = ""; status = ""
+    while ((getline line < f) > 0) {
+      n++
+      if (n == 1) {
+        if (line == "---") continue
+        break
+      }
+      if (line == "---") break
+      if (line ~ /^type:/)   { v = line; sub(/^type:[[:space:]]*/, "", v);   gsub(/^"|"$/, "", v); type = v }
+      if (line ~ /^status:/) { v = line; sub(/^status:[[:space:]]*/, "", v); gsub(/^"|"$/, "", v); status = v }
+    }
+    close(f)
+    keep = (index(f, "/") == 0) || (index(f, "knowledge/") == 1) || (index(f, "templates/") == 1) || (type == "rules") || (type == "decision")
+    if (keep && status != "superseded") print f
+  }
+  $0 != "" { scan($0) }
+'
 PERIMETER_FILES=""
-while IFS= read -r rel; do
-  [ -z "$rel" ] && continue
-  if is_in_perimeter "$rel" && ! is_superseded "$rel"; then
+PERIMETER_COUNT=0
+if [ -n "$ALL_MD" ]; then
+  PERIMETER_LIST="$(cd "$VAULT_ROOT" && printf '%s\n' "$ALL_MD" | LC_ALL=C awk "$AWK_PERIMETER" 2>/dev/null)" || {
+    echo "REFUS : lecture du front matter impossible (awk) : gardien non executable." >&2
+    exit 1
+  }
+  while IFS= read -r rel; do
+    [ -z "$rel" ] && continue
     PERIMETER_FILES="$PERIMETER_FILES
 $rel"
-  fi
-done <<EOF_ALLMD
-$ALL_MD
-EOF_ALLMD
+    PERIMETER_COUNT=$((PERIMETER_COUNT + 1))
+  done <<EOF_PERIMETER_LIST
+$PERIMETER_LIST
+EOF_PERIMETER_LIST
+fi
 
 # --- 2. Extraction and verification, file by file ---
 # A token "names a file" if its last segment (after / or \) starts
@@ -198,8 +202,19 @@ outside_root() {
 
   case "$token" in
     ../*)
-      local probe="$source_dir/$token" norm
-      norm="$(cd "$(dirname "$probe")" 2>/dev/null && pwd)" || return 0
+      # Mission 214: no `dirname` and no subshell. `dirname` drops the
+      # trailing slashes, then the last component: the two steps below.
+      # `cd` runs in this shell (a builtin, no launch) and comes back.
+      local probe="$source_dir/$token" norm here="$PWD"
+      while :; do
+        case "$probe" in
+          */) probe="${probe%/}" ;;
+          *) break ;;
+        esac
+      done
+      cd "${probe%/*}" 2>/dev/null || return 0
+      norm="$PWD"
+      cd "$here" 2>/dev/null
       case "$norm/" in
         "$VAULT_ROOT"/*) return 1 ;;
         *) return 0 ;;
@@ -218,29 +233,125 @@ outside_root() {
 # of one fork per token -- the per-token form cost 18.7 s in a cold
 # clone against 1.9 s before the rule (measured Mission 142), same pattern of fork
 # per entry that Mission 137-B had removed from the freshness guardian.
-# The pre-pass fills the map GIT_IGNORED_SET (tools/kvmap.sh); the
+# The pre-pass fills the list IGNORED_LIST (a newline-delimited string, see below); the
 # walk now only does an in-memory lookup.
 
+# Mission 214: ONE awk pass reads every document of the perimeter, and lists
+# the tracked files once, instead of a `grep -o` and a `tr` per document, a
+# `sort` and six `grep -v` on the result, and a `git ls-files | sort | grep`
+# per unresolved bare token. It writes two blocks, told apart by a sentinel
+# line (\001M214\001):
+#   before it, one line per bare token: `token<TAB>path` -- a token with no
+#   `/`, a dot, no glob character, not `:`-led, and the ONE tracked file it
+#   names (empty path when it names none or several);
+#   after it, one line per token kept for `git check-ignore`: every distinct
+#   backtick span of the perimeter that the former pipeline kept (not empty,
+#   not `../*`, not absolute, not `X:*`, not under the sibling repository,
+#   not `.` or `..`).
+# On the standard input, the same sentinel (\001) separates the list of
+# documents from the list of tracked files. The sibling name reaches awk
+# through the environment, never through `-v` (a backslash there is read as
+# an escape). The backtick is written \140 so that no literal backtick lives
+# in the program.
+#
+# The bare-name rule of resolve_token, reproduced exactly (measured on git
+# 2.55 with core.ignorecase=true, matching stays case-sensitive):
+# `git ls-files -- "*/$token" "$token"` names a tracked path P when P ends
+# with `/token`, or P is `token`, or P lies under a ROOT folder `token/`. So
+# each tracked path is entered under its last component and, when it has a
+# folder, under its first component; a path is counted once per key.
+AWK_PRIME='
+  BEGIN { sib = ENVIRON["SIB"]; sec = 0 }
+  $0 == "\001" { sec = 1; next }
+  sec == 0 {
+    f = $0
+    if (f == "") next
+    while ((getline line < f) > 0) {
+      rest = line
+      while (match(rest, /\140[^\140]*\140/)) {
+        t = substr(rest, RSTART + 1, RLENGTH - 2)
+        rest = substr(rest, RSTART + RLENGTH)
+        if (!(t in seen)) { seen[t] = 1; order[++n] = t }
+      }
+    }
+    close(f)
+    next
+  }
+  {
+    p = $0
+    if (p == "" || (p in pseen)) next
+    pseen[p] = 1
+    b = p
+    while ((i = index(b, "/")) > 0) b = substr(b, i + 1)
+    cnt[b]++; if (cnt[b] == 1) where[b] = p
+    i = index(p, "/")
+    if (i > 0) {
+      d = substr(p, 1, i - 1)
+      if (d != b) { cnt[d]++; if (cnt[d] == 1) where[d] = p }
+    }
+  }
+  END {
+    for (k = 1; k <= n; k++) {
+      t = order[k]
+      if (index(t, "/") == 0 && index(t, ".") > 0 && index(t, "\t") == 0 && t !~ /[*?[\\]/ && substr(t, 1, 1) != ":")
+        print t "\t" (cnt[t] == 1 ? where[t] : "")
+    }
+    print "\001M214\001"
+    for (k = 1; k <= n; k++) {
+      t = order[k]
+      if (t == "") continue
+      if (substr(t, 1, 3) == "../") continue
+      if (substr(t, 1, 1) == "/") continue
+      if (t ~ /^[A-Za-z]:/) continue
+      if (sib != "" && t ~ ("^" sib "/")) continue
+      if (t == "." || t == "..") continue
+      print t
+    }
+  }
+'
+
+# Both tables are plain newline-delimited strings searched with `case`, not
+# tools/kvmap.sh maps (Mission 181): a key with a character outside [A-Za-z0-9_./ -] (`~`, `&`, an
+# accent...) sent kvmap through `printf | od | tr`, two more launches per such
+# key, and the count would have followed the corpus again.
+NL="
+"
+SENT="$(printf '\001M214\001')"
+IGNORED_LIST="$NL"
+BARE_INDEX="$NL"
+
 prime_git_ignored() {
-  local tokens
+  local out ipart ign
+  [ -n "$PERIMETER_FILES" ] || return 0
   # A single token outside the repository aborts the whole batch ("is outside
   # repository"): climbing, absolute or sibling-repository paths are
-  # set aside here. No loss -- outside_root handles them before git_ignored.
-  tokens="$(printf '%s\n' "$PERIMETER_FILES" | while IFS= read -r r; do
-    [ -z "$r" ] && continue
-    grep -o '`[^`]*`' "$VAULT_ROOT/$r" 2>/dev/null | tr -d '`'
-  done | sort -u | grep -v '^$' \
-    | grep -v '^\.\./' | grep -v '^/' | grep -v '^[A-Za-z]:' \
-    | grep -v "^$SIBLING_NAME/" | grep -vE '^\.\.?$')"
-  [ -z "$tokens" ] && return 0
+  # set aside in the awk program. No loss -- outside_root handles them
+  # before git_ignored.
+  out="$(cd "$VAULT_ROOT" && { printf '%s\n' "$PERIMETER_FILES"; printf '\001\n'; git ls-files 2>/dev/null; } \
+    | SIB="$SIBLING_NAME" LC_ALL=C awk "$AWK_PRIME" 2>/dev/null)" || {
+    echo "REFUS : lecture des jetons impossible (awk) : gardien non executable." >&2
+    exit 1
+  }
+  [ -n "$out" ] || return 0
+  # The two blocks of the output, split on the sentinel line (a newline is
+  # added on both sides so that an empty block still leaves the sentinel
+  # framed).
+  out="$NL$out$NL"
+  BARE_INDEX="${out%%"$NL$SENT$NL"*}$NL"
+  ipart="${out#*"$NL$SENT$NL"}"
+  ipart="${ipart%"$NL"}"
+  [ -n "$ipart" ] || return 0
   while IFS= read -r -d '' ign; do
-    [ -n "$ign" ] && kv_set GIT_IGNORED_SET "$ign" 1
-  done < <(printf '%s\n' "$tokens" | tr '\n' '\0' \
+    [ -n "$ign" ] && IGNORED_LIST="$IGNORED_LIST$ign$NL"
+  done < <(printf '%s\n' "$ipart" | tr '\n' '\0' \
     | git -C "$VAULT_ROOT" check-ignore -z --stdin 2>/dev/null)
 }
 
 git_ignored() {
-  kv_has GIT_IGNORED_SET "$1"
+  case "$IGNORED_LIST" in
+    *"$NL$1$NL"*) return 0 ;;
+  esac
+  return 1
 }
 
 # Known external tokens (ticket 02, brought forward here only -- Mission 168,
@@ -312,7 +423,28 @@ resolve_token() {
   case "$token" in
     */*) ;;
     *)
-      local matches match
+      # Mission 214: the name is looked up in BARE_INDEX, built once by the
+      # pre-pass (a `B` line: the token and the ONE tracked file it names, or
+      # no file when it names none or several). A token the pre-pass did not
+      # cover -- a glob character, a leading `:` (git reads it as a pathspec
+      # magic), a token absent from the index -- keeps the former command,
+      # which is exact by definition and rare.
+      local matches match rest
+      case "$token" in
+        *'*'*|*'?'*|*'['*|*'\'*|:*) : ;;
+        *)
+          case "$BARE_INDEX" in
+            *"$NL$token$TAB"*)
+              rest="${BARE_INDEX#*"$NL$token$TAB"}"
+              match="${rest%%"$NL"*}"
+              if [ -n "$match" ] && [ -e "$VAULT_ROOT/$match" ]; then
+                return 0
+              fi
+              return 1
+              ;;
+          esac
+          ;;
+      esac
       matches="$(git -C "$VAULT_ROOT" ls-files -- "*/$token" "$token" 2>/dev/null | sort -u)"
       if [ "$(printf '%s\n' "$matches" | grep -c .)" -eq 1 ]; then
         match="$matches"
@@ -325,123 +457,132 @@ resolve_token() {
 
 prime_git_ignored
 
-while IFS= read -r rel; do
-  [ -z "$rel" ] && continue
-  FULL="$VAULT_ROOT/$rel"
-  # Pure-bash dirname (Mission 127): $FULL is always an absolute path
-  # with at least one "/", so the substitution is always equivalent;
-  # replaces one dirname process per file of the perimeter.
-  SOURCE_DIR="${FULL%/*}"
+# Mission 214: the reading of the documents leaves bash. The loop below used
+# to read every line of every document of the perimeter (14 800 lines) with
+# `read`, keep the fence state, the section and the line number, cut every
+# line into its backtick spans and classify each span (2 347 of them) with a
+# dozen `case` -- 2.6 s of a 3.7 s pass, about a millisecond a span under Git
+# Bash. ONE awk now does all of it, with the same rules in the same order,
+# and hands bash only what needs the file system:
+#   T<SEP>document<SEP>line number<SEP>section<SEP>token
+# the spans that remain to be resolved. It also counts, and closes with
+#   C<SEP>checked<SEP>bare-names ignored<SEP>marked accepted
+# and, for a document git lists but the disk does not hold,
+#   E<SEP>document
+# (bash then reports it the way its own redirection did before). SEP is the
+# control character \034, which no line of prose carries. Rules, unchanged:
+# a line whose first non-blank characters are three backticks or three
+# tildes opens or closes a fence, and nothing inside a fence is read; a line
+# that starts with `#` names the current section (its `#` and the blanks
+# after them removed) and is not read -- the section before the first
+# heading is "(préambule)"; only a line with two backticks or more is cut
+# into spans, left to right, each span ending at the next backtick; a span
+# with a blank, `{{`, `}}`, `<`, `>`, or starting with `$` or `-` is not a
+# path; a span that names no file (names_a_file, transcribed below) is
+# counted and dropped; a span followed by `(supprimé)` or `(supprimé,
+# Mission ` or carried by a line marked `(hors Vault)` is counted as marked
+# and accepted. The backtick is written \140 so that no literal backtick
+# lives in the program.
+AWK_LINES='
+  BEGIN { SEP = "\034"; BT = "\140"; nchecked = 0; nignored = 0; naccepted = 0 }
+  function ends(b, x) { return length(b) >= length(x) && substr(b, length(b) - length(x) + 1) == x }
+  function last(s, c,    i) { for (i = length(s); i > 0; i--) if (substr(s, i, 1) == c) return i; return 0 }
+  function names_a_file(t,    b, i) {
+    b = t
+    if (substr(b, length(b)) == "/") b = substr(b, 1, length(b) - 1)
+    i = last(b, "/");  if (i > 0) b = substr(b, i + 1)
+    i = last(b, "\\"); if (i > 0) b = substr(b, i + 1)
+    if (b == ".md" || b == ".yaml" || b == ".sh" || b == ".txt" || b == ".py" || b == ".json" || b == ".svg" || b == ".js" || b == ".html" || b == ".example" || b == ".cjs") return 0
+    if (b == "." || b == "..") return 0
+    if (substr(b, 1, 1) == ".") return 1
+    if (ends(b, ".md") || ends(b, ".yaml") || ends(b, ".sh") || ends(b, ".txt") || ends(b, ".py") || ends(b, ".json") || ends(b, ".svg") || ends(b, ".js") || ends(b, ".html") || ends(b, ".example") || ends(b, ".cjs")) return 1
+    return 0
+  }
+  function walk(f,    line, r, ok, l2, ins, sec, ln, i, j, rest, after1, after2, t, c1) {
+    ins = 0; sec = "(préambule)"; ln = 0; ok = 0
+    while ((r = (getline line < f)) > 0) {
+      ok = 1; ln++
+      l2 = line; sub(/^[[:space:]]+/, "", l2)
+      if (substr(l2, 1, 3) == (BT BT BT) || substr(l2, 1, 3) == "~~~") { ins = !ins; continue }
+      if (ins) continue
+      if (substr(line, 1, 1) == "#") { sec = line; sub(/^#+/, "", sec); sub(/^[[:space:]]+/, "", sec); continue }
+      rest = line
+      while ((i = index(rest, BT)) > 0) {
+        after1 = substr(rest, i + 1)
+        j = index(after1, BT)
+        if (j == 0) break
+        t = substr(after1, 1, j - 1)
+        after2 = substr(after1, j + 1)
+        rest = after2
+        if (index(t, " ") > 0 || index(t, "\t") > 0) continue
+        if (index(t, "{{") > 0 || index(t, "}}") > 0) continue
+        if (index(t, "<") > 0 || index(t, ">") > 0) continue
+        c1 = substr(t, 1, 1)
+        if (c1 == "$" || c1 == "-") continue
+        if (!names_a_file(t)) { nignored++; continue }
+        nchecked++
+        if (index(after2, " (supprimé)") == 1 || index(after2, " (supprimé, Mission ") == 1) { naccepted++; continue }
+        if (index(line, "(hors Vault)") > 0) { naccepted++; continue }
+        print "T" SEP f SEP ln SEP sec SEP t
+      }
+    }
+    close(f)
+    if (!ok && r < 0) print "E" SEP f
+  }
+  $0 != "" { walk($0) }
+  END { print "C" SEP nchecked SEP nignored SEP naccepted }
+'
+SEP="$(printf '\034')"
+# The C record is the last thing awk writes: without it, awk failed (its
+# errors are silenced) and the reading is incomplete -- refused below, never
+# passed as an empty corpus (Mission 125: a guardian that checks nothing).
+GOT_END=0
 
-  IN_FENCE=0
-  SECTION="(préambule)"
-  LINE_NO=0
+# T records: TAG, document, line number, section, token. C record: TAG, then
+# the three counts in the fields that follow (document, line number, section).
+while IFS="$SEP" read -r TAG rel LINE_NO SECTION TOKEN; do
+  case "$TAG" in
+    C)
+      CHECKED="$rel"; IGNORED_DIR="$LINE_NO"; ACCEPTED_MARKED="$SECTION"
+      GOT_END=1
+      continue
+      ;;
+    E)
+      : < "$VAULT_ROOT/$rel"
+      continue
+      ;;
+  esac
+  # Pure-bash dirname (Mission 127): the path is always absolute with at
+  # least one "/", so the substitution is always equivalent.
+  SOURCE_DIR="${VAULT_ROOT}/${rel}"
+  SOURCE_DIR="${SOURCE_DIR%/*}"
 
-  while IFS= read -r line || [ -n "$line" ]; do
-    LINE_NO=$((LINE_NO + 1))
+  if outside_root "$TOKEN" "$SOURCE_DIR"; then
+    OUTSIDE_ROOT=$((OUTSIDE_ROOT + 1))
+    continue
+  fi
 
-    LTRIM="${line#"${line%%[![:space:]]*}"}"
-    case "$LTRIM" in
-      '```'*|'~~~'*)
-        if [ "$IN_FENCE" -eq 1 ]; then IN_FENCE=0; else IN_FENCE=1; fi
-        continue
-        ;;
-    esac
-    [ "$IN_FENCE" -eq 1 ] && continue
+  if git_ignored "$TOKEN"; then
+    GIT_IGNORED=$((GIT_IGNORED + 1))
+    continue
+  fi
 
-    case "$line" in
-      '#'*)
-        # Pure-bash heading extraction (Mission 127), same technique already
-        # used for LTRIM above: ${var%%pattern} isolates the longest
-        # prefix made only of the targeted character (# then space),
-        # ${var#"$prefixe"} removes it -- equivalent to sed -E 's/^#+[[:space:]]*//'
-        # without launching a process per heading line.
-        SECTION="$line"
-        HASHRUN="${SECTION%%[!#]*}"
-        SECTION="${SECTION#"$HASHRUN"}"
-        SECTION="${SECTION#"${SECTION%%[![:space:]]*}"}"
-        continue
-        ;;
-    esac
+  if known_external "$TOKEN"; then
+    EXTERNE_CONNU=$((EXTERNE_CONNU + 1))
+    continue
+  fi
 
-    # Only processes lines carrying at least one backtick span.
-    case "$line" in
-      *'`'*'`'*) : ;;
-      *) continue ;;
-    esac
+  if ! resolve_token "$TOKEN" "$SOURCE_DIR"; then
+    FAIL=1
+    DEFECT_COUNT=$((DEFECT_COUNT + 1))
+    echo "CHEMIN-AFFIRME-MORT : $rel:$LINE_NO [$SECTION] jeton \`$TOKEN\` introuvable sous les racines candidates" >&2
+  fi
+done < <(cd "$VAULT_ROOT" && printf '%s\n' "$PERIMETER_FILES" | LC_ALL=C awk "$AWK_LINES" 2>/dev/null)
 
-    REST="$line"
-    while :; do
-      case "$REST" in
-        *'`'*'`'*) : ;;
-        *) break ;;
-      esac
-      BEFORE="${REST%%\`*}"
-      AFTER1="${REST#*\`}"
-      TOKEN="${AFTER1%%\`*}"
-      AFTER2="${AFTER1#*\`}"
-      REST="$AFTER2"
-
-      case "$TOKEN" in
-        *' '*|*$'\t'*) continue ;;
-        *'{{'*|*'}}'*) continue ;;
-        *'<'*|*'>'*) continue ;;
-        '$'*) continue ;;
-        '-'*) continue ;;
-      esac
-
-      names_a_file "$TOKEN" || { IGNORED_DIR=$((IGNORED_DIR + 1)); continue; }
-
-      CHECKED=$((CHECKED + 1))
-
-      case "$AFTER2" in
-        ' (supprimé)'*|' (supprimé, Mission '*)
-          ACCEPTED_MARKED=$((ACCEPTED_MARKED + 1))
-          continue
-          ;;
-      esac
-
-      # `(hors Vault)` mark carried by the LINE (Mission 142, Owner
-      # arbitration 2026-09-05): the link targets a sibling repository, absent from a Vault
-      # installed alone. The mark is already the linking standard's convention for
-      # targets outside the repository; here it counts as a declaration, so neither resolution
-      # nor defect. It is read on the whole line and not just after the
-      # token, because it follows the complete Markdown link, not the span.
-      # Every path NOT marked stays refused: the guardian loses nothing.
-      case "$line" in
-        *'(hors Vault)'*)
-          ACCEPTED_MARKED=$((ACCEPTED_MARKED + 1))
-          continue
-          ;;
-      esac
-
-      if outside_root "$TOKEN" "$SOURCE_DIR"; then
-        OUTSIDE_ROOT=$((OUTSIDE_ROOT + 1))
-        continue
-      fi
-
-      if git_ignored "$TOKEN"; then
-        GIT_IGNORED=$((GIT_IGNORED + 1))
-        continue
-      fi
-
-      if known_external "$TOKEN"; then
-        EXTERNE_CONNU=$((EXTERNE_CONNU + 1))
-        continue
-      fi
-
-      if ! resolve_token "$TOKEN" "$SOURCE_DIR"; then
-        FAIL=1
-        DEFECT_COUNT=$((DEFECT_COUNT + 1))
-        echo "CHEMIN-AFFIRME-MORT : $rel:$LINE_NO [$SECTION] jeton \`$TOKEN\` introuvable sous les racines candidates" >&2
-      fi
-    done
-  done < "$FULL"
-done <<EOF_PERIMETER
-$PERIMETER_FILES
-EOF_PERIMETER
-
-PERIMETER_COUNT="$(printf '%s\n' "$PERIMETER_FILES" | grep -c .)"
+if [ "$GOT_END" -ne 1 ]; then
+  echo "REFUS : lecture des documents impossible (awk) : gardien non executable." >&2
+  exit 1
+fi
 
 echo "Comptes : fichiers du périmètre=$PERIMETER_COUNT jetons-fichier examinés=$CHECKED dossiers nus ignorés=$IGNORED_DIR marqués acceptés=$ACCEPTED_MARKED hors racine=$OUTSIDE_ROOT ignorés=$GIT_IGNORED externes connus=$EXTERNE_CONNU défauts=$DEFECT_COUNT"
 
