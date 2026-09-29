@@ -33,7 +33,7 @@ Portability state inherited from the validated migration source:
 - `INTRINSIC-PROVIDER-DEPENDENCY`: 2
 - `OPEN`: 0
 
-See [skill-collections/index.md](skill-collections/index.md) for the active collection catalog. [compatibility-report.md](compatibility-report.md), [sources/registry.md](sources/registry.md), root `index.md`, and root `manifest.md` preserve the legacy audit and provenance snapshot.
+See [skill-collections/index.md](skill-collections/index.md) for the active collection catalog. The legacy audit and provenance snapshot (`compatibility-report.md`, `sources/registry.md`, root `index.md`, root `manifest.md`) left this thin checkout ([thin-repository migration](logs/migrations/2026-09-02-thin-repository.md)); each collection's `registry.md` carries its own provenance.
 
 ## Source of truth
 
@@ -43,7 +43,7 @@ See [skill-collections/index.md](skill-collections/index.md) for the active coll
 - [PORTABILITY_STANDARD.md](PORTABILITY_STANDARD.md) — canonical rules for LLM/runtime-agnostic Skill content.
 - [PRODUCTION_STANDARD.md](PRODUCTION_STANDARD.md) — canonical rules for immutable, single-pass collection releases.
 - [SYSTEM_NAMING_STANDARD.md](SYSTEM_NAMING_STANDARD.md) — permanent English-only naming contract for system paths and identifiers; prose may be French.
-- [sources/COLLECTION-OPERATIONS.md](sources/COLLECTION-OPERATIONS.md) — replaceable command mapping for collection builds and warehouse validation.
+- [tools/README.md](tools/README.md) — replaceable command mapping for collection builds and warehouse validation.
 - [AGENTS.md](AGENTS.md) — short operational entrypoint for any agent opening the repository.
 
 Runtime-specific pointer or metadata files may translate optional mechanics, but they do not define competing policy.
@@ -82,7 +82,7 @@ Every explicit or implicit ingestion applies both canonical standards and runs:
 
 INGEST → RESOLVE SOURCES → INSPECT → IDENTIFY SKILLS → SECURITY CHECK (SKILLSPECTOR) → FILTER → CLASSIFY COLLECTION → DEDUPLICATE WAREHOUSE-WIDE → PORTABILITY AUDIT → LLM-AGNOSTIC NORMALIZATION → LICENSE AUDIT → PRESERVE ORIGINAL → INTEGRATE INTO COLLECTION → UPDATE COLLECTION RECORDS → PACKAGE COLLECTION → VALIDATE → GENERATE SHA-256
 
-The complete decision rules are in [INGESTION_STANDARD.md](INGESTION_STANDARD.md). [sources/COLLECTION-OPERATIONS.md](sources/COLLECTION-OPERATIONS.md) maps those rules to the current architecture; [sources/INCREMENTAL-INGESTION.md](sources/INCREMENTAL-INGESTION.md) is legacy-only. The process is incremental: unchanged active Skills remain untouched, duplicates are not recopied, version ambiguities become `OPEN`, and releases are rebuilt only for affected collections.
+The complete decision rules are in [INGESTION_STANDARD.md](INGESTION_STANDARD.md). [tools/README.md](tools/README.md) maps those rules to the current commands; the legacy incremental-ingestion notes (`sources/INCREMENTAL-INGESTION.md`) left this thin checkout. The process is incremental: unchanged active Skills remain untouched, duplicates are not recopied, version ambiguities become `OPEN`, and releases are rebuilt only for affected collections.
 
 `SECURITY CHECK` is a mandatory reproducible static scan by the pinned NVIDIA SkillSpector release recorded in `tools/skillspector-lock.json`. `tools/scan-skillspector.py` writes compact evidence under `provenance/skillspector/`; an incomplete scan or a HIGH/CRITICAL finding is `OPEN — SKILLSPECTOR SECURITY REVIEW` until an Owner records an evidence-bound suppression or remediation.
 

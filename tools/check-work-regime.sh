@@ -34,6 +34,33 @@
 # One more refusal is not a criterion but the Note's form:
 #   R7-shape        not a valid Note: front matter, the six rubrics in order
 #                   and nothing else, size cap, one conforming journal line
+# And one more, the form of a mode-2 Note (Mission 218, Decision 012500): a
+# Note written by the Executor from a prompt of the Owner, as its first write.
+#   R8-origin       front matter `origin: owner-prompt` present but not
+#                   `mode: 2a|2b`, not `received_at` (ISO 8601, offset), or
+#                   2a: no `prompt_sha256`, not exactly one ```prompt block
+#                   in the Intent, or its sha256 differs;
+#                   2b: no ```files block in the Intent (lines
+#                   `<sha256> <path>`, path relative to the project root, the
+#                   parent of the Note's missions/ folder), a file missing or
+#                   a fingerprint that differs.
+#                   The prompt block is not counted in the size cap:
+#                   the Owner's words are not the Note's growth.
+#                   A Note without `origin:` is a Pilot's Note: unchanged.
+#
+# The Owner's go-ahead (Mission 219, Owner arbitration of 2026-09-23 09:08):
+# when an Owner's prompt meets a full-regime criterion, the Executor asks, and
+# the answer is written in the mode-2 Note's Intent, in exactly one block
+#   ```owner_greenlight
+#   at: <real time of the answer, ISO 8601 with offset>
+#   lifts: <criterion id>[, <criterion id>...]
+#   <the Owner's answer, as received, one or more lines>
+#   ```
+# The criteria named by `lifts:` (R1..R6 only) no longer refuse the Note, and
+# the tool prints `OWNER-GREENLIGHT <ids> at <time>` before REGIME-LIGHT-OK.
+# The form (R7, R8) is never lifted; a criterion not named stays; a block with
+# no time, no answer, no `lifts:`, or in a Note without `origin: owner-prompt`
+# is R8-origin. Like the prompt block, it is not counted in the size cap.
 #
 # Command criteria (R1, R2, R4, bypass part of R6) read every fenced command
 # of the three measuring rubrics and of the Gesture; path criteria (R3, path
@@ -48,6 +75,7 @@
 # Exit: 0 accepted, 1 refused, 2 usage.
 
 set -u
+. "$(cd "$(dirname "$0")" && pwd)/lib/tmp.sh"  # declared temporary folder (Mission 234)
 
 NOTE_CAP=4000
 JOURNAL_CAP=300
@@ -58,6 +86,9 @@ usage() {
 }
 
 REASONS=""
+HINT=""
+GREENLIGHT_LINE=""
+CRITERIA_IDS="R1-egress R2-destructive R3-doctrine R4-refs R5-company R6-guardians"
 add() { # add <id> <what>
   REASONS="$REASONS$1	$2
 "
@@ -122,9 +153,11 @@ scan_path() { # scan_path <line> : the path criteria on one scope/gesture line
 finish() {
   if [ -n "$REASONS" ]; then
     printf '%s' "$REASONS" | awk -F'\t' '{ print "REFUS : " $1 " -- " $2 }' >&2
+    [ -z "$HINT" ] || echo "$HINT" >&2
     echo "REFUSED $(printf '%s' "$REASONS" | cut -f1 | sort -u | paste -sd, -)"
     exit 1
   fi
+  [ -z "$GREENLIGHT_LINE" ] || echo "$GREENLIGHT_LINE"
   echo "REGIME-LIGHT-OK"
   exit 0
 }
@@ -139,17 +172,133 @@ fenced() { # fenced <text> : the lines inside the fences only
 }
 blank() { [ -z "$(printf '%s' "$1" | tr -d '[:space:]')" ]; }
 
+sha_stdin() { # sha256 of standard input, portable
+  if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'  # portability: guarded by command -v, shasum and openssl after
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 | awk '{print $1}'
+  else openssl dgst -sha256 | awk '{print $NF}'; fi
+}
+fm_value() { # fm_value <front matter> <key> : the value, quotes removed
+  printf '%s\n' "$1" | sed -n "s/^$2:[[:space:]]*//p" | head -n 1 | sed 's/^"//; s/"[[:space:]]*$//; s/[[:space:]]*$//'
+}
+info_block() { # info_block <text> <info> : the lines of the ```<info> block(s)
+  printf '%s\n' "$1" | awk -v i="$2" 'f && /^```/{f=0; next} f{print} $0=="```" i{f=1; n++} END{}'
+}
+info_block_count() { printf '%s\n' "$1" | grep -c "^\`\`\`$2\$"; }
+
+# check_origin <original file> <front matter> : R8-origin, a mode-2 Note only.
+check_origin() {
+  local orig="$1" fm="$2" origin mode rec intent psha ptext pcount files root line fsha fpath have
+  origin="$(fm_value "$fm" origin)"
+  [ -n "$origin" ] || return 0
+  [ "$origin" = "owner-prompt" ] || { add "R8-origin" "unknown origin '$origin' (only owner-prompt)"; return 0; }
+  mode="$(fm_value "$fm" mode)"
+  rec="$(fm_value "$fm" received_at)"
+  printf '%s' "$rec" | grep -Eq '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}(:[0-9]{2})?([+-][0-9]{2}:?[0-9]{2}|Z)$' \
+    || add "R8-origin" "received_at missing or not ISO 8601 with an offset (the real time the prompt arrived)"
+  intent="$(section "$NOTE_TMP" '## Intent')"
+  case "$mode" in
+    2a)
+      psha="$(fm_value "$fm" prompt_sha256)"
+      printf '%s' "$psha" | grep -Eq '^[0-9a-f]{64}$' || add "R8-origin" "mode 2a without prompt_sha256 (64 hexadecimal characters)"
+      pcount="$(info_block_count "$intent" prompt)"
+      if [ "$pcount" != "1" ]; then
+        add "R8-origin" "mode 2a: the Intent must hold exactly one \`\`\`prompt block with the prompt as received ($pcount found)"
+      else
+        ptext="$(info_block "$intent" prompt)"
+        [ "$(printf '%s' "$ptext" | sha_stdin)" = "$psha" ] \
+          || add "R8-origin" "mode 2a: the sha256 of the \`\`\`prompt block differs from prompt_sha256 (prompt edited after it was received?)"
+      fi
+      ;;
+    2b)
+      files="$(info_block "$intent" files)"
+      if blank "$files"; then
+        add "R8-origin" "mode 2b: the Intent must hold a \`\`\`files block, one '<sha256> <path>' per consumed file"
+      else
+        root="$(cd "$(dirname "$orig")/.." 2>/dev/null && pwd)"
+        while IFS= read -r line; do
+          blank "$line" && continue
+          fsha="${line%% *}"; fpath="${line#* }"
+          if ! printf '%s' "$fsha" | grep -Eq '^[0-9a-f]{64}$' || [ "$fpath" = "$line" ]; then
+            add "R8-origin" "mode 2b: malformed line (expected '<sha256> <path>'): $line"; continue
+          fi
+          case "$fpath" in /*|[A-Za-z]:[\\/]*) : ;; *) fpath="$root/$fpath" ;; esac
+          if [ ! -f "$fpath" ]; then
+            add "R8-origin" "mode 2b: consumed file not found: ${line#* }"; continue
+          fi
+          have="$(sha_stdin < "$fpath")"
+          [ "$have" = "$fsha" ] || add "R8-origin" "mode 2b: fingerprint differs for ${line#* }"
+        done <<EOF
+$files
+EOF
+      fi
+      ;;
+    *) add "R8-origin" "origin owner-prompt without mode: 2a or 2b" ;;
+  esac
+}
+
+# check_greenlight <front matter> : the Owner's go-ahead (Mission 219). Runs
+# after every criterion is known; lifts only the criteria the block names.
+check_greenlight() {
+  local fm="$1" intent n gl at lifts answer id bad="" crit keep
+  intent="$(section "$NOTE_TMP" '## Intent')"
+  n="$(info_block_count "$intent" owner_greenlight)"
+  if [ "$(fm_value "$fm" origin)" != "owner-prompt" ]; then
+    [ "$n" = 0 ] || add "R8-origin" "an owner_greenlight block answers an Owner's prompt: only in a mode-2 Note (origin: owner-prompt)"
+    return 0
+  fi
+  crit="$(printf '%s' "$REASONS" | cut -f1 | grep -E '^R[1-6]-' | sort -u | paste -sd' ' -)"
+  if [ "$n" = 0 ]; then
+    [ -z "$crit" ] || HINT="REFUS : full-regime criterion met by an Owner's prompt ($crit): do not refuse, ask the Owner for the go-ahead, then quote the answer word for word in one \`\`\`owner_greenlight block of the Intent (at: <real time>, lifts: <ids>) -- rule 012259 s3"
+    return 0
+  fi
+  if [ "$n" != 1 ]; then
+    add "R8-origin" "exactly one \`\`\`owner_greenlight block ($n found)"; return 0
+  fi
+  gl="$(info_block "$intent" owner_greenlight)"
+  at="$(printf '%s\n' "$gl" | sed -n 's/^at:[[:space:]]*//p' | head -n 1 | sed 's/[[:space:]]*$//')"
+  lifts="$(printf '%s\n' "$gl" | sed -n 's/^lifts:[[:space:]]*//p' | head -n 1 | tr ',' ' ' | tr -s ' ' | sed 's/^ //; s/ $//')"
+  answer="$(printf '%s\n' "$gl" | grep -Ev '^(at|lifts):')"
+  printf '%s' "$at" | grep -Eq '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}(:[0-9]{2})?([+-][0-9]{2}:?[0-9]{2}|Z)$' \
+    || bad="${bad}owner_greenlight: 'at:' missing or not ISO 8601 with an offset (the real time of the Owner's answer); "
+  blank "$answer" && bad="${bad}owner_greenlight: the Owner's answer, as received, is missing; "
+  if [ -z "$lifts" ]; then
+    bad="${bad}owner_greenlight: 'lifts:' must name the criteria the Owner lifted; "
+  else
+    for id in $lifts; do
+      case " $CRITERIA_IDS " in *" $id "*) ;; *) bad="${bad}owner_greenlight: '$id' cannot be lifted (only $CRITERIA_IDS; the form never); " ;; esac
+    done
+  fi
+  if [ -n "$bad" ]; then
+    add "R8-origin" "${bad%; }"; return 0
+  fi
+  keep="$(printf '%s' "$REASONS" | awk -F'\t' -v l=" $lifts " 'index(l, " " $1 " ") == 0 {print}')"
+  REASONS="${keep:+$keep
+}"
+  GREENLIGHT_LINE="OWNER-GREENLIGHT $(printf '%s' "$lifts" | tr ' ' ',') at $at"
+  crit="$(printf '%s' "$REASONS" | cut -f1 | grep -E '^R[1-6]-' | sort -u | paste -sd' ' -)"
+  [ -z "$crit" ] || HINT="REFUS : criterion not lifted by the owner_greenlight block ($crit): ask the Owner, or name it in 'lifts:' only if the Owner's answer covers it"
+}
+
 check_note() {
-  local file="$1" fm expected got chars scope gesture jl line all_cmds tmp
+  local file="$1" orig="$1" fm expected got chars scope gesture jl line all_cmds tmp pchars
   [ -f "$file" ] || { echo "REFUS : fichier introuvable : $file" >&2; exit 2; }
   chars="$(wc -m < "$file" | tr -d ' ')"
-  tmp="$(mktemp "${TMPDIR:-/tmp}/regime-note-XXXXXX")"
+  tmp="$(mktemp "$(sb_tmp_dir tools)/regime-note-XXXXXX")"
   trap 'rm -f "$tmp"' EXIT
   tr -d '\r' < "$file" > "$tmp"
   file="$tmp"
+  NOTE_TMP="$tmp"
 
   # ---- R7: the form -------------------------------------------------------------
   fm="$(awk 'NR==1 && $0!="---"{exit} NR>1 && $0=="---"{exit} NR>1{print}' "$file")"
+  # Mission 218: in a mode-2 Note, the Owner's prompt block is not counted.
+  # Mission 219: nor is the Owner's go-ahead (owner_greenlight block).
+  if [ "$(fm_value "$fm" origin)" = "owner-prompt" ]; then
+    pchars="$(info_block "$(section "$file" '## Intent')" prompt | wc -m | tr -d ' ')"
+    chars=$((chars - pchars))
+    pchars="$(info_block "$(section "$file" '## Intent')" owner_greenlight | wc -m | tr -d ' ')"
+    chars=$((chars - pchars))
+  fi
   printf '%s\n' "$fm" | grep -Eq '^regime:[[:space:]]*light[[:space:]]*$' || add "R7-shape" "front matter lacks 'regime: light'"
   printf '%s\n' "$fm" | grep -Eq '^type:[[:space:]]*note[[:space:]]*$' || add "R7-shape" "front matter lacks 'type: note'"
   [ "$chars" -le "$NOTE_CAP" ] || add "R7-shape" "$chars characters, cap $NOTE_CAP (a Note that grows is a Mission)"
@@ -176,6 +325,9 @@ check_note() {
     [ "$(printf '%s' "$jl" | wc -m | tr -d ' ')" -le "$JOURNAL_CAP" ] || add "R7-shape" "Journal line over $JOURNAL_CAP characters"
   fi
 
+  # ---- R8: the form of a mode-2 Note (Mission 218) ------------------------------------
+  check_origin "$orig" "$fm"
+
   # ---- the full-regime criteria ---------------------------------------------------
   grep -Eiq 'Glint''BloomWorks' "$file" && add "R5-company" "the company repository is named"
   while IFS= read -r line; do
@@ -196,6 +348,8 @@ $(fenced "$(section "$file" '## Measure after')")"
   done <<EOF
 $all_cmds
 EOF
+  # ---- the Owner's go-ahead, last: it lifts only what it names (Mission 219) ----
+  check_greenlight "$fm"
   finish
 }
 

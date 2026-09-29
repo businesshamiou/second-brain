@@ -105,7 +105,7 @@ INCLUDE_PATHSPECS=(
 # rules/RULES-2026-08-23-124937, written entirely as a blockquote); a
 # Markdown table ("| ... | ... |") NEVER has a blank line between its
 # rows, each already being its own record (measured:
-# skills/ecriture-de-mission/mission-checklist.md). paragraph_tag_awk reads
+# skills/mission-writing/mission-checklist.md). paragraph_tag_awk reads
 # a file and returns, per line, "numero:id_paragraphe" (id 0 for a
 # blank line or an empty blockquote separator, never attached to a
 # paragraph); a table row or a numbered point/a bullet (inside
@@ -131,7 +131,7 @@ scan_pattern_a() {
 # is what distinguishes the absolute prohibition formula from an ordinary
 # narrative mention of "aucun push", e.g. "sinon, aucun push dans la Mission"
 # ["otherwise, no push in the Mission"] in
-# skills/ecriture-de-mission/mission-checklist.md, which talks about
+# skills/mission-writing/mission-checklist.md, which talks about
 # planning and requires nothing) without « non delegue » (accents vary)
 # in the ~25 characters that follow « push ». A single git grep returns the
 # CANDIDATE LINES (few of them); the check "no non-delegue

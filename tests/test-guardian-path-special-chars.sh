@@ -43,9 +43,11 @@ SKIPS=0
 make_sandbox() {
   # $1 = sandbox directory (its name carries the character under test).
   local repo="$1"
-  mkdir -p "$repo/tools" "$repo/rules" "$repo/doc" || return 1
+  mkdir -p "$repo/tools/lib" "$repo/rules" "$repo/doc" || return 1
   local t
-  for t in check-asserted-paths.sh check-distribution-manifest.sh kvmap.sh resolve-sibling-repo.sh; do
+  # Mission 234: lib/tmp.sh, the access function to the declared folder,
+  # which check-distribution-manifest.sh sources.
+  for t in check-asserted-paths.sh check-distribution-manifest.sh kvmap.sh resolve-sibling-repo.sh lib/tmp.sh; do
     cp "$TOOLS/$t" "$repo/tools/$t" || return 1
   done
   printf -- '---\ntype: rules\ntitle: "Probe"\nstatus: active\n---\n\nSee `rules/absent-probe-181.md` for details.\n' > "$repo/rules/RULES-probe.md"

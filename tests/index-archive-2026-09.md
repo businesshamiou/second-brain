@@ -1,7 +1,7 @@
 ---
 type: index
 title: "Vault tests — archive 2026-09"
-description: "Frozen part of the tests index: the families closed by Missions 185-C01 and 186, moved out of tests/index.md when it reached its 8,000-byte cap (Mission 189)."
+description: "Frozen part of the tests index: the families closed by Missions 185-C01 and 186, moved out of tests/index.md when it reached its 8,000-byte cap (Mission 189); then those of Missions 187, 188, 189 and 191-C01 (Mission 218)."
 created_at: 2026-09-18T11:30:00-04:00
 timezone: America/Montreal
 status: active
@@ -42,6 +42,34 @@ Twelve measurements, one per defect found during the human acceptance of 2026-09
 | T10 | `test-install-doc-windows-invocation.sh` | `INSTALL.md` and `README.md` carry the exact Windows invocation | copy without these lines → failure | U |
 | T11 | `test-catalog-key-parity.sh` / `.ps1` | fr/en/es parity, and presence of the new keys | a key removed from a catalogue → failure | U |
 | T12 | Mission 184 suites | the 106 cases and the eleven acceptance lines keep their verdict | — (this is the "break nothing" rule) | W / U / M |
+
+### One MCP server per Vault, and the update — Mission 191-C01 (v0.1.8)
+
+- `test-install-vault-mcp-name-per-vault.sh` (W / U / M) — two Vaults, two servers named after their identity; idempotent; former name migrated; crossed identity refused.
+- `test-check-mcp-containment-per-vault.sh` (W / U / M) — containment finds the server of the project's own Vault.
+- `test-project-instructions-name-server.sh` (W / U / M) — Project instructions and Pilot prompt name this Vault's server.
+- `test-agents-language-line.sh` (U) — `AGENTS.md` and `CLAUDE.md`: corpus in English, the participant's language from `USER.md`.
+- `test-update-installed-vault.sh` (W / U / M) and `.ps1` (W) — `second-brain update` from v0.1.7 to v0.1.8 over local commits; conflict, altered identity, temporary origin and the install line on an existing workspace all refused with nothing touched.
+
+### Windows shards and tag checkout — Mission 189 (v0.1.7)
+
+- `test-shards-cover-suite.sh` (U) — the three Windows shards play every W line once.
+- `test-suite-on-detached-head.sh` (U) — the suite holds on a detached HEAD.
+- `test-no-push-formula.sh` (U) — now also reads `AGENTS.md`, `CLAUDE.md`, `.claude/`, `.codex/`.
+
+### Corpus in English — Mission 187 (v0.1.6)
+
+- `test-corpus-language-english.sh` (W / U / M) — no corpus file above the French threshold.
+- `test-links-targets-unchanged.sh` (U) — link targets as frozen at `653910c`.
+- `test-skill-triggers-bilingual.sh` (U) — skill triggers in both languages.
+- `test-published-line-ref.sh` (U) — the published line and the bootstraps name one tag.
+
+### Reusable test bench — Mission 188
+
+- T1 `test-suite-manifest-matches-ci.sh` (U) — `suite.tsv` = the `ci.yml` suite at `42f74e6a` (108 triplets).
+- T2 `test-run-suite-reports-red.sh` (W / U / M) — the launcher plays everything, counts, names the reds.
+- T3 `test-setup-test-env-offline.sh` (U, CI) — the cached environment answers offline.
+- T4 `test-reference-clone-equivalence.sh` (U) — the reference clone installs the same thing.
 
 ## Liens
 

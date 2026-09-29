@@ -83,7 +83,7 @@ try {
     # from). The list below is built from $Script:WebPackageKnowledgeFiles
     # itself (plus the identity source), so this test never drifts out of
     # sync with which sources the generator actually reads.
-    $sourceFiles = @('assistant\ASSISTANT.md') + @($Script:WebPackageKnowledgeFiles | ForEach-Object { $_.SourcePaths })
+    $sourceFiles = @('assistant\ASSISTANT.md', $Script:AssistantMapSource) + @($Script:WebPackageKnowledgeFiles | ForEach-Object { $_.SourcePaths })
     foreach ($relative in $sourceFiles) {
         $src = Join-Path $RepoRoot $relative
         $dst = Join-Path $TestClone $relative
@@ -119,7 +119,21 @@ try {
     # 'D:', start on mount 'C:'" (CI run 35167643419).
     $cloneTools = Join-Path $TestClone 'tools'
     New-Item -ItemType Directory -Force -Path $cloneTools | Out-Null
-    Copy-Item -Path (Join-Path $RepoRoot 'tools\build_indexes.py') -Destination $cloneTools -Force
+    # Mission 221: build_indexes.py imports its sibling project_baseline.py
+    # (since Mission 203); copying the script alone raised ModuleNotFoundError.
+    # Mission 230: and repo_root_guard.py, which Mission 226 added to the same
+    # import block -- the whole test had been red since, on
+    # `ModuleNotFoundError: No module named 'repo_root_guard'`, reported here
+    # as `unhandled error: Traceback (most recent call last):` because
+    # $ErrorActionPreference turns the native stderr into an exception.
+    foreach ($module in @('build_indexes.py', 'project_baseline.py', 'repo_root_guard.py')) {
+        Copy-Item -Path (Join-Path $RepoRoot "tools\$module") -Destination $cloneTools -Force
+    }
+    # The installer's clone is a Git repository; build_indexes.py refuses a
+    # root that is in none (door open-211, Mission 211) -- measured as the
+    # second failure once the import was fixed (Mission 221).
+    & git -C $TestClone init -q 2>&1 | Out-Null
+    Assert-True ($LASTEXITCODE -eq 0) "the test clone is a Git repository, as the installer's clone is (git init exit $LASTEXITCODE)"
     & $uv.UvExe run --no-project (Join-Path $cloneTools 'build_indexes.py') $TestClone *> (Join-Path $TestRoot 'build-indexes.log')
     Assert-True ($LASTEXITCODE -eq 0) "index regeneration over the test clone succeeded, as in the installer (exit $LASTEXITCODE)"
     $readmePath = Join-Path $webDir 'README.md'

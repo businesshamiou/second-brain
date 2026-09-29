@@ -46,9 +46,13 @@ note() { printf -- '---\ntype: note\nstatus: active\n---\n# %s\n' "$1"; }
 
 # The project: root a.md, docs/b.md, state/s.md and tools/t.md (pruned names below
 # the root), skill-collections/web/skills/x/SKILL.md (third party, exempt by key).
+# Mission 218 (door open-211): build_indexes.py now refuses a root that is in no
+# Git repository and carries no birth certificate. Each throwaway root is
+# therefore a repository -- `.git` is a pruned name, the indexes are unchanged.
 make_tree() {
   local root="$1" exempt="$2"
   mkdir -p "$root/docs" "$root/state" "$root/tools" "$root/skill-collections/web/skills/x"
+  git init -q "$root" >/dev/null 2>&1
   note a > "$root/a.md"; note b > "$root/docs/b.md"; note s > "$root/state/s.md"
   note t > "$root/tools/t.md"; note x > "$root/skill-collections/web/skills/x/SKILL.md"
   if [ -n "$exempt" ]; then
@@ -102,6 +106,7 @@ if sandbox_before_203 "$TMP/vold"; then
   mkdir -p "$TMP/vnew" && cp -r "$REPO_ROOT/tools" "$TMP/vnew/tools"
   for side in old new; do
     mkdir -p "$TMP/$side/tree"
+    git init -q "$TMP/$side/tree" >/dev/null 2>&1
     (cd "$REPO_ROOT" && git ls-files -z -- '*.md' 'superseded-files.txt' | xargs -0 -I{} cp --parents {} "$TMP/$side/tree/" 2>/dev/null)
   done
   bash "$TMP/vold/tools/build-indexes.sh" "$TMP/old/tree" >/dev/null 2>&1

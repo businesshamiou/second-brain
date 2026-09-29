@@ -6,7 +6,7 @@ timezone: America/Montreal
 mission_id: "<NNN>"
 role: executor
 related_mission: "<chemin relatif vers la Mission>"
-related_prompt: "<chemin relatif vers le Prompt>"
+related_prompt: "<title line of the mini-prompt received>"
 status: FINAL
 ---
 

@@ -64,10 +64,27 @@ bc_exempt() {
   local cfg="$1/.pre-commit-config.yaml" raw tok
   bc_file_has_certificate "$cfg" || return 0
   raw="$(bc_get "$cfg" exempt)"
-  [ -n "$raw" ] || return 0
-  printf '%s\n' "$raw" | tr -s ' \t' '\n\n' | while IFS= read -r tok; do
-    [ -n "$tok" ] || continue
+  if [ -n "$raw" ]; then
+    printf '%s\n' "$raw" | tr -s ' \t' '\n\n' | while IFS= read -r tok; do
+      [ -n "$tok" ] || continue
+      case "$tok" in
+        /|/*|*..*|*\\*|*:*) echo "EXEMPT : entree ignoree (forme invalide) : $tok" >&2 ;;
+        */) printf '%s\n' "$tok" ;;
+        *) echo "EXEMPT : entree ignoree (forme invalide) : $tok" >&2 ;;
+      esac
+    done
+  fi
+  # Mission 218: the project's versioned `.vault-exempt`, one prefix per line --
+  # a folder name may hold spaces ("Adn Dev/"), which the key above cannot say.
+  # Same grammar otherwise; `#` starts a comment. Twin: parse_exempt_file.
+  [ -f "$1/.vault-exempt" ] || return 0
+  tr -d '\r' < "$1/.vault-exempt" | while IFS= read -r tok || [ -n "$tok" ]; do
+    lt="${tok#"${tok%%[![:space:]]*}"}"
+    case "$lt" in
+      ''|'#'*) continue ;;
+    esac
     case "$tok" in
+      ' '*|*' ') echo "EXEMPT : entree ignoree (forme invalide) : $tok" >&2 ;;
       /|/*|*..*|*\\*|*:*) echo "EXEMPT : entree ignoree (forme invalide) : $tok" >&2 ;;
       */) printf '%s\n' "$tok" ;;
       *) echo "EXEMPT : entree ignoree (forme invalide) : $tok" >&2 ;;
@@ -237,6 +254,14 @@ RV_EOF
   fi
   marker_rel="$(rv_marker_vault_rel "$marker_dir/VAULT-ROOT.md")"
   marker_id="$(rv_marker_vault_id "$marker_dir/VAULT-ROOT.md")"
+  # Mission 234 (report 233 §3.10): a marker WITHOUT identity is refused. An old
+  # workspace kept its pre-identity marker, and resolved its old Vault for every
+  # tool launched below it, the identity check being skipped. Every marker
+  # written since Decision 000545 A7 carries one (tools/write-marker.sh).
+  if [ -z "$marker_id" ]; then
+    RV_MESSAGE="marqueur sans identité du Vault : $marker_dir/VAULT-ROOT.md (format antérieur à la Décision 000545 A7) ; régénérer par tools/write-marker.sh, ou le retirer s'il n'est plus une racine d'espace"
+    return 1
+  fi
   [ -n "$marker_rel" ] && _rv_add_candidate "$marker_dir/$marker_rel"
   _rv_add_workspace_vaults "$marker_dir"
 

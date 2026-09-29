@@ -87,6 +87,8 @@ FORBIDDEN_PATTERNS=(
 )
 
 TEST_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/sb-noatelier-XXXXXX")"
+# Mission 234: removed even when the script stops early.
+trap 'rm -rf -- "$TEST_ROOT"' EXIT
 echo ""
 echo "TestRoot: $TEST_ROOT"
 

@@ -15,7 +15,7 @@
 #      T1: rules/, skills/, templates/, README.md, INSTALL.md, tools/,
 #      i18n/, excluding the historical decisions/*.md).
 #   2. The pieces that TALK ABOUT the RELAY without being its source
-#      (skills/session-close/SKILL.md, skills/ecriture-de-mission/SKILL.md)
+#      (skills/session-close/SKILL.md, skills/mission-writing/SKILL.md)
 #      carry a pointer by name -- the string "124937" -- instead of
 #      restating the grammar.
 #
@@ -106,7 +106,7 @@ assert_true "$SCAN_FAIL" "les $LABEL_COUNT motifs de la grammaire RELAY n'appara
 echo ""
 echo "=== 2. Renvoi nominatif (« 124937 ») dans les pieces qui parlent du RELAY sans en etre la source ==="
 NAMED_FAIL=0
-for f in skills/session-close/SKILL.md skills/ecriture-de-mission/SKILL.md; do
+for f in skills/session-close/SKILL.md skills/mission-writing/SKILL.md; do
   if [ ! -f "$REPO_ROOT/$f" ]; then
     echo "  FAIL - fichier attendu introuvable : $f"
     NAMED_FAIL=1
@@ -119,7 +119,7 @@ for f in skills/session-close/SKILL.md skills/ecriture-de-mission/SKILL.md; do
     NAMED_FAIL=1
   fi
 done
-assert_true "$NAMED_FAIL" "skills/session-close/SKILL.md et skills/ecriture-de-mission/SKILL.md renvoient tous deux nommement a la regle 124937"
+assert_true "$NAMED_FAIL" "skills/session-close/SKILL.md et skills/mission-writing/SKILL.md renvoient tous deux nommement a la regle 124937"
 
 echo ""
 echo "=== 3. Temoin negatif (FAIL prouve) : une copie de skill qui redit la grammaire ==="

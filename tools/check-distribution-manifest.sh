@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Checks distribution-manifest.txt (at the root of this repository) against the real state of the repository.
 # Read-only: never fixes a defect it finds, only refuses
-# and lists it. Wired into no hook (Mission 073, arbitration C) --
-# manual run only, result reported by the caller.
+# and lists it. Wired into the pre-commit hook as the `manifeste` guardian
+# (.githooks/pre-commit); it can also be run by hand.
 #
 # Refuses (exit 1) if any of these conditions holds:
 #   1. a file of `git ls-files` is missing from the manifest;
@@ -16,6 +16,7 @@
 # usage: check-distribution-manifest.sh
 
 set -u
+. "$(cd "$(dirname "$0")" && pwd)/lib/tmp.sh"  # declared temporary folder (Mission 234)
 
 # Git guard (Mission 125, same reason as in check-secrets.sh): explicit
 # refusal outside a repository, rather than an empty $VAULT_ROOT.
@@ -40,9 +41,10 @@ INTERNE_COUNT=0
 # cost once the per-line pipeline of step 4/5 was removed.
 TAB="$(printf '\t')"
 
-TRACKED_FILE="$(mktemp)"
-MANIFEST_PATHS_FILE="$(mktemp)"
-FM_DIST_FILE="$(mktemp)"
+SB_TOOLS_TMP="$(sb_tmp_dir tools)" || exit 1
+TRACKED_FILE="$(mktemp "$SB_TOOLS_TMP/manifest-tracked-XXXXXX")"
+MANIFEST_PATHS_FILE="$(mktemp "$SB_TOOLS_TMP/manifest-paths-XXXXXX")"
+FM_DIST_FILE="$(mktemp "$SB_TOOLS_TMP/manifest-fm-XXXXXX")"
 trap 'rm -f "$TRACKED_FILE" "$MANIFEST_PATHS_FILE" "$FM_DIST_FILE"' EXIT
 
 # `skills-warehouse/` outside the perimeter (Mission 168, Owner arbitration
@@ -124,6 +126,17 @@ while IFS="$TAB" read -r fpath fdist; do
   [ -z "$fpath" ] && continue
   kv_set FM_DIST "${fpath#"$VAULT_ROOT"/}" "$fdist"
 done < "$FM_DIST_FILE"
+
+# --- 0. a machine-local file, never distributed (Mission 219) ---
+# USER.local.yaml carries the local language of one Vault (read before USER.md
+# by tools/project-bootstrap.sh); .gitignore keeps it out of Git. Named in the
+# manifest or tracked (force-added), it is refused whatever its verdict.
+for LOCAL_ONLY in USER.local.yaml; do
+  if grep -qxF "$LOCAL_ONLY" "$MANIFEST_PATHS_FILE" || grep -qxF "$LOCAL_ONLY" "$TRACKED_FILE"; then
+    FAIL=1
+    echo "LOCAL-FILE-DISTRIBUTED : $LOCAL_ONLY is machine-local and never distributed: remove its manifest line and untrack it (git rm --cached -- $LOCAL_ONLY)" >&2
+  fi
+done
 
 # --- 1. tracked file missing from the manifest ---
 MISSING_FROM_MANIFEST="$(comm -23 "$TRACKED_FILE" "$MANIFEST_PATHS_FILE")"

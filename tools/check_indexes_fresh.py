@@ -142,6 +142,26 @@ def report_gap(dossier, ecart, index_path):
     FAIL = 1
 
 
+# --- Mission 218, lot 1: case collision (stdout, like report_gap) ------------
+# A folder that tracks a case variant of index.md (INDEX.md, Index.md...)
+# is never sent back
+# to the full mode: that prescription is what overwrote 532 hand-written
+# INDEX.md under NTFS (2026-09-21). The same state is reported on both faces:
+# INDEX.md alone (the NTFS clone) and INDEX.md beside index.md (Linux). An
+# exact index.md written by hand keeps its usual gaps: tools/build-indexes.sh
+# refuses to overwrite it, by name, if the remedy is followed.
+def report_collision(dossier, gap):
+    global FAIL
+    out("INDEX-CASE-COLLISION [%s]" % dossier)
+    out("  Gap      : %s" % gap)
+    out(
+        "  Remedy   : never regenerate this folder in full mode; declare it in the "
+        "project's .vault-exempt (one prefix per line) or the birth certificate's "
+        "`# exempt:` key, or rename the file (Owner's decision)"
+    )
+    FAIL = 1
+
+
 # --- Git calls (three, fixed) ----------------------------------------------
 # Single call point: every external command of the guardian goes through here. It is
 # invoked exactly three times, never in a loop (see GIT_CALLS).
@@ -154,7 +174,10 @@ def git_out(args, payload=None):
 
 
 def decode(b):
-    return b.decode("utf-8", errors="surrogateescape")
+    # Mission 219 (A4): a leading UTF-8 byte-order mark is dropped, as
+    # tools/build_indexes.py does, or the two disagree on a BOM'd front matter.
+    s = b.decode("utf-8", errors="surrogateescape")
+    return s[1:] if s.startswith("﻿") else s
 
 
 # Baseline (Decision 000545, A4): files engraved at adoption.
@@ -233,13 +256,22 @@ for line in diff_raw.split("\n"):
 # TRACKED comes from the `git ls-files` already read at call 2. The grammar is not
 # touched -- neither ENTRY_RE, nor check_dir, nor PRUNE_NAMES.
 for p in TRACKED:
-    if p.rsplit("/", 1)[-1] != "index.md":
+    # Mission 218: a case variant of index.md makes its folder checked too.
+    if p.rsplit("/", 1)[-1].lower() != "index.md":
         continue
     d = p.rsplit("/", 1)[0] if "/" in p else "."
     if is_pruned_dir(d):
         continue
     if d not in DIRS:
         DIRS.append(d)
+
+# Mission 218: tracked case variants of index.md, per folder.
+VARIANTS = {}
+for p in TRACKED:
+    fn = p.rsplit("/", 1)[-1]
+    if fn.lower() == "index.md" and fn != "index.md":
+        d = p.rsplit("/", 1)[0] if "/" in p else "."
+        VARIANTS.setdefault(d, []).append(p)
 
 
 # --- Bash block l.128-136: depth-1 .md of a folder, sorted ----------
@@ -443,6 +475,15 @@ def comm_13(disk, index_names):
 # --- Bash block l.121-232: check_dir ---------------------------------------
 def check_dir(d):
     prefix = "" if d == "." else d + "/"
+
+    # Mission 218: a tracked case variant of index.md is a collision, whatever
+    # else the folder holds -- never a gap to regenerate.
+    if VARIANTS.get(d):
+        for v in VARIANTS[d]:
+            report_collision(
+                d, "%s is a case variant of index.md, tracked in this folder" % v
+            )
+        return
 
     disk_files = DISK[d]
     if not disk_files:  # l.138: not an indexed folder

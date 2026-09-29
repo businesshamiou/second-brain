@@ -11,13 +11,21 @@
 #        get server_name` then gives `second-brain-vault-<label>`; the identity is
 #        never rewritten (`vault_id` unchanged); without the key the name falls back to
 #        the identity's 8 characters;
+#   (M230) amendment of P4 by Mission 230 (P4 of report 227): with no label
+#        recorded and the server already configured under the identity name, a
+#        run WITHOUT `--label` keeps that name, writes no label and renames
+#        nothing -- a re-run never renames a server whose name the projects'
+#        PILOT-PROMPT.md already carry. The migration below is asked for with
+#        `--label`;
 #   (P4/P5) the three configurations carry the new name; the former key of the SAME Vault
 #        (`second-brain-vault-<8 characters of vault_id>`) is migrated; the generic
 #        `workshops` server is retired on request, in the three; other servers untouched;
 #        a key of a Vault (`second-brain-vault*`) is never retired;
 #   (P3) two Vaults with the same label: the second is refused, both identities named,
 #        the suffixed name proposed, nothing written (identity, configurations); the
-#        proposed label is then accepted (`--label`);
+#        proposed label is then accepted (`--label`). Mission 242: the proposal obeys
+#        the name length guard -- `workspaces-<8>` would make tool names of 69
+#        characters (> 64), so the label is cut: `works-<8>` (14 characters);
 #   (D0/a) `--skip-desktop` leaves the application's configuration byte for byte.
 # Never the real profile: everything lives under a temporary folder (m206).
 #
@@ -220,7 +228,18 @@ seed "second-brain-vault-$SHORTA" "$VA" "$TMP/a/Workspaces"
 
 # --- (P1, P4, P5) Vault A: label posed, former key migrated, workshops retired --------------
 WSA="$TMP/a/Workspaces"
-OUT_A="$(bash "$VA/tools/install-vault-mcp.sh" "$WSA" --retire workshops --lang FR 2>&1)"
+# Mission 230 (P4 of report 227) amends what follows: with the Vault's server
+# already configured under its identity name and NO label recorded, a run
+# without --label no longer migrates it -- a re-run never renames a server
+# whose name the projects' PILOT-PROMPT.md already carry. The migration this
+# case proves is therefore asked for explicitly, with --label, below.
+OUT_KEEP="$(bash "$VA/tools/install-vault-mcp.sh" "$WSA" --lang FR 2>&1)"
+check "(M230) sans --label : le nom deja configure (second-brain-vault-$SHORTA) est garde" present_in "second-brain-vault-$SHORTA" "${ALL3[@]}"
+check "(M230) sans --label : aucun libelle ecrit, aucun renommage" sh -c "
+  [ -z \"\$(bash '$VA/tools/vault-identity.sh' get workspace_label '$VA')\" ]"
+check "(M230) sans --label : le message dit le nom garde et renvoie a --label" sh -c "
+  case \"\$1\" in *'second-brain-vault-$SHORTA'*'--label'*) exit 0;; *) exit 1;; esac" _ "$OUT_KEEP"
+OUT_A="$(bash "$VA/tools/install-vault-mcp.sh" "$WSA" --label workspaces --retire workshops --lang FR 2>&1)"
 RC_A=$?
 check "(P1) Vault A : sortie 0" [ "$RC_A" = "0" ]
 SA="$(bash "$VA/tools/vault-identity.sh" get server_name "$VA")"
@@ -257,14 +276,14 @@ OUT_B="$(bash "$VB/tools/install-vault-mcp.sh" "$WSB" --lang FR 2>&1)"
 RC_B=$?
 check "(P3) Vault B, meme libelle : refuse (sortie 1)" [ "$RC_B" = "1" ]
 check "(P3) le refus nomme les deux identites ($IDA, $IDB)" sh -c "case \"\$1\" in *'$IDA'*) case \"\$1\" in *'$IDB'*) exit 0;; esac;; esac; exit 1" _ "$OUT_B"
-check "(P3) le refus propose second-brain-vault-workspaces-$SHORTB" has "$OUT_B" "second-brain-vault-workspaces-$SHORTB"
+check "(P3) le refus propose second-brain-vault-works-$SHORTB (garde de longueur, M242)" has "$OUT_B" "second-brain-vault-works-$SHORTB"
 check "(P3) rien n'est ecrit : trois configurations inchangees" [ "$(sha_of "$DESKTOP") $(sha_of "$CLAUDE_JSON") $(sha_of "$CODEX_TOML")" = "$FP_CFG" ]
 check "(P3) rien n'est ecrit : VAULT-IDENTITY.md du Vault B inchange, sans libelle" sh -c "[ '$(sha_of "$VB/VAULT-IDENTITY.md")' = '$FP_IDB' ] && [ -z \"\$(bash '$VB/tools/vault-identity.sh' get workspace_label '$VB')\" ]"
 BEFORE_A="$(args_of "$DESKTOP" "$SA")|$(args_of "$CLAUDE_JSON" "$SA")|$(args_of "$CODEX_TOML" "$SA")"
-bash "$VB/tools/install-vault-mcp.sh" "$WSB" --label "workspaces-$SHORTB" --lang FR >/dev/null 2>&1
+bash "$VB/tools/install-vault-mcp.sh" "$WSB" --label "works-$SHORTB" --lang FR >/dev/null 2>&1
 check "(P3) le libelle propose est accepte : sortie 0" [ "$?" = "0" ]
 SB="$(bash "$VB/tools/vault-identity.sh" get server_name "$VB")"
-check "(P3) Vault B : $SB = second-brain-vault-workspaces-$SHORTB, dans les trois" sh -c "[ '$SB' = 'second-brain-vault-workspaces-$SHORTB' ]"
+check "(P3) Vault B : $SB = second-brain-vault-works-$SHORTB, dans les trois" sh -c "[ '$SB' = 'second-brain-vault-works-$SHORTB' ]"
 check "(P3) Vault B present dans les trois configurations" present_in "$SB" "${ALL3[@]}"
 AFTER_A="$(args_of "$DESKTOP" "$SA")|$(args_of "$CLAUDE_JSON" "$SA")|$(args_of "$CODEX_TOML" "$SA")"
 check "(P3) le serveur du Vault A est intact apres le Vault B" [ "$BEFORE_A" = "$AFTER_A" ]

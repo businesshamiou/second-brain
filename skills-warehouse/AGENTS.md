@@ -11,7 +11,7 @@ All system nomenclature is English under [SYSTEM_NAMING_STANDARD.md](SYSTEM_NAMI
 3. Before any ingestion, read and apply [INGESTION_STANDARD.md](INGESTION_STANDARD.md).
 4. Before integrating or updating any Skill, read and apply [PORTABILITY_STANDARD.md](PORTABILITY_STANDARD.md).
 5. Before producing any release, read and apply [PRODUCTION_STANDARD.md](PRODUCTION_STANDARD.md).
-6. Use [sources/COLLECTION-OPERATIONS.md](sources/COLLECTION-OPERATIONS.md) for current repository commands and validation entrypoints.
+6. Use [tools/README.md](tools/README.md) for current repository commands and validation entrypoints.
 7. Treat the standards as the source of truth; runtime-specific files and command wrappers must not define competing policy.
 8. A message containing only one or more source URLs, paths, files, archives, or attachments is an ingestion request by default. Treat multiple sources as one batch unless instructed otherwise.
 

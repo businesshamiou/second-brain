@@ -1,0 +1,14 @@
+{
+  "name": "second-brain",
+  "description": "Second Brain: the sb command surface for Claude Code.",
+  "owner": {
+    "name": "Second Brain"
+  },
+  "plugins": [
+    {
+      "name": "sb",
+      "source": "./sb",
+      "description": "The sb command of Second Brain as /sb:<verb> -- one thin skill per verb."
+    }
+  ]
+}

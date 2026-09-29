@@ -64,6 +64,11 @@ VAULT_ID="$(bash "$V/tools/vault-identity.sh" get vault_id "$V")"
 
 # Old format (the workshop's, 2026-09-18): no mcp_server, no "Serveur MCP" line, empty links.
 mkdir -p "$TMP/ws/old/state"
+printf '# second-brain-birth-certificate: v1
+# vault_id: sb-test-226
+# vcs: none
+repos: []
+' > "$TMP/ws/old/.pre-commit-config.yaml"  # Mission 226: a project carries its birth certificate (repository-root guard)
 cat > "$TMP/ws/old/state/PILOT-PROMPT.md" <<'EOF'
 ---
 type: pilot-prompt
@@ -97,6 +102,11 @@ Généré par `tools/project-bootstrap.sh`. Ne pas éditer à la main : le promp
 EOF
 # Current format (the warehouse's): the old server name by identity.
 mkdir -p "$TMP/ws/new/state"
+printf '# second-brain-birth-certificate: v1
+# vault_id: sb-test-226
+# vcs: none
+repos: []
+' > "$TMP/ws/new/.pre-commit-config.yaml"  # Mission 226: a project carries its birth certificate (repository-root guard)
 cat > "$TMP/ws/new/state/PILOT-PROMPT.md" <<'EOF'
 ---
 type: pilot-prompt

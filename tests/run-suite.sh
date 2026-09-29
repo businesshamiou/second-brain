@@ -3,7 +3,7 @@
 # participant's machine, on the Executor's and in CI (Mission 188). CI calls
 # this runner (tests/run-suite.ps1 on Windows) instead of listing tests.
 #
-# usage: bash tests/run-suite.sh [--manifest <file>] [--platform W|U|M] [--shard k/n] [--changed [<ref>]] [--list]
+# usage: bash tests/run-suite.sh [--manifest <file>] [--platform W|U|M] [--shard k/n] [--changed [<ref>]] [--list] [--on-demand]
 #
 # --shard k/n (Mission 189) plays only the lines whose shard column is k;
 # it refuses when the manifest's highest shard for this platform is not n,
@@ -18,10 +18,14 @@
 #   - its path or its origin column contains, case-insensitively, the name
 #     without extension of a changed file under tools/, tests/ or .githooks/
 #     (generated index files excepted: they name no test), or
-#   - tests/suite.tsv, tests/run-suite.sh or tests/run-suite.ps1 changed: the
-#     tool that tests is itself touched, so the whole suite is selected.
-# It combines with --shard as an intersection. A file no test names selects
-# nothing: the runner says so, it never plays the whole suite to be safe. The
+#   (a change to tests/suite.tsv, tests/run-suite.sh or tests/run-suite.ps1 is
+#   an ordinary change: it selects the lines whose path or origin carries the
+#   name of the file -- `suite`, `run-suite` -- and the lines it adds.)
+# --changed NEVER selects the whole suite: the whole suite is played explicitly
+# (without --changed), when a Mission prescribes it (Decision 170838); the workstation plays what
+# the change touches. It combines with --shard as an intersection. A file no
+# test names selects nothing: the runner says so, it never plays the whole
+# suite to be safe. The
 # selection is announced on standard error before anything is played.
 # Without --changed the behaviour is unchanged.
 #
@@ -29,7 +33,11 @@
 # with one verdict line per test, then
 #   RESULT: <pass>/<total> PASS (<skip> SKIP, <n> FAIL blocking, <m> FAIL informational)
 # Exit code: 1 if a blocking line is red, 0 otherwise. A test exiting 77
-# reports SKIP. Portable to Apple's bash 3.2 (no bash-4 construct).
+# reports SKIP. Mission 237: every SKIP is then named under the RESULT line,
+# with its reason (the test's last line that says SKIP, else its last line);
+# a platform letter followed by `!` in the platforms column (`W!UM`) marks the
+# test REQUIRED there: its SKIP on that platform is a blocking FAIL.
+# Portable to Apple's bash 3.2 (no bash-4 construct).
 
 set -u
 
@@ -38,6 +46,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 MANIFEST="$REPO_ROOT/tests/suite.tsv"
 PLATFORM="${SB_SUITE_PLATFORM:-}"
 LIST_ONLY=0
+ON_DEMAND=0
 SHARD=""
 CHANGED=0
 CHANGED_REF=""
@@ -47,6 +56,7 @@ while [ $# -gt 0 ]; do
     --manifest) MANIFEST="$2"; shift 2 ;;
     --platform) PLATFORM="$2"; shift 2 ;;
     --list) LIST_ONLY=1; shift ;;
+    --on-demand) ON_DEMAND=1; shift ;;
     --shard) SHARD="$2"; shift 2 ;;
     --changed)
       CHANGED=1
@@ -55,7 +65,7 @@ while [ $# -gt 0 ]; do
         ''|--*) shift ;;
         *) CHANGED_REF="$2"; shift 2 ;;
       esac ;;
-    *) echo "usage: bash tests/run-suite.sh [--manifest <file>] [--platform W|U|M] [--shard k/n] [--changed [<ref>]] [--list]" >&2; exit 2 ;;
+    *) echo "usage: bash tests/run-suite.sh [--manifest <file>] [--platform W|U|M] [--shard k/n] [--changed [<ref>]] [--list] [--on-demand]" >&2; exit 2 ;;
   esac
 done
 
@@ -84,6 +94,17 @@ fi
 
 cd "$REPO_ROOT" || exit 2
 
+# Declared temporary folder (Mission 234): every test this runner plays writes
+# its throwaway files under <SB_TMP>/tests -- TMPDIR for mktemp and Python,
+# TEMP/TMP for the PowerShell tests on Windows, SB_TMP for the access function.
+# A manifest played from another checkout (the fixture repositories of
+# tests/test-run-suite-changed.sh) may carry no tools/lib: the tests then keep
+# the TMPDIR they were given.
+if [ -f "$REPO_ROOT/tools/lib/tmp.sh" ]; then
+  . "$REPO_ROOT/tools/lib/tmp.sh"
+  sb_tmp_export tests || exit 2
+fi
+
 # The two helpers below keep PATH changes inside the line that needs them,
 # exactly as the former CI steps did: only the guardians and the uv-run test
 # ever saw uv prepended.
@@ -111,7 +132,6 @@ run_line() {
 GUARDIANS="tools/session-preflight.sh .githooks/pre-commit"
 CHANGED_FILES=""
 CHANGED_BASES=""
-SELECT_ALL=0
 
 if [ "$CHANGED" -eq 1 ]; then
   git -C "$REPO_ROOT" rev-parse --git-dir >/dev/null 2>&1 \
@@ -131,9 +151,6 @@ if [ "$CHANGED" -eq 1 ]; then
   while IFS= read -r f; do
     [ -z "$f" ] && continue
     case "$f" in
-      tests/suite.tsv|tests/run-suite.sh|tests/run-suite.ps1) SELECT_ALL=1 ;;
-    esac
-    case "$f" in
       tools/*|tests/*|.githooks/*)
         b="${f##*/}"
         b="${b%.*}"
@@ -146,6 +163,18 @@ $CHANGED_FILES
 EOF
 fi
 
+# on_demand_skips <severity> (Mission 234): a line of severity on-demand is
+# played only with --on-demand, and --on-demand plays those lines alone --
+# never by default, never by CI (the headless agent evaluations call a model).
+on_demand_skips() {
+  if [ "$1" = "on-demand" ]; then
+    [ "$ON_DEMAND" -eq 1 ] && return 1
+    return 0
+  fi
+  [ "$ON_DEMAND" -eq 1 ] && return 0
+  return 1
+}
+
 is_guardian() {
   local g
   for g in $GUARDIANS; do [ "$1" = "$g" ] && return 0; done
@@ -155,7 +184,6 @@ is_guardian() {
 # changed_selects <path> <origin>: 0 when the line is called for by the change.
 changed_selects() {
   local p="$1" o="$2" lc b
-  [ "$SELECT_ALL" -eq 1 ] && return 0
   is_guardian "$p" && return 0
   case "
 $CHANGED_FILES
@@ -176,6 +204,10 @@ TAB="$(printf '\t')"
 TOTAL=0
 PASSED=0
 SKIPPED=0
+SKIP_LINES=""
+# The output of the line being played, kept to name the reason of a SKIP.
+LINE_LOG="$(mktemp "${TMPDIR:-/tmp}/sb-suite-line-XXXXXX")"
+trap 'rm -f "$LINE_LOG"' EXIT
 FAIL_BLOCKING=0
 FAIL_INFO=0
 VERDICTS=""
@@ -190,6 +222,7 @@ if [ "$CHANGED" -eq 1 ]; then
     case "$path" in ''|'#'*) continue ;; esac
     case "$platforms" in *"$PLATFORM"*) ;; *) continue ;; esac
     [ -n "$SHARD_K" ] && [ "${shard:-}" != "$SHARD_K" ] && continue
+    on_demand_skips "$severity" && continue
     SEL_M=$((SEL_M + 1))
     if changed_selects "$path" "$origin"; then
       SEL_N=$((SEL_N + 1))
@@ -197,9 +230,7 @@ if [ "$CHANGED" -eq 1 ]; then
     fi
   done 4< "$MANIFEST"
   echo "--changed : $SEL_N ligne(s) selectionnee(s) sur $SEL_M (ref $CHANGED_REF)" >&2
-  if [ "$SELECT_ALL" -eq 1 ]; then
-    echo "--changed : le lanceur ou le manifeste a change : toute la suite est selectionnee" >&2
-  elif [ "$SEL_TESTS" -eq 0 ]; then
+  if [ "$SEL_TESTS" -eq 0 ]; then
     echo "--changed : aucun test ne nomme les fichiers changes ; seuls les gardiens jouent" >&2
   fi
 fi
@@ -208,6 +239,7 @@ while IFS="$TAB" read -r path args interp platforms severity origin shard <&3; d
   case "$path" in ''|'#'*) continue ;; esac
   case "$platforms" in *"$PLATFORM"*) ;; *) continue ;; esac
   [ -n "$SHARD_K" ] && [ "${shard:-}" != "$SHARD_K" ] && continue
+  on_demand_skips "$severity" && continue
   if [ "$CHANGED" -eq 1 ]; then changed_selects "$path" "$origin" || continue; fi
   [ "$args" = "-" ] && args=""
   TOTAL=$((TOTAL + 1))
@@ -224,17 +256,39 @@ while IFS="$TAB" read -r path args interp platforms severity origin shard <&3; d
   echo "    $origin"
   start="$(date +%s)"
   # shellcheck disable=SC2086 -- args is a plain word list from the manifest
-  run_line "$path" "$interp" $args < /dev/null
-  rc=$?
+  run_line "$path" "$interp" $args < /dev/null 2>&1 | tee "$LINE_LOG"
+  rc=${PIPESTATUS[0]}
   secs=$(( $(date +%s) - start ))
   [ "$IN_CI" -eq 1 ] && echo "::endgroup::"
   if [ "$rc" -eq 0 ]; then
     verdict=PASS
     PASSED=$((PASSED + 1))
   elif [ "$rc" -eq 77 ]; then
-    verdict=SKIP
-    SKIPPED=$((SKIPPED + 1))
-  elif [ "$severity" = "informational" ]; then
+    reason="$(tr -d '\r' < "$LINE_LOG" | grep -i 'skip' | grep -v '^--- ' | tail -n 1)"
+    [ -n "$reason" ] || reason="$(tr -d '\r' < "$LINE_LOG" | sed '/^[[:space:]]*$/d' | tail -n 1)"
+    reason="$(printf '%s' "$reason" | sed 's/^[[:space:]]*//' | cut -c1-200)"
+    # The requirement is enforced on a workstation; the CI runners carry
+    # neither gum pinned nor tui-test (the gum test downloads nothing), so in
+    # CI a required SKIP stays a SKIP, named as such.
+    req="$platforms"
+    [ "$IN_CI" -eq 1 ] && req=""
+    case "$platforms" in
+      *"$PLATFORM!"*) [ -z "$req" ] && reason="$reason (required on $PLATFORM, not enforced in CI)" ;;
+    esac
+    case "$req" in
+      *"$PLATFORM!"*)
+        verdict="FAIL (required, skipped)"
+        FAIL_BLOCKING=$((FAIL_BLOCKING + 1))
+        SKIP_LINES="${SKIP_LINES}SKIP (required on $PLATFORM, counted FAIL): $label -- $reason
+"
+        [ "$IN_CI" -eq 1 ] && echo "::error::$label is required on $PLATFORM and skipped" ;;
+      *)
+        verdict=SKIP
+        SKIPPED=$((SKIPPED + 1))
+        SKIP_LINES="${SKIP_LINES}SKIP: $label -- $reason
+" ;;
+    esac
+  elif [ "$severity" = "informational" ] || [ "$severity" = "on-demand" ]; then
     verdict="FAIL (informational)"
     FAIL_INFO=$((FAIL_INFO + 1))
   else
@@ -253,6 +307,7 @@ echo ""
 echo "=== SUITE ($PLATFORM${SHARD:+, shard $SHARD}, $(basename "$MANIFEST")) ==="
 printf '%s' "$VERDICTS"
 echo "RESULT: $PASSED/$TOTAL PASS ($SKIPPED SKIP, $FAIL_BLOCKING FAIL blocking, $FAIL_INFO FAIL informational)"
+[ -n "$SKIP_LINES" ] && printf '%s' "$SKIP_LINES"
 if [ "$TOTAL" -eq 0 ]; then
   echo "REFUS : no line for platform $PLATFORM in $MANIFEST"
   exit 1

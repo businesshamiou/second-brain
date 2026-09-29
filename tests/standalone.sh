@@ -4,7 +4,7 @@
 # install itself, commit while passing its guardians, and tidy up.
 #
 # usage: tests/standalone.sh [<working folder>]
-#   default: the system's temporary folder (mktemp -d), never an assumed
+#   default: under the declared temporary folder (tools/lib/tmp.sh), never an assumed
 #   sibling of the Vault (ticket 02, Mission 168: no more dependency on the
 #   geometry of the old workshop in the tests).
 #
@@ -14,7 +14,16 @@
 set -u
 
 VAULT_SRC="$(cd "$(dirname "$0")/.." && pwd)"
-WORKDIR="${1:-$(mktemp -d -t standalone-142-XXXXXX)}"
+# Mission 234: the default working folder is under the declared temporary
+# folder and is removed on exit (it used to be left behind: 28 leftovers,
+# report 233 §5); a folder given by the caller is the caller's to remove.
+. "$VAULT_SRC/tools/lib/tmp.sh"
+if [ -n "${1:-}" ]; then
+  WORKDIR="$1"
+else
+  WORKDIR="$(mktemp -d "$(sb_tmp_dir tests)/standalone-142-XXXXXX")" || exit 1
+  trap '[ -n "${KEEP_TMP:-}" ] || rm -rf "$WORKDIR"' EXIT
+fi
 mkdir -p "$WORKDIR" || exit 1
 WORKDIR="$(cd "$WORKDIR" && pwd)"
 LOG="$WORKDIR/standalone.log"

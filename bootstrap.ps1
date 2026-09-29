@@ -31,7 +31,7 @@
     Nothing here asks for elevation: no RunAs, no HKLM, no Program Files.
 
     Published line (INSTALL.md):
-        powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.9/bootstrap.ps1)))"
+        powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.15/bootstrap.ps1)))"
 
     Usage (all parameters optional):
         bootstrap.ps1 [-Ref <tag-or-branch>] [-RepoUrl <url-or-path>]
@@ -49,7 +49,7 @@
 
 [CmdletBinding()]
 param(
-    [string] $Ref = 'v0.1.9',
+    [string] $Ref = 'v0.1.15',
     [string] $RepoUrl = 'https://github.com/businesshamiou/second-brain.git',
     [string] $RawBase = '',
     [string] $Target = '',
@@ -108,7 +108,11 @@ try {
     }
     $profileRoot = if ($TestMode) { Join-Path $TestRoot 'profile' } else { $env:USERPROFILE }
     if ([string]::IsNullOrWhiteSpace($Target)) {
-        $Target = if ($TestMode) { Join-Path $TestRoot 'second-brain-install' } else { Join-Path $env:TEMP 'second-brain-install' }
+        # Declared temporary folder (Mission 234): this script runs before any
+        # Vault is on the machine and cannot load tools\lib\tmp.ps1; it applies
+        # the same rule inline -- SB_TMP, else <system temporary folder>\second-brain.
+        $sbTmp = if ($env:SB_TMP) { $env:SB_TMP } else { Join-Path $env:TEMP 'second-brain' }
+        $Target = if ($TestMode) { Join-Path $TestRoot 'second-brain-install' } else { Join-Path $sbTmp 'second-brain-install' }
     }
 
     # --- 1. the pinned Git asset, read from the same origin as this script ---

@@ -48,6 +48,7 @@
 #      --check found the on-disk file stale.
 
 set -u
+. "$(cd "$(dirname "$0")" && pwd)/lib/tmp.sh"  # declared temporary folder (Mission 234)
 
 VAULT_ROOT="$(git rev-parse --show-toplevel)" || {
   echo "REFUS : hors d'un depot Git : script non executable." >&2
@@ -168,7 +169,7 @@ if [ -z "$COLLECTIONS" ]; then
   exit 1
 fi
 
-TMP_OUT="$(mktemp)"
+TMP_OUT="$(mktemp "$(sb_tmp_dir tools)/third-party-XXXXXX")"
 trap 'rm -f "$TMP_OUT"' EXIT
 
 {

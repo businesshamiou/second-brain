@@ -31,6 +31,12 @@ Archive figée : les entrées de cette tranche n'en changent jamais. L'index cou
 - `2026-09-07-125156` · active · Decision — Machine dependencies before cutover: seven Owner arbitrations on rep… · `DECISION-2026-09-07-125156-cutover-dependencies-seven-arbitrations.md`
 - `2026-09-17-000545` · arbitrated · Project initiation and adoption — birth certificate, resolution of the Vault by… · `DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md`
 - `2026-09-17-201623` · arbitrated · Relay and delegation — one rule, one place: push is delegated by a clear expres… · `DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md`
+- `2026-09-23-012458` · arbitrated · State sheet — one name, generated, created at birth: STATE.md carries the contr… · `DECISION-2026-09-23-012458-state-sheet-one-name-generated-state-path.md`
+- `2026-09-23-012459` · arbitrated · Language — recorded once in USER.md, rendered in each Pilot prompt, and a fixed… · `DECISION-2026-09-23-012459-owner-language-recorded-rendered-fixed-sentence.md`
+- `2026-09-23-012500` · arbitrated · Two relay modes — the Mission, and the Owner's prompt executed without a Missio… · `DECISION-2026-09-23-012500-two-relay-modes-owner-prompt-traced-by-note.md`
+- `2026-09-23-105507` · arbitrated · The Owner's go-ahead on a full-regime criterion is quoted word for word in the… · `DECISION-2026-09-23-105507-owner-greenlight-in-note-and-local-language-file.md`
+- `2026-09-23-232720` · arbitrated · The assistant reads the documentation map first and runs on the lightest model… · `DECISION-2026-09-23-232720-assistant-reads-documentation-map-first-lightest-model.md`
+- `2026-09-27-213059` · arbitrated · The starting interview: a living Owner profile under a fixed heading of USER.md… · `DECISION-2026-09-27-213059-starting-interview-owner-and-project-profiles.md`
 
 ## Liens
 

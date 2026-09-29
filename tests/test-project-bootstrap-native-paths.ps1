@@ -81,6 +81,11 @@ try {
 
     $project = Join-Path $workspace 'projet'
     $projectPosix = To-Posix $project
+    # Mission 219 (A6, door open-193): the sandbox copies the laboratory's own
+    # project sheets, so "the first PROJECT-*.md" was someone else's. The
+    # sheet under test is the one this create adds: listed before and after.
+    $sheetsBefore = @(Get-ChildItem -Path (Join-Path $vault 'projects') -Filter 'PROJECT-*.md' -File |
+                      Where-Object { $_.Name -ne 'PROJECT-REGISTRY.md' } | ForEach-Object { $_.Name })
     $ErrorActionPreference = 'Continue'
     $output = & $bashExe -c ". '$sandbox'; sandbox_find_uv; bash '$vaultPosix/tools/project-bootstrap.sh' create '$projectPosix' 'Projet' --vcs none < /dev/null" 2>&1 | ForEach-Object { "$_" }
     $rc = $LASTEXITCODE
@@ -90,9 +95,9 @@ try {
 
     $pilotPrompt = Join-Path $project 'state\PILOT-PROMPT.md'
     $fiche = @(Get-ChildItem -Path (Join-Path $vault 'projects') -Filter 'PROJECT-*.md' -File |
-               Where-Object { $_.Name -ne 'PROJECT-REGISTRY.md' } | Select-Object -First 1)
+               Where-Object { $_.Name -ne 'PROJECT-REGISTRY.md' -and $sheetsBefore -notcontains $_.Name })
     Assert-True (Test-Path $pilotPrompt) "state\PILOT-PROMPT.md existe"
-    Assert-True ($fiche.Count -eq 1) "la fiche de projet existe"
+    Assert-True ($fiche.Count -eq 1) "la fiche creee par ce create existe, et elle seule ($($fiche.Count) nouvelle(s), $($sheetsBefore.Count) copiee(s) du laboratoire)"
 
     # The expected native form, as Windows writes it.
     $nativeProject = (Resolve-Path $project).Path

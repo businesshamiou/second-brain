@@ -115,6 +115,9 @@ function Copy-ToolCapTestClone {
     param([Parameter(Mandatory = $true)][string] $TestRoot)
     New-Item -ItemType Directory -Force -Path (Join-Path $TestRoot 'assistant') | Out-Null
     Copy-Item -Path (Join-Path $RepoRoot 'assistant\ASSISTANT.md') -Destination (Join-Path $TestRoot 'assistant\ASSISTANT.md') -Force
+    # Mission 222: the generators append the documentation map and refuse a clone without it.
+    New-Item -ItemType Directory -Force -Path (Split-Path (Join-Path $TestRoot $Script:AssistantMapSource) -Parent) | Out-Null
+    Copy-Item -Path (Join-Path $RepoRoot $Script:AssistantMapSource) -Destination (Join-Path $TestRoot $Script:AssistantMapSource) -Force
     foreach ($knowledgeFile in $Script:WebPackageKnowledgeFiles) {
         foreach ($sourceRelativePath in $knowledgeFile.SourcePaths) {
             $src = Join-Path $RepoRoot $sourceRelativePath

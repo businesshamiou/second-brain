@@ -57,7 +57,7 @@
     from assistant/ASSISTANT.md via -Encoding UTF8, so no byte-order mark
     is needed here). Frontmatter `description` fields and the web
     package's own README are in English on purpose, mirroring this
-    repository's own skills (e.g. skills/ecriture-de-mission/SKILL.md's
+    repository's own skills (e.g. skills/mission-writing/SKILL.md's
     English description over a French body) -- machine-facing trigger text
     and a short technical usage note, not the assistant's own voice.
 
@@ -228,6 +228,10 @@ $Script:WebPackageKnowledgeFiles = @(
     }
 )
 
+# The documentation map appended to the assistant's body (Mission 222,
+# Decision 232720); tests that build a minimal clone copy it too.
+$Script:AssistantMapSource = 'docs\MAP.md'
+
 function ConvertTo-AssistantSlug {
     # Lowercase, no accents, no spaces (T07 complement: "un identifiant de
     # fichier derive, minuscules, sans accents ni espaces" ["a derived file
@@ -292,7 +296,24 @@ function Get-AssistantIdentityBody {
     }
     $bodyStart = $startIndex + $startMarker.Length
     $body = $raw.Substring($bodyStart, $endIndex - $bodyStart)
-    return $body.Trim() + "`n"
+    # Mission 222 (Decision 232720): the documentation map -- the block
+    # between the doc-map markers of docs/MAP.md -- is appended to the body,
+    # so all three forms carry it and the assistant reads it without a tool
+    # call. Fail-closed: a clone without the map, or a map without its
+    # markers, is refused rather than generating an assistant that searches
+    # blind.
+    $mapPath = Join-Path $ClonePath $Script:AssistantMapSource
+    if (-not (Test-Path $mapPath)) {
+        throw "Documentation map not found: $mapPath"
+    }
+    $mapRaw = (Get-Content -Raw -Path $mapPath -Encoding UTF8) -replace "`r`n", "`n"
+    $mapStart = $mapRaw.IndexOf('<!-- doc-map:start -->')
+    $mapEnd = $mapRaw.IndexOf('<!-- doc-map:end -->')
+    if ($mapStart -lt 0 -or $mapEnd -le $mapStart) {
+        throw "Documentation map is missing its doc-map markers: $mapPath"
+    }
+    $map = $mapRaw.Substring($mapStart + '<!-- doc-map:start -->'.Length, $mapEnd - $mapStart - '<!-- doc-map:start -->'.Length)
+    return $body.Trim() + "`n`n" + $map.Trim() + "`n"
 }
 
 function Get-WebPackageKnowledgeFileContent {
@@ -525,6 +546,10 @@ function New-ClaudeCodeSubagentContent {
         "name: $Slug"
         "description: `"$description`""
         'tools: Read, Glob, Grep'
+        # The lightest model the Claude Code subagent format admits (`haiku`;
+        # Mission 222, Decision 232720): the assistant answers from the page
+        # its map names, a reading task.
+        'model: haiku'
         '---'
         ''
         $Body.TrimEnd()

@@ -60,24 +60,30 @@ fi
 # touched is never judged; a file engraved then touched is judged in full
 # (TOUCHED, complete content read further down); the baseline file
 # itself is only a list of fingerprints and names, never content.
+#
+# Mission 218, lot 6: one pass. The list goes once through pb_classify, which
+# reads the baseline once and fingerprints every file in one process; the old
+# loop re-read the whole baseline per file, three times (pb_untouched, then
+# pb_touched, which calls it again). Same verdicts, byte for byte
+# (tests/test-folder-guardians-one-pass.sh). Progress lines go to stderr,
+# prefixed `progress:`, in folder mode only.
 pb_load "$PROJECT_ROOT"
 TOUCHED=""
+if [ "$DIR_MODE" = "1" ]; then
+  echo "progress: check-secrets: $(printf '%s\n' "$STAGED" | grep -c . ) file(s) listed in $PROJECT_ROOT${PB_FILE:+, baseline $PB_NAME read once}" >&2
+fi
 if [ -n "$PB_NAME" ] && [ -n "$STAGED" ]; then
-  KEPT=""
-  while IFS= read -r f; do
-    [ -z "$f" ] && continue
-    pb_is_baseline_file "$f" && continue
-    if [ -n "$PB_FILE" ]; then
-      pb_untouched "$f" && continue
-      pb_touched "$f" && TOUCHED="${TOUCHED}${TOUCHED:+
-}$f"
-    fi
-    KEPT="${KEPT}${KEPT:+
-}$f"
-  done <<PB_EOF
-$STAGED
-PB_EOF
-  STAGED="$KEPT"
+  CLASSIFIED="$(printf '%s\n' "$STAGED" | pb_classify "$PROJECT_ROOT")" || {
+    echo "REFUS : ligne de base illisible, le controle ne peut pas verifier." >&2
+    exit 1
+  }
+  STAGED="$(printf '%s\n' "$CLASSIFIED" | awk -F'\t' '$1 == "N" || $1 == "T" { print substr($0, 3) }')"
+  if [ -n "$PB_FILE" ]; then
+    TOUCHED="$(printf '%s\n' "$CLASSIFIED" | awk -F'\t' '$1 == "T" { print substr($0, 3) }')"
+  fi
+  if [ "$DIR_MODE" = "1" ]; then
+    echo "progress: check-secrets: $(printf '%s\n' "$STAGED" | grep -c . ) file(s) to judge after the baseline" >&2
+  fi
 fi
 
 if [ -n "$STAGED" ]; then
@@ -86,7 +92,9 @@ if [ -n "$STAGED" ]; then
   BAD_NAMES="$(printf '%s\n' "$BAD_NAMES" | grep -v '\.env\.example$' || true)"
   if [ -n "$BAD_NAMES" ]; then
     echo "REFUS : fichier(s) au nom interdit dans le staging :" >&2
-    printf '  %s\n' $BAD_NAMES >&2
+    # One name per line, whole: unquoted, a name with spaces came out cut
+    # (Mission 219, A7).
+    printf '%s\n' "$BAD_NAMES" | sed 's/^/  /' >&2
     exit 1
   fi
 fi
@@ -94,15 +102,18 @@ fi
 # --- 2. Patterns in the added lines ---
 # full_content FILE...: entire content of text files (a binary
 # file -- null byte in its beginning -- is never read as text).
+# Mission 218, lot 6: one process for all the files (pb_text), where the loop
+# launched head, tr, cmp, head and sed per file. Same bytes.
+# staged_diff_batch: NUL-separated paths on stdin, their staged added lines by
+# batch (Mission 218, lot 6). One function so the xargs line carries its
+# portability note (Mission 219): -0 is in BSD and GNU xargs, and every `--`
+# option on that line is git's, not xargs's.
+staged_diff_batch() {
+  (cd "$PROJECT_ROOT" && GIT_LITERAL_PATHSPECS=1 xargs -0 git diff --cached -U0 --diff-filter=ACM --)  # portability: -0 is BSD and GNU; the -- options are git's
+}
+
 full_content() {
-  local f
-  while IFS= read -r f; do
-    [ -z "$f" ] && continue
-    [ -f "$PROJECT_ROOT/$f" ] || continue
-    if head -c 8000 "$PROJECT_ROOT/$f" | tr -d '\000' | cmp -s - <(head -c 8000 "$PROJECT_ROOT/$f"); then
-      sed 's/^/+/' "$PROJECT_ROOT/$f"
-    fi
-  done
+  pb_text "$PROJECT_ROOT"
 }
 
 if [ "$DIR_MODE" = "1" ]; then
@@ -112,10 +123,11 @@ elif [ -n "$PB_NAME" ]; then
   # entire content of the files engraved then touched (ratchet).
   ADDED=""
   if [ -n "$STAGED" ]; then
-    ADDED="$(printf '%s\n' "$STAGED" | while IFS= read -r f; do
-      [ -z "$f" ] && continue
-      (cd "$PROJECT_ROOT" && GIT_LITERAL_PATHSPECS=1 git diff --cached -U0 --diff-filter=ACM -- "$f")
-    done | grep -E '^\+' | grep -Ev '^\+\+\+' || true)"
+    # Mission 218, lot 6: the retained files by batch (xargs), not one `git
+    # diff` per file; git prints them in the same path order, and only the
+    # added lines are kept -- the same lines.
+    ADDED="$(printf '%s\n' "$STAGED" | tr '\n' '\0' | staged_diff_batch \
+      | grep -E '^\+' | grep -Ev '^\+\+\+' || true)"
   fi
   if [ -n "$TOUCHED" ]; then
     ADDED="${ADDED}

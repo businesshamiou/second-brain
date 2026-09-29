@@ -93,7 +93,7 @@ if [ "$FM_ONLY" -eq 1 ]; then
   FILES="$(find "$ROOT" -type f -name '*.md' | grep -vE "$EXCLUDE_RE")"
   if [ -n "$FILES" ]; then
     printf '%s\n' "$FILES" | tr '\n' '\0' | xargs -0 awk -v pat="$PATTERN" '
-      FNR==1 { infm=0 }
+      FNR==1 { infm=0; sub(/^\357\273\277/, "") }
       FNR==1 && $0=="---" { infm=1; next }
       infm && $0=="---" { infm=0; next }
       infm && $0 ~ pat { print FILENAME ":" FNR ":" $0 }

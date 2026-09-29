@@ -1,0 +1,181 @@
+# Native commands of the agent tools, measured 2026-09-26 (Mission 236) -- the list the sb names are checked against
+# (tests/test-sb-command.sh). Columns, tab-separated: surface, command, source. Refresh it by a Mission when a tool adds commands.
+# Executables named sb: none on Windows 11 (where.exe), Debian (sources.debian.org, no exact package), Homebrew (no formula nor cask);
+# npm package `sb` = the Storybook command-line alias, on the PATH only after an explicit `npm install -g sb`.
+claude-code	/add-dir	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/advisor	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/agents	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/app	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/artifacts	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/auto-mode-setup	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/autocompact	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/autofix-pr	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/background	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/batch	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/bg	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/branch	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/btw	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/bug	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/cd	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/checkup	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/chrome	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/claude-api	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/clear	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/code-review	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/color	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/compact	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/config	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/context	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/copy	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/cost	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/dataviz	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/debug	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/deep-research	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/design	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/design-login	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/design-sync	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/desktop	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/diff	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/doctor	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/effort	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/exit	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/export	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/fast	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/feedback	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/fewer-permission-prompts	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/focus	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/fork	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/goal	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/heapdump	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/help	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/hooks	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/ide	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/import	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/init	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/insights	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/install-github-app	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/install-slack-app	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/keybindings	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/list-agents	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/login	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/logout	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/loop	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/mcp	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/memory	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/mobile	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/model	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/new	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/output-style	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/passes	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/peers	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/permissions	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/plan	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/plugin	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/proactive	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/quit	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/reload-plugins	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/reload-skills	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/reset	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/review	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/rewind	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/run	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/run-skill-generator	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/security-review	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/settings	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/share	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/skills	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/status	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+claude-code	/verify	https://code.claude.com/docs/en/commands ; https://code.claude.com/docs/en/slash-commands
+codex-cli	/agent	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/app	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/approvals	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/approve	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/apps	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/archive	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/btw	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/clear	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/compact	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/copy	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/debug-config	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/delete	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/diff	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/exit	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/experimental	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/fast	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/feedback	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/fork	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/goal	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/hooks	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/ide	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/import	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/init	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/keymap	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/logout	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/mcp	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/memories	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/mention	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/model	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/new	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/permissions	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/personality	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/pet	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/pets	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/plan	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/plugins	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/ps	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/quit	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/raw	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/rename	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/resume	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/review	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/sandbox-add-read-dir	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/setup-default-sandbox	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/side	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/skills	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/status	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/statusline	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/stop	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/subagents	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/theme	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/title	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/usage	https://learn.chatgpt.com/docs/cli/slash-commands
+codex-cli	/vim	https://learn.chatgpt.com/docs/cli/slash-commands
+gemini-cli	/about	https://geminicli.com/docs/reference/commands
+gemini-cli	/agents	https://geminicli.com/docs/reference/commands
+gemini-cli	/auth	https://geminicli.com/docs/reference/commands
+gemini-cli	/bug	https://geminicli.com/docs/reference/commands
+gemini-cli	/chat	https://geminicli.com/docs/reference/commands
+gemini-cli	/clear	https://geminicli.com/docs/reference/commands
+gemini-cli	/commands	https://geminicli.com/docs/reference/commands
+gemini-cli	/compress	https://geminicli.com/docs/reference/commands
+gemini-cli	/copy	https://geminicli.com/docs/reference/commands
+gemini-cli	/directory	https://geminicli.com/docs/reference/commands
+gemini-cli	/docs	https://geminicli.com/docs/reference/commands
+gemini-cli	/editor	https://geminicli.com/docs/reference/commands
+gemini-cli	/extensions	https://geminicli.com/docs/reference/commands
+gemini-cli	/help	https://geminicli.com/docs/reference/commands
+gemini-cli	/hooks	https://geminicli.com/docs/reference/commands
+gemini-cli	/ide	https://geminicli.com/docs/reference/commands
+gemini-cli	/init	https://geminicli.com/docs/reference/commands
+gemini-cli	/mcp	https://geminicli.com/docs/reference/commands
+gemini-cli	/memory	https://geminicli.com/docs/reference/commands
+gemini-cli	/model	https://geminicli.com/docs/reference/commands
+gemini-cli	/permissions	https://geminicli.com/docs/reference/commands
+gemini-cli	/plan	https://geminicli.com/docs/reference/commands
+gemini-cli	/policies	https://geminicli.com/docs/reference/commands
+gemini-cli	/privacy	https://geminicli.com/docs/reference/commands
+gemini-cli	/quit	https://geminicli.com/docs/reference/commands
+gemini-cli	/restore	https://geminicli.com/docs/reference/commands
+gemini-cli	/resume	https://geminicli.com/docs/reference/commands
+gemini-cli	/rewind	https://geminicli.com/docs/reference/commands
+gemini-cli	/settings	https://geminicli.com/docs/reference/commands
+gemini-cli	/setup-github	https://geminicli.com/docs/reference/commands
+gemini-cli	/shells	https://geminicli.com/docs/reference/commands
+gemini-cli	/skills	https://geminicli.com/docs/reference/commands
+gemini-cli	/stats	https://geminicli.com/docs/reference/commands
+gemini-cli	/terminal-setup	https://geminicli.com/docs/reference/commands
+gemini-cli	/theme	https://geminicli.com/docs/reference/commands
+gemini-cli	/tools	https://geminicli.com/docs/reference/commands
+gemini-cli	/upgrade	https://geminicli.com/docs/reference/commands
+gemini-cli	/vim	https://geminicli.com/docs/reference/commands
+npm	sb	https://registry.npmjs.org/sb/latest (Storybook CLI alias)

@@ -69,6 +69,9 @@ run_workspace_case() {
 }
 
 echo "=== 1. Relative path: refused, then a valid absolute path is accepted ==="
+# Mission 234: every test root is removed even when the script stops early.
+TEST_ROOT_1=""; TEST_ROOT_2=""; TEST_ROOT_3=""; TEST_ROOT_4=""
+trap 'rm -rf -- ${TEST_ROOT_1:+"$TEST_ROOT_1"} ${TEST_ROOT_2:+"$TEST_ROOT_2"} ${TEST_ROOT_3:+"$TEST_ROOT_3"} ${TEST_ROOT_4:+"$TEST_ROOT_4"}' EXIT
 TEST_ROOT_1="$(mktemp -d "${TMPDIR:-/tmp}/sb-wksp-XXXXXX")"
 run_workspace_case "$TEST_ROOT_1" "EN" "TestBrian" "relative/path" "$TEST_ROOT_1/workspace"
 echo "$OUTPUT" | sed 's/^/  /'

@@ -1,0 +1,9 @@
+{
+  "name": "sb",
+  "description": "The sb command of Second Brain: /sb:<verb> runs `sb <verb>` and applies its card. One operation, one verb.",
+  "version": "0.1.15",
+  "author": {
+    "name": "Second Brain"
+  },
+  "license": "MIT"
+}

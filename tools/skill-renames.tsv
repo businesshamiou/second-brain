@@ -1,0 +1,7 @@
+# Renamed skills (Mission 237): old name, new name, Mission of the rename -- tab-separated.
+# Read by tools/sb_installer_helper.py relink-renamed: a project's link to a skill under
+# its old name, now pointing nowhere, is replaced by the link under its new name
+# (second-brain-update.sh, project-bootstrap.sh adopt, sb doctor). Never edited by hand
+# outside a Mission that renames a skill.
+ecriture-de-mission	mission-writing	236
+recherche-interne	internal-search	236

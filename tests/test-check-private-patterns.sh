@@ -35,9 +35,14 @@
 #      mode on its own source lines, never on anyone else's leak. This case
 #      pins the fix: full mode must also pass on a tree containing only the
 #      checker.
+#   6. google-key (Mission 221) -- a Google API key shape (the prefix and
+#      35 characters) in a tracked file is refused by --tree-only, the file
+#      named and the key masked in the output.
+#   7. google-key-witness (Mission 221) -- the prefix followed by too few
+#      characters is not refused.
 #
 # usage: tests/test-check-private-patterns.sh
-# output: "PASS: 5/5 cas conformes" (exit 0) or "FAIL: <n> cas non
+# output: "PASS: 7/7 cas conformes" (exit 0) or "FAIL: <n> cas non
 # conformes" (exit 1), same convention as test-check-links-cross-repo.sh.
 
 set -u
@@ -153,8 +158,42 @@ else
   FAILURES=$((FAILURES + 1))
 fi
 
+# --- 6. a Google API key shape (Mission 221, door open-0922) -----------------
+# The fake key is assembled at run time: no tracked file of this repository
+# carries the full shape, which the secrets guardian would refuse at commit.
+# The refusal names file and line and masks the key, never prints it.
+GKEY_PREFIX="AI"
+GKEY="${GKEY_PREFIX}za0123456789abcdefghijklmnopqrstuvwxy"
+REPO_6="$(make_repo "$TMP/case-6")"
+mkdir -p "$REPO_6/notes"
+printf 'cle : %s\n' "$GKEY" > "$REPO_6/notes/key.md"
+commit_all "$REPO_6" "google-shaped key"
+OUT_6="$(cd "$REPO_6" && bash tools/check-private-patterns.sh --tree-only 2>&1)"; RC_6=$?
+if [ "$RC_6" -ne 0 ] && printf '%s' "$OUT_6" | grep -q "cle d'API Google dans l'arbre" \
+    && printf '%s' "$OUT_6" | grep -q 'notes/key.md' && ! printf '%s' "$OUT_6" | grep -qF -- "$GKEY"; then
+  echo "ok [6-google-key]: --tree-only refuse une cle de forme Google, fichier nomme, cle masquee"
+else
+  echo "FAIL [6-google-key]: exit=$RC_6, sortie:" >&2
+  printf '%s\n' "$OUT_6" | sed "s/$GKEY/<cle factice>/g" >&2
+  FAILURES=$((FAILURES + 1))
+fi
+
+# --- 7. witness: the prefix followed by too few characters is not a key -----
+REPO_7="$(make_repo "$TMP/case-7")"
+mkdir -p "$REPO_7/notes"
+printf 'mot : %s\n' "${GKEY_PREFIX}za0123456789" > "$REPO_7/notes/short.md"
+commit_all "$REPO_7" "short prefix only"
+OUT_7="$(cd "$REPO_7" && bash tools/check-private-patterns.sh --tree-only 2>&1)"; RC_7=$?
+if [ "$RC_7" -eq 0 ]; then
+  echo "ok [7-google-key-witness]: le prefixe suivi de 10 caracteres seulement n'est pas refuse"
+else
+  echo "FAIL [7-google-key-witness]: exit=$RC_7, sortie:" >&2
+  printf '%s\n' "$OUT_7" >&2
+  FAILURES=$((FAILURES + 1))
+fi
+
 if [ "$FAILURES" -eq 0 ]; then
-  echo "PASS: 5/5 cas conformes"
+  echo "PASS: 7/7 cas conformes"
   exit 0
 else
   echo "FAIL: $FAILURES cas non conformes"

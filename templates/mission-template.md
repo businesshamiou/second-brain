@@ -14,7 +14,7 @@ artifact_state: GENERATED_IN_CHAT
 
 # MISSION <NNN> — <TITLE>
 
-Reminder: `status` above freezes the authorization at the creation of this file; it is never touched again. The execution state of this Mission lives exclusively in `<projet>/missions/MISSION-INDEX.md`, column « Statut » [status]. This template is filled in with the `ecriture-de-mission` skill.
+Reminder: `status` above freezes the authorization at the creation of this file; it is never touched again. The execution state of this Mission lives exclusively in `<projet>/missions/MISSION-INDEX.md`, column « Statut » [status]. This template is filled in with the `mission-writing` skill.
 
 ## Measured existing state
 
@@ -63,6 +63,7 @@ Out of scope: <what is explicitly excluded.>
 ## Constraints
 
 - <Limit to respect during execution.>
+- Every write or push command names the absolute path of its repository (`git -C <absolute path>`, `cd <absolute path> &&`); never `.` nor a path that depends on the current folder (rule RULES-2026-09-25-100419-absolute-repo-paths-and-verified-pushes).
 
 ## Prior measurements
 
@@ -89,12 +90,14 @@ Any expected behaviour of a tool, a hook or a flag that has not been exercised b
 0. **Preflight** (DECISION-2026-09-04-154756, point 1) — mandatory as soon as the Scope includes the commit of an artifact deposited by the Pilot. Run on the files of the Scope all the applicable checks, collect **all** the violations, report them in one go, stop if any remains. The preflight corrects nothing: a defect is corrected by the role that wrote the file.
 <!-- As soon as a Vault commit is prescribed: explicit batch "Vault commit → stop → Owner push → re-pinning of (workshop history, not distributed) → continuation" (checklist, line 25). The Resume contract does not declare "healthy" a state in which (workshop history, not distributed) can no longer commit. -->
 <!-- As soon as a step modifies an index guardian (freshness, weight): rerun the Vault's tools/bench-guardians.sh bench before and after, table pasted into the report (Mission 164). -->
+<!-- Every push a step prescribes is written `bash <workspace>/vault/tools/verified-push.sh <absolute repository path> <from>..<to> [<remote>] [--url <url>]`, never a bare `git push` (rule absolute-repo-paths-and-verified-pushes, 2026-09-25). -->
 1. <Ordered step.>
 
 ## Gates
 
 - Owner authorization: <granted for ... | pending>
 - Human gate not granted: <what remains outside the authorization>
+- Delegated pushes: <repository (absolute path) and range `<from>..<to>`, through tools/verified-push.sh | none>
 - Stop conditions: <signal that interrupts the Mission>
 
 ## Validations

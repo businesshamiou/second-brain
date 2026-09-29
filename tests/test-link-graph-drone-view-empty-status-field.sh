@@ -88,9 +88,8 @@ EOF
 # tool (tools/resolve-sibling-repo.sh). Declared here via the environment
 # variable so this fixture keeps exercising the two-corpus code path.
 cp "$SCRIPT_DIR/../tools/resolve-sibling-repo.sh" "$TMP/vault/tools/resolve-sibling-repo.sh"
-OUTPUT="$(cd "$TMP/vault/tools" && SECOND_BRAIN_SIBLING_REPO=workshop-build bash link-graph-drone-view.sh 2>/tmp/test-lgdv-stderr.$$)"
-STDERR_CONTENT="$(cat /tmp/test-lgdv-stderr.$$ 2>/dev/null)"
-rm -f /tmp/test-lgdv-stderr.$$
+OUTPUT="$(cd "$TMP/vault/tools" && SECOND_BRAIN_SIBLING_REPO=workshop-build bash link-graph-drone-view.sh 2>"$TMP/lgdv-stderr")"
+STDERR_CONTENT="$(cat "$TMP/lgdv-stderr" 2>/dev/null)"
 
 # The Mermaid label of DOC-A, in the complete view: node_label() prints
 # the title if it is non-empty, otherwise the file name without extension.

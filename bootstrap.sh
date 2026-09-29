@@ -24,7 +24,7 @@
 # Nothing here uses sudo.
 #
 # Published line (INSTALL.md):
-#   curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.9/bootstrap.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.15/bootstrap.sh | bash
 #
 # usage: bootstrap.sh [--ref <tag-or-branch>] [--repo-url <url-or-path>]
 #                     [--raw-base <url-or-directory>] [--target <dir>]
@@ -33,7 +33,7 @@
 
 set -u
 
-REF="v0.1.9"
+REF="v0.1.15"
 REPO_URL="https://github.com/businesshamiou/second-brain.git"
 RAW_BASE=""
 TARGET=""
@@ -74,7 +74,10 @@ if [ "$TEST_MODE" = "1" ]; then
   [ -n "$TARGET" ] || TARGET="$TEST_ROOT/second-brain-install"
 else
   PROFILE_ROOT="$HOME"
-  [ -n "$TARGET" ] || TARGET="${TMPDIR:-/tmp}/second-brain-install"
+  # Declared temporary folder (Mission 234): this script runs before any Vault
+  # is on the machine and cannot load tools/lib/tmp.sh; it applies the same rule
+  # inline -- SB_TMP, else <system temporary folder>/second-brain.
+  [ -n "$TARGET" ] || TARGET="${SB_TMP:-${TMPDIR:-/tmp}/second-brain}/second-brain-install"
 fi
 
 fetch() {
@@ -214,5 +217,16 @@ set -- --source "$TARGET"
 [ -n "$ANSWERS_FILE" ] && set -- "$@" --answers-file "$ANSWERS_FILE"
 [ "$TEST_MODE" = "1" ] && set -- "$@" --test-mode --test-root "$TEST_ROOT"
 [ -n "$STOP_AFTER_STEP" ] && set -- "$@" --stop-after-step "$STOP_AFTER_STEP"
-bash "$TARGET/install.sh" "$@"
+# Keyboard (Mission 221, A-220-1): under `curl ... | bash` the standard input
+# of this script is the pipe that carries the script itself, and install.sh
+# used to inherit it. When the standard input is not a terminal and the
+# controlling terminal opens, install.sh reads the keyboard. Without a
+# terminal (CI, tests, a job) or with an answers file, the input is kept.
+# SB_BOOTSTRAP_TTY names another device: test-only (tests/test-bootstrap-keyboard.sh).
+TTY_DEVICE="${SB_BOOTSTRAP_TTY:-/dev/tty}"
+if [ -z "$ANSWERS_FILE" ] && [ ! -t 0 ] && { : < "$TTY_DEVICE"; } 2>/dev/null; then
+  bash "$TARGET/install.sh" "$@" < "$TTY_DEVICE"
+else
+  bash "$TARGET/install.sh" "$@"
+fi
 exit $?

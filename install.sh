@@ -57,6 +57,16 @@ set -u
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HELPER="$SCRIPT_DIR/tools/sb_installer_helper.py"
+# Declared temporary folder (Mission 234): the installer's own work files go
+# there, and one EXIT trap removes them all -- two traps used to overwrite each
+# other (report 233 §7.1: the second, line 242, dropped the first).
+. "$SCRIPT_DIR/tools/lib/tmp.sh"
+SB_INSTALL_TMP_FILES=""
+sb_install_cleanup() {
+  local f
+  for f in $SB_INSTALL_TMP_FILES; do rm -f "$f"; done
+}
+trap sb_install_cleanup EXIT
 
 PYRUN() {
   uv run --no-project "$HELPER" "$@"
@@ -102,9 +112,9 @@ done
 # shell variable cannot.
 SCRIPTED_INDEX_FILE=""
 if [ "${#SCRIPTED_ANSWERS[@]}" -gt 0 ]; then
-  SCRIPTED_INDEX_FILE="$(mktemp)"
+  SCRIPTED_INDEX_FILE="$(mktemp "$(sb_tmp_dir tools)/install-index-XXXXXX")"
   printf '0' > "$SCRIPTED_INDEX_FILE"
-  trap 'rm -f "$SCRIPTED_INDEX_FILE"' EXIT
+  SB_INSTALL_TMP_FILES="$SB_INSTALL_TMP_FILES $SCRIPTED_INDEX_FILE"
 fi
 
 if [ -z "$SOURCE" ]; then
@@ -129,19 +139,117 @@ next_scripted_or_read() {
   # variable's own header comment: this function is always called through
   # a command substitution, i.e. a subshell, so a shell-variable increment
   # here would never be visible to the next call.
-  echo "$1" >&2
   if [ -n "$SCRIPTED_INDEX_FILE" ]; then
     local idx
     idx="$(cat "$SCRIPTED_INDEX_FILE")"
     if [ "$idx" -lt "${#SCRIPTED_ANSWERS[@]}" ]; then
+      echo "$1" >&2
       printf '%s' "${SCRIPTED_ANSWERS[$idx]}"
       printf '%s' "$((idx + 1))" > "$SCRIPTED_INDEX_FILE"
       return 0
     fi
   fi
+  # Mission 220: the same question displayed by gum (sb_gum_init found it, a
+  # terminal is there); the answer comes back as the same string. Esc or
+  # Ctrl+C in gum (exit 130) cancels the installation; any other failure
+  # turns gum off (a file, this runs in a subshell) and the question is asked
+  # plainly below.
+  if [ -n "$SB_GUM" ] && [ ! -s "$SB_GUM_OFF_FILE" ]; then
+    local out rc
+    out="$("$SB_GUM" input --header="$1" --placeholder= --width=0)"
+    rc=$?
+    if [ "$rc" = 130 ]; then
+      echo "Installation cancelled from the questionnaire (Esc or Ctrl+C)." >&2
+      kill -INT "$$" 2>/dev/null
+      exit 130
+    fi
+    if [ "$rc" = 0 ]; then
+      echo "$1 $out" >&2
+      printf '%s' "$out"
+      return 0
+    fi
+    printf 'off' > "$SB_GUM_OFF_FILE"
+    echo "$SB_GUM_FALLBACK_TEXT" >&2
+  fi
+  echo "$1" >&2
   local line
   IFS= read -r line || line=""
   printf '%s' "$line"
+}
+
+# --- gum presentation (Mission 220) ------------------------------------------
+# The questionnaire is displayed by gum (charmbracelet/gum, `gum input`) when
+# a real terminal is there and gum is found -- or installed by winget (Git
+# Bash on Windows) or brew (macOS); on Linux nothing is installed. Otherwise
+# the plain questionnaire. Never gum without a terminal, never with an answers
+# file or scripted answers, never a download in --test-mode.
+# SB_INSTALLER_TEST_FORCE_TTY=1 is for tests only: honoured with --test-mode
+# alone, and then only tools found under the test root (fakes) are used.
+SB_GUM=""
+SB_GUM_OFF_FILE=""
+SB_GUM_FALLBACK_TEXT=""
+
+sb_gum_forced() { [ "$TEST_MODE" = 1 ] && [ "${SB_INSTALLER_TEST_FORCE_TTY:-}" = 1 ]; }
+
+sb_terminal() {
+  sb_gum_forced && return 0
+  [ -t 0 ] && [ -t 2 ]
+}
+
+sb_find_tool() {
+  # $1 = name. The first on the PATH; for gum on Windows, also winget's
+  # package folder (winget puts it on the USER Path, unseen by this session).
+  # Forced test mode: only a tool under the test root.
+  local p root
+  p="$(command -v "$1" 2>/dev/null)" || p=""
+  if sb_gum_forced; then
+    root="$(cd "$TEST_ROOT" 2>/dev/null && pwd)"
+    case "$p" in "$root"/*) printf '%s' "$p"; return 0 ;; esac
+    return 1
+  fi
+  if [ -n "$p" ]; then printf '%s' "$p"; return 0; fi
+  if [ "$1" = gum ] && [ -n "${LOCALAPPDATA:-}" ] && command -v cygpath >/dev/null 2>&1; then
+    for p in "$(cygpath -u "$LOCALAPPDATA")"/Microsoft/WinGet/Packages/charmbracelet.gum_*/*/gum.exe; do
+      if [ -f "$p" ]; then printf '%s' "$p"; return 0; fi
+    done
+  fi
+  return 1
+}
+
+sb_gum_init() {
+  # $1 = the machine's default language (FR|EN|ES): the language question has
+  # not been asked yet. Decides once whether gum displays the questionnaire;
+  # a failed or refused install is one line, never a stop.
+  local cat gum="" installer="" tool=""
+  local args=()
+  cat="$I18N_DIR/catalog.$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]').json"
+  [ -f "$cat" ] || cat="$I18N_DIR/catalog.en.json"
+  SB_GUM_FALLBACK_TEXT="$(PYRUN format-catalog "$cat" install.gum.fallback)"
+  [ "${#SCRIPTED_ANSWERS[@]}" -gt 0 ] && return 0
+  sb_terminal || return 0
+  gum="$(sb_find_tool gum)" || gum=""
+  if [ -z "$gum" ]; then
+    case "$(uname -s 2>/dev/null)" in
+      MINGW*|MSYS*|CYGWIN*) installer=winget; args=(install --exact --id charmbracelet.gum --source winget) ;;
+      Darwin) installer=brew; args=(install gum) ;;
+    esac
+    if [ -n "$installer" ] && { [ "$TEST_MODE" != 1 ] || sb_gum_forced; }; then
+      tool="$(sb_find_tool "$installer")" || tool=""
+      if [ -n "$tool" ]; then
+        PYRUN format-catalog "$cat" install.gum.installing
+        if "$tool" "${args[@]}"; then
+          gum="$(sb_find_tool gum)" || gum=""
+        fi
+      fi
+    fi
+    if [ -z "$gum" ]; then
+      echo "$SB_GUM_FALLBACK_TEXT"
+      return 0
+    fi
+  fi
+  SB_GUM="$gum"
+  SB_GUM_OFF_FILE="$(mktemp "$(sb_tmp_dir tools)/install-gum-XXXXXX")"
+  SB_INSTALL_TMP_FILES="$SB_INSTALL_TMP_FILES $SB_GUM_OFF_FILE"
 }
 
 read_field() {
@@ -385,6 +493,15 @@ stage_and_commit_clone_changes() {
     return 0
   fi
   bash "$CLONE_PATH/tools/session-preflight.sh" >/dev/null 2>&1 || true
+  # Mission 231: a file this account cannot read (an access control list left
+  # by a sandbox) would stop `git add` half-way; the check names it and its
+  # remedy first. A clone older than the check has no such tool: skipped.
+  local readable_out
+  if [ -f "$CLONE_PATH/tools/check-readable.sh" ] \
+    && ! readable_out="$(bash "$CLONE_PATH/tools/check-readable.sh" "$CLONE_PATH" 2>&1)"; then
+    printf '%s\n' "$readable_out"
+    fail "unreadable file(s) in $CLONE_PATH: see the remedy printed above"
+  fi
   git -C "$CLONE_PATH" status --porcelain | while IFS= read -r line; do
     changed_path="$(printf '%s' "$line" | cut -c4-)"
     git -C "$CLONE_PATH" add -- "$changed_path"
@@ -573,6 +690,8 @@ else
     es*|es_*) default_language="ES" ;;
     *) default_language="EN" ;;
   esac
+  # Mission 220: gum or the plain questionnaire, decided before the first question.
+  sb_gum_init "$default_language"
   ANSWER_LANGUAGE="$(resolve_answer LANGUAGE "Language / Langue / Idioma -- FR, EN or ES [$default_language]:" "$default_language" 1 0 0)"
   ANSWER_LANGUAGE="$(printf '%s' "$ANSWER_LANGUAGE" | tr '[:lower:]' '[:upper:]')"
   case "$ANSWER_LANGUAGE" in FR|EN|ES) ;; *) ANSWER_LANGUAGE="$default_language" ;; esac
@@ -582,9 +701,18 @@ CATALOG_FILE="$I18N_DIR/catalog.$(printf '%s' "$ANSWER_LANGUAGE" | tr '[:upper:]
 [ -f "$CATALOG_FILE" ] || CATALOG_FILE="$I18N_DIR/catalog.en.json"
 
 FORCE_REASK=0
+# Mission 230 (A-226-20 of report 226): the gate reads only the steps
+# `sb_installer_helper.py load-carnet` still exports. `STEP_ASSISTANTDEPLOYED`
+# and `STEP_SKILLSDEPLOYED` -- the two flags Mission 173 retired with the
+# profile deployment itself (see the note further down) -- were still required
+# here and are exported by nothing, so `set -u` killed the script the moment
+# the `&&` chain reached them: exactly on a COMPLETE installation, that is, on
+# the re-run the published line tells the participant to do. install.ps1's own
+# gate (`Test-InstallComplete`, tools/questionnaire.ps1) dropped both names
+# when they were retired; this is the same list.
 if [ "$INTERACTIVE" = "1" ] && [ "$HAS_PRIOR_CARNET_AT_DEFAULT" = "1" ] && [ "$STEP_WORKSPACECREATED" = "true" ] && \
    [ "$STEP_CLONED" = "true" ] && [ "$STEP_GUARDIANSCONFIGURED" = "true" ] && [ "$STEP_MARKERWRITTEN" = "true" ] && \
-   [ "$STEP_ASSISTANTGENERATED" = "true" ] && [ "$STEP_ASSISTANTDEPLOYED" = "true" ] && [ "$STEP_SKILLSDEPLOYED" = "true" ] && [ "$STEP_PROFILEWRITTEN" = "true" ] && \
+   [ "$STEP_ASSISTANTGENERATED" = "true" ] && [ "$STEP_PROFILEWRITTEN" = "true" ] && \
    { [ "$ANSWER_FP_CREATE" = "false" ] || [ "$STEP_FIRSTPROJECTCREATED" = "true" ]; }; then
   # --- Update mode (T06/T22): install at the default workspace already
   # complete. Show recorded answers, ask if anything changed. ---
@@ -627,6 +755,38 @@ fi
 [ -z "$ANSWER_GIT_USEREMAIL" ] && ANSWER_GIT_USEREMAIL="installer@example.invalid"
 
 WORKSPACE_PATH="$ANSWER_WORKSPACEPATH"
+
+# --- Workspace depth (Mission 221, A-219-1) -------------------------------
+# On Windows (long paths not enabled) Python does not read a path longer
+# than 259 characters: the index regeneration loses the longest Markdown
+# file, the freshness guardian refuses, and the installation stopped at the
+# marker step (report 219). Git itself writes longer paths (core.longpaths):
+# the longest file written (181 characters with second-brain/, under
+# skills-warehouse/, which no Python tool walks) does not fail. What fails is
+# the longest tracked Markdown file outside skills-warehouse/ -- 127, so 140
+# with second-brain/, so a root of at most 259 - 1 - 140 = 118, measured
+# Mission 221: 118 installs, 119 stops at the marker step. Measured on the
+# source at each run (other pruned folders are counted too: stricter, never
+# looser); the 127 of Mission 221 stands in if the source cannot be listed.
+# Refused here, before anything is written in the workspace (CARNET_PATH is
+# still empty, so fail saves no logbook). macOS and Linux: no such limit.
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*)
+    SB_LONGEST_TRACKED="$(git -C "$SOURCE_ABS" ls-files -z -- '*.md' ':(exclude)skills-warehouse' 2>/dev/null | tr '\0' '\n' | awk '{ if (length($0) > m) m = length($0) } END { print m + 0 }')"
+    [ "${SB_LONGEST_TRACKED:-0}" -gt 0 ] 2>/dev/null || SB_LONGEST_TRACKED=127
+    SB_WORKSPACE_MAX=$((259 - 1 - 13 - SB_LONGEST_TRACKED))
+    SB_WORKSPACE_NATIVE="$WORKSPACE_PATH"
+    command -v cygpath >/dev/null 2>&1 && SB_WORKSPACE_NATIVE="$(cygpath -w "$WORKSPACE_PATH")"
+    while [ "${#SB_WORKSPACE_NATIVE}" -gt 3 ] && case "$SB_WORKSPACE_NATIVE" in *[\\/]) true ;; *) false ;; esac; do
+      SB_WORKSPACE_NATIVE="${SB_WORKSPACE_NATIVE%?}"
+    done
+    if [ "${#SB_WORKSPACE_NATIVE}" -gt "$SB_WORKSPACE_MAX" ]; then
+      CURRENT_STEP="workspace"
+      fail "$(catalog_get "install.workspaceTooDeep" "$SB_WORKSPACE_NATIVE" "${#SB_WORKSPACE_NATIVE}" "$SB_WORKSPACE_MAX" "$CTX_DEFAULT_WORKSPACE_PATH")"
+    fi
+    ;;
+esac
+
 CLONE_PATH="$WORKSPACE_PATH/second-brain"
 MARKER_PATH="$WORKSPACE_PATH/VAULT-ROOT.md"
 CARNET_PATH="$CLONE_PATH/.install/state.json"
@@ -711,6 +871,11 @@ save_carnet
 step_line "Clone"
 check_forced_stop "clone"
 
+# Mission 236: the sb command on the user's PATH, through the same primitive as
+# Git, uv and pre-commit (the simulated file in test mode). No step line of its
+# own: the log keeps its fixed line count.
+add_installer_path_entry "$CLONE_PATH/tools/sb/bin"
+
 # --- Questions 4-7 (T06 complement 2; eighth question retired, Mission
 # 171-C01 step 4 -- skill deployment is unconditional now) ------------------
 if [ "$INTERACTIVE" = "1" ]; then
@@ -760,6 +925,21 @@ CURRENT_STEP="marker"
 # nothing.
 run_or_fail "Generating the vault identity failed" \
   bash -c 'bash "$1" ensure "$2" >/dev/null' _ "$CLONE_PATH/tools/vault-identity.sh" "$CLONE_PATH"
+# Mission 230 (A-226-21 of report 226): the workspace label, recorded here,
+# before the first project is created. Without it, `vault-identity.sh get
+# server_name` gives the name BY IDENTITY, tools/project-bootstrap.sh writes
+# that name into the project's PILOT-PROMPT.md, and tools/install-vault-mcp.sh
+# later configures `second-brain-vault-<workspace folder>` -- the prompt of the
+# participant's very first project named a server that did not exist. One
+# source of truth, VAULT-IDENTITY.md, read by both tools; and with the label
+# recorded, install-vault-mcp.sh renames nothing afterwards (Mission 230, P4).
+# Idempotent: a label already there is never replaced (the installer decides
+# once, `--label` decides later).
+if [ -z "$(bash "$CLONE_PATH/tools/vault-identity.sh" get workspace_label "$CLONE_PATH" 2>/dev/null)" ]; then
+  run_or_fail "Recording the workspace label failed" \
+    bash -c 'bash "$1" set-label "$2" "$3" >/dev/null' _ \
+    "$CLONE_PATH/tools/vault-identity.sh" "$(basename "$WORKSPACE_PATH")" "$CLONE_PATH"
+fi
 save_clone_pending_changes "Generate vault identity"
 if [ ! -f "$MARKER_PATH" ]; then
   # Discarded to /dev/null, not run_or_fail's inherited stdio: write-marker.sh

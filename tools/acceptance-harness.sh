@@ -37,6 +37,7 @@
 #   prints the answer on stdout (used by the oracle tests with stubs).
 
 set -u
+. "$(cd "$(dirname "$0")" && pwd)/lib/tmp.sh"  # declared temporary folder (Mission 234)
 
 SCENARIO=""
 PROVIDER=""
@@ -92,7 +93,7 @@ QUESTIONS="$(sed -n '/^## Trois questions de test/,/^## /p' "$IDENTITY" \
 Q_COUNT="$(printf '%s\n' "$QUESTIONS" | grep -c .)"
 [ "$Q_COUNT" -eq 3 ] || { echo "FAIL (expected 3 test questions in $IDENTITY, found $Q_COUNT)"; exit 1; }
 
-WORK_ROOT="$(mktemp -d)"
+WORK_ROOT="$(mktemp -d "$(sb_tmp_dir tools)/acceptance-XXXXXX")"
 trap 'rm -rf "$WORK_ROOT"' EXIT
 
 # --- S8: the package as system instructions plus documents --------------------

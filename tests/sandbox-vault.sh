@@ -13,6 +13,8 @@
 # The warehouse (skills-warehouse/) is not copied: no initiation test
 # reads it. No writing outside the destination.
 
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/tools/lib/tmp.sh"  # declared temporary folder (Mission 234)
+
 sandbox_find_uv() {
   command -v uv >/dev/null 2>&1 && return 0
   local d
@@ -37,6 +39,11 @@ sandbox_find_uv() {
 # a reference at another commit is refused, never served. It never replaces
 # the test that plays the real published line (smoke-from-github, S1-S11),
 # which clones from the network by definition.
+# Mission 231: the references live in their own folder, sb-reference-clones/,
+# under the temporary folder -- no longer loose at its top, next to other
+# work. Those already left there stay (never deleted by a test).
+# Mission 234: that folder is <SB_TMP>/reference-clones, through the access
+# function of the declared temporary folder (tools/lib/tmp.sh).
 #   SRC="$(sandbox_reference_clone "$REPO_ROOT")" || exit 1
 #   git clone --quiet -- "$SRC" "$dest"
 sandbox_reference_clone() {
@@ -45,7 +52,8 @@ sandbox_reference_clone() {
     echo "REFUS : clone de reference : $src n'est pas un depot Git" >&2
     return 1
   }
-  base="${SB_REFERENCE_CLONE_DIR:-${RUNNER_TEMP:-${TMPDIR:-/tmp}}}"
+  base="${SB_REFERENCE_CLONE_DIR:-}"
+  [ -n "$base" ] || base="$(sb_tmp_dir reference-clones)" || return 1
   dir="$base/sb-reference-$head.git"
   if [ ! -d "$dir" ]; then
     mkdir -p "$base" || return 1

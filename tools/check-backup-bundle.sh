@@ -13,6 +13,7 @@
 # Output: the refs restored, then PASS or FAIL with its cause. Exit 0 = PASS.
 
 set -u
+. "$(cd "$(dirname "$0")" && pwd)/lib/tmp.sh"  # declared temporary folder (Mission 234)
 
 BUNDLE="${1:-}"
 if [ -z "$BUNDLE" ] || [ ! -f "$BUNDLE" ]; then
@@ -22,7 +23,7 @@ if [ -z "$BUNDLE" ] || [ ! -f "$BUNDLE" ]; then
 fi
 BUNDLE="$(cd "$(dirname "$BUNDLE")" && pwd)/$(basename "$BUNDLE")"
 
-T="$(mktemp -d "${TMPDIR:-/tmp}/sb-bundle-check-XXXXXX")" || exit 1
+T="$(mktemp -d "$(sb_tmp_dir tools)/sb-bundle-check-XXXXXX")" || exit 1
 trap 'rm -rf "$T"' EXIT
 git init -q "$T/r" || { echo "FAIL : depot jetable non cree"; exit 1; }
 

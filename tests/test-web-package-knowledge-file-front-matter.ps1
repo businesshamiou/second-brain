@@ -55,7 +55,7 @@ Write-Output "TestRoot: $TestRoot"
 # Every source path any multi-source $Script:WebPackageKnowledgeFiles entry
 # needs, read from that list itself (never hand-typed) so this test never
 # drifts out of sync with which sources METHOD.md actually condenses.
-$sourceFiles = @('assistant\ASSISTANT.md') + @($Script:WebPackageKnowledgeFiles | ForEach-Object { $_.SourcePaths })
+$sourceFiles = @('assistant\ASSISTANT.md', $Script:AssistantMapSource) + @($Script:WebPackageKnowledgeFiles | ForEach-Object { $_.SourcePaths })
 function New-MinimalClone {
     param([Parameter(Mandatory = $true)][string] $ClonePath)
     foreach ($relative in $sourceFiles) {

@@ -29,7 +29,7 @@ Les Pages Suspendues is a fictional book club of about ten members, who meet onc
 
 ## Writing
 
-In a real project, `CLAUDE.md` and `AGENTS.md` (laid down by `tools/project-bootstrap.sh`, absent from this documentary example) carry the same rule: every change starts from a Mission written in `missions/`, the project's assistant is read-only, and the agent that opens the project writes nothing on its own initiative outside this frame.
+In a real project, `CLAUDE.md` and `AGENTS.md` (laid down by `tools/project-bootstrap.sh`, absent from this documentary example) carry the same rule: every change starts from a Mission written in `missions/`, or from a prompt of the Owner executed without a Mission (mode 2), whose first write is an execution Note in `missions/` — the absence of a Mission is never a reason to refuse; the project's assistant is read-only, and the agent that opens the project writes nothing on its own initiative outside this frame.
 
 ## Liens
 

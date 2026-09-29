@@ -46,9 +46,11 @@ The light regime keeps the proofs. What is dropped is the ceremony around the pr
 | `R5-company` | names the company repository at all |
 | `R6-guardians` | touches a guardian, the preflight, a hook, the publication tool or the hook configuration, or bypasses a hook |
 
-A seventh refusal, `R7-shape`, is not a criterion but the Note's form: the front matter, the six rubrics in order and nothing else, the size cap, one conforming journal line.
+A seventh refusal, `R7-shape`, is not a criterion but the Note's form: the front matter, the six rubrics in order and nothing else, the size cap, one conforming journal line. An eighth, `R8-origin` (2026-09-23, Decision 012500), is the form of a mode-2 Note — one written by the Executor from a prompt of the Owner: its origin, mode, time of reception, the prompt or the consumed files with their sha256, each fingerprint matching (§4).
 
 The list is tightened by a Mission and never loosened, and no argument extends what the light regime accepts: the same principle as the closed list of the publication tool. `R6-guardians` tightens the list the Owner gave, on the measure that the publication tool is what carries the private-pattern check: a change to it is not a light gesture, whatever its size.
+
+**Annotation (2026-09-23, Decision 105507 — the Owner's go-ahead).** One thing lifts a criterion, and it is not an argument: the Owner's own answer. When an Owner's prompt (mode 2, §4) meets a criterion, the Executor does not refuse; it states the criterion and asks. The answer is written word for word in the Note's Intent, in exactly one fenced block `owner_greenlight` — a line `at: <real time of the answer, ISO 8601 with offset>`, a line `lifts: <criterion id>[, ...]`, then the answer as received — and execution goes on under the light regime. The check lifts only the criteria the block names (`OWNER-GREENLIGHT <ids> at <time>`), never the form (`R7-shape`, `R8-origin`), and refuses a block in a Note that is not of `origin: owner-prompt`. The gestures reserved to the Owner stay reserved.
 
 A criterion is not "it is small". A small gesture can touch what is most precious, and the check looks at what is touched, not at how much.
 
@@ -57,6 +59,8 @@ A criterion is not "it is small". A small gesture can touch what is most preciou
 Six rubrics, in this order, then an optional Liens rubric: **Intent** (what and why now), **Scope** (each path or repository written, one per line), **Measure before**, **Gesture** (the exact commands, one per line), **Measure after** (the same measure, before → after in figures), **Journal line** (one line, at most 300 characters, starting `STATE:`, `OPEN:` or `CLOSE:`). Nothing else: a Note that needs a Context rubric is a Mission.
 
 It is filed in the project's `missions/` folder as `NOTE-<date>-<time>-<slug>.md`, beside the Missions it shares a lineage with. It is not a row of the Mission register: the register is read by the tools that follow the Missions, and a Note reaches the state sheet through its journal line, which is what the digest reads.
+
+**Annotation (2026-09-23, Decision 012500 — mode 2).** The light regime is also the trace of **mode 2**: a prompt of the Owner executed without a Mission, pasted as is (`2a`) or "read <files> and execute" (`2b`). The Executor then writes the Note itself, **as its first write**, and its front matter adds `origin: owner-prompt`, `mode: 2a` or `2b`, and `received_at` (the real time measured when the prompt arrived); its Intent quotes the prompt verbatim with its sha256 (`2a`), or lists each consumed file with its path and its sha256 (`2b`); its Scope is required as for any Note. `tools/check-work-regime.sh note` refuses a mode-2 Note that lacks one of these, or whose fingerprint does not match (`R8-origin`). A full-regime criterion met by an Owner's prompt is not a refusal of the Executor: it states the criterion and asks the Owner for the go-ahead, whose answer the Note then quotes in its `owner_greenlight` block (§3, Decision 105507). In the Vault, mode 2 covers non-structuring changes only; doctrine keeps its Decision (`R3-doctrine`). The same commit guardians judge what is committed under a Mission and under a Note.
 
 ## 5. What does not change
 
@@ -72,9 +76,11 @@ The light regime becomes the default if nothing watches it. After ten Notes, mea
 
 - `see also` — [Note template](../templates/execution-note-template.md)
 - `see also` — [Mission template](../templates/mission-template.md)
-- `see also` — [Skill: writing a Mission](../skills/ecriture-de-mission/SKILL.md)
+- `see also` — [Skill: writing a Mission](../skills/mission-writing/SKILL.md)
 - `see also` — [Relay between roles through mini-prompts with fixed rubrics](./RULES-2026-08-23-124937-role-relay-mini-prompts.md)
 - `see also` — [Role charter and session determination](./RULES-2026-08-23-224706-role-charter-and-session-determination.md)
 - `see also` — [Versioning of Missions and generated outputs](./RULES-2026-08-17-211522-mission-versioning-and-generated-output.md)
 - `applies` — [Decision — Evidence status and STOP control](../decisions/DECISION-2026-08-29-212009-evidence-status-and-stop-control.md)
 - `amended by` — Decision — One proof pass when green, two only for Git and publication (workshop history, not distributed) (hors Vault)
+- `amended by` — [Decision — Two relay modes](../decisions/DECISION-2026-09-23-012500-two-relay-modes-owner-prompt-traced-by-note.md) (mode 2 is the light regime, `R8-origin`)
+- `amended by` — [Decision — The Owner's go-ahead quoted in the Note; a local language file](../decisions/DECISION-2026-09-23-105507-owner-greenlight-in-note-and-local-language-file.md) (§3: the `owner_greenlight` block)

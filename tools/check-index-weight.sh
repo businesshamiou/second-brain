@@ -5,4 +5,4 @@
 # would return the calling repository (any project under pre-commit) and not the vault.
 set -u
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-exec uv run "$SCRIPT_DIR/check_index_weight.py" "$@"
+exec uv run --no-project "$SCRIPT_DIR/check_index_weight.py" "$@"  # --no-project (Mission 234)

@@ -105,3 +105,4 @@ Owner arbitration of 2026-09-16 on the specification proposed by the Pilot: « t
 - `applies` — [Decision — The amendment lives in the repository of the amended document](./DECISION-2026-08-28-205904-amendment-lives-in-amended-repo.md)
 - `prescribed by` — [Context cycle V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
 - `amended by` — [Decision — Relay and delegation, one rule in one place](./DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md)
+- `amended by` — [Decision — The starting interview](./DECISION-2026-09-27-213059-starting-interview-owner-and-project-profiles.md) (three optional fields of the initiation order: the project profile)

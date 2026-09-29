@@ -20,6 +20,7 @@
 # No dependency on Python: this file is read by the guardians and by the
 # Vault resolution, which must run without uv.
 
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/tmp.sh"  # declared temporary folder (Mission 234)
 VID_FILE_NAME="VAULT-IDENTITY.md"
 
 vid_file() {
@@ -114,7 +115,7 @@ vid_set_label() {
   [ -n "$label" ] || return 1
   f="$(vid_file "$root")"
   [ -f "$f" ] || return 1
-  tmp="$(mktemp)" || return 1
+  tmp="$(mktemp "$(sb_tmp_dir tools)/vid-label-XXXXXX")" || return 1
   if awk -v lab="$label" '
     { cr = ($0 ~ /\r$/) ? "\r" : ""; line = $0; sub(/\r$/, "", line) }
     NR == 1 { if (line != "---") bad = 1; infm = 1; print $0; next }
@@ -191,7 +192,7 @@ ${labelline:+$labelline
 
 This file is generated once, at installation, by \`tools/vault-identity.sh ensure\`. It is never edited by hand.
 
-- \`vault_id\`: identifier of this Vault, copied into the birth certificate of each project (\`.pre-commit-config.yaml\`), and the source of the name of its MCP server.
+- \`vault_id\`: identifier of this Vault, copied into the birth certificate of each project (\`.pre-commit-config.yaml\`); the name of its MCP server comes from it only when no \`workspace_label\` is recorded.
 - \`vault_origin\`: origin of the clone.
 - \`workspace_label\` (optional): the normalised name of the workspace folder, posed by \`tools/install-vault-mcp.sh\`; the name of the MCP server is \`second-brain-vault-<workspace_label>\` (the first 8 characters of \`vault_id\` when there is none).
 
@@ -208,6 +209,8 @@ if [ "${BASH_SOURCE[0]}" = "$0" ]; then
   VID_SELF_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
   case "${1:-}" in
     ensure)
+      # Mission 226: the repository-root guard, before the identity is written.
+      uv run --no-project "$VID_SELF_ROOT/tools/repo_root_guard.py" "${2:-$VID_SELF_ROOT}" || exit 1
       vid_ensure "${2:-$VID_SELF_ROOT}"
       vid_get "${2:-$VID_SELF_ROOT}" vault_id
       ;;

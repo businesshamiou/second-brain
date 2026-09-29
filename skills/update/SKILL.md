@@ -15,16 +15,18 @@ From the installed Vault (`<workspace>/second-brain`): `git status --porcelain` 
 
 ## 2. Run the update
 
-- Installation at **v0.1.8 or later**: `bash <workspace>/second-brain/tools/second-brain-update.sh <version>` (Windows: `powershell -File <workspace>\second-brain\tools\second-brain-update.ps1 <version>`).
+- Installation at **v0.1.8 or later**: `bash <workspace>/second-brain/tools/second-brain-update.sh <version>` (Windows: `powershell -File <workspace>\second-brain\tools\second-brain-update.ps1 <version>`). From v0.1.15 on, the tool hands over to the version's own tool when the two differ (line `SB-UPDATE-HANDOVER: <version>`), so a version is merged by its own rules.
+- Installation at **v0.1.8 to v0.1.14** receiving a version that changed the update rules (v0.1.15: the `USER.md` resolution): its own tool predates the handover and refuses. Run the **version's** tool with `--vault <workspace>/second-brain` — the installation line of the new version prints that exact command. The handover does not repair those installations; it makes the updates after that one autonomous.
 - Installation at **v0.1.7 or earlier** (the tool is not there yet): run the published line of the new version (INSTALL.md). It fetches the version into a temporary folder, sees the existing installation and prints the exact update command, which runs the new version's tool with `--vault <workspace>/second-brain`.
 
 The last line is a closed verdict: `VERDICT: UPDATED`, `VERDICT: UP-TO-DATE` or `VERDICT: REFUSED`.
 
 ## 3. Read the verdict
 
-- `UPDATED`: one merge commit named `Update to second-brain <version>`; the indexes regenerated; the identity (`vault_id`) unchanged; the projects untouched (their birth certificates keep `vault_ref`, which records their birth). If the message says the MCP server may have changed, run `tools/install-vault-mcp.sh <workspace>` again and restart the Claude app.
-- `UP-TO-DATE`: nothing was changed.
-- `REFUSED`: nothing was changed, HEAD is where it was. The message names the cause: uncommitted changes, a conflict with local edits of corpus files (named), an identity that would change, a guardian's refusal, or an installation older than v0.1.4 (its origin is the installer's temporary folder: such an installation is reinstalled in a new folder, it cannot be updated).
+- `UPDATED`: one merge commit named `Update to second-brain <version>`; the assistant's three forms regenerated under the name the installer recorded; the indexes regenerated; the identity (`vault_id`) unchanged; the projects untouched (their birth certificates keep `vault_ref`, which records their birth). If the message says the MCP server may have changed, run `tools/install-vault-mcp.sh <workspace>` again and restart the Claude app.
+- `UPDATED` when the version was already there: no merge; one commit named `Regenerate assistant forms for second-brain <version>`, because the assistant's forms were older than the version (the version had been merged by an update tool older than v0.1.15).
+- `UP-TO-DATE`: nothing was changed. If the message says no assistant name is recorded, the assistant's forms were left as they are: no default name is ever assumed.
+- `REFUSED`: nothing was changed, HEAD is where it was. The message names the cause: uncommitted changes, a conflict with local edits of corpus files (named), an identity that would change, an assistant that could not be regenerated, a guardian's refusal, or an installation older than v0.1.4 (its origin is the installer's temporary folder: such an installation is reinstalled in a new folder, it cannot be updated).
 
 ## What this skill does not do
 

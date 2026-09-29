@@ -15,7 +15,16 @@
 #   - Claude Code: `claude mcp add -s user`;
 #   - Codex      : `codex mcp add`;
 #   - application: merge into claude_desktop_config.json (other servers
-#                  and other keys kept).
+#                  and other keys kept);
+#   - Mission 242, every other host of tools/lib/mcp-hosts.sh that is PRESENT
+#                  (its folder or its command measured): Gemini CLI, Cursor,
+#                  Windsurf, Cline (CLI), LM Studio -- the same merge into their
+#                  JSON file (`mcpServers`; Cursor adds "type": "stdio"). An
+#                  absent host is said absent and nothing is written for it.
+# Name length guard (Mission 242): a host may show the model a tool as
+# `mcp__<server>__<tool>`, and the Gemini API caps a function name at 64
+# characters; a server name whose longest tool name goes over 64 is refused
+# before anything is written, a shorter label proposed (`--label`).
 # Idempotent: a server already configured identically is not touched again;
 # a second run leaves the files byte for byte.
 # Never replaces another Vault's server: a server of this name that points
@@ -47,6 +56,7 @@ LABEL_OPT=""
 RETIRE_KEYS=""
 SKIP_DESKTOP=0
 . "$SCRIPT_DIR/vault-identity.sh"
+. "$SCRIPT_DIR/lib/mcp-hosts.sh"
 
 USAGE="usage: install-vault-mcp.sh <espace-de-travail> [--vault <racine>] [--lang FR|EN|ES] [--label <libelle>] [--retire <cle>]... [--skip-desktop]"
 while [ $# -gt 0 ]; do
@@ -303,6 +313,49 @@ if [ "$SKIP_DESKTOP" = "0" ]; then
   esac
 fi
 
+# --- No label recorded: a re-run never renames (Mission 230, P4 of report 227) ------
+# A Vault whose identity carries no `workspace_label` -- one installed before
+# Mission 206, the company's among them -- had its server configured by
+# identity (`second-brain-vault-<8 characters of vault_id>`). The fallback on
+# the workspace folder name then renamed it the moment this tool was run again,
+# which is exactly what `second-brain update` tells the participant to do, and
+# the PILOT-PROMPT.md of each of that Vault's projects named a server that no
+# longer existed. So: the name ALREADY configured for THIS Vault wins over the
+# fallback. The fallback still applies to a first configuration, and `--label`
+# still renames explicitly.
+configured_here() {
+  # configured_here <name>: 0 when one of the measured configurations declares a
+  # server of that name pointing to this Vault.
+  local name="$1" d
+  if [ "$HAVE_CLAUDE" = "1" ] && legacy_points_here "$HOME/.claude.json" "$name"; then return 0; fi
+  if [ "$HAVE_CODEX" = "1" ] && legacy_points_here "$CODEX_CONFIG" "$name"; then return 0; fi
+  if [ -n "$DESKTOP_DIRS" ]; then
+    while IFS= read -r d; do
+      [ -z "$d" ] && continue
+      legacy_points_here "$d/claude_desktop_config.json" "$name" && return 0
+    done <<CONFIGURED_EOF
+$DESKTOP_DIRS
+CONFIGURED_EOF
+  fi
+  return 1
+}
+if [ -z "$LABEL_OPT" ] && [ -z "$LABEL_CUR" ] && [ -n "$ID_NAME" ] && [ "$SERVER" != "$ID_NAME" ] \
+  && configured_here "$ID_NAME"; then
+  CATALOG "vaultMcp.keepConfiguredName" "$ID_NAME" "$SERVER"
+  LABEL=""
+  SERVER="$ID_NAME"
+  PREVIOUS_LABEL_NAME=""
+fi
+
+# --- Name length guard (Mission 242), before any write -------------------------------
+NAME_LEN="$(mcp_tool_name_length "$SERVER")"
+if [ "$NAME_LEN" -gt "$MCP_TOOL_NAME_MAX" ]; then
+  KEEP=$((MCP_TOOL_NAME_MAX - ${#VID_SERVER_PREFIX} - ${#MCP_LONGEST_TOOL} - 8))
+  SHORT_LABEL="$(printf '%s' "${LABEL:-${SERVER#"$VID_SERVER_PREFIX"-}}" | cut -c1-"$KEEP" | sed 's/-*$//')"
+  CATALOG "vaultMcp.nameTooLong" "$SERVER" "$NAME_LEN" "$MCP_TOOL_NAME_MAX" "$VID_SERVER_PREFIX-$SHORT_LABEL" "$SHORT_LABEL"
+  exit 1
+fi
+
 # --- Pre-pass: refusals BEFORE any write (Mission 206, P3) --------------------------
 # A key that is a Vault's server is never retired. A server of this very name that
 # points to another Vault is refused in every configuration at once: the second Vault
@@ -321,6 +374,15 @@ RETIRE_CHECK_EOF
 fi
 [ "$HAVE_CLAUDE" = "1" ] && cross_identity "Claude Code" "$HOME/.claude.json"
 [ "$HAVE_CODEX" = "1" ] && cross_identity "Codex" "$CODEX_CONFIG"
+# The other hosts (Mission 242): the JSON-file hosts of tools/lib/mcp-hosts.sh,
+# measured once, one line each: <id> <name> <format> <config> <present>.
+OTHER_HOSTS="$(mcp_hosts | awk -F'\t' '$1 != "claude-desktop" && $1 != "claude-code" && $1 != "codex"')"
+while IFS="$(printf '\t')" read -r h_id h_name h_fmt h_cfg h_present; do
+  [ -n "$h_id" ] && [ "$h_present" = "1" ] || continue
+  cross_identity "$h_name" "$h_cfg"
+done <<OTHER_PREPASS_EOF
+$OTHER_HOSTS
+OTHER_PREPASS_EOF
 if [ -n "$DESKTOP_DIRS" ]; then
   while IFS= read -r d; do
     [ -z "$d" ] && continue
@@ -330,7 +392,15 @@ $DESKTOP_DIRS
 PREPASS_EOF
 fi
 if [ "$REFUSED" = "1" ]; then
-  SUFFIX_LABEL="${LABEL:+$LABEL-}$(printf '%s' "${MY_ID#sb-}" | cut -c1-8)"
+  SUFFIX_ID="$(printf '%s' "${MY_ID#sb-}" | cut -c1-8)"
+  SUFFIX_LABEL="${LABEL:+$LABEL-}$SUFFIX_ID"
+  # Mission 242: the proposal obeys the name length guard -- the label is cut so
+  # that `<label>-<8 characters>` stays within the 14 characters it allows.
+  if [ "$(mcp_tool_name_length "$VID_SERVER_PREFIX-$SUFFIX_LABEL")" -gt "$MCP_TOOL_NAME_MAX" ]; then
+    KEEP=$((MCP_TOOL_NAME_MAX - ${#VID_SERVER_PREFIX} - ${#MCP_LONGEST_TOOL} - 8 - ${#SUFFIX_ID} - 1))
+    CUT="$(printf '%s' "$LABEL" | cut -c1-"$KEEP" | sed 's/-*$//')"
+    SUFFIX_LABEL="${CUT:+$CUT-}$SUFFIX_ID"
+  fi
   CATALOG "vaultMcp.suffixProposal" "$VID_SERVER_PREFIX-$SUFFIX_LABEL" "$SUFFIX_LABEL"
   exit 1
 fi
@@ -410,6 +480,32 @@ DESKTOP_EOF
 else
   CATALOG "vaultMcp.notDetected" "Claude Desktop"
 fi
+
+# --- The other hosts (Mission 242): Gemini CLI, Cursor, Windsurf, Cline, LM Studio --
+# Written only when present; the same merge as the desktop application's file.
+while IFS="$(printf '\t')" read -r h_id h_name h_fmt h_cfg h_present; do
+  [ -n "$h_id" ] || continue
+  if [ "$h_present" != "1" ]; then
+    CATALOG "vaultMcp.notDetected" "$h_name"
+    continue
+  fi
+  DETECTED=1
+  CATALOG "vaultMcp.detected" "$h_name ($(native "$h_cfg"))"
+  migrate_former "$h_name" desktop "$h_cfg"
+  if [ "$h_fmt" = "json-stdio" ]; then
+    RESULT="$(PYRUN merge-mcp-json --entry-type stdio "$h_cfg" "$SERVER" "$UV_N" run --no-project "$MCP_N" --vault "$VAULT_N" --allow "$WS_N" | tr -d '\r')"
+  else
+    RESULT="$(PYRUN merge-mcp-json "$h_cfg" "$SERVER" "$UV_N" run --no-project "$MCP_N" --vault "$VAULT_N" --allow "$WS_N" | tr -d '\r')"
+  fi
+  case "$RESULT" in
+    UNCHANGED) CATALOG "vaultMcp.alreadyPresent" "$h_name" "$SERVER" ;;
+    UPDATED) CATALOG "vaultMcp.added" "$h_name" "$WS_N" "$SERVER" ;;
+    *) CATALOG "vaultMcp.failed" "$h_name" ;;
+  esac
+  retire_keys "$h_name" desktop "$h_cfg"
+done <<OTHER_HOSTS_EOF
+$OTHER_HOSTS
+OTHER_HOSTS_EOF
 
 if [ "$DETECTED" = "0" ]; then
   CATALOG "vaultMcp.nothingDetected"

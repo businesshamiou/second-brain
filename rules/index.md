@@ -24,6 +24,10 @@ Index généré automatiquement. Ne pas éditer à la main : régénérer via `t
 - `2026-08-26-142800` · active · Project structure standard — seven functions, skeleton, Vault/project boundary,… · `RULES-2026-08-26-142800-project-structure-standard.md`
 - `2026-09-11-190000` · active · Boundary between a project and Second Brain · `RULES-2026-09-11-190000-project-second-brain-boundary.md`
 - `2026-09-20-012259` · active · Two work regimes: the light Note and the full Mission · `RULES-2026-09-20-012259-two-work-regimes-light-note-and-full-mission.md`
+- `2026-09-25-100419` · active · Absolute repository paths and verified pushes · `RULES-2026-09-25-100419-absolute-repo-paths-and-verified-pushes.md`
+- `2026-09-26-112218` · active · Workspace hygiene, project names and session types · `RULES-2026-09-26-112218-workspace-hygiene-project-names-session-types.md`
+- `2026-09-26-200933` · active · The sb command surface · `RULES-2026-09-26-200933-sb-command-surface.md`
+- `2026-09-28-121219` · active · Model-agnostic Pilot and Executor hosts · `RULES-2026-09-28-121219-model-agnostic-pilot-and-executor-hosts.md`
 
 ## Liens
 

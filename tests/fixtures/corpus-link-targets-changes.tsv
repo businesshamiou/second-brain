@@ -4,3 +4,108 @@
 +	AGENTS.md	./decisions/DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md	M189 -- AGENTS.md aligned on Decision 201623 A, which it now names
 +	tests/index.md	./index-archive-2026-09.md	M189 -- tests/index.md split into live index and frozen archive at its 8,000-byte cap
 +	skills/index.md	./update/SKILL.md	M191-C01 -- the new update skill is listed in the skills index
++	AGENTS.md	./decisions/DECISION-2026-09-23-012458-state-sheet-one-name-generated-state-path.md	M218 -- links to the Decisions of 2026-09-23 (state sheet, language, relay modes) that it applies (declared by M222, door 215)
++	AGENTS.md	./decisions/DECISION-2026-09-23-012459-owner-language-recorded-rendered-fixed-sentence.md	M218 -- links to the Decisions of 2026-09-23 (state sheet, language, relay modes) that it applies (declared by M222, door 215)
++	AGENTS.md	./decisions/DECISION-2026-09-23-012500-two-relay-modes-owner-prompt-traced-by-note.md	M218 -- links to the Decisions of 2026-09-23 (state sheet, language, relay modes) that it applies (declared by M222, door 215)
++	CONTEXT.md	./decisions/DECISION-2026-09-23-012500-two-relay-modes-owner-prompt-traced-by-note.md	M219 -- links added with the Decisions and the archive of Mission 219 (declared by M222, door 215)
++	INSTALL.md	https://github.com/charmbracelet/gum	M220 -- INSTALL.md names gum, the tool that displays the questionnaire (declared by M222, door 215)
++	knowledge/BRIEF-2026-08-17-211522-project-operating-model-v2.md	../decisions/DECISION-2026-09-23-012458-state-sheet-one-name-generated-state-path.md	M218 -- links to the Decisions of 2026-09-23 (state sheet, language, relay modes) that it applies (declared by M222, door 215)
++	rules/RULES-2026-08-17-111018-context-lifecycle-v2.md	../decisions/DECISION-2026-09-23-012458-state-sheet-one-name-generated-state-path.md	M218 -- links to the Decisions of 2026-09-23 (state sheet, language, relay modes) that it applies (declared by M222, door 215)
++	rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md	../decisions/DECISION-2026-09-23-012500-two-relay-modes-owner-prompt-traced-by-note.md	M218 -- links to the Decisions of 2026-09-23 (state sheet, language, relay modes) that it applies (declared by M222, door 215)
++	rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md	../decisions/DECISION-2026-09-23-012458-state-sheet-one-name-generated-state-path.md	M218 -- links to the Decisions of 2026-09-23 (state sheet, language, relay modes) that it applies (declared by M222, door 215)
++	rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md	../decisions/DECISION-2026-09-23-012500-two-relay-modes-owner-prompt-traced-by-note.md	M218 -- links to the Decisions of 2026-09-23 (state sheet, language, relay modes) that it applies (declared by M222, door 215)
++	skills/ecriture-de-mission/SKILL.md	../../decisions/DECISION-2026-09-23-012500-two-relay-modes-owner-prompt-traced-by-note.md	M218 -- links to the Decisions of 2026-09-23 (state sheet, language, relay modes) that it applies (declared by M222, door 215)
++	skills/ecriture-de-mission/SKILL.md	../../rules/RULES-2026-09-20-012259-two-work-regimes-light-note-and-full-mission.md	M199 -- the Mission-writing skill names the two work regimes and the execution Note template (declared by M222, door 215)
++	skills/ecriture-de-mission/SKILL.md	../../templates/execution-note-template.md	M199 -- the Mission-writing skill names the two work regimes and the execution Note template (declared by M222, door 215)
++	skills/session-start/reading-list.md	../../decisions/DECISION-2026-09-23-012458-state-sheet-one-name-generated-state-path.md	M218 -- links to the Decisions of 2026-09-23 (state sheet, language, relay modes) that it applies (declared by M222, door 215)
++	templates/current-state-template.md	../decisions/DECISION-2026-09-23-012458-state-sheet-one-name-generated-state-path.md	M218 -- links to the Decisions of 2026-09-23 (state sheet, language, relay modes) that it applies (declared by M222, door 215)
++	templates/handoff-template.md	../decisions/DECISION-2026-09-23-012458-state-sheet-one-name-generated-state-path.md	M218 -- links to the Decisions of 2026-09-23 (state sheet, language, relay modes) that it applies (declared by M222, door 215)
++	templates/session-opening-prompt-template.md	../decisions/DECISION-2026-09-23-012458-state-sheet-one-name-generated-state-path.md	M218 -- links to the Decisions of 2026-09-23 (state sheet, language, relay modes) that it applies (declared by M222, door 215)
++	templates/session-opening-prompt-template.md	../decisions/DECISION-2026-09-23-012459-owner-language-recorded-rendered-fixed-sentence.md	M218 -- links to the Decisions of 2026-09-23 (state sheet, language, relay modes) that it applies (declared by M222, door 215)
++	templates/vault-root-template.md	../decisions/DECISION-2026-09-23-012458-state-sheet-one-name-generated-state-path.md	M218 -- links to the Decisions of 2026-09-23 (state sheet, language, relay modes) that it applies (declared by M222, door 215)
++	templates/vault-root-template.md	../decisions/DECISION-2026-09-23-012500-two-relay-modes-owner-prompt-traced-by-note.md	M218 -- links to the Decisions of 2026-09-23 (state sheet, language, relay modes) that it applies (declared by M222, door 215)
++	tests/index.md	./index-archive-2026-09-b.md	M219 -- links added with the Decisions and the archive of Mission 219 (declared by M222, door 215)
++	INSTALL.md	./bootstrap.sh	M222 -- INSTALL.md links the pages and sources of its deep-root and keyboard notes
++	INSTALL.md	./docs/first-session.md	M222 -- INSTALL.md links the pages and sources of its deep-root and keyboard notes
++	INSTALL.md	./docs/troubleshooting.md	M222 -- INSTALL.md links the pages and sources of its deep-root and keyboard notes
++	INSTALL.md	./install.ps1	M222 -- INSTALL.md links the pages and sources of its deep-root and keyboard notes
++	INSTALL.md	./install.sh	M222 -- INSTALL.md links the pages and sources of its deep-root and keyboard notes
++	README.md	./docs/assistant.md	M222 -- README links every documentation page (docs/), the entry that leads to all of it in one click
++	README.md	./docs/first-session.md	M222 -- README links every documentation page (docs/), the entry that leads to all of it in one click
++	README.md	./docs/guardians-and-tests.md	M222 -- README links every documentation page (docs/), the entry that leads to all of it in one click
++	README.md	./docs/index.md	M222 -- README links every documentation page (docs/), the entry that leads to all of it in one click
++	README.md	./docs/overview.md	M222 -- README links every documentation page (docs/), the entry that leads to all of it in one click
++	README.md	./docs/projects.md	M222 -- README links every documentation page (docs/), the entry that leads to all of it in one click
++	README.md	./docs/publishing.md	M222 -- README links every documentation page (docs/), the entry that leads to all of it in one click
++	README.md	./docs/roles-and-missions.md	M222 -- README links every documentation page (docs/), the entry that leads to all of it in one click
++	README.md	./docs/skills.md	M222 -- README links every documentation page (docs/), the entry that leads to all of it in one click
++	README.md	./docs/troubleshooting.md	M222 -- README links every documentation page (docs/), the entry that leads to all of it in one click
++	README.md	./docs/update-and-uninstall.md	M222 -- README links every documentation page (docs/), the entry that leads to all of it in one click
++	README.md	./docs/MAP.md	M222 -- the documentation map and its Decision (the assistant reads the map first)
++	assistant/ASSISTANT.md	../decisions/DECISION-2026-09-23-232720-assistant-reads-documentation-map-first-lightest-model.md	M222 -- the documentation map and its Decision (the assistant reads the map first)
++	assistant/ASSISTANT.md	../docs/MAP.md	M222 -- the documentation map and its Decision (the assistant reads the map first)
++	RELEASE-NOTES.md	./docs/publishing.md	M222 -- draft of v0.1.15 names the publishing page, the documentation and its map
++	RELEASE-NOTES.md	./docs/index.md	M222 -- draft of v0.1.15 names the publishing page, the documentation and its map
++	RELEASE-NOTES.md	./docs/MAP.md	M222 -- draft of v0.1.15 names the publishing page, the documentation and its map
+-	INSTALL.md	./docs/first-session.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
+-	INSTALL.md	./docs/troubleshooting.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
+-	README.md	./docs/assistant.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
+-	README.md	./docs/first-session.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
+-	README.md	./docs/guardians-and-tests.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
+-	README.md	./docs/overview.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
+-	README.md	./docs/projects.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
+-	README.md	./docs/publishing.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
+-	README.md	./docs/roles-and-missions.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
+-	README.md	./docs/skills.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
+-	README.md	./docs/troubleshooting.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
+-	README.md	./docs/update-and-uninstall.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
+-	RELEASE-NOTES.md	./docs/publishing.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
++	INSTALL.md	./docs/how-to/open-a-session.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
++	INSTALL.md	./docs/how-to/troubleshoot.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
++	README.md	./docs/explanation/index.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
++	README.md	./docs/how-to/index.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
++	README.md	./docs/reference/index.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
++	README.md	./docs/tutorials/first-mission.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
++	README.md	./docs/tutorials/first-project.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
++	README.md	./docs/tutorials/index.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
++	README.md	./docs/tutorials/install.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
++	RELEASE-NOTES.md	./docs/how-to/publish.md	M226 -- docs/ in four families (git mv), README leads to each family in one click
+-	skills/ecriture-de-mission/SKILL.md	../../decisions/DECISION-2026-08-29-212009-evidence-status-and-stop-control.md	M236 -- skills ecriture-de-mission and recherche-interne renamed mission-writing and internal-search (rule 200933 §10)
+-	skills/ecriture-de-mission/SKILL.md	../../decisions/DECISION-2026-09-23-012500-two-relay-modes-owner-prompt-traced-by-note.md	M236 -- skills ecriture-de-mission and recherche-interne renamed mission-writing and internal-search (rule 200933 §10)
+-	skills/ecriture-de-mission/SKILL.md	../../rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md	M236 -- skills ecriture-de-mission and recherche-interne renamed mission-writing and internal-search (rule 200933 §10)
+-	skills/ecriture-de-mission/SKILL.md	../../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md	M236 -- skills ecriture-de-mission and recherche-interne renamed mission-writing and internal-search (rule 200933 §10)
+-	skills/ecriture-de-mission/SKILL.md	../../rules/RULES-2026-09-20-012259-two-work-regimes-light-note-and-full-mission.md	M236 -- skills ecriture-de-mission and recherche-interne renamed mission-writing and internal-search (rule 200933 §10)
+-	skills/ecriture-de-mission/SKILL.md	../../templates/execution-note-template.md	M236 -- skills ecriture-de-mission and recherche-interne renamed mission-writing and internal-search (rule 200933 §10)
+-	skills/ecriture-de-mission/SKILL.md	../../templates/mission-template.md	M236 -- skills ecriture-de-mission and recherche-interne renamed mission-writing and internal-search (rule 200933 §10)
+-	skills/ecriture-de-mission/SKILL.md	./mission-checklist.md	M236 -- skills ecriture-de-mission and recherche-interne renamed mission-writing and internal-search (rule 200933 §10)
+-	skills/ecriture-de-mission/index.md	../../rules/RULES-2026-08-21-115658-document-linking-standard.md	M236 -- skills ecriture-de-mission and recherche-interne renamed mission-writing and internal-search (rule 200933 §10)
+-	skills/ecriture-de-mission/mission-checklist.md	../../decisions/DECISION-2026-09-02-191407-journal-and-index-as-pointers-300-chars.md	M236 -- skills ecriture-de-mission and recherche-interne renamed mission-writing and internal-search (rule 200933 §10)
+-	skills/ecriture-de-mission/mission-checklist.md	../../decisions/DECISION-2026-09-05-124647-index-as-locator-8000-cap-live-archive.md	M236 -- skills ecriture-de-mission and recherche-interne renamed mission-writing and internal-search (rule 200933 §10)
+-	skills/ecriture-de-mission/mission-checklist.md	../../rules/RULES-2026-08-17-211522-mission-versioning-and-generated-output.md	M236 -- skills ecriture-de-mission and recherche-interne renamed mission-writing and internal-search (rule 200933 §10)
+-	skills/ecriture-de-mission/mission-checklist.md	../../templates/mission-template.md	M236 -- skills ecriture-de-mission and recherche-interne renamed mission-writing and internal-search (rule 200933 §10)
+-	skills/ecriture-de-mission/mission-checklist.md	./SKILL.md	M236 -- skills ecriture-de-mission and recherche-interne renamed mission-writing and internal-search (rule 200933 §10)
+-	skills/index.md	./ecriture-de-mission/SKILL.md	M236 -- skills ecriture-de-mission and recherche-interne renamed mission-writing and internal-search (rule 200933 §10)
+-	skills/index.md	./recherche-interne/SKILL.md	M236 -- skills ecriture-de-mission and recherche-interne renamed mission-writing and internal-search (rule 200933 §10)
+-	skills/recherche-interne/SKILL.md	../../decisions/DECISION-2026-08-29-212009-evidence-status-and-stop-control.md	M236 -- skills ecriture-de-mission and recherche-interne renamed mission-writing and internal-search (rule 200933 §10)
+-	skills/recherche-interne/SKILL.md	../../rules/RULES-2026-08-21-115658-document-linking-standard.md	M236 -- skills ecriture-de-mission and recherche-interne renamed mission-writing and internal-search (rule 200933 §10)
+-	skills/recherche-interne/index.md	../../rules/RULES-2026-08-21-115658-document-linking-standard.md	M236 -- skills ecriture-de-mission and recherche-interne renamed mission-writing and internal-search (rule 200933 §10)
++	AGENTS.md	./docs/reference/commands.md	M236 -- the sb command surface: rule 200933, command reference, renamed skills, router skill, plugin
++	AGENTS.md	./rules/RULES-2026-09-26-200933-sb-command-surface.md	M236 -- the sb command surface: rule 200933, command reference, renamed skills, router skill, plugin
++	CLAUDE.md	./docs/reference/commands.md	M236 -- the sb command surface: rule 200933, command reference, renamed skills, router skill, plugin
++	CLAUDE.md	./rules/RULES-2026-09-26-200933-sb-command-surface.md	M236 -- the sb command surface: rule 200933, command reference, renamed skills, router skill, plugin
++	RELEASE-NOTES.md	./docs/how-to/start-something-new.md	M234 (declared by M236) -- links added by Mission 234 (rule 112218, session types, index archive) and left undeclared: this test was red on 0228ad5
++	RELEASE-NOTES.md	./docs/reference/commands.md	M236 -- the sb command surface: rule 200933, command reference, renamed skills, router skill, plugin
++	rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md	./RULES-2026-09-26-112218-workspace-hygiene-project-names-session-types.md	M234 (declared by M236) -- links added by Mission 234 (rule 112218, session types, index archive) and left undeclared: this test was red on 0228ad5
++	rules/RULES-2026-08-23-224706-role-charter-and-session-determination.md	./RULES-2026-09-26-200933-sb-command-surface.md	M236 -- the sb command surface: rule 200933, command reference, renamed skills, router skill, plugin
++	skills/index.md	./claude-plugins/.claude-plugin/marketplace.json	M236 -- the sb command surface: rule 200933, command reference, renamed skills, router skill, plugin
++	skills/index.md	./internal-search/SKILL.md	M236 -- the sb command surface: rule 200933, command reference, renamed skills, router skill, plugin
++	skills/index.md	./mission-writing/SKILL.md	M236 -- the sb command surface: rule 200933, command reference, renamed skills, router skill, plugin
++	skills/index.md	./sb/SKILL.md	M236 -- the sb command surface: rule 200933, command reference, renamed skills, router skill, plugin
++	skills/session-start/SKILL.md	../../rules/RULES-2026-09-26-112218-workspace-hygiene-project-names-session-types.md	M234 (declared by M236) -- links added by Mission 234 (rule 112218, session types, index archive) and left undeclared: this test was red on 0228ad5
++	skills/session-start/SKILL.md	../../templates/accueil-pilot-prompt-template.md	M234 (declared by M236) -- links added by Mission 234 (rule 112218, session types, index archive) and left undeclared: this test was red on 0228ad5
++	skills/session-start/SKILL.md	../../templates/free-session-prompt-template.md	M234 (declared by M236) -- links added by Mission 234 (rule 112218, session types, index archive) and left undeclared: this test was red on 0228ad5
++	skills/session-start/reading-list.md	../../rules/RULES-2026-09-26-112218-workspace-hygiene-project-names-session-types.md	M234 (declared by M236) -- links added by Mission 234 (rule 112218, session types, index archive) and left undeclared: this test was red on 0228ad5
++	templates/initiation-order-template.md	../rules/RULES-2026-09-26-112218-workspace-hygiene-project-names-session-types.md	M234 (declared by M236) -- links added by Mission 234 (rule 112218, session types, index archive) and left undeclared: this test was red on 0228ad5
++	templates/session-opening-prompt-template.md	../rules/RULES-2026-09-26-200933-sb-command-surface.md	M236 -- the sb command surface: rule 200933, command reference, renamed skills, router skill, plugin
++	templates/vault-root-template.md	../rules/RULES-2026-09-26-112218-workspace-hygiene-project-names-session-types.md	M234 (declared by M236) -- links added by Mission 234 (rule 112218, session types, index archive) and left undeclared: this test was red on 0228ad5
++	tests/index.md	./index-archive-2026-09-c.md	M234 (declared by M236) -- links added by Mission 234 (rule 112218, session types, index archive) and left undeclared: this test was red on 0228ad5

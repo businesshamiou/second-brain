@@ -185,13 +185,13 @@ d "HEAD..HEAD"; [ "$RC" = 2 ] && pass "(i) an empty range -> usage error, exit 2
 
 # (j) the ids of the tool and of the rule are the same set; each id is raised in the code
 RULE="$(ls "$REPO_ROOT"/rules/RULES-*-two-work-regimes-*.md 2>/dev/null | head -n 1)"
-ids() { grep -Eo 'R[1-7]-[a-z]+' "$1" | sort -u; }
+ids() { grep -Eo 'R[1-8]-[a-z]+' "$1" | sort -u; }
 if [ -n "$RULE" ]; then
   [ "$(ids "$TOOL")" = "$(ids "$RULE")" ] && pass "(j) tool and rule name the same criterion ids ($(ids "$TOOL" | paste -sd' ' -))" || fail "(j) the ids drifted: tool [$(ids "$TOOL" | paste -sd' ' -)] rule [$(ids "$RULE" | paste -sd' ' -)]"
 else
   fail "(j) the rule file is missing"
 fi
-RAISED="$(grep -Eo 'add "R[1-7]-[a-z]+"' "$TOOL" | grep -Eo 'R[1-7]-[a-z]+' | sort -u)"
+RAISED="$(grep -Eo 'add "R[1-8]-[a-z]+"' "$TOOL" | grep -Eo 'R[1-8]-[a-z]+' | sort -u)"
 [ "$RAISED" = "$(ids "$TOOL")" ] && pass "(j) every id in the tool's header is raised by its code" || fail "(j) header ids [$(ids "$TOOL" | paste -sd' ' -)] vs raised [$(printf '%s' "$RAISED" | paste -sd' ' -)]"
 
 echo ""

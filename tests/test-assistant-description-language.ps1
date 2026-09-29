@@ -55,7 +55,7 @@ $needles = @{
 # $Script:WebPackageKnowledgeFiles's own SourcePaths lists -- New-AssistantForms
 # also writes the web package, which needs these to exist (same pattern as
 # tests/test-web-package-answers-test-questions.ps1).
-$sourceFiles = @('assistant\ASSISTANT.md') + @($Script:WebPackageKnowledgeFiles | ForEach-Object { $_.SourcePaths })
+$sourceFiles = @('assistant\ASSISTANT.md', $Script:AssistantMapSource) + @($Script:WebPackageKnowledgeFiles | ForEach-Object { $_.SourcePaths })
 function New-MinimalClone {
     param([Parameter(Mandatory = $true)][string] $ClonePath)
     foreach ($relative in $sourceFiles) {

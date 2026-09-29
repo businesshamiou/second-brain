@@ -62,6 +62,8 @@ BEFORE="$(environment_fingerprint "$HOME/.profile")"
 echo "$BEFORE" | sed 's/^/  /'
 
 TEST_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/sb-e2e-XXXXXX")"
+# Mission 234: removed even when the script stops early, unless --keep-temp.
+trap '[ "$KEEP_TEMP" = "0" ] && rm -rf -- "$TEST_ROOT"' EXIT
 echo ""
 echo "=== 2. Fresh, blank temporary workspace ==="
 echo "  TestRoot: $TEST_ROOT"

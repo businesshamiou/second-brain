@@ -56,7 +56,7 @@ uv_guardian() {
     echo "REFUS : uv introuvable, impossible d'executer $script"
     return 1
   fi
-  uv run "$script"
+  uv run --no-project "$script"  # --no-project: inline script metadata still read; never a project sync (Mission 234)
 }
 
 bash_guardian() {

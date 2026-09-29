@@ -32,6 +32,10 @@ LINE_CAP = 300  # DECISION-2026-09-02-191407
 # the root of second-brain itself: the severity changes for no
 # real content of this repository.
 MISSION_INDEX_PATH = "missions/MISSION-INDEX.md"
+# Mission 219 (A8): every register, wherever it lives -- a workshop keeps its
+# own under a sub-folder (workshop-production/missions/MISSION-INDEX.md, 9 007
+# bytes past the cap, unseen by the exact path above).
+MISSION_INDEX_RE = re.compile(r"(?:^|/)missions/MISSION-INDEX\.md$")
 
 # Not retroactive, same discipline as the existing stop of
 # check_indexes_fresh.py: only the Mission lines beyond this
@@ -107,7 +111,7 @@ def main():
 
     targets = [
         p for p in staged
-        if (INDEX_RE.search(p) or ARCHIVE_RE.search(p) or p == MISSION_INDEX_PATH)
+        if (INDEX_RE.search(p) or ARCHIVE_RE.search(p) or MISSION_INDEX_RE.search(p))
         and not baseline.untouched(p)
         and not exempt.covers_file(p)
     ]
@@ -151,7 +155,7 @@ def main():
                 "vivant/archive par bash tools/build-indexes.sh <racine>",
             )
 
-        if path != MISSION_INDEX_PATH:
+        if not MISSION_INDEX_RE.search(path):
             continue
 
         text = blob.decode("utf-8", errors="surrogateescape")

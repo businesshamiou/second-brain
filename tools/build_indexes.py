@@ -71,6 +71,7 @@ import sys
 # Mission 203: the certificate's `# exempt:` prefixes (same reader as the guardians).
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import project_baseline  # noqa: E402
+import repo_root_guard  # noqa: E402  (Mission 226: the shared repository-root guard)
 
 WEIGHT_CAP = 8000  # DECISION-2026-09-05-124647 point 3
 TITLE_MAX = 80  # delegated choice 1
@@ -104,10 +105,49 @@ PRUNE_NAMES = {
 
 ARCHIVE_RE = re.compile(r"^index-archive-.+\.md$")
 
+# Mission 218, lot 1: the generation marker is the front-matter line this
+# script has always written (render() below). A file that does not carry it
+# was not generated here and is never overwritten, whatever the case of its
+# name: under NTFS, writing `index.md` over a hand-written `INDEX.md` rewrites
+# its content and keeps its name (532 files of a knowledge base, 2026-09-21);
+# under Linux the same run writes a second file beside it, which collides at
+# the first Windows clone.
+GEN_MARKER = "generated_by: tools/build-indexes.sh"
+
 
 def is_index_name(name):
     """Generated indexes never index themselves."""
     return name == "index.md" or bool(ARCHIVE_RE.match(name))
+
+
+def is_generated(path):
+    """True if the file carries the generation marker in its front matter."""
+    try:
+        lines = read_text(path).split("\n")
+    except OSError:
+        return False
+    if not lines or lines[0] != "---":
+        return False
+    for line in lines[1:60]:
+        if line == "---":
+            return False
+        if line.strip() == GEN_MARKER:
+            return True
+    return False
+
+
+def foreign_variants(dirpath, name, entries):
+    """Entries of the folder equal to `name` whatever the case, not generated here."""
+    low = name.lower()
+    return [
+        e for e in entries
+        if e.lower() == low and not is_generated(os.path.join(dirpath, e))
+    ]
+
+
+# root_admitted (door open-211, Mission 218) is replaced by the shared guard,
+# tools/repo_root_guard.py (Mission 226): the same walk up to a `.git` or a
+# birth certificate, which now stops at a workspace root.
 
 
 def read_text(path):
@@ -117,8 +157,13 @@ def read_text(path):
     # front-matter is not recognised, and the entry falls to "(sans titre)" /
     # "inconnu" -- a regression measured against the original awk, which read these
     # same files correctly.
+    # Mission 219 (A4): the UTF-8 byte-order mark Windows PowerShell 5.1
+    # writes at the head of USER.md is dropped, or the first line is not
+    # "---" and the entry falls to "(sans titre)" / "inconnu".
     with open(path, "rb") as fh:
         raw = fh.read().decode("utf-8", errors="surrogateescape")
+    if raw.startswith("﻿"):
+        raw = raw[1:]
     return raw.replace("\r\n", "\n")
 
 
@@ -363,7 +408,7 @@ def main(argv):
     argv = roots
 
     if not argv:
-        sys.stderr.write("usage: build_indexes.py [-v|--verbose] <racine...>\n")
+        sys.stderr.write("usage: build_indexes.py [-v|--verbose] [--only-missing] <racine...>\n")
         return 1
 
     live_count = 0
@@ -379,10 +424,20 @@ def main(argv):
         vault_root, "rules", "RULES-2026-08-21-115658-document-linking-standard.md"
     )
 
+    refused = 0
+    root_refused = 0
+
     for root in argv:
         if not os.path.isdir(root):
             continue
         root_abs = os.path.abspath(root)
+        # Mission 226: the shared repository-root guard (door open-211 before
+        # it): never the workspace root, never a folder in no repository.
+        refusal = repo_root_guard.check(root)
+        if refusal:
+            sys.stderr.write(refusal + "\n")
+            root_refused += 1
+            continue
 
         # Map of supersessions, scoped to this root (Bash block l.88-96).
         superseded_by = {}
@@ -439,12 +494,31 @@ def main(argv):
                 entries.append(entry_line(name, fields, superseded_by))
 
             index_path = os.path.join(dirpath, "index.md")
+            entries_here = os.listdir(dirpath)
+
+            # Mission 218, lot 1: a case variant of index.md (or index.md
+            # itself) that this script did not generate stops the folder --
+            # nothing is written in it, in either mode, and the refusal is
+            # named. Checked before --only-missing, whose existence test is
+            # case-insensitive under NTFS and case-sensitive under Linux: the
+            # same folder must get the same answer on both.
+            foreign = foreign_variants(dirpath, "index.md", entries_here)
+            if foreign:
+                for e in foreign:
+                    sys.stderr.write(
+                        "INDEX-CASE-COLLISION : %s exists and was not generated\n"
+                        % os.path.join(dirpath, e)
+                    )
+                refused += 1
+                continue
 
             # Existing archives of this folder, to remove those that are
             # no longer produced (no content deletion: the file
-            # exists only if it carries entries).
+            # exists only if it carries entries). Only generated archives
+            # are ever removed or rewritten (Mission 218).
             existing_archives = {
-                n for n in os.listdir(dirpath) if ARCHIVE_RE.match(n)
+                n for n in entries_here
+                if ARCHIVE_RE.match(n) and is_generated(os.path.join(dirpath, n))
             }
             if only_missing and (os.path.exists(index_path) or existing_archives):
                 continue
@@ -470,6 +544,21 @@ def main(argv):
                     buckets.setdefault(key, []).append(line)
 
             produced = set()
+            arch_names = [
+                "%s%s.md" % (ARCHIVE_PREFIX, s)
+                for (_, s) in sorted(buckets, key=lambda k: k[0])
+            ]
+            foreign = [
+                e for a in arch_names for e in foreign_variants(dirpath, a, entries_here)
+            ]
+            if foreign:
+                for e in foreign:
+                    sys.stderr.write(
+                        "INDEX-CASE-COLLISION : %s exists and was not generated\n"
+                        % os.path.join(dirpath, e)
+                    )
+                refused += 1
+                continue
             for (sort_key, suffix) in sorted(buckets, key=lambda k: k[0]):
                 lines = buckets[(sort_key, suffix)]
                 arch_name = "%s%s.md" % (ARCHIVE_PREFIX, suffix)
@@ -521,6 +610,20 @@ def main(argv):
             "build_indexes.py: %d index(es) regenerated (%d archived) across %d root(s)\n"
             % (live_count, archive_count, len(argv))
         )
+
+    if root_refused and not refused:
+        return 1
+
+    if refused:
+        # Mission 218: fail-closed. The hint never prescribes the full mode:
+        # regenerating over a file this script did not write is the incident.
+        sys.stderr.write(
+            "build_indexes.py: %d refusal(s). A case variant of index.md that was "
+            "not generated is never overwritten: declare its folder in the project's .vault-exempt (one prefix per line) or the birth "
+            "certificate's `# exempt:` key, or rename the file (Owner's decision).\n"
+            % refused
+        )
+        return 1
 
     return 0
 

@@ -63,21 +63,22 @@ SETTINGS="$VAULT_ROOT/.claude/settings.json"
 if [ ! -f "$SETTINGS" ]; then
   ISSUES+=("settings.json introuvable : $SETTINGS")
 else
-  # node before python3: on Windows, python3 may be only a Windows Store
-  # alias stub that always fails without being a real interpreter.
+  # node first, then Python through uv -- never a bare python3: on Windows,
+  # python3 may be only the Windows Store alias, which "is found" by
+  # `command -v` and always fails (Mission 231, docs/how-to/troubleshoot.md).
   JSON_OK=1
   if command -v node >/dev/null 2>&1 \
       && node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'))" "$SETTINGS" >/dev/null 2>&1; then
     JSON_OK=0
-  elif command -v python3 >/dev/null 2>&1 \
-      && python3 -c "import json,sys; json.load(open(sys.argv[1], encoding='utf-8'))" "$SETTINGS" >/dev/null 2>&1; then
+  elif command -v uv >/dev/null 2>&1 \
+      && uv run --no-project python -c "import json,sys; json.load(open(sys.argv[1], encoding='utf-8'))" "$SETTINGS" >/dev/null 2>&1; then
     JSON_OK=0
   fi
   if [ "$JSON_OK" -ne 0 ]; then
-    if command -v node >/dev/null 2>&1 || command -v python3 >/dev/null 2>&1; then
+    if command -v node >/dev/null 2>&1 || command -v uv >/dev/null 2>&1; then
       ISSUES+=("settings.json invalide (JSON) : $SETTINGS")
     else
-      ISSUES+=("aucun analyseur JSON disponible (node/python3) pour valider $SETTINGS")
+      ISSUES+=("aucun analyseur JSON disponible (node/uv) pour valider $SETTINGS")
     fi
   fi
 fi
@@ -108,6 +109,21 @@ if [ -f "$HOOKS_LOG" ]; then
   if [ -n "$(find "$HOOKS_LOG" -mmin +4320 2>/dev/null)" ]; then
     ISSUES+=("hooks.log silencieux depuis plus de 72h (plafond 72h) : $HOOKS_LOG")
   fi
+fi
+
+# --- 7. root of the workspace against the computed whitelist (Mission 234,
+# rule on workspace hygiene §3): a WARNING, never an issue -- the preflight
+# never blocks on it. Only when the parent of this Vault carries the marker. ---
+ROOT_GUARD="$VAULT_ROOT/tools/check-workspace-root.sh"
+if [ -f "$WORKSPACE_ROOT/VAULT-ROOT.md" ] && [ -f "$ROOT_GUARD" ]; then
+  ROOT_OUT="$(bash "$ROOT_GUARD" "$WORKSPACE_ROOT" 2>&1)"
+  while IFS= read -r ROOT_LINE; do
+    case "$ROOT_LINE" in
+      ÉCART:*|EXCEPTION-PROVISOIRE:*|SIGNALÉ:*) WARNINGS+=("racine de l'espace : $ROOT_LINE") ;;
+    esac
+  done <<ROOT_EOF
+$ROOT_OUT
+ROOT_EOF
 fi
 
 # --- Writing the stamp (never versioned) ---

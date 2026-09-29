@@ -43,6 +43,10 @@ cp -r "$REPO_ROOT/tools" "$TMP/vnew/tools"
 cp "$REPO_ROOT/templates/vault-root-template.md" "$TMP/vnew/templates/"
 HAVE_OLD=0
 sandbox_before_203 "$TMP/vold" && HAVE_OLD=1
+# Mission 219: the old SCRIPT renders today's template. What (b) proves is that
+# the script's default call did not change; the template's text is amended by
+# Decisions (Mission 218 amended it) and must not turn (b) red.
+[ "$HAVE_OLD" = "1" ] && cp "$REPO_ROOT/templates/vault-root-template.md" "$TMP/vold/templates/"
 
 sum() { cksum < "$1"; }
 
@@ -78,7 +82,13 @@ fi
 if [ "$HAVE_OLD" = "1" ]; then
   Q="$TMP/ws-b-old/projet"; guides "$Q"
   bash "$TMP/vold/tools/write-marker.sh" "$Q" >/dev/null 2>&1
-  norm() { sed -e 's/vold/vnew/g' -e '/Identit/d' -e '/Origine du Vault/d' "$1"; }
+  # Mission 234: the three field lines the old script cannot fill (declared
+  # temporary folder, organs, provisional exceptions) are left out, like the
+  # identity lines -- a change of the template, not of the default call.
+  # Mission 236: so is the line that routes a message starting with `sb `.
+  # Mission 235: the routing line of the workspace guides (to the entry
+  # matrix) is left out too, then the blank line it brings is squeezed.
+  norm() { sed -e 's/vold/vnew/g' -e '/Identit/d' -e '/Origine du Vault/d' -e '/Dossier temporaire d/d' -e '/Organes d/d' -e '/Exceptions provisoires/d' -e '/Avant toute réponse, identifie ta ligne/d' -e '/Un message qui commence par/d' "$1" | cat -s; }
   same=1
   for f in CLAUDE.md AGENTS.md VAULT-ROOT.md; do
     [ "$(norm "$Q/$f" | cksum)" = "$(norm "$P/$f" | cksum)" ] || same=0

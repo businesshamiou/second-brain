@@ -17,70 +17,48 @@ This file is kept by hand: `tools/build-indexes.sh` indexes only Markdown docume
 
 Each test returns a closed verdict — `PASS`, `FAIL`, or `SKIP (cause, platform)` — and carries its own negative control: the same measurement, on a case built to fail. A test without a control does not prove it can fail.
 
-### Publishing from the laboratory — Mission 192 (v0.1.9)
+### Secret-pattern boundary and bare links — Mission 229
 
-- `test-publish-from-laboratory.sh` (W / U / M) — one command publishes the laboratory as a fast-forward, the closed list kept from `release`; second run: nothing to publish; third-party advance and a widening argument refused.
-- `test-private-patterns-lab-exemption.sh` (U) — `projects/` exempt in a laboratory only; never on `publish`, never outside `projects/`.
-- `test-workshop-gitignore-links.sh` (U) — an existing `.gitignore` given the three link exclusions gets its links; `git status` shows none.
-- `test-backup-oracle.sh` (U) — a bundle is proven by restoring it; a truncated pack fails where `git bundle verify` passes.
+- `test-check-secrets-prefix-boundary.sh` (W / U / M) — the `sk-` pattern takes a key only at a word boundary: every true positive is still refused by that line, `risk-`, `task-`, `disk-` words pass.
+- `test-check-links-bare-relative.sh` (W / U / M) — a bare link (`README.md`, `docs/x.md`) resolves as `./x.md`: counted, or refused when missing; a URL, an anchor or a name without `.md` is not.
 
-### Publishing, the check before every push — Mission 198
+### Pre-publication fixes — Mission 223
 
-- `test-publish-private-check-before-push.sh` (W / U / M) — the private-pattern check runs once before every push of the publication tool, also when `publish` is already ahead of `release` with nothing to commit; a private pattern is refused on both paths, a clean tree is published on both, a laboratory already published is left alone.
+- `test-update-installed-vault.sh` (W / U / M), amended — the update regenerates the assistant's three forms under the name the installer recorded, also when the version was merged by an older tool; without a recorded name nothing is generated.
 
-### Two work regimes — Mission 199
+### Night run: guard, update handover, project tooling — Mission 231
 
-- `test-check-work-regime.sh` (W / U / M) — the work-regime check refuses a gesture that meets a full-regime criterion (push to the published repository, deletion, doctrine, refs, company repository, guardians) and the Note's wrong form, each refusal with its accepted twin; `diff` on a real change; the template is a valid Note; the criterion ids of the tool and of the rule stay the same set.
+- `test-repo-root-guard-system-temp.sh` (W / U / M) — the system temporary folder is never a workspace root; the real one stays refused.
+- `test-update-delegates-to-received-tool.sh` (W / U / M) — the update tool hands over to the received version's tool, once.
+- `test-preflight-hook-launcher.sh` (W / U / M) — projects keep a launcher of the Vault's preflight hook; matcher with `PowerShell`.
+- `test-bootstrap-gitignore-installed-skills.sh` (W / U / M) — a project's own skills are tracked; each link folder ignores its links.
+- `test-check-readable.sh` (W / U / M) — an unreadable file stops staging, `takeown` and `icacls /reset` named.
+- `test-troubleshoot-windows-pitfalls.sh` (W / U / M) — Store `python` alias, `GIT_OPTIONAL_LOCKS=0`, unreadable files: written down.
+- `test-adopt-completes-partial-adoption.sh` (W / U / M) — `adopt` on a partially adopted project adds journal, `STATE.md`, `DIGEST.md` and changes nothing that was there.
+- `test-warehouse-entry-links.sh` (W / U / M) — `skills-warehouse/AGENTS.md` and `README.md` carry no dead relative link.
+- `test-verified-push-declared-url.sh` (W / U / M) — `verified-push.sh` reads `# push_url:` from a birth certificate; `--url` stays first.
 
-### Fan-out — Mission 201
+### Workspace hygiene, names, session types — Mission 234
 
-- `test-fan-out-rubric.sh` (W / U / M) — the Mission template's optional `## Fan-out` rubric: exactly one, before `## Steps`, every other rubric kept, additions only; the skill instruction in at most ten lines naming `dispatching-parallel-agents`; the rubric form refused for a batch with no output, an output inside a repository, a duplicate name, no targets; an absent or empty rubric stays valid.
+- `test-declared-temp-folder.sh` (W / U / M) — every throwaway file goes through `tools/lib/tmp.sh`: no bare `mktemp`, no `/tmp` or `$env:TEMP` in the tools, no test next to its repository; both runners export `<SB_TMP>/tests`; a root under a marker refused; `write-marker.sh` writes and keeps the three new lines.
+- `test-check-workspace-root.sh` (W / U / M) — the workspace root against its computed whitelist: gaps named, a group holds only projects, provisional exceptions, organs from the marker.
+- `test-resolve-vault-marker-identity.sh` (W / U / M) — a marker without identity is refused; retired, the walk resolves the enclosing workspace's Vault.
+- `test-project-identity-group-accueil.sh` (W / U / M) — `SB - <Name>` in the block and the Pilot prompt; `identity --check`; `prompt` follows the registry; `--group` and the order's `Groupe`; refusals; `accueil-prompt`.
+- `agent-evals/run-agent-evals.sh` (W, on demand) — headless agents on throwaway folders: first line and next gesture of each entry scenario.
+- `test-common-prompt-verdict-and-e8.sh` (W / U / M) — Mission 235: the pasted common Pilot prompt puts the verdict on the first line and carries E8 (no Pilot prompt: `NOT-READY (projet non adopté)`, order proposed).
 
-### The server named after its workspace — Mission 206 (v0.1.12)
+### Starting interview — Mission 240
 
-- `test-install-vault-mcp-workspace-label.sh` (W / U / M) — the server is `second-brain-vault-<workspace_label>`: label posed by the installer and normalised alike in shell and Python; former key of the same Vault migrated; `workshops` retired on request, a Vault's key never; two Vaults with one label refused, suffixed name proposed, nothing written; `--skip-desktop`.
-- `test-project-bootstrap-refresh-prompt.sh` (W / U / M) — `project-bootstrap.sh prompt <dossier>` regenerates a project's Pilot prompt (old and current formats), keeping its canary and identity.
+- `test-starting-profile.sh` (W / U / M) — `sb profile` shows the « Profil de départ » section of `USER.md` and applies a profile order: that section only, every other line kept, BOM and CRLF kept, the order filed in `_archive/orders/`; four refusals leave everything unchanged; the initiation order's three optional fields and `--ask` (`sb new --ask` included) write « Profil du projet » in `README.md` and the state sheet; a project without it stays conforming.
+- `test-update-user-profile-merge.sh` (W / U / M) — extended: a filled « Profil de départ » survives an update byte for byte, never doubled by the skeleton's.
 
-### One MCP server per Vault, and the update — Mission 191-C01 (v0.1.8)
+### Model-agnostic hosts — Mission 242
 
-- `test-install-vault-mcp-name-per-vault.sh` (W / U / M) — two Vaults, two servers named after their identity; idempotent; former name migrated; crossed identity refused.
-- `test-check-mcp-containment-per-vault.sh` (W / U / M) — containment finds the server of the project's own Vault.
-- `test-project-instructions-name-server.sh` (W / U / M) — Project instructions and Pilot prompt name this Vault's server.
-- `test-agents-language-line.sh` (U) — `AGENTS.md` and `CLAUDE.md`: corpus in English, the participant's language from `USER.md`.
-- `test-update-installed-vault.sh` (W / U / M) and `.ps1` (W) — `second-brain update` from v0.1.7 to v0.1.8 over local commits; conflict, altered identity, temporary origin and the install line on an existing workspace all refused with nothing touched.
+- `test-mcp-hosts-agnostic.sh` (W / U / M) — the MCP server in every host present; length guard (M242).
 
-### Windows shards and tag checkout — Mission 189 (v0.1.7)
+### Missions 185-C01 to 219
 
-- `test-shards-cover-suite.sh` (U) — the three Windows shards play every W line once.
-- `test-suite-on-detached-head.sh` (U) — the suite holds on a detached HEAD.
-- `test-no-push-formula.sh` (U) — now also reads `AGENTS.md`, `CLAUDE.md`, `.claude/`, `.codex/`.
-
-### Corpus in English — Mission 187 (v0.1.6)
-
-- `test-corpus-language-english.sh` (W / U / M) — no corpus file above the French threshold.
-- `test-links-targets-unchanged.sh` (U) — link targets as frozen at `653910c`.
-- `test-skill-triggers-bilingual.sh` (U) — skill triggers in both languages.
-- `test-published-line-ref.sh` (U) — the published line and the bootstraps name one tag.
-
-### Reusable test bench — Mission 188
-
-- T1 `test-suite-manifest-matches-ci.sh` (U) — `suite.tsv` = the `ci.yml` suite at `42f74e6a` (108 triplets).
-- T2 `test-run-suite-reports-red.sh` (W / U / M) — the launcher plays everything, counts, names the reds.
-- T3 `test-setup-test-env-offline.sh` (U, CI) — the cached environment answers offline.
-- T4 `test-reference-clone-equivalence.sh` (U) — the reference clone installs the same thing.
-
-### Play only what changed — Mission 209
-
-- `test-run-suite-changed.sh` (W / U / M) — `run-suite.sh --changed [<ref>]` plays the two guardian lines and the lines the changed files name, the whole suite when the runner or the manifest changes; `run-suite.ps1 -Changed` lists the same lines.
-
-### Opening step zero and guardian launches — Missions 215 and 214
-
-- `test-pilot-opening-step-zero.sh` (W / U / M) — the opening carries a step zero, in the reading list, the opening prompt and the rendered block; a copy without it fails.
-- `test-check-asserted-paths-constant-launches.sh` (W / U / M) — the guardian's external launches are counted, and a larger corpus adds none.
-
-### Missions 186 and 185-C01
-
-Their tables are frozen in [`index-archive-2026-09.md`](./index-archive-2026-09.md).
+Their tables and lists are frozen in [`index-archive-2026-09.md`](./index-archive-2026-09.md) (Missions 187, 188, 189 and 191-C01 moved there by Mission 218) in [`index-archive-2026-09-c.md`](./index-archive-2026-09-c.md) (Missions 220, 221 and 222, Mission 234; Mission 226, Mission 242) and in [`index-archive-2026-09-b.md`](./index-archive-2026-09-b.md) (Missions 192, 198, 199 and 201, Mission 219; Missions 206, 209, 214-217 and 218, Mission 222; Mission 219, Mission 231), each time this index reached its 8,000-byte cap.
 
 ### Earlier families
 
@@ -94,5 +72,7 @@ Their tables are frozen in [`index-archive-2026-09.md`](./index-archive-2026-09.
 ## Liens
 
 - `see also` — [Vault tests — archive 2026-09](./index-archive-2026-09.md)
+- `see also` — [Vault tests — archive 2026-09 (b)](./index-archive-2026-09-b.md)
+- `see also` — [Vault tests — archive 2026-09 (c)](./index-archive-2026-09-c.md)
 - `see also` — [Guardrails and levels of evidence](../rules/RULES-2026-08-19-210803-guardrails-and-evidence-levels.md)
 - `prescribed by` — [Standard for links between documents](../rules/RULES-2026-08-21-115658-document-linking-standard.md)

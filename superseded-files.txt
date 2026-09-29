@@ -1,2 +1,3 @@
 knowledge/BRIEF-2026-08-17-140100-project-operating-model.md
 rules/RULES-2026-08-17-013937-context-lifecycle.md
+templates/current-state-template.md

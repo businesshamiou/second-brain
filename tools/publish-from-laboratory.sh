@@ -15,6 +15,16 @@
 # `publish` is already ahead of release/main and there is nothing new to commit
 # (Mission 198). The tag is not this tool's job: it is posed after a green run.
 #
+# --version <vX.Y.Z> (Mission 222, A-221-1): the publication tree receives
+# tools/set-release-version.sh <tag> before its commit, so the install line
+# of README.md and INSTALL.md and the default ref of both bootstraps name the
+# tag that will be posed on that very commit -- the published v0.1.14 still
+# named v0.1.9 and installed it. Refused if the tag already exists on release.
+# The laboratory's main is never rewritten.
+# --dry-run (Mission 222): everything up to and including the private-pattern
+# check, then the publication worktree is reset to publish: nothing
+# committed, nothing pushed. Last line DRY-RUN.
+#
 # Refusals, nothing pushed: not a laboratory (no `release` remote); run from
 # anything but the laboratory's `main` (never from `publish` itself);
 # uncommitted changes in the laboratory; `release/main` advanced by a third
@@ -23,8 +33,8 @@
 # Idempotent: a laboratory already published gives "nothing to publish",
 # exit 0, nothing pushed.
 #
-# usage: publish-from-laboratory.sh [--message-file <file>]
-# Last line: PUBLISHED <commit> | NOTHING-TO-PUBLISH | REFUSED
+# usage: publish-from-laboratory.sh [--version <vX.Y.Z>] [--dry-run] [--message-file <file>]
+# Last line: PUBLISHED <commit> | NOTHING-TO-PUBLISH | DRY-RUN | REFUSED
 
 set -u
 
@@ -42,6 +52,8 @@ LAB="$(cd "$SCRIPT_DIR/.." && pwd)"
 WS="$(cd "$LAB/.." && pwd)"
 PUB="$WS/m-publish/second-brain"
 MESSAGE_FILE=""
+VERSION=""
+DRY_RUN=0
 
 say() { echo "PUBLISH: $*"; }
 refuse() {
@@ -55,12 +67,20 @@ while [ $# -gt 0 ]; do
     --message-file)
       [ $# -ge 2 ] || refuse "--message-file sans fichier"
       MESSAGE_FILE="$2"; shift 2 ;;
+    --version)
+      [ $# -ge 2 ] || refuse "--version sans etiquette"
+      VERSION="$2"; shift 2 ;;
+    --dry-run) DRY_RUN=1; shift ;;
     *) refuse "argument non reconnu : $1 -- la liste close (${KEEP_FROM_RELEASE[*]}) ne s'etend pas par argument (Decision 210904 A2)" ;;
   esac
 done
 if [ -n "$MESSAGE_FILE" ]; then
   [ -f "$MESSAGE_FILE" ] || refuse "fichier de message introuvable : $MESSAGE_FILE"
   MESSAGE_FILE="$(cd "$(dirname "$MESSAGE_FILE")" && pwd)/$(basename "$MESSAGE_FILE")"
+fi
+if [ -n "$VERSION" ]; then
+  printf '%s' "$VERSION" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+    || refuse "--version : etiquette invalide '$VERSION' (attendu vX.Y.Z)"
 fi
 
 L() { git -C "$LAB" "$@"; }
@@ -71,6 +91,11 @@ L remote get-url release >/dev/null 2>&1 || refuse "$LAB n'a pas de distant rele
 [ -z "$(L status --porcelain)" ] || refuse "le laboratoire porte des changements non commites"
 L fetch --quiet release || refuse "git fetch release a echoue"
 RELEASE_HEAD="$(L rev-parse --verify --quiet refs/remotes/release/main)" || refuse "release/main introuvable"
+if [ -n "$VERSION" ]; then
+  TAG_ON_RELEASE="$(L ls-remote --tags release "refs/tags/$VERSION" 2>/dev/null)" \
+    || refuse "git ls-remote --tags release a echoue : l'etiquette $VERSION n'a pas pu etre verifiee"
+  [ -z "$TAG_ON_RELEASE" ] || refuse "l'etiquette $VERSION existe deja sur release : une version publiee ne se republie pas"
+fi
 if ! L rev-parse --verify --quiet refs/heads/publish >/dev/null; then
   L branch --quiet publish "$RELEASE_HEAD" || refuse "branche publish non creee"
   L branch --quiet --set-upstream-to=release/main publish >/dev/null 2>&1 || true
@@ -113,11 +138,18 @@ for keep in "${KEEP_FROM_RELEASE[@]}"; do
     P cat-file -e "$RELEASE_HEAD:$f" 2>/dev/null || P rm --quiet -f -- "$f"
   done
 done
+VERSION_FILES=()
+if [ -n "$VERSION" ]; then
+  [ -f "$PUB/tools/set-release-version.sh" ] || refuse "tools/set-release-version.sh absent de l'arbre publie"
+  bash "$PUB/tools/set-release-version.sh" "$VERSION" "$PUB" || refuse "la version $VERSION n'a pas pu etre posee dans l'arbre publie"
+  VERSION_FILES=(README.md INSTALL.md bootstrap.sh bootstrap.ps1)
+fi
 bash "$PUB/tools/build-indexes.sh" "$PUB" >/dev/null 2>&1 || refuse "reconstruction des index a echoue"
 # read-tree set the index to the laboratory's tree; the tool itself changes
-# only the closed list and the rebuilt indexes: only those are staged, never
-# a stray untracked file (preflight stamp, caches) of the worktree.
-P add -A -- "${KEEP_FROM_RELEASE[@]}" ':(glob)**/index.md' ':(glob)**/index-archive*.md' || refuse "git add a echoue dans le worktree de publication"
+# only the closed list, the rebuilt indexes and, with --version, the four
+# version places: only those are staged, never a stray untracked file
+# (preflight stamp, caches) of the worktree.
+P add -A -- "${KEEP_FROM_RELEASE[@]}" ${VERSION_FILES[@]+"${VERSION_FILES[@]}"} ':(glob)**/index.md' ':(glob)**/index-archive*.md' || refuse "git add a echoue dans le worktree de publication"
 
 NEED_COMMIT=1
 if P diff --cached --quiet "$PUBLISH_HEAD"; then
@@ -137,6 +169,15 @@ fi
 # (Mission 198: the second one used to skip the check). It reads the tree that
 # is about to go out, in the publication worktree.
 bash "$PUB/tools/check-private-patterns.sh" --tree-only || refuse "motif prive dans l'arbre publie"
+
+if [ "$DRY_RUN" -eq 1 ]; then
+  say "essai a blanc : $(P diff --cached --shortstat "$PUBLISH_HEAD" | sed 's/^ *//') a publier sur publish ($PUBLISH_HEAD), laboratoire $LAB_HEAD${VERSION:+, version $VERSION}"
+  [ "$NEED_COMMIT" -eq 1 ] || say "essai a blanc : publish est deja en avance sur release/main ($RELEASE_HEAD..$PUBLISH_HEAD)"
+  P read-tree -u --reset "$PUBLISH_HEAD" || refuse "remise du worktree de publication a publish a echoue"
+  say "essai a blanc : rien n'est commite, rien n'est pousse"
+  echo "DRY-RUN"
+  exit 0
+fi
 
 if [ "$NEED_COMMIT" -eq 0 ]; then
   P push --quiet release publish:main || refuse "poussee de publish (en avance sur release/main) refusee"

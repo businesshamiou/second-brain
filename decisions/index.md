@@ -14,13 +14,6 @@ Index vivant : les entrées les plus récentes. La totalité est répartie en ar
 
 ## Contenu
 
-- `2026-08-24-214607` · ARBITRATED · Distribution of transverse mechanisms — single doctrine, pinned implementation,… · `DECISION-2026-08-24-214607-transverse-mechanism-distribution.md`
-- `2026-08-25-110935` · ARBITRATED · Extension of the journal tag convention — CLOSE: tag and keyed doors · `DECISION-2026-08-25-110935-journal-close-tag-and-keyed-doors.md`
-- `2026-08-25-131034` · ARBITRATED · Doctrinal arbitrations of 2026-08-25 — revocation of the Pilot shell, self-fili… · `DECISION-2026-08-25-131034-doctrinal-arbitrations-2026-08-25.md`
-- `2026-08-25-205728` · arbitrated · Pivot of the workshop's use case — abandonment of « Une semaine sans écran », a… · `DECISION-2026-08-25-205728-workshop-case-study-pivot-wordpress.md`
-- `2026-08-25-213150` · arbitrated · Opening directory of a session — revocation of the position constraint, require… · `DECISION-2026-08-25-213150-session-opening-directory-freed.md`
-- `2026-08-25-232341` · arbitrated · Consolidation of the evening of 2026-08-25 — project standard, progressive disc… · `DECISION-2026-08-25-232341-evening-consolidation-project-standard-and-plan.md`
-- `2026-08-26-154553` · arbitrated · Amendment — delegated push becomes a rule: valid if and only if there is a date… · `DECISION-2026-08-26-154553-delegated-push-exception-becomes-rule.md`
 - `2026-08-26-163958` · arbitrated · Arbitration d — stage 2 (MCP write allowlist) in documented status quo, three w… · `DECISION-2026-08-26-163958-stage2-mcp-allowlist-status-quo.md`
 - `2026-08-26-231617` · arbitrated · Amendment — one Owner authorization line covers a single gesture · `DECISION-2026-08-26-231617-one-authorization-line-one-gesture.md`
 - `2026-08-27-100016` · arbitrated · Copy protocol — return direction as a snippet, exact words grouped and addresse… · `DECISION-2026-08-27-100016-copy-protocol-snippets-and-destinations.md`
@@ -51,6 +44,12 @@ Index vivant : les entrées les plus récentes. La totalité est répartie en ar
 - `2026-09-07-125156` · active · Decision — Machine dependencies before cutover: seven Owner arbitrations on rep… · `DECISION-2026-09-07-125156-cutover-dependencies-seven-arbitrations.md`
 - `2026-09-17-000545` · arbitrated · Project initiation and adoption — birth certificate, resolution of the Vault by… · `DECISION-2026-09-17-000545-project-initiation-birth-certificate-embedded-mcp-pilot-prompt.md`
 - `2026-09-17-201623` · arbitrated · Relay and delegation — one rule, one place: push is delegated by a clear expres… · `DECISION-2026-09-17-201623-relay-single-source-push-delegation-by-clear-expression-project-instructions.md`
+- `2026-09-23-012458` · arbitrated · State sheet — one name, generated, created at birth: STATE.md carries the contr… · `DECISION-2026-09-23-012458-state-sheet-one-name-generated-state-path.md`
+- `2026-09-23-012459` · arbitrated · Language — recorded once in USER.md, rendered in each Pilot prompt, and a fixed… · `DECISION-2026-09-23-012459-owner-language-recorded-rendered-fixed-sentence.md`
+- `2026-09-23-012500` · arbitrated · Two relay modes — the Mission, and the Owner's prompt executed without a Missio… · `DECISION-2026-09-23-012500-two-relay-modes-owner-prompt-traced-by-note.md`
+- `2026-09-23-105507` · arbitrated · The Owner's go-ahead on a full-regime criterion is quoted word for word in the… · `DECISION-2026-09-23-105507-owner-greenlight-in-note-and-local-language-file.md`
+- `2026-09-23-232720` · arbitrated · The assistant reads the documentation map first and runs on the lightest model… · `DECISION-2026-09-23-232720-assistant-reads-documentation-map-first-lightest-model.md`
+- `2026-09-27-213059` · arbitrated · The starting interview: a living Owner profile under a fixed heading of USER.md… · `DECISION-2026-09-27-213059-starting-interview-owner-and-project-profiles.md`
 
 ## Liens
 

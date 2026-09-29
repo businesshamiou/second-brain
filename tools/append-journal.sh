@@ -29,6 +29,10 @@ fi
 # MAX_LINE_CHARS. Counted in characters (wc -m), not in bytes -- consistent
 # with the convention already measured in Missions 121/122 on the STATE: line.
 # Refusal without writing anything.
+# Mission 226: the repository-root guard (tools/repo_root_guard.py), before
+# anything is written -- never the workspace root, never a folder in no repository.
+uv run --no-project "$(cd "$(dirname "$0")" && pwd)/repo_root_guard.py" "$PROJECT" || exit 1
+
 MAX_LINE_CHARS=300
 
 TEXT_LEN="$(printf '%s' "$TEXT" | wc -m)"

@@ -1,6 +1,6 @@
 ---
 name: project-bootstrap
-description: "Make a project aware of the Vault at one of its three tiers: register it, pin the Vault guardians, install the pre-tool preflight hook, and propose (never impose) the seven-function layout. Use when adopting an existing project or starting a new one under the Vault. Triggers on: « adopte ce projet », « nouveau projet », \"adopt this project\", \"new project\"."
+description: "Make a project aware of the Vault: register it, pin the guardians, install the preflight hook, propose the seven-function layout. Use to adopt or start a project. Triggers on: « adopte ce projet », « nouveau projet », \"adopt this project\", \"new project\"."
 license: "MIT"
 metadata:
   vault-implements: "(historique de l'atelier, non distribué), (historique de l'atelier, non distribué), (historique de l'atelier, non distribué)"
@@ -17,12 +17,12 @@ From the root of the project: **machine** — a global file per tool exists (`~/
 
 `bash <Vault>/tools/project-bootstrap.sh adopt <projet> [nom] --vcs none|git [--lang FR|EN|ES]` (or `--order <fichier>` for an initiation order). The script writes only what is missing, **without touching any existing file of the project** (a file present, even incomplete, is left as it is and flagged):
 1. **Birth certificate and pin** `.pre-commit-config.yaml`: comment block at the head (`vault_id`, `vault_origin`, `vault_ref`, `vcs`, `baseline`), then `repo: local` on this Vault by measured relative path, four hooks (`vault-check-secrets`, `vault-check-indexes-fresh`, `vault-check-index-weight`, `vault-check-links`). A pin already present without a certificate is not modified: the block to add is returned.
-2. **Dated baseline** (`.vault-baseline-<date>.tsv`, named by the certificate): the existing files and their fingerprint. The guardians judge only what is new and what is touched; an engraved file that is then touched must become compliant (ratchet). Broken links from before: `tools/propose-link-repairs.sh <projet>` returns a plan; `--apply` exists only under a Mission.
-3. **Pointer files** `AGENTS.md` and `CLAUDE.md`, Pilot prompt `<projet>/state/PILOT-PROMPT.md` (canary), `.gitignore` of the links, absent indexes: only if absent.
+2. **Dated baseline** (`.vault-baseline-<date>.tsv`, named by the certificate): the existing files and their fingerprint. The guardians judge only what is new and what is touched; an engraved file that is then touched must become compliant (ratchet). A Git working tree with uncommitted changes is refused before any write (`BASELINE-DIRTY-TREE`), unless the initiation order carries `Arbre sale : accepté — <raison>`; without Git the script says it cannot measure the tree. A baseline is never edited by hand: `tools/project_baseline.py amend <projet> --paths <file> --by <who> --reason <why>` amends listed entries to the fingerprints of a Git reference, all or nothing, with a header line (Mission 218). Broken links from before: `tools/propose-link-repairs.sh <projet>` returns a plan; `--apply` exists only under a Mission.
+3. **Pointer files** `AGENTS.md` and `CLAUDE.md` (written in the language recorded in the Vault's USER.md), Pilot prompt `<projet>/state/PILOT-PROMPT.md` (canary, `state_path`, `language`), the journal's birth entry, the generated state sheet `<projet>/state/STATE.md` and its digest `<projet>/state/DIGEST.md`, `.gitignore` of the links, absent indexes: only if absent (Decisions 012458 and 012459). A case variant of `index.md` that was not generated (a project's own `INDEX.md`) is never overwritten: the index tool refuses it by name (`INDEX-CASE-COLLISION`); declare its folder in the certificate's `# exempt:` key.
 4. **Line in the registry** (`vcs` column) and the Vault's **v2 sheet**; `conformity` measured by `tools/check-project-conformity.sh <projet>` (seven functions, registry, certificate, pin, Git hook if `vcs: git`, consistency of the pointer files with the certificate).
 5. **Git**: `vcs: git` → repository created if missing, `pre-commit install`; `vcs: none` → no hook, checks by command (`tools/check-links.sh <projet>`, `check-secrets.sh`, `check-indexes-fresh.sh`, `check-index-weight.sh`, `check-project-conformity.sh`). `adopt --git` later moves the project to `vcs: git`.
 
-The `executor-preflight` hook (companion `preflight-hook.sh`, fragment `settings-hook.json`) remains a gesture of this skill: copy the hook into `.claude/hooks/` if it is missing; an existing `.claude/settings.json` is never modified, the fragment is returned.
+The `executor-preflight` hook (companion `preflight-hook.sh`, fragment `settings-hook.json`) remains a gesture of this skill: copy the **launcher** `preflight-launcher.sh` into `.claude/hooks/preflight-hook.sh` if it is missing; an existing `.claude/settings.json` is never modified, the fragment is returned (its matcher covers `Bash` and `PowerShell`). Since Mission 231 the project keeps the launcher, never the checks: the launcher finds the Vault through `VAULT-ROOT.md` and runs the Vault's own `preflight-hook.sh`, so the checks never age behind the Vault. `tools/check-project-conformity.sh` reports a project whose `.claude/hooks/preflight-hook.sh` is not the launcher (an older copy of the checks: replace it by the launcher) and a `.claude/settings.json` whose matcher leaves out `PowerShell`.
 
 ## 3. New mode — project to be born
 
@@ -42,7 +42,7 @@ Open or close a session (`session-start`, `session-close`) · push · modify or 
 
 ## Liens
 
-- `see also` — [executor-preflight hook, to be copied into the project](./preflight-hook.sh)
+- `see also` — [executor-preflight hook, run from the Vault by the project's launcher](./preflight-hook.sh)
 - `see also` — [PreToolUse fragment to merge into .claude/settings.json](./settings-hook.json)
 - `applies` — Decision — Awareness of the Vault by a project, three tiers (workshop history, not distributed) (hors Vault)
 - `applies` — Decision — End of the skills V1 pass (workshop history, not distributed) (hors Vault)

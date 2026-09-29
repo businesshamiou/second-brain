@@ -17,6 +17,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import project_baseline  # noqa: E402
+import repo_root_guard  # noqa: E402  (Mission 226: the shared repository-root guard)
 
 LINK_RE = re.compile(r"\]\((\.{1,2}/[^)]*)\)")
 INLINE_CODE_RE = re.compile(r"(`+)(.+?)\1")
@@ -66,6 +67,11 @@ def main(argv):
     if not os.path.isdir(root):
         sys.stderr.write("REFUS : dossier de projet introuvable : %s\n" % argv[0])
         return 1
+    # Mission 226: the repository-root guard, before any reading or writing.
+    refusal = repo_root_guard.check(argv[0])
+    if refusal:
+        sys.stderr.write(refusal + "\n")
+        return 2
     if apply:
         ok = False
         if mission and os.path.isfile(mission) and os.path.basename(mission).startswith("MISSION-"):

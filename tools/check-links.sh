@@ -20,11 +20,13 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # usage: check-links.sh             (current repository, staged files)
 #        check-links.sh <projet>    (folder mode, without Git: all .md files of the
 #                                    project -- vcs: none, Decision 000545 A4)
+DIR_MODE=0
 if [ -n "${1:-}" ]; then
   if [ ! -d "$1" ]; then
     echo "REFUS : dossier de projet introuvable : $1" >&2
     exit 1
   fi
+  DIR_MODE=1
   VAULT_ROOT="$(cd "$1" && pwd)"
   STAGED="$(pb_list_files "$VAULT_ROOT" | grep -E '\.md$' || true)"
 else
@@ -43,18 +45,20 @@ WORKSPACE_ROOT="$(dirname "$VAULT_ROOT")"
 
 # Baseline (Decision 000545, A4): a file engraved at adoption and not
 # touched is never judged; once touched, it is judged in full, like a new one.
+# Mission 218, lot 6: one pass (pb_classify reads the baseline once and
+# fingerprints every file in one process); the old loop re-read the whole
+# baseline per file. Same verdicts, byte for byte. Progress on stderr, prefixed
+# `progress:`, in folder mode only.
 pb_load "$VAULT_ROOT"
+if [ "$DIR_MODE" = "1" ]; then
+  echo "progress: check-links: $(printf '%s\n' "$STAGED" | grep -c . ) .md file(s) listed in $VAULT_ROOT${PB_FILE:+, baseline $PB_NAME read once}" >&2
+fi
 if [ -n "$PB_FILE" ] && [ -n "$STAGED" ]; then
-  KEPT=""
-  while IFS= read -r f; do
-    [ -z "$f" ] && continue
-    pb_untouched "$f" && continue
-    KEPT="${KEPT}${KEPT:+
-}$f"
-  done <<PB_EOF
-$STAGED
-PB_EOF
-  STAGED="$KEPT"
+  CLASSIFIED="$(printf '%s\n' "$STAGED" | pb_classify "$VAULT_ROOT")" || {
+    echo "REFUS : ligne de base illisible, le controle ne peut pas verifier." >&2
+    exit 1
+  }
+  STAGED="$(printf '%s\n' "$CLASSIFIED" | awk -F'\t' '$1 != "U" { print substr($0, 3) }')"
 fi
 
 # Exempt paths (Mission 203): the certificate's `# exempt:` prefixes hold files of
@@ -78,6 +82,9 @@ fi
 if [ -z "$STAGED" ]; then
   exit 0
 fi
+TOTAL_TO_JUDGE="$(printf '%s\n' "$STAGED" | grep -c . )"
+[ "$DIR_MODE" = "1" ] && echo "progress: check-links: $TOTAL_TO_JUDGE .md file(s) to judge" >&2
+JUDGED=0
 
 # Removes every inline code span from a line before the link sweep:
 # backticks paired by equal delimiter length (CommonMark rule for code
@@ -127,6 +134,16 @@ strip_inline_code() {
 
 BLOCK=0
 
+# A bare relative link to a .md file (Mission 229): `](x.md)` or `](dir/x.md)`,
+# never `](/...)`, `](#...)`, `](<...>)`, `](~...)`, nor anything with a colon.
+BARE_LINK_RE='\]\([^/#<~:)][^:)]*\.md\)'
+
+# msg <text>: one message of the file being read, kept until its section check.
+msg() {
+  FILE_MSGS="${FILE_MSGS}$1
+"
+}
+
 while IFS= read -r file; do
   [ -z "$file" ] && continue
   case "$file" in
@@ -136,7 +153,17 @@ while IFS= read -r file; do
   FULLPATH="$VAULT_ROOT/$file"
   [ -f "$FULLPATH" ] || continue
 
-  DIR="$(dirname "$FULLPATH")"
+  # Mission 218, lot 6: no process per file -- the folder by parameter
+  # expansion (FULLPATH always holds a slash), the "## Liens" section seen by
+  # the line loop below instead of one grep per file, and this file's messages
+  # kept in FILE_MSGS so that they still follow the section message, as before.
+  DIR="${FULLPATH%/*}"
+  FILE_MSGS=""
+  HAS_LIENS=0
+  JUDGED=$((JUDGED + 1))
+  if [ "$DIR_MODE" = "1" ] && [ $((JUDGED % 500)) -eq 0 ]; then
+    echo "progress: check-links: $JUDGED/$TOTAL_TO_JUDGE" >&2
+  fi
 
   # --- 1. Mandatory "## Liens" section -- limited to the documentary corpus,
   # never to the adopted material of skills/external/ (verbatim body guaranteed
@@ -146,15 +173,7 @@ while IFS= read -r file; do
   # Owner arbitration 2026-09-11, option b -- same principle as
   # DECISION-203627: subtree adopted as is, T24, its own provenance
   # standards stand in for it, never the Vault's linking convention). ---
-  case "$file" in
-    skills/external/*|skills-warehouse/*) : ;;
-    *)
-      if ! grep -qE '^## Liens[[:space:]]*$' "$FULLPATH"; then
-        echo "LIENS: section manquante: $file" >&2
-        BLOCK=1
-      fi
-      ;;
-  esac
+  # (the check itself runs after the line loop below, which sees the section)
 
   # --- 2/3. Relative links: target resolved, or warning if no internal link ---
   HAS_INTERNAL=0
@@ -163,6 +182,11 @@ while IFS= read -r file; do
 
   while IFS= read -r line || [ -n "$line" ]; do
     LINE_NO=$((LINE_NO + 1))
+
+    # Rule 1's pattern, on the raw line, before any layer (grep saw them all).
+    case "$line" in
+      '## Liens'*) [[ "$line" =~ ^##\ Liens[[:space:]]*$ ]] && HAS_LIENS=1 ;;
+    esac
 
     # --- layer: fenced code block (Mission 060) -- removes any
     # indentation by pure bash parameter expansion (no subprocess,
@@ -183,9 +207,12 @@ while IFS= read -r file; do
     # Mission 060: avoids paying the cost of an awk subprocess per
     # line (strip_inline_code) for the vast majority of lines that
     # contain no candidate substring -- performance on
-    # large files must not degrade.
+    # large files must not degrade. Mission 229: a bare relative link,
+    # `[x](README.md)`, is a candidate too (linking standard §3: a path
+    # relative to the file); the bash test costs no subprocess.
     case "$line" in
       *'](./'*|*'](../'*) : ;;
+      *']('*) [[ "$line" =~ $BARE_LINK_RE ]] || continue ;;
       *) continue ;;
     esac
 
@@ -197,6 +224,7 @@ while IFS= read -r file; do
 
     case "$SCAN_LINE" in
       *'](./'*|*'](../'*) : ;;
+      *']('*) [[ "$SCAN_LINE" =~ $BARE_LINK_RE ]] || continue ;;
       *) continue ;;
     esac
 
@@ -205,7 +233,7 @@ while IFS= read -r file; do
     # path (internal to the current repository, or outgoing to a sibling repository),
     # never by the presence or absence of this mention on the line.
 
-    TARGETS="$(printf '%s' "$SCAN_LINE" | grep -oE '\]\(\.{1,2}/[^)]*\)' | sed -E 's/^\]\((.*)\)$/\1/')"
+    TARGETS="$(printf '%s' "$SCAN_LINE" | grep -oE '\]\([^)]*\)' | sed -E 's/^\]\((.*)\)$/\1/')"
     [ -z "$TARGETS" ] && continue
 
     while IFS= read -r TARGET; do
@@ -214,12 +242,31 @@ while IFS= read -r file; do
         *.md) : ;;
         *) continue ;;
       esac
+      # Mission 229: `./x.md` and `../x.md` as before; a bare `x.md` or
+      # `dir/x.md` resolves as `./x.md`. Never a URL or a drive (a colon),
+      # an absolute path, an anchor alone, `<...>` or `~`.
+      case "$TARGET" in
+        ./*|../*) : ;;
+        /*|'#'*|'<'*|'~'*|*:*) continue ;;
+      esac
 
       TARGET_PATH="$DIR/$TARGET"
+      # Mission 229: a link destination may be percent-encoded
+      # (`scripts/Capture%20Note.md`, 162 targets of adopted material in the
+      # Vault). When the raw path is missing, its decoded form is tried; the
+      # raw form is tried first, so this only ever accepts more.
+      case "$TARGET" in
+        *%[0-9A-Fa-f][0-9A-Fa-f]*)
+          if [ ! -e "$TARGET_PATH" ]; then
+            DECODED="$(printf '%b' "${TARGET//%/\\x}")"
+            [ -e "$DIR/$DECODED" ] && TARGET_PATH="$DIR/$DECODED"
+          fi
+          ;;
+      esac
       RESOLVED="$(abs_path "$TARGET_PATH")"
 
       if [ -z "$RESOLVED" ]; then
-        echo "LIENS: cible introuvable: $file:$LINE_NO -> $TARGET" >&2
+        msg "LIENS: cible introuvable: $file:$LINE_NO -> $TARGET"
         BLOCK=1
         continue
       fi
@@ -231,7 +278,7 @@ while IFS= read -r file; do
           if [ -f "$RESOLVED" ]; then
             HAS_INTERNAL=1
           else
-            echo "LIENS: cible introuvable: $file:$LINE_NO -> $TARGET" >&2
+            msg "LIENS: cible introuvable: $file:$LINE_NO -> $TARGET"
             BLOCK=1
           fi
           ;;
@@ -242,7 +289,7 @@ while IFS= read -r file; do
           # a refusal -- dead by construction in a standalone package. ---
           REL_TO_WS="${RESOLVED#"$WORKSPACE_ROOT"/}"
           if [ "$REL_TO_WS" = "$RESOLVED" ]; then
-            echo "LIENS: avertissement (depot cible non determinable depuis l'espace de travail, lien non verifie) : $file:$LINE_NO -> $TARGET" >&2
+            msg "LIENS: avertissement (depot cible non determinable depuis l'espace de travail, lien non verifie) : $file:$LINE_NO -> $TARGET"
           else
             TARGET_REPO_NAME="${REL_TO_WS%%/*}"
             TARGET_REPO_ROOT="$WORKSPACE_ROOT/$TARGET_REPO_NAME"
@@ -250,11 +297,11 @@ while IFS= read -r file; do
               if [ -f "$RESOLVED" ]; then
                 HAS_INTERNAL=1
               else
-                echo "LIENS: cible introuvable: $file:$LINE_NO -> $TARGET" >&2
+                msg "LIENS: cible introuvable: $file:$LINE_NO -> $TARGET"
                 BLOCK=1
               fi
             else
-              echo "LIENS: avertissement (depot cible absent du disque, lien non verifie) : $file:$LINE_NO -> $TARGET" >&2
+              msg "LIENS: avertissement (depot cible absent du disque, lien non verifie) : $file:$LINE_NO -> $TARGET"
             fi
           fi
           ;;
@@ -263,6 +310,32 @@ while IFS= read -r file; do
 $TARGETS
 TARGETS_EOF
   done < "$FULLPATH"
+
+  # --- 1. Mandatory "## Liens" section -- limited to the documentary corpus,
+  # never to the adopted material of skills/external/ (verbatim body guaranteed
+  # by fingerprints, outside the corpus's citation graph). The resolution
+  # of links (rules 2/3 above) remains global, external/ included.
+  # DECISION-2026-08-28-203627. skills-warehouse/ added (Mission 168,
+  # Owner arbitration 2026-09-11, option b -- same principle as
+  # DECISION-203627: subtree adopted as is, T24, its own provenance
+  # standards stand in for it, never the Vault's linking convention). ---
+  # Mission 229: these two prefixes name folders of THIS repository, the
+  # Vault (measured: 329 tracked .md files under skills-warehouse/, none with
+  # a "## Liens" section). $file is relative to the repository being
+  # checked, so they never match in another repository -- the sibling
+  # skills-warehouse repository included. A project exempts its vendored
+  # files by its certificate (`# exempt:` or `.vault-exempt`, read above),
+  # never by a prefix added here.
+  case "$file" in
+    skills/external/*|skills-warehouse/*) : ;;
+    *)
+      if [ "$HAS_LIENS" -eq 0 ]; then
+        echo "LIENS: section manquante: $file" >&2
+        BLOCK=1
+      fi
+      ;;
+  esac
+  [ -n "$FILE_MSGS" ] && printf '%s' "$FILE_MSGS" >&2
 
   if [ "$HAS_INTERNAL" -eq 0 ]; then
     echo "LIENS: avertissement, aucun lien interne: $file" >&2

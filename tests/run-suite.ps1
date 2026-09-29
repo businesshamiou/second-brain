@@ -4,7 +4,7 @@
 # GitHub's `shell: bash` uses (Mission 188). Same manifest, same verdicts and
 # same summary as tests/run-suite.sh.
 #
-# usage: powershell -NoProfile -ExecutionPolicy Bypass -File tests/run-suite.ps1 [-Manifest <file>] [-Shard k/n] [-Changed [-Ref <ref>]] [-List]
+# usage: powershell -NoProfile -ExecutionPolicy Bypass -File tests/run-suite.ps1 [-Manifest <file>] [-Shard k/n] [-Changed [-Ref <ref>]] [-List] [-OnDemand]
 #
 # -Shard k/n (Mission 189) plays only the lines whose shard column is k, and
 # refuses when the manifest's highest Windows shard is not n.
@@ -16,17 +16,27 @@
 # no origin/main. Parity with the bash runner is proved by
 # tests/test-run-suite-changed.sh.
 #
+# Like the bash runner, -Changed NEVER selects the whole suite: a change to
+# tests/suite.tsv, tests/run-suite.sh or tests/run-suite.ps1 is an ordinary change
+# (the lines named `suite` / `run-suite`, and the lines it adds); the whole suite is
+# played explicitly (without -Changed), when a Mission prescribes it (Decision 170838).
+#
 # Every line for Windows is played, even after a red one; exit code 1 if a
 # blocking line is red, 0 otherwise. A test exiting 77 reports SKIP. The exit
 # code of each test is read straight from $LASTEXITCODE, never behind a pipe
-# (Mission 185 defect: a pipe loses it).
+# (Mission 185 defect: a pipe loses it). Mission 237: every SKIP is named under
+# the RESULT line with its reason (the test's last line that says SKIP), and a
+# platform letter followed by `!` (`W!UM`) marks a test REQUIRED there: its
+# SKIP is a blocking FAIL. The test's standard output is collected, then
+# written, so that the reason can be read (same verdicts as run-suite.sh).
 
 param(
     [string]$Manifest,
     [string]$Shard,
     [switch]$Changed,
     [string]$Ref,
-    [switch]$List
+    [switch]$List,
+    [switch]$OnDemand
 )
 
 $ErrorActionPreference = 'Continue'
@@ -37,6 +47,22 @@ if (-not (Test-Path -LiteralPath $Manifest)) {
     exit 2
 }
 Set-Location -LiteralPath $RepoRoot
+
+# Declared temporary folder (Mission 234): every test this runner plays writes
+# its throwaway files under <SB_TMP>\tests -- TEMP/TMP for PowerShell and .NET,
+# TMPDIR for bash and Python, SB_TMP for the access function itself.
+# A manifest played from another checkout without tools\lib keeps its TEMP.
+$sbTmpLib = Join-Path $RepoRoot 'tools\lib\tmp.ps1'
+if (Test-Path -LiteralPath $sbTmpLib) {
+    . $sbTmpLib
+    $sbTestsTmp = Get-SbTmpDir -Use tests
+    $env:SB_TMP = Get-SbTmpRoot
+    $env:TEMP = $sbTestsTmp
+    $env:TMP = $sbTestsTmp
+    # TMPDIR in Git Bash's own form (/c/...), never C:/...: a drive colon in the
+    # paths mktemp returns breaks `file:line:` parsing (measured, Mission 234).
+    $env:TMPDIR = '/' + $sbTestsTmp.Substring(0, 1).ToLower() + $sbTestsTmp.Substring(2).Replace('\', '/')
+}
 
 $shardK = ''
 if ($Shard) {
@@ -84,11 +110,9 @@ $inCi = ($env:GITHUB_ACTIONS -eq 'true')
 $guardians = @('tools/session-preflight.sh', '.githooks/pre-commit')
 $changedFiles = @()
 $changedBases = @()
-$selectAll = $false
 $changedRef = ''
 
 function Test-ChangedSelects([string]$path, [string]$origin) {
-    if ($selectAll) { return $true }
     if ($guardians -ccontains $path) { return $true }
     if ($changedFiles -ccontains $path) { return $true }
     $lc = ("$path $origin").ToLowerInvariant()
@@ -111,7 +135,6 @@ if ($Changed) {
     $untrackedOut = & git -C $RepoRoot -c core.quotepath=off ls-files --others --exclude-standard 2>$null
     $changedFiles = @((@($diffOut) + @($untrackedOut)) | Where-Object { $_ -and $_.Trim() -ne '' })
     foreach ($cf in $changedFiles) {
-        if (@('tests/suite.tsv', 'tests/run-suite.sh', 'tests/run-suite.ps1') -ccontains $cf) { $selectAll = $true }
         if ($cf -clike 'tools/*' -or $cf -clike 'tests/*' -or $cf -clike '.githooks/*') {
             $b = ($cf -split '/')[-1]
             $dot = $b.LastIndexOf('.')
@@ -136,12 +159,12 @@ if ($Changed) {
         }
     }
     [Console]::Error.WriteLine("--changed : $selN ligne(s) selectionnee(s) sur $selM (ref $changedRef)")
-    if ($selectAll) { [Console]::Error.WriteLine('--changed : le lanceur ou le manifeste a change : toute la suite est selectionnee') }
-    elseif ($selTests -eq 0) { [Console]::Error.WriteLine('--changed : aucun test ne nomme les fichiers changes ; seuls les gardiens jouent') }
+    if ($selTests -eq 0) { [Console]::Error.WriteLine('--changed : aucun test ne nomme les fichiers changes ; seuls les gardiens jouent') }
 }
 
 $total = 0; $passed = 0; $skipped = 0; $failBlocking = 0; $failInfo = 0
 $verdicts = New-Object System.Collections.Generic.List[string]
+$skipLines = New-Object System.Collections.Generic.List[string]
 
 foreach ($line in (Get-Content -LiteralPath $Manifest -Encoding UTF8)) {
     if ($line -eq '' -or $line.StartsWith('#')) { continue }
@@ -150,6 +173,8 @@ foreach ($line in (Get-Content -LiteralPath $Manifest -Encoding UTF8)) {
     $path = $f[0]; $argText = $f[1]; $interp = $f[2]; $platforms = $f[3]; $severity = $f[4]; $origin = $f[5]
     if (-not $platforms.Contains('W')) { continue }
     if ($shardK -and ($f.Count -lt 7 -or $f[6] -ne $shardK)) { continue }
+    # Mission 234: severity on-demand -- played only with -OnDemand, and then alone.
+    if ($severity -eq 'on-demand') { if (-not $OnDemand) { continue } } elseif ($OnDemand) { continue }
     if ($Changed -and -not (Test-ChangedSelects $path $origin)) { continue }
     $lineArgs = @()
     if ($argText -ne '-') { $lineArgs = @($argText.Split(' ') | Where-Object { $_ -ne '' }) }
@@ -163,20 +188,37 @@ foreach ($line in (Get-Content -LiteralPath $Manifest -Encoding UTF8)) {
     Write-Output "    $origin"
     $sw = [System.Diagnostics.Stopwatch]::StartNew()
     $global:LASTEXITCODE = 0
-    switch ($interp) {
+    $lineOut = @(switch ($interp) {
         'bash'      { & $bash $path @lineArgs }
         'bash+uv'   { & $bash -c "$uvPrelude; f=`$1; shift; bash `$f `$@" run-suite $path @lineArgs }
         'uv-python' { & $bash -c "$uvPrelude; uv run --no-project `$@" run-suite $path @lineArgs }
         'ps1'       { & powershell -NoProfile -ExecutionPolicy Bypass -File $path @lineArgs }
         default     { Write-Output "REFUS : unknown interpreter '$interp' for $path"; $global:LASTEXITCODE = 2 }
-    }
+    })
     $rc = $LASTEXITCODE
+    foreach ($l in $lineOut) { Write-Output $l }
     $secs = [int]$sw.Elapsed.TotalSeconds
     if ($inCi) { Write-Output '::endgroup::' }
 
     if ($rc -eq 0) { $verdict = 'PASS'; $passed++ }
-    elseif ($rc -eq 77) { $verdict = 'SKIP'; $skipped++ }
-    elseif ($severity -eq 'informational') { $verdict = 'FAIL (informational)'; $failInfo++ }
+    elseif ($rc -eq 77) {
+        $reason = @($lineOut | ForEach-Object { "$_" } | Where-Object { $_ -match '(?i)skip' -and $_ -notmatch '^--- ' }) | Select-Object -Last 1
+        if (-not $reason) { $reason = @($lineOut | ForEach-Object { "$_" } | Where-Object { $_.Trim() }) | Select-Object -Last 1 }
+        $reason = "$reason".Trim()
+        if ($reason.Length -gt 200) { $reason = $reason.Substring(0, 200) }
+        # Enforced on a workstation only: the CI runners carry neither gum pinned nor tui-test.
+        if ($platforms.Contains('W!') -and $inCi) { $reason = "$reason (required on W, not enforced in CI)" }
+        if ($platforms.Contains('W!') -and -not $inCi) {
+            $verdict = 'FAIL (required, skipped)'; $failBlocking++
+            $skipLines.Add("SKIP (required on W, counted FAIL): $label -- $reason")
+            if ($inCi) { Write-Output "::error::$label is required on W and skipped" }
+        }
+        else {
+            $verdict = 'SKIP'; $skipped++
+            $skipLines.Add("SKIP: $label -- $reason")
+        }
+    }
+    elseif ($severity -eq 'informational' -or $severity -eq 'on-demand') { $verdict = 'FAIL (informational)'; $failInfo++ }
     else {
         $verdict = 'FAIL'; $failBlocking++
         if ($inCi) { Write-Output "::error::$label failed (exit $rc)" }
@@ -193,6 +235,7 @@ if ($Shard) { $shardLabel = ", shard $Shard" }
 Write-Output "=== SUITE (W$shardLabel, $(Split-Path -Leaf $Manifest)) ==="
 foreach ($v in $verdicts) { Write-Output $v }
 Write-Output "RESULT: $passed/$total PASS ($skipped SKIP, $failBlocking FAIL blocking, $failInfo FAIL informational)"
+foreach ($l in $skipLines) { Write-Output $l }
 if ($total -eq 0) {
     Write-Output "REFUS : no line for platform W in $Manifest"
     exit 1

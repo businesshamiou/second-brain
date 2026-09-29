@@ -4,6 +4,12 @@
 # to the project tier of Vault awareness (DECISION-2026-08-31-
 # 210731 point 4, Decision 2026-09-17-000545 A1): birth certificate,
 # guardian pin, Git hook, consistency of the pointer files.
+# Since Mission 231 it also reports the project's executor-preflight hook when
+# it is a copy of the checks (not the Vault's launcher,
+# skills/project-bootstrap/preflight-launcher.sh), and a .claude/settings.json
+# that calls the hook with a matcher that leaves out the PowerShell tool. A
+# project without the hook is not reported: laying it down is a gesture of
+# the project-bootstrap skill.
 # Never blocking, never correcting: measures and reports, fixes nothing
 # (registry v1 D4 point 3 and D6).
 #
@@ -58,7 +64,11 @@ elif [ -z "$RV_WORKSPACE" ]; then
   add_missing "inscription au registre non vérifiable (projet hors de l'espace de travail du Vault)"
 else
   PROJECT_REL="$(rel_path "$RV_WORKSPACE" "$PROJECT_ABS")"
-  if ! grep -qF "| $PROJECT_REL |" "$REGISTRY"; then
+  # Anchored on the path column (relative_path, fifth field), as
+  # project-bootstrap.sh does (Mission 219 A3): a display name equal to the
+  # path no longer passes for an entry (Mission 221, A-219-2).
+  if ! tr -d '\r' < "$REGISTRY" | awk -F'|' -v p="$PROJECT_REL" \
+      'NF >= 6 { c = $5; gsub(/^[ \t]+|[ \t]+$/, "", c); if (c == p) { found = 1; exit } } END { exit !found }'; then
     add_missing "inscription au registre ($PROJECT_REL)"
   fi
 fi
@@ -141,6 +151,22 @@ for GUIDE in AGENTS.md CLAUDE.md; do
 $POINTERS
 POINTERS_EOF
 done
+
+# --- 7. executor-preflight hook (Mission 231): the launcher, never a copy of
+# the checks that ages; a matcher that covers PowerShell as well as Bash ---
+PROJECT_HOOK="$PROJECT_ABS/.claude/hooks/preflight-hook.sh"
+LAUNCHER="$VAULT_ABS/skills/project-bootstrap/preflight-launcher.sh"
+if [ -f "$PROJECT_HOOK" ] && [ -f "$LAUNCHER" ]; then
+  if [ "$(tr -d '\r' < "$PROJECT_HOOK" | git hash-object --stdin)" != "$(tr -d '\r' < "$LAUNCHER" | git hash-object --stdin)" ]; then
+    add_missing "hook de pré-vol copié, pas le lanceur du Vault (.claude/hooks/preflight-hook.sh : recopier skills/project-bootstrap/preflight-launcher.sh)"
+  fi
+fi
+SETTINGS="$PROJECT_ABS/.claude/settings.json"
+if [ -f "$SETTINGS" ] && tr -d '\r' < "$SETTINGS" | grep -q 'preflight-hook\.sh'; then
+  if ! tr -d '\r' < "$SETTINGS" | grep -E '"matcher"[[:space:]]*:' | grep -qE '[|"]PowerShell[|"]'; then
+    add_missing "hook de pré-vol : matcher sans PowerShell (.claude/settings.json : voir skills/project-bootstrap/settings-hook.json)"
+  fi
+fi
 
 if [ -z "$MISSING" ]; then
   echo "CONFORME"

@@ -100,6 +100,8 @@ fi
 # written to the real user environment, and never touching the real network
 # adapter or proxy settings.
 TMP_WORKDIR="$(mktemp -d -t sb-offline-commit-XXXXXX)"
+# Mission 234: removed even when the script stops early (no trap before).
+trap 'rm -rf "$TMP_WORKDIR"' EXIT
 OUT_2="$(HTTP_PROXY='http://127.0.0.1:1' HTTPS_PROXY='http://127.0.0.1:1' \
   http_proxy='http://127.0.0.1:1' https_proxy='http://127.0.0.1:1' \
   bash "$STANDALONE" "$TMP_WORKDIR" 2>&1)"

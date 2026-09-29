@@ -2,6 +2,9 @@
 # T4 (Mission 191-C01, Decision 001438, RELAY 189): AGENTS.md and CLAUDE.md at
 # the root say the corpus is English and the participant is spoken to in the
 # language of USER.md -- the line « Write prose in French » is gone.
+# Mission 218 (Decision 012459): the sentence now names the `language:` field
+# of USER.md and its default (the language the participant writes in, never
+# English by default); the same prefix stands in both files.
 #
 #   (a) the exact sentence is in AGENTS.md and in CLAUDE.md;
 #   (b) no line of either file asks for French prose;
@@ -16,7 +19,7 @@
 set -u
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-SENTENCE="Files in this repository are written in English. Speak to the participant in the language of USER.md."
+SENTENCE='Files in this repository are written in English. Speak to the participant in the language that the `language:` field of USER.md records — without one, the language they write in, never English by default —'
 
 FAILURES=0
 PASSES=0

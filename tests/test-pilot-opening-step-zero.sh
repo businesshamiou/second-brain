@@ -24,6 +24,10 @@
 #   (4) negative control: copies of the template and of the reading list
 #       deprived of the line fail (1) and (2).
 #
+#   (5) Mission 242: neither the Pilot section of the reading list, nor the
+#       template's block, nor the block rendered by create names a tool
+#       prefix (`mcp__`): the canary is the tool and its answer.
+#
 # Writes only in a temporary folder (prefix m215). No model call.
 # Portable: bash 3.2 (no mapfile, no associative array, no GNU-only option).
 #
@@ -174,6 +178,17 @@ else
   pass "(4) temoin : les copies sans la ligne echouent a (1) et (2)"
 fi
 
+echo ""
+echo "=== (5) aucun prefixe d'outil (Mission 242) ==="
+if pilot_section "$READING_LIST" | grep -q 'mcp__'; then
+  fail "(5) la section Pilot de la liste de lecture nomme un prefixe mcp__"
+elif prompt_block "$TEMPLATE" | grep -q 'mcp__'; then
+  fail "(5) le bloc du gabarit nomme un prefixe mcp__"
+elif printf '%s' "${OUT:-}" | grep -q 'mcp__'; then
+  fail "(5) le bloc rendu par create nomme un prefixe mcp__"
+else
+  pass "(5) aucun mcp__ : liste de lecture, bloc du gabarit, bloc rendu"
+fi
 echo ""
 echo "=== RESULT: $PASSES PASS, $FAILURES FAIL ==="
 [ "$FAILURES" -eq 0 ] && exit 0

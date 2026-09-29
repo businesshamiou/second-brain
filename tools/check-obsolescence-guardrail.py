@@ -80,6 +80,8 @@ def parse_front_matter(text: str):
     spaces of indentation. Any other form (mixture, greater
     depth, empty sub-key) makes the front-matter unreadable (None, None):
     refusal is the default position."""
+    if text.startswith("﻿"):  # UTF-8 BOM (Mission 219, A4)
+        text = text[1:]
     lines = text.splitlines()
     if not lines or lines[0].strip() != "---":
         return {}, text  # no front-matter: this is not an error

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# sb -- the Second Brain command (Mission 236). Launcher for Git Bash, macOS and
+# Linux: runs tools/sb/sb.py through uv, like the other Python tools of the
+# Vault; python3 when uv is missing. Put this folder on the PATH:
+# `sb install --path`, or the installers.
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SB_PY="$DIR/../sb.py"
+if command -v uv >/dev/null 2>&1; then
+  exec uv run --no-project --quiet python "$SB_PY" "$@"
+fi
+for py in python3 python; do
+  if command -v "$py" >/dev/null 2>&1 && "$py" -c 'import sys; sys.exit(sys.version_info < (3, 8))' 2>/dev/null; then
+    exec "$py" "$SB_PY" "$@"
+  fi
+done
+echo "REFUS : sb needs uv or Python 3.8+ on the PATH (sb install)." >&2
+exit 1

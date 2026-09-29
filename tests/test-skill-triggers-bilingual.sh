@@ -21,10 +21,10 @@ TMP="$(mktemp -d "${TMPDIR:-/tmp}/m187-triggers-XXXXXX")"
 trap 'rm -rf "$TMP"' EXIT
 
 # skill | French phrases (;-separated) | English phrases (;-separated)
-TRIGGERS='ecriture-de-mission|écris la Mission;rédige la Mission|write the Mission
+TRIGGERS='mission-writing|écris la Mission;rédige la Mission|write the Mission
 first-install|installe Second Brain;installer Second Brain|install Second Brain
 project-bootstrap|adopte ce projet;nouveau projet|adopt this project;new project
-recherche-interne|où est;trouve;cherche dans le Vault;quel fichier|where is
+internal-search|où est;trouve;cherche dans le Vault;quel fichier|where is
 session-close|wrap;on ferme;clôture;clos la session|wrap;close
 session-start|nouvelle session;nouvelle session pilote;ouvre la session;ouverture|open the session
 update|mets à jour second-brain;mise à jour;nouvelle version|update second-brain;new version'

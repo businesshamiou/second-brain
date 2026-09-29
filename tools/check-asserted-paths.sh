@@ -110,6 +110,7 @@ AWK_PERIMETER='
     while ((getline line < f) > 0) {
       n++
       if (n == 1) {
+        sub(/^\357\273\277/, "", line)  # UTF-8 BOM (Mission 219, A4)
         if (line == "---") continue
         break
       }

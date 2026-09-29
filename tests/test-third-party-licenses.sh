@@ -46,7 +46,11 @@ TMP="$(mktemp -d)"
 # `mktemp -d` (and $TMPDIR) resolve under its separate "/tmp" overlay,
 # which is not itself a drive-letter path -- case 5 below needs a real
 # drive-mounted directory to convert to genuine Windows notation.
-WIN_TMP="$(mktemp -d "$(dirname "$REPO_ROOT")/sb-tplicenses-win-test-XXXXXX")"
+# Mission 234: never next to REPO_ROOT any more -- that is the root of the
+# workspace (report 233 §7.3). The declared temporary folder is drive-mounted
+# (/c/..., never the /tmp overlay), which is what case 5 needs.
+. "$REPO_ROOT/tools/lib/tmp.sh"
+WIN_TMP="$(mktemp -d "$(sb_tmp_dir tests)/sb-tplicenses-win-test-XXXXXX")"
 # Cases 6a/6b deliberately ask the generator to write inside REPO_ROOT to
 # prove it refuses; this cleanup runs regardless of pass/fail so a
 # not-yet-fixed regression never leaves a stray file in the working tree.

@@ -153,14 +153,34 @@ if [ "$TREE_ONLY" -eq 0 ]; then
   fi
 fi
 
+# Google API key (Mission 221, door open-0922-private-patterns-blind-to-google-keys):
+# the prefix followed by 35 characters of its alphabet. A key is never printed:
+# the refusal names file and line, the key itself is masked.
+GOOGLE_KEY_RE='AIza[0-9A-Za-z_-]{35}'
+mask_google() { sed -E "s/$GOOGLE_KEY_RE/<cle masquee>/g"; }
+tree_google="$(git -C "$REPO_ROOT" grep -IEn --no-color -- "$GOOGLE_KEY_RE" -- . "${EXCLUDE_PATHSPECS[@]}" 2>/dev/null | mask_google || true)"
+if [ -n "$tree_google" ]; then
+  echo "REFUS : cle d'API Google dans l'arbre :" >&2
+  printf '%s\n' "$tree_google" >&2
+  FAIL=1
+fi
+if [ "$TREE_ONLY" -eq 0 ]; then
+  hist_google="$(git -C "$REPO_ROOT" log -p --all -E -G"$GOOGLE_KEY_RE" --pretty=format:'commit %H' -- . "${EXCLUDE_PATHSPECS[@]}" 2>/dev/null | grep -E -- "^commit |$GOOGLE_KEY_RE" | grep -E -B1 -- "$GOOGLE_KEY_RE" | mask_google || true)"
+  if [ -n "$hist_google" ]; then
+    echo "REFUS : cle d'API Google dans l'historique :" >&2
+    printf '%s\n' "$hist_google" | head -20 >&2
+    FAIL=1
+  fi
+fi
+
 if [ "$FAIL" -ne 0 ]; then
   echo "REFUS : motif(s) prive(s) trouve(s)." >&2
   exit 1
 fi
 
 if [ "$TREE_ONLY" -eq 1 ]; then
-  echo "PASS : 0 motif prive dans l'arbre (mode --tree-only, 4 motifs verifies)."
+  echo "PASS : 0 motif prive dans l'arbre (mode --tree-only, 5 motifs verifies)."
 else
-  echo "PASS : 0 motif prive dans l'arbre et l'historique (4 motifs verifies)."
+  echo "PASS : 0 motif prive dans l'arbre et l'historique (5 motifs verifies)."
 fi
 exit 0

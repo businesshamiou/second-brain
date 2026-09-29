@@ -22,6 +22,11 @@ __pycache__/
 graphify-out/
 .claude/.preflight_stamp.json
 
+# Local language of this Vault (Mission 219): one line `language: <fr|en|es>`,
+# read before USER.md by tools/project-bootstrap.sh. Machine-local, never
+# committed, never distributed (tools/check-distribution-manifest.sh refuses it).
+USER.local.yaml
+
 # Install notebook (Mission 168, ticket 03): answers and completed steps of
 # a run of install.ps1, born with the workspace inside the cloned copy.
 # Machine-local state, never distributed, never committed.

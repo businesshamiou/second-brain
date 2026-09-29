@@ -1,6 +1,6 @@
 ---
 name: first-install
-description: "Install Second Brain from Claude Code or Codex: ask the same seven questions the installer's own terminal questionnaire asks, in the agent's own chat, write them to an answers file, then run install.ps1 or install.sh non-interactively. Also handles an already-existing clone: examines the parent folder for a prior or partial installation before deciding whether to start fresh, resume, or update. Use when asked to install, repair, resume, or update Second Brain from an agent chat. Triggers on: « installe Second Brain », « installer Second Brain », \"install Second Brain\"."
+description: "Install Second Brain from an agent chat: ask the installer's nine prompts, write the answers file, run install.ps1 or install.sh; resume or repair a partial install. Triggers on: « installe Second Brain », « installer Second Brain », \"install Second Brain\"."
 license: "MIT"
 metadata:
   vault-implements: "(historique de l'atelier, non distribué), (historique de l'atelier, non distribué), (historique de l'atelier, non distribué)"
@@ -11,7 +11,7 @@ Installs Second Brain by driving **the same mechanism** as the human door (`inst
 
 ## 1. Locate the source and determine the scenario
 
-This `SKILL.md` file lives at `<clone>/skills/first-install/SKILL.md` in a Second Brain clone — whether that clone is the one you are working in directly, or the original clone from which this skill was linked (never copied) when it was deployed into the personal skills folder (`tools/deploy-skills.ps1`/`deploy-skills.sh`, ticket 07). In both cases, resolve `<clone>` as two folders above the real path of this file, and use it as the installer's `-Source`/`--source` — always a local path, never a URL.
+This `SKILL.md` file lives at `<clone>/skills/first-install/SKILL.md` in a Second Brain clone — whether that clone is the one you are working in directly, or the original clone from which this skill was linked (never copied) into a project's skills folder (`tools/project-bootstrap.sh` links the method skills into every project it creates). In both cases, resolve `<clone>` as two folders above the real path of this file, and use it as the installer's `-Source`/`--source` — always a local path, never a URL.
 
 Then examine the parent folder of `<clone>` (the workspace):
 
@@ -21,7 +21,9 @@ Then examine the parent folder of `<clone>` (the workspace):
 
 Never guess this state from memory: read the real log. Never write to it yourself — the installer script is its only owner; this skill produces only the answers file that the installer reads.
 
-## 2. Ask the seven questions, in this exact order
+## 2. Ask the nine prompts, in this exact order
+
+The installer's terminal questionnaire asks nine prompts: the seven questions below, then whether to create a first project and its name (end of this section).
 
 Same order and same defaults as the terminal questionnaire (T06 complement 2), because a mix of questions answered in the terminal and by the agent, on the same installation, must remain indistinguishable for the installer:
 

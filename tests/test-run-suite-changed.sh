@@ -3,17 +3,20 @@
 # that the changed files call for, the two guardian lines always, and says so.
 #
 # Oracle (PASS expected), all in a throwaway Git repository holding a copy of
-# the runner (bash and PowerShell) and a seven-line trial manifest, so nothing
+# the runner (bash and PowerShell) and an eleven-line trial manifest, so nothing
 # of the real Vault is touched:
-#   1. clean tree: exactly the two guardian lines, message "2 ... sur 7", and
-#      the witness -- the same manifest without --changed -- lists all seven;
+#   1. clean tree: exactly the two guardian lines, message "2 ... sur 11", and
+#      the witness -- the same manifest without --changed -- lists all eleven;
 #   2. a tool touched: the guardians, plus every line whose path OR origin
 #      column contains the tool's name without extension, case-insensitively
 #      (one line is reached through its origin only, spelled in capitals);
 #      the witness: a tool no test names selects only the two guardians and
 #      the message says that nothing names it;
-#   3. the manifest or the runner touched: the whole suite (the tool that
-#      tests is itself changed);
+#   3. the manifest or the runner touched (Mission 216, Decision 170838): NEVER the
+#      whole suite. A line added to tests/suite.tsv selects that line, the tests
+#      whose name carries `suite` (the ones that read the manifest) and the two
+#      guardians; a change to run-suite.sh selects the lines named run-suite;
+#      the whole suite is played explicitly, when a Mission prescribes it;
 #   4. untracked files count as changed (arbitration, tested both ways: the
 #      witness line is selected while its file is untracked, not once gone);
 #      a generated index file names no test;
@@ -50,6 +53,11 @@ T_INST="tests/test-install-vault-mcp-thing.sh"
 T_ORIG="tests/test-covers-other.sh"
 T_UNREL="tests/test-unrelated.sh"
 T_WIT="tests/test-zz-witness.sh"
+T_SH="tests/test-shards-cover-suite.sh"
+T_MAN="tests/test-suite-manifest-matches-ci.sh"
+T_RSC="tests/test-run-suite-changed.sh"
+T_RED="tests/test-run-suite-reports-red.sh"
+T_NEW="tests/test-newly-added.sh"
 
 echo "=== M209 : run-suite.sh --changed ==="
 
@@ -68,6 +76,10 @@ done
   printf '%s\t-\tbash\tWUM\tblocking\tM200 -- covers the Vault-MCP server by its origin only\t2\n' "$T_ORIG"
   printf '%s\t-\tbash\tWUM\tblocking\tM201 -- something else\t3\n' "$T_UNREL"
   printf '%s\t-\tbash\tWUM\tblocking\tM209 -- witness line\t3\n' "$T_WIT"
+  printf '%s\t-\tbash\tWUM\tblocking\tM189 -- shards cover the suite\t2\n' "$T_SH"
+  printf '%s\t-\tbash\tWUM\tblocking\tM188 -- manifest matches ci\t2\n' "$T_MAN"
+  printf '%s\t-\tbash\tWUM\tblocking\tM209 -- changed selection\t3\n' "$T_RSC"
+  printf '%s\t-\tbash\tWUM\tblocking\tM188 -- runner reports red\t3\n' "$T_RED"
 } > "$R/tests/suite.tsv"
 git -C "$R" init -q 2>/dev/null
 G="git -C $R -c user.email=t@example.invalid -c user.name=t -c commit.gpgsign=false -c core.autocrlf=false"
@@ -85,9 +97,9 @@ nl='
 # --- 1. clean tree ---------------------------------------------------------
 out="$(changed_list --changed)"
 if same_set "$out" "$G1$nl$G2"; then pass "clean tree: exactly the two guardian lines"; else fail "clean tree: expected the two guardians, got: $(echo "$out" | tr '\n' ' ')"; fi
-if grep -q -- '--changed : 2 ligne(s) selectionnee(s) sur 7' "$TMP/err"; then pass "clean tree: the runner says '2 ... sur 7'"; else fail "clean tree: message missing: $(cat "$TMP/err")"; fi
+if grep -q -- '--changed : 2 ligne(s) selectionnee(s) sur 11' "$TMP/err"; then pass "clean tree: the runner says '2 ... sur 11'"; else fail "clean tree: message missing: $(cat "$TMP/err")"; fi
 out="$(changed_list)"
-if [ "$(lines "$out")" = "7" ]; then pass "witness: without --changed the same manifest lists 7 lines"; else fail "witness: without --changed expected 7 lines, got $(lines "$out")"; fi
+if [ "$(lines "$out")" = "11" ]; then pass "witness: without --changed the same manifest lists 11 lines"; else fail "witness: without --changed expected 11 lines, got $(lines "$out")"; fi
 
 # --- 2. a tool touched -----------------------------------------------------
 printf 'y\n' >> "$R/tools/vault-mcp.py"
@@ -95,7 +107,7 @@ out="$(changed_list --changed)"
 if same_set "$out" "$G1$nl$G2$nl$T_MCP$nl$T_INST$nl$T_ORIG"; then
   pass "tool touched: guardians + the three lines naming vault-mcp (one by origin only, other case)"
 else fail "tool touched: got: $(echo "$out" | tr '\n' ' ')"; fi
-if grep -q -- '--changed : 5 ligne(s) selectionnee(s) sur 7' "$TMP/err"; then pass "tool touched: message '5 ... sur 7'"; else fail "tool touched: message: $(cat "$TMP/err")"; fi
+if grep -q -- '--changed : 5 ligne(s) selectionnee(s) sur 11' "$TMP/err"; then pass "tool touched: message '5 ... sur 11'"; else fail "tool touched: message: $(cat "$TMP/err")"; fi
 reset_tree
 printf 'y\n' >> "$R/tools/resolve-sibling-repo.sh"
 out="$(changed_list --changed)"
@@ -104,14 +116,21 @@ if grep -q 'aucun test ne nomme les fichiers changes' "$TMP/err"; then pass "wit
 reset_tree
 
 # --- 3. the manifest or the runner touched ---------------------------------
-printf '# touched\n' >> "$R/tests/suite.tsv"
+# (11) Mission 216: a line added to the manifest selects that line, the tests
+# whose name carries `suite` (the ones that read the manifest) and the two
+# guardians -- never the whole suite.
+printf 'x\n' > "$R/$T_NEW"
+printf '%s\t-\tbash\tWUM\tblocking\tM216 -- a line added\t3\n' "$T_NEW" >> "$R/tests/suite.tsv"
 out="$(changed_list --changed)"
-if [ "$(lines "$out")" = "7" ]; then pass "manifest touched: the whole suite (7 lines)"; else fail "manifest touched: got $(lines "$out") lines"; fi
-if grep -q 'toute la suite est selectionnee' "$TMP/err"; then pass "manifest touched: the runner says the whole suite is selected"; else fail "manifest touched: message: $(cat "$TMP/err")"; fi
+if same_set "$out" "$G1$nl$G2$nl$T_NEW$nl$T_SH$nl$T_MAN$nl$T_RSC$nl$T_RED"; then
+  pass "(11) manifest touched: the added line, the tests naming 'suite', the guardians -- not the whole suite"
+else fail "(11) manifest touched: got $(lines "$out") lines: $(echo "$out" | tr '\n' ' ')"; fi
+if ! grep -q 'toute la suite est selectionnee' "$TMP/err"; then pass "(11) manifest touched: the runner never says 'the whole suite'"; else fail "(11) manifest touched: it selected the whole suite: $(cat "$TMP/err")"; fi
 reset_tree
+# (12) the runner touched: its own tests, not the whole suite.
 printf '# touched\n' >> "$R/tests/run-suite.sh"
 out="$(changed_list --changed)"
-if [ "$(lines "$out")" = "7" ]; then pass "runner touched: the whole suite (7 lines)"; else fail "runner touched: got $(lines "$out") lines"; fi
+if same_set "$out" "$G1$nl$G2$nl$T_RSC$nl$T_RED"; then pass "(12) runner touched: the lines named run-suite, not the whole suite"; else fail "(12) runner touched: got $(lines "$out") lines: $(echo "$out" | tr '\n' ' ')"; fi
 reset_tree
 
 # --- 4. untracked files, generated index -----------------------------------
@@ -152,10 +171,12 @@ if [ -z "$PS" ]; then
 else
   PS1="$R/tests/run-suite.ps1"
   command -v cygpath >/dev/null 2>&1 && PS1="$(cygpath -w "$PS1")"
-  parity() { # $1 = label, $2 = bash extra args, $3 = powershell extra args
+  parity() { # $1 = label, $2 = bash extra args, $3 = powershell extra args, $4 = "notall": the list is not the whole suite
     b="$(cd "$R" && bash tests/run-suite.sh --platform W $2 --list 2>/dev/null | tr -d '\r')"
     # shellcheck disable=SC2086
     p="$(cd "$R" && $PS "$PS1" $3 -List 2>/dev/null | tr -d '\r')"
+    all="$(cd "$R" && bash tests/run-suite.sh --platform W --list 2>/dev/null | wc -l | tr -d ' ')"
+    if [ "${4:-}" = "notall" ] && [ "$(lines "$p")" = "$all" ]; then fail "parity .sh/.ps1: $1: the twin lists the whole suite ($all lines)"; return; fi
     if [ -n "$b" ] && [ "$b" = "$p" ]; then pass "parity .sh/.ps1: $1 ($(lines "$b") lines, diff empty)"; else fail "parity .sh/.ps1: $1 differs: bash=[$(echo "$b" | tr '\n' ' ')] ps1=[$(echo "$p" | tr '\n' ' ')]"; fi
   }
   reset_tree
@@ -167,8 +188,12 @@ else
   printf 'y\n' >> "$R/tools/resolve-sibling-repo.sh"
   parity "a tool no test names" "--changed" "-Changed"
   reset_tree
-  printf '# touched\n' >> "$R/tests/suite.tsv"
-  parity "manifest touched" "--changed" "-Changed"
+  printf 'x\n' > "$R/$T_NEW"
+  printf '%s\t-\tbash\tWUM\tblocking\tM216 -- a line added\t3\n' "$T_NEW" >> "$R/tests/suite.tsv"
+  parity "(13) manifest touched, a line added" "--changed" "-Changed" notall
+  reset_tree
+  printf '# touched\n' >> "$R/tests/run-suite.sh"
+  parity "(13) runner touched" "--changed" "-Changed" notall
   reset_tree
   printf 'x\n' > "$R/$T_WIT"
   parity "untracked file" "--changed" "-Changed"

@@ -176,11 +176,163 @@ function Read-QuestionnaireLine {
         [Parameter(Mandatory = $true)][string] $PromptText,
         [System.Collections.Generic.Queue[string]] $ScriptedInputs
     )
-    Write-Host $PromptText
     if ($null -ne $ScriptedInputs -and $ScriptedInputs.Count -gt 0) {
+        Write-Host $PromptText
         return $ScriptedInputs.Dequeue()
     }
+    # Mission 220: the same question, displayed by gum when
+    # Initialize-QuestionnaireGum found it (a terminal is there). The answer
+    # comes back as the same string, so defaults and validations downstream
+    # are untouched. $null means gum failed: plain questionnaire from here on.
+    if ($script:SbGumExe) {
+        $answer = Read-GumLine -PromptText $PromptText
+        if ($null -ne $answer) { return $answer }
+    }
+    Write-Host $PromptText
     return Read-Host
+}
+
+# --- gum presentation (Mission 220) -----------------------------------------
+# The questionnaire is displayed by gum (charmbracelet/gum, `gum input`) when
+# the installer runs in a real terminal and gum is found, or installed by
+# winget (Windows) / brew (macOS); otherwise the plain Read-Host questionnaire
+# above. Never gum without a terminal, never with an answers file or a scripted
+# queue, never a download in -TestMode. SB_INSTALLER_TEST_FORCE_TTY=1 is for
+# tests only: honoured in -TestMode alone, and then only tools found under the
+# test root are used (a fake gum, a fake winget), so a test never reaches the
+# real ones.
+$script:SbGumExe = $null
+$script:SbGumFallbackText = ''
+
+function Test-GumTestForced {
+    param([psobject] $Context)
+    return ($Context.TestMode -and $env:SB_INSTALLER_TEST_FORCE_TTY -eq '1')
+}
+
+function Test-InstallerTerminal {
+    # A real terminal: keys from the console, and stderr (where gum draws)
+    # on the console too.
+    param([psobject] $Context)
+    if (Test-GumTestForced -Context $Context) { return $true }
+    try {
+        return (-not [Console]::IsInputRedirected) -and (-not [Console]::IsErrorRedirected)
+    }
+    catch {
+        return $false
+    }
+}
+
+function Find-InstallerTool {
+    # First $Name on the PATH; for gum, also the folder winget adds to the USER
+    # Path (not yet seen by this session) and winget's package folder. Forced
+    # test mode: only a tool under the test root.
+    param([string] $Name, [psobject] $Context, [string] $TestRoot)
+    $forced = Test-GumTestForced -Context $Context
+    $rootFull = ''
+    if ($forced) { $rootFull = [System.IO.Path]::GetFullPath($TestRoot).TrimEnd('\') + '\' }
+    # -All: without it Get-Command returns a single match (a winget.exe found
+    # before a winget.cmd earlier on the PATH, measured Mission 220).
+    foreach ($c in @(Get-Command $Name -CommandType Application -All -ErrorAction SilentlyContinue)) {
+        $p = $c.Source
+        if ($forced -and -not $p.StartsWith($rootFull, [System.StringComparison]::OrdinalIgnoreCase)) { continue }
+        return $p
+    }
+    if ($forced -or $Name -ne 'gum') { return $null }
+    $dirs = @()
+    try { $dirs += @(([Environment]::GetEnvironmentVariable('Path', 'User')) -split ';' | Where-Object { $_ }) } catch { }
+    foreach ($d in $dirs) {
+        $candidate = Join-Path $d 'gum.exe'
+        if (Test-Path -LiteralPath $candidate) { return $candidate }
+    }
+    if ($env:LOCALAPPDATA) {
+        $found = @(Get-ChildItem -Path (Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Packages\charmbracelet.gum_*\*\gum.exe') -ErrorAction SilentlyContinue)
+        if ($found.Count -gt 0) { return $found[0].FullName }
+    }
+    return $null
+}
+
+function Initialize-QuestionnaireGum {
+    # Decides once, before the first question, whether gum displays the
+    # questionnaire. A failed or refused install is one line, never a stop.
+    param(
+        [psobject] $Context,
+        [string] $TestRoot,
+        [string] $I18nDir,
+        [string] $Language,
+        [int] $ScriptedCount
+    )
+    $script:SbGumExe = $null
+    $catalog = Get-Catalog -Language $Language -I18nDir $I18nDir
+    $script:SbGumFallbackText = Format-CatalogText -Catalog $catalog -Key 'install.gum.fallback'
+    if ($ScriptedCount -gt 0) { return }
+    if (-not (Test-InstallerTerminal -Context $Context)) { return }
+    $gum = Find-InstallerTool -Name 'gum' -Context $Context -TestRoot $TestRoot
+    if (-not $gum) {
+        $installer = $null
+        $installArgs = @()
+        # The platform, never $env:OS: a parent shell may have overwritten it
+        # (measured, Mission 220: a Git Bash test set OS=win).
+        $onWindows = ([System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT)
+        if ($onWindows) {
+            $installer = 'winget'
+            $installArgs = @('install', '--exact', '--id', 'charmbracelet.gum', '--source', 'winget')
+        }
+        elseif ((Get-Variable -Name IsMacOS -ValueOnly -ErrorAction SilentlyContinue) -eq $true) {
+            $installer = 'brew'
+            $installArgs = @('install', 'gum')
+        }
+        $allowed = (-not $Context.TestMode) -or (Test-GumTestForced -Context $Context)
+        if ($installer -and $allowed) {
+            $tool = Find-InstallerTool -Name $installer -Context $Context -TestRoot $TestRoot
+            if ($tool) {
+                Write-Host (Format-CatalogText -Catalog $catalog -Key 'install.gum.installing')
+                # Shown to the participant (winget asks its own agreements),
+                # never returned by this function.
+                & $tool @installArgs | Out-Host
+                if ($LASTEXITCODE -eq 0) {
+                    $gum = Find-InstallerTool -Name 'gum' -Context $Context -TestRoot $TestRoot
+                }
+            }
+        }
+        if (-not $gum) {
+            Write-Host $script:SbGumFallbackText
+            return
+        }
+    }
+    $script:SbGumExe = $gum
+}
+
+function Read-GumLine {
+    # One `gum input`, header = the question as the plain questionnaire prints
+    # it. gum's stdout is UTF-8: decoded as such, whatever the console code
+    # page (the accents of an answer stay as typed). Esc or Ctrl+C in gum
+    # (exit 130) cancels the installation; any other failure turns gum off.
+    param([Parameter(Mandatory = $true)][string] $PromptText)
+    $previous = $null
+    $out = $null
+    $rc = 1
+    try {
+        try { $previous = [Console]::OutputEncoding; [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding $false } catch { }
+        $out = & $script:SbGumExe input "--header=$PromptText" '--placeholder=' '--width=0'
+        $rc = $LASTEXITCODE
+    }
+    catch {
+        $rc = 1
+    }
+    finally {
+        if ($null -ne $previous) { try { [Console]::OutputEncoding = $previous } catch { } }
+    }
+    if ($rc -eq 130) {
+        throw 'Installation cancelled from the questionnaire (Esc or Ctrl+C).'
+    }
+    if ($rc -ne 0) {
+        $script:SbGumExe = $null
+        Write-Host $script:SbGumFallbackText
+        return $null
+    }
+    $line = (@($out) -join "`n")
+    Write-Host "$PromptText $line"
+    return $line
 }
 
 function Read-QuestionnaireField {
@@ -420,6 +572,9 @@ function Write-UserProfile {
         "title: ""Fiche utilisateur — $firstName"""
         "description: ""Rédigée par le questionnaire d'installation (Mission 168, ticket 05), à partir des réponses données le $InstalledAt."""
         'status: active'
+        # Mission 218 (Decision 012459): the language, recorded once, in the
+        # front matter -- the only form tools/project-bootstrap.sh reads.
+        "language: $("$lang".ToLowerInvariant())"
         '---'
         ''
         '# FICHE UTILISATEUR'

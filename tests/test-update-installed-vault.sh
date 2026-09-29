@@ -16,7 +16,17 @@
 #       sentinel gone, update tool present; indexes fresh (rebuilding
 #       changes nothing); porcelain empty; vault_id identical; the project's
 #       repository and its certificate's vault_ref untouched;
+#       the assistant (Mission 223): the installation carries the forms of an
+#       assistant named 'Ibrahim' (carnet .install/state.json) as they were
+#       before Mission 222 -- no documentation map, no `model: haiku`; after
+#       the update the three forms carry both, under the same name, inside
+#       the merge commit, and no form of the default name exists;
 #   (b) second pass: VERDICT UP-TO-DATE, HEAD unchanged;
+#   (g) the version already merged but the forms stale (merged by a tool
+#       older than Mission 223): VERDICT UPDATED, one commit regenerating the
+#       forms under the recorded name, porcelain empty;
+#   (h) the same without a recorded name: VERDICT UP-TO-DATE, HEAD and tree
+#       unchanged, the message names the carnet, no default name invented;
 #   negative controls, each with HEAD and porcelain unchanged:
 #   (c) conflict: a local commit on a corpus file the version also changes ->
 #       REFUSED naming the file, merge aborted;
@@ -137,6 +147,29 @@ git -C "$V" config core.hooksPath .githooks
 bash "$V/tools/vault-identity.sh" ensure "$V" >/dev/null
 install_commit "$V" "Generate vault identity"
 check "installation : identite commitee (gardiens actifs)" sh -c "[ -z \"\$(git -C '$V' status --porcelain)\" ]"
+# The assistant as an installation made before Mission 222 left it (Mission
+# 223): the installer's carnet records the chosen name -- not the default --
+# and the three forms carry neither the documentation map nor `model: haiku`.
+mkdir -p "$V/.install"
+printf '{"schemaVersion": 1, "answers": {"language": "FR", "vaultName": "Ibrahim"}, "steps": {"assistantGenerated": true}, "assistant": {"name": "Ibrahim", "slug": "ibrahim"}}\n' > "$V/.install/state.json"
+uv run --no-project "$V/tools/sb_installer_helper.py" render-assistant "$V" "Ibrahim" --language FR >/dev/null 2>&1
+FORMS=".claude/agents/ibrahim.md .agents/skills/ibrahim/SKILL.md web-package/ibrahim/INSTRUCTIONS.md"
+stale_forms() {
+  # stale_forms <vault>: the three forms as they were before Mission 222.
+  local f
+  for f in $FORMS; do
+    awk '/^## Documentation map/{s=1} /^## Liens/{s=0} !s && !/^model: haiku$/' "$1/$f" > "$1/$f.old" && mv "$1/$f.old" "$1/$f"
+  done
+}
+fresh_forms() {
+  # fresh_forms <vault>: the map in the three forms, the subagent on haiku.
+  local f
+  for f in $FORMS; do grep -q '^## Documentation map' "$1/$f" || return 1; done
+  grep -q '^model: haiku$' "$1/.claude/agents/ibrahim.md"
+}
+stale_forms "$V"
+install_commit "$V" "Generate assistant forms for 'Ibrahim'"
+check "installation : assistant 'Ibrahim' d'avant la carte, commite" sh -c "[ -z \"\$(git -C '$V' status --porcelain)\" ] && git -C '$V' ls-files --error-unmatch .claude/agents/ibrahim.md >/dev/null 2>&1 && ! grep -q '^model: haiku' '$V/.claude/agents/ibrahim.md'"
 printf -- '---\ntype: profile\ntitle: "Fiche utilisateur — Test"\ndescription: "Fiche de test."\nstatus: active\n---\n\n# FICHE UTILISATEUR\n\n- **Prenom :** Test\n\n## Liens\n\n- `see also` — [Agents](./AGENTS.md)\n' > "$V/USER.md"
 install_commit "$V" "Write user profile from installer answers"
 bash "$V/tools/write-marker.sh" "$WS" >/dev/null
@@ -229,12 +262,40 @@ bash "$V/tools/build-indexes.sh" "$V" >/dev/null 2>&1
 check "(a) index frais (les reconstruire ne change rien)" sh -c "[ -z \"\$(git -C '$V' status --porcelain)\" ]"
 check "(a) vault_id identique ($ID_BEFORE)" [ "$(bash "$V/tools/vault-identity.sh" get vault_id "$V")" = "$ID_BEFORE" ]
 check "(a) projet intact : HEAD et acte inchanges, vault_ref = naissance ($REF_BEFORE)" sh -c "[ \"\$(git -C '$WS/projet' rev-parse HEAD)\" = '$PROJ_HEAD' ] && [ \"\$(git hash-object '$WS/projet/.pre-commit-config.yaml')\" = '$PROJ_CFG' ] && [ -n '$REF_BEFORE' ]"
+check "(a) assistant regenere : carte dans les trois formes, sous-agent sur haiku" fresh_forms "$V"
+check "(a) nom enregistre garde ('Ibrahim') : aucune forme 'brian'" sh -c "[ ! -e '$V/.claude/agents/brian.md' ] && [ ! -e '$V/web-package/brian' ]"
+check "(a) formes regenerees dans le commit de fusion" sh -c "! git -C '$V' diff --quiet HEAD^1 HEAD -- .claude/agents/ibrahim.md"
 
 # --- (b) second pass -------------------------------------------------------------
 V_HEAD1="$(git -C "$V" rev-parse HEAD)"
 OUT_B="$(bash "$V/tools/second-brain-update.sh" v0.1.8 --lang FR 2>&1)"
 check "(b) second passage : UP-TO-DATE, « déjà à jour »" sh -c "case \"\$1\" in *'Déjà à jour'*'VERDICT: UP-TO-DATE'*) exit 0;; *) exit 1;; esac" _ "$OUT_B"
 check "(b) second passage : HEAD et arbre inchanges" same_state "$V" "$V_HEAD1"
+
+# --- (g) the version is there, the forms are stale (an older tool merged it) -----
+SV="$TMP/w-stale"
+witness_clone "$SV"
+mkdir -p "$SV/.install" && cp "$V/.install/state.json" "$SV/.install/state.json"
+stale_forms "$SV"
+git -C "$SV" commit -q -am "forms left by an update tool older than Mission 223"
+SV_HEAD="$(git -C "$SV" rev-parse HEAD)"
+OUT_G="$(bash "$UPDATE" v0.1.8 --vault "$SV" --lang FR 2>&1)"
+RC_G=$?
+printf '%s\n' "$OUT_G" | tail -n 3 | sed 's/^/    /'
+check "(g) version deja la, formes perimees : UPDATED, sortie 0" sh -c "[ '$RC_G' = '0' ] && case \"\$1\" in *'VERDICT: UPDATED'*) exit 0;; *) exit 1;; esac" _ "$OUT_G"
+check "(g) un seul commit de plus, parent = HEAD d'avant" sh -c "[ \"\$(git -C '$SV' rev-parse HEAD^1)\" = '$SV_HEAD' ] && [ \"\$(git -C '$SV' rev-parse HEAD)\" != '$SV_HEAD' ]"
+check "(g) formes regenerees avec le nom enregistre, porcelain vide" sh -c "[ -z \"\$(git -C '$SV' status --porcelain)\" ] && [ ! -e '$SV/.claude/agents/brian.md' ]"
+check "(g) ... carte dans les trois formes, sous-agent sur haiku" fresh_forms "$SV"
+
+# --- (h) no recorded name: nothing is invented ------------------------------------
+NV="$TMP/w-noname"
+witness_clone "$NV"
+stale_forms "$NV"
+git -C "$NV" commit -q -am "forms left by an update tool older than Mission 223"
+NV_HEAD="$(git -C "$NV" rev-parse HEAD)"
+OUT_H="$(bash "$UPDATE" v0.1.8 --vault "$NV" --lang FR 2>&1)"
+check "(h) sans nom enregistre : UP-TO-DATE, HEAD et arbre inchanges" sh -c "case \"\$1\" in *'VERDICT: UP-TO-DATE'*) exit 0;; *) exit 1;; esac && [ \"\$(git -C '$NV' rev-parse HEAD)\" = '$NV_HEAD' ] && [ -z \"\$(git -C '$NV' status --porcelain)\" ]" _ "$OUT_H"
+check "(h) ... le message nomme le carnet, aucune forme 'brian' inventee" sh -c "case \"\$1\" in *'state.json'*) exit 0;; *) exit 1;; esac && [ ! -e '$NV/.claude/agents/brian.md' ]" _ "$OUT_H"
 
 echo ""
 if [ "$FAILURES" -eq 0 ]; then

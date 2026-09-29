@@ -37,6 +37,8 @@ project/
 └── generated/
 ```
 
+**Annotation (2026-09-23, Decision 012458).** The current-state file of `docs/` in the tree above is historical: a project's state sheet is now `<projet>/state/STATE.md`, generated from `<projet>/state/journal.md` and created at the project's birth.
+
 `generated/` receives only the outputs without a known canonical destination. It is non-canonical by default and each content awaits a review or an explicit promotion.
 
 If no such output exists, the folder does not need to be created: **real need → structure**.
@@ -93,3 +95,4 @@ Default rule: a project has one main repo. Several repos are justified only by r
 ## Liens
 
 - `supersedes` — [BRIEF-2026-08-17-140100-project-operating-model — Project operating model](BRIEF-2026-08-17-140100-project-operating-model.md)
+- `see also` — [Decision — State sheet, one name, generated](../decisions/DECISION-2026-09-23-012458-state-sheet-one-name-generated-state-path.md)

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # T (Mission 201): the optional `## Fan-out` rubric of the Mission template and the instruction added to the
-# ecriture-de-mission skill.
+# mission-writing skill.
 #
 #   (a) the template carries exactly one `## Fan-out`, between `## Prior measurements` and `## Steps`, with the
 #       four-column table and a comment that says it is OPTIONAL; every other rubric is still there, in its order;
@@ -22,8 +22,9 @@ set -u
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TPL="$REPO_ROOT/templates/mission-template.md"
-SKILL="$REPO_ROOT/skills/ecriture-de-mission/SKILL.md"
-CHECKLIST="$REPO_ROOT/skills/ecriture-de-mission/mission-checklist.md"
+. "$REPO_ROOT/tools/lib/tmp.sh"  # declared temporary folder (Mission 236: the previous template, renamed)
+SKILL="$REPO_ROOT/skills/mission-writing/SKILL.md"
+CHECKLIST="$REPO_ROOT/skills/mission-writing/mission-checklist.md"
 PASSES=0
 FAILURES=0
 pass() { echo "  PASS - $1"; PASSES=$((PASSES + 1)); }
@@ -65,7 +66,13 @@ FO="$(awk '/^## Fan-out$/{f=1;next} /^## /{f=0} f' "$TPL")"
 check "(a) the comment says OPTIONAL" sh -c "printf '%s' \"\$1\" | grep -q 'OPTIONAL'" _ "$FO"
 check "(a) the table has the four columns Batch | Targets | Measures | Output" sh -c "printf '%s\n' \"\$1\" | grep -q '^| Batch | Targets | Measures | Output |\$'" _ "$FO"
 if git -C "$REPO_ROOT" cat-file -e a4b7e32:templates/mission-template.md 2>/dev/null; then
-  DELS="$(git -C "$REPO_ROOT" diff --numstat a4b7e32 -- templates/mission-template.md | cut -f2)"
+  # Mission 236 renamed the skill ecriture-de-mission to mission-writing: the
+  # previous template is read with that rename applied, so the renaming of a
+  # name is not counted as a removed line.
+  PREV="$(mktemp "$(sb_tmp_dir tests)/m236-tpl-XXXXXX")"
+  git -C "$REPO_ROOT" show a4b7e32:templates/mission-template.md | sed 's/ecriture-de-mission/mission-writing/g' > "$PREV"
+  DELS="$(git diff --no-index --numstat -- "$PREV" "$TPL" | cut -f2)"
+  rm -f "$PREV"
   if [ -z "$DELS" ] || [ "$DELS" = "0" ]; then pass "(a) against the previous template: additions only, no line removed"; else fail "(a) $DELS line(s) removed from the template"; fi
 else
   pass "(a) previous template commit not present in this clone: additions-only check skipped"

@@ -330,6 +330,19 @@ def _assistant_body(clone_path, name):
     if start < 0 or end < 0 or end <= start:
         raise SystemExit(f"Assistant identity source is missing its corps-generateur markers: {source_path}")
     body = raw[start + len(start_marker):end].strip() + "\n"
+    # Mission 222 (Decision 232720), mirror of Get-AssistantIdentityBody: the
+    # documentation map of docs/MAP.md is appended, fail-closed.
+    map_path = os.path.join(clone_path, "docs", "MAP.md")
+    if not os.path.exists(map_path):
+        raise SystemExit(f"Documentation map not found: {map_path}")
+    with open(map_path, encoding="utf-8") as f:
+        map_raw = f.read().replace("\r\n", "\n")
+    map_start = map_raw.find("<!-- doc-map:start -->")
+    map_end = map_raw.find("<!-- doc-map:end -->")
+    if map_start < 0 or map_end <= map_start:
+        raise SystemExit(f"Documentation map is missing its doc-map markers: {map_path}")
+    doc_map = map_raw[map_start + len("<!-- doc-map:start -->"):map_end].strip()
+    body = body.rstrip() + "\n\n" + doc_map + "\n"
     return body.replace("{{ASSISTANT_NAME}}", name)
 
 
@@ -428,6 +441,8 @@ def cmd_render_assistant(args):
         f"name: {slug}",
         f'description: "{subagent_description}"',
         "tools: Read, Glob, Grep",
+        # Lightest model the Claude Code subagent format admits (Mission 222, Decision 232720).
+        "model: haiku",
         "---",
         "",
         body.rstrip(),
@@ -762,6 +777,175 @@ def _read_assistant_slug(clone_path):
     return assistant.get("slug") or None
 
 
+# Mission 231 (step 4b): the links are kept out of the project's Git by a
+# .gitignore that each of the three folders carries and that names them one by
+# one, never by folder-wide lines in the project's .gitignore -- those hid
+# every skill the project installed there itself. The file is written before
+# any link of its folder, and rewritten on each run; it carries a first line
+# of its own, and a .gitignore without that line (the project's) is never
+# touched: its folder then gets no link, and the caller is told.
+LINKS_IGNORE_HEADER = "# second-brain-links -- written by the Vault (sb_installer_helper.py link-project, Mission 231)."
+
+
+def _existing_links(root):
+    """Names of the entries of root that are directory links (junction or
+    symlink); a hard-linked file cannot be told from a file and is not listed."""
+    names = []
+    try:
+        entries = os.listdir(root)
+    except OSError:
+        return names
+    for name in entries:
+        path = os.path.join(root, name)
+        if os.path.islink(path) or _is_reparse_point(path):
+            names.append(name)
+    return names
+
+
+def _write_links_ignore(root, names):
+    """Writes root/.gitignore naming each link; False when a .gitignore of the
+    project's own is there (left as it is)."""
+    path = os.path.join(root, ".gitignore")
+    if os.path.lexists(path):
+        try:
+            with open(path, encoding="utf-8") as f:
+                first = f.readline().rstrip("\r\n")
+        except (OSError, UnicodeDecodeError):
+            first = ""
+        if first != LINKS_IGNORE_HEADER:
+            print(f"FOREIGN_GITIGNORE {path}")
+            return False
+    os.makedirs(root, exist_ok=True)
+    lines = [
+        LINKS_IGNORE_HEADER,
+        "# The links below lead to the Vault's method skills and assistant: never",
+        "# tracked here. Anything else in this folder -- a skill installed for this",
+        "# project -- is tracked as usual.",
+    ]
+    lines += ["/" + n for n in sorted(set(names), key=str.lower)]
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write("\n".join(lines) + "\n")
+    return True
+
+
+# --- Renamed skills (Mission 237) -------------------------------------------
+# A skill renamed in the Vault (tools/skill-renames.tsv: old <TAB> new) leaves,
+# in every project linked before the rename, a link under its old name that
+# points nowhere. relink-renamed REPLACES such a link by the link under the new
+# name -- it is a rename, never a deletion without a replacement (Mission 237,
+# trap b). A dead link whose name is in no rename is named (DEAD), untouched.
+
+def _skill_renames(clone_path):
+    renames = {}
+    path = os.path.join(clone_path, "tools", "skill-renames.tsv")
+    try:
+        with open(path, encoding="utf-8") as f:
+            for line in f:
+                if not line.strip() or line.startswith("#"):
+                    continue
+                cells = line.rstrip("\r\n").split("\t")
+                if len(cells) >= 2 and cells[0] and cells[1]:
+                    renames[cells[0]] = cells[1]
+    except OSError:
+        pass
+    return renames
+
+
+def _remove_link(path):
+    """Removes a directory link (junction or symbolic link), never its target."""
+    if _is_windows_platform() and _is_reparse_point(path) and not os.path.islink(path):
+        os.rmdir(path)
+    else:
+        os.unlink(path)
+
+
+def _project_state_base(project_path):
+    prompt = os.path.join(project_path, "state", "PILOT-PROMPT.md")
+    state_path = "state/STATE.md"
+    try:
+        with open(prompt, encoding="utf-8-sig") as f:
+            for line in f:
+                m = re.match(r'^state_path:\s*"?([^"\r\n]+)"?\s*$', line)
+                if m:
+                    state_path = m.group(1)
+                    break
+    except OSError:
+        pass
+    return os.path.normpath(os.path.dirname(os.path.dirname(os.path.join(project_path, state_path))))
+
+
+def _relink_project(clone_path, project_path, renames):
+    changed = False
+    for sub in (os.path.join(".claude", "skills"), os.path.join(".agents", "skills")):
+        root = os.path.join(project_path, sub)
+        if not os.path.isdir(root):
+            continue
+        root_changed = False
+        for name in sorted(os.listdir(root)):
+            path = os.path.join(root, name)
+            if not (os.path.islink(path) or _is_reparse_point(path)) or os.path.exists(path):
+                continue
+            new = renames.get(name)
+            target = os.path.join(clone_path, "skills", new) if new else None
+            if not new or not os.path.isdir(target):
+                print(f"DEAD {path}")
+                continue
+            new_link = os.path.join(root, new)
+            status = _publish_skill_link(new_link, target)
+            if status == "Conflict":
+                print(f"CONFLICT {new_link}")
+                continue
+            _remove_link(path)
+            print(f"RELINKED {project_path}\t{sub}\t{name}\t{new}")
+            changed = root_changed = True
+        if root_changed:
+            _write_links_ignore(root, _existing_links(root))
+    if changed:
+        print(f"JOURNAL {project_path}\t{_project_state_base(project_path)}")
+    return changed
+
+
+def _registry_projects(clone_path):
+    path = os.path.join(clone_path, "projects", "PROJECT-REGISTRY.md")
+    projects = []
+    try:
+        with open(path, encoding="utf-8-sig") as f:
+            lines = f.read().splitlines()
+    except OSError:
+        return projects
+    header = None
+    section = ""
+    for line in lines:
+        if line.startswith("## "):
+            section, header = line[3:].strip(), None
+            continue
+        if not line.startswith("|"):
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if header is None:
+            header = cells
+            continue
+        if set(line.replace("|", "").strip()) <= set("-: "):
+            continue
+        row = dict(zip(header, cells))
+        rel = row.get("relative_path")
+        if section == "Active" and rel:
+            projects.append(os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(clone_path)), rel)))
+    return projects
+
+
+def cmd_relink_renamed(args):
+    clone_path = os.path.abspath(args.clone_path)
+    renames = _skill_renames(clone_path)
+    projects = list(args.project_path or [])
+    if args.registry:
+        projects += _registry_projects(clone_path)
+    for project in projects:
+        if os.path.isdir(project):
+            _relink_project(clone_path, project, renames)
+    return 0
+
+
 def cmd_link_project(args):
     # Mission 173 step 4 (Q17, "rien dans le profil" ["nothing in the profile"]): links the method
     # skills (skills/ and skills/external/, same Doctrine rule 3 Codex
@@ -789,11 +973,25 @@ def cmd_link_project(args):
     codex_source_lists = [default_entries] if over_budget else [default_entries, external_entries]
     codex_entries, codex_duplicates = _merge_skill_entries(codex_source_lists)
 
+    slug = _read_assistant_slug(clone_path)
     conflict_count = 0
+    allowed = {}
+    for target_root, names in (
+        (claude_skills_dir, [n for n, _ in claude_entries]),
+        (codex_agents_skills_dir, [n for n, _ in codex_entries] + ([slug] if slug else [])),
+        (claude_agents_dir, [f"{slug}.md"] if slug else []),
+    ):
+        if not names:
+            allowed[target_root] = True
+            continue
+        allowed[target_root] = _write_links_ignore(target_root, names + _existing_links(target_root))
+
     for target_root, entries in (
         (claude_skills_dir, claude_entries),
         (codex_agents_skills_dir, codex_entries),
     ):
+        if not allowed[target_root]:
+            continue
         for name, source_path in entries:
             link_path = os.path.join(target_root, name)
             status = _publish_skill_link(link_path, source_path)
@@ -808,18 +1006,19 @@ def cmd_link_project(args):
     print(f"BUDGET {total} {MAX_CODEX_DEFAULT_SKILLS_BUDGET}")
     print(f"FALLBACK {'1' if over_budget else '0'}")
 
-    slug = _read_assistant_slug(clone_path)
     if slug:
         subagent_source = os.path.join(clone_path, ".claude", "agents", f"{slug}.md")
         subagent_link = os.path.join(claude_agents_dir, f"{slug}.md")
-        subagent_status = _publish_file_link(subagent_link, subagent_source)
+        subagent_status = (_publish_file_link(subagent_link, subagent_source)
+                           if allowed[claude_agents_dir] else "Skipped")
         if subagent_status == "Conflict":
             conflict_count += 1
             print(f"CONFLICT ASSISTANT {subagent_link}")
 
         skill_source = os.path.join(clone_path, ".agents", "skills", slug)
         skill_link = os.path.join(codex_agents_skills_dir, slug)
-        skill_status = _publish_skill_link(skill_link, skill_source)
+        skill_status = (_publish_skill_link(skill_link, skill_source)
+                        if allowed[codex_agents_skills_dir] else "Skipped")
         if skill_status == "Conflict":
             conflict_count += 1
             print(f"CONFLICT ASSISTANT {skill_link}")
@@ -851,6 +1050,9 @@ def cmd_write_user_profile(args):
         f'description: "Rédigée par le questionnaire d\'installation (Mission 168, tickets 05 '
         f'et 08), à partir des réponses données le {args.installed_at}."',
         "status: active",
+        # Mission 218 (Decision 012459): the language, recorded once, in the
+        # front matter -- the only form tools/project-bootstrap.sh reads.
+        f"language: {args.language.lower()}",
         "---",
         "",
         "# FICHE UTILISATEUR",
@@ -891,6 +1093,150 @@ def cmd_write_user_profile(args):
     ]
     with open(args.path, "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(lines))
+    return 0
+
+
+# --- USER.md: receiving a new skeleton without losing the participant's own
+# profile (Mission 230, P1 of report 227) ---------------------------------------
+#
+# USER.md is written whole by the questionnaire above, from the participant's
+# answers. The file the version distributes is the empty skeleton. So any
+# change of that skeleton -- the `language:` line and the "neuf questions"
+# description of v0.1.15 -- conflicts with every installation, and
+# tools/second-brain-update.sh ended REFUSED on it.
+#
+# The resolution is deliberately one-directional: the participant's side is
+# copied out byte for byte, and only what the new skeleton ADDS and the
+# participant does not have is appended -- a front-matter key, a section
+# heading. Not one line the participant wrote is read for its value, rewritten
+# or reordered. Anything else (a skeleton line whose value changed, a section
+# the participant filled in differently) is the participant's, and stays.
+#
+# Bytes, not text: the profile carries accented answers, and on Windows
+# PowerShell writes it with a UTF-8 byte-order mark and CRLF endings. Splitting
+# on b"\n" and joining back on b"\n" reproduces the input exactly when nothing
+# is inserted; inserted lines take the dominant ending of the participant's
+# file.
+
+_FM_KEY_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_-]*)[ \t]*:")
+
+
+def _profile_lines(raw):
+    """(lines, fm_end, crlf) for a front-matter document, or None.
+
+    lines: raw.split(b"\\n"), untouched. fm_end: index of the closing `---`.
+    crlf: True when the first line ends with CR (the whole file is rewritten
+    with that ending for inserted lines only).
+    """
+    lines = raw.split(b"\n")
+    if not lines:
+        return None
+    first = lines[0]
+    if first.startswith(b"\xef\xbb\xbf"):
+        first = first[3:]
+    crlf = first.endswith(b"\r")
+    if _strip_cr(first) != b"---":
+        return None
+    for i in range(1, len(lines)):
+        if _strip_cr(lines[i]) == b"---":
+            return (lines, i, crlf)
+    return None
+
+
+def _strip_cr(b):
+    return b[:-1] if b.endswith(b"\r") else b
+
+
+def _fm_keys(lines, fm_end):
+    keys = []
+    for line in lines[1:fm_end]:
+        m = _FM_KEY_RE.match(_strip_cr(line).decode("utf-8", "replace"))
+        if m:
+            keys.append(m.group(1))
+    return keys
+
+
+def _sections(lines, start):
+    """[(heading, [body lines]), ...] for every `## ` heading from <start>."""
+    out = []
+    cur = None
+    for line in lines[start:]:
+        text = _strip_cr(line)
+        if text.startswith(b"## "):
+            cur = (text[3:].decode("utf-8", "replace").strip(), [])
+            out.append(cur)
+        elif cur is not None:
+            cur[1].append(line)
+    return out
+
+
+def cmd_merge_user_profile(args):
+    with open(args.ours, "rb") as f:
+        ours_raw = f.read()
+    with open(args.theirs, "rb") as f:
+        theirs_raw = f.read()
+    ours = _profile_lines(ours_raw)
+    theirs = _profile_lines(theirs_raw)
+    if ours is None:
+        sys.stderr.write("REFUS : %s ne commence pas par un front matter\n" % args.ours)
+        return 1
+    if theirs is None:
+        sys.stderr.write("REFUS : %s ne commence pas par un front matter\n" % args.theirs)
+        return 1
+    lines, fm_end, crlf = ours
+    t_lines, t_fm_end, _ = theirs
+    eol = b"\r" if crlf else b""
+
+    # 1. Front-matter keys the new skeleton has and the participant has not.
+    have = set(_fm_keys(lines, fm_end))
+    added_keys = []
+    for line in t_lines[1:t_fm_end]:
+        text = _strip_cr(line)
+        m = _FM_KEY_RE.match(text.decode("utf-8", "replace"))
+        if not m or m.group(1) in have:
+            continue
+        # `language:` arrives empty in the skeleton. The installer recorded the
+        # participant's language in its carnet; the caller passes it here, so a
+        # v0.1.14 installation keeps working in its own language instead of
+        # gaining a key nothing can read.
+        if m.group(1) == "language" and args.language and not text.split(b":", 1)[1].strip():
+            text = b"language: " + args.language.encode("utf-8")
+        added_keys.append(text + eol)
+        have.add(m.group(1))
+
+    # 2. Section headings the new skeleton has and the participant has not,
+    #    inserted before `## Liens` when the participant has one (the linking
+    #    standard keeps it last), else appended.
+    ours_headings = set(h for h, _ in _sections(lines, fm_end + 1))
+    added_sections = []
+    for heading, body in _sections(t_lines, t_fm_end + 1):
+        if heading in ours_headings:
+            continue
+        added_sections.append(b"## " + heading.encode("utf-8") + eol)
+        while body and _strip_cr(body[-1]) == b"":
+            body = body[:-1]
+        # The skeleton is distributed with LF endings; the participant's file
+        # may be CRLF (written by PowerShell). Inserted lines take theirs.
+        added_sections.extend(_strip_cr(b) + eol for b in body)
+        added_sections.append(eol)
+        ours_headings.add(heading)
+
+    out = lines[:fm_end] + added_keys + lines[fm_end:]
+    if added_sections:
+        at = None
+        for i in range(fm_end + len(added_keys) + 1, len(out)):
+            if _strip_cr(out[i]) == b"## Liens":
+                at = i
+                break
+        if at is None:
+            while out and _strip_cr(out[-1]) == b"":
+                out = out[:-1]
+            out = out + [eol] + added_sections
+        else:
+            out = out[:at] + added_sections + out[at:]
+
+    with open(args.out, "wb") as f:
+        f.write(b"\n".join(out))
     return 0
 
 
@@ -949,6 +1295,9 @@ def cmd_merge_mcp_json(args):
     if not isinstance(servers, dict):
         servers = {}
     desired = {"command": args.command, "args": list(args.server_args)}
+    if args.entry_type:
+        # Mission 242: Cursor's mcp.json names the transport ("type": "stdio").
+        desired = {"type": args.entry_type, **desired}
     if servers.get(args.name) == desired:
         print("UNCHANGED")
         return 0
@@ -1094,6 +1443,12 @@ def build_parser():
     p.add_argument("old_slug")
     p.set_defaults(func=cmd_move_assistant_trash)
 
+    p = sub.add_parser("relink-renamed")
+    p.add_argument("clone_path")
+    p.add_argument("project_path", nargs="*")
+    p.add_argument("--registry", action="store_true")
+    p.set_defaults(func=cmd_relink_renamed)
+
     p = sub.add_parser("link-project")
     p.add_argument("clone_path")
     p.add_argument("project_path")
@@ -1117,7 +1472,15 @@ def build_parser():
     p.add_argument("--codex-detected", default="False")
     p.set_defaults(func=cmd_write_user_profile)
 
+    p = sub.add_parser("merge-user-profile")
+    p.add_argument("ours")
+    p.add_argument("theirs")
+    p.add_argument("out")
+    p.add_argument("--language", default="")
+    p.set_defaults(func=cmd_merge_user_profile)
+
     p = sub.add_parser("merge-mcp-json")
+    p.add_argument("--entry-type", default="")
     p.add_argument("config")
     p.add_argument("name")
     p.add_argument("command")

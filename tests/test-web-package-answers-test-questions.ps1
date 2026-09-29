@@ -79,7 +79,7 @@ try {
     # that list itself, so this test never drifts out of sync with which
     # sources the generator actually reads (same pattern as
     # tests/test-web-package-readme-matches-contents.ps1).
-    $sourceFiles = @('assistant\ASSISTANT.md') + @($Script:WebPackageKnowledgeFiles | ForEach-Object { $_.SourcePaths })
+    $sourceFiles = @('assistant\ASSISTANT.md', $Script:AssistantMapSource) + @($Script:WebPackageKnowledgeFiles | ForEach-Object { $_.SourcePaths })
     foreach ($relative in $sourceFiles) {
         $src = Join-Path $RepoRoot $relative
         $dst = Join-Path $TestClone $relative

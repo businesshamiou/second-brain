@@ -41,9 +41,26 @@ This handoff is a dated historical handover, created to allow a reliable resume 
 ## Artifacts to read first
 
 1. Main source: `<relative path>`
-2. Current state: `<relative path to current-state.md>`
+2. State sheet: `<relative path to the project's state/STATE.md — the state_path of its Pilot prompt>`
+
+## Executor closing command
+
+<Mandatory (Mission 217). The command the Owner pastes into the Executor window to close the session: one code block, the five rubrics of rule 124937, naming THIS handoff by its relative path. A handoff filed without it is not filed (Pilot checklist, line 29), and `tools/check-session-close.sh` refuses the commit that brings the handoff in without its DIGEST and its `STATE:` line.>
+
+```text
+Session Executor — Close (<session>)
+
+Position : free.
+
+Source à appliquer : the `session-close` skill, Executor branch, on <relative path of this handoff>. CLOSE: exactly the doors that its §7 names; OPEN: the ones it says to open. STATE.md, DIGEST, register and indexes only.
+
+Interdits absolus : no non-delegated git push, no model call, no deletion; move to `_trash/` only on a Mission's prescription; every write or push command names the absolute path of its repository, and a push goes through tools/verified-push.sh.
+
+Sortie attendue : end the window with the RELAY block of rule 124937, filled in.
+```
 
 ## Liens
 
 - `prescribed by` — [Context cycle V2](../rules/RULES-2026-08-17-111018-context-lifecycle-v2.md)
+- `amended by` — [Decision — State sheet, one name, generated](../decisions/DECISION-2026-09-23-012458-state-sheet-one-name-generated-state-path.md)
 - (to be completed: type — title — relative path, see the linking standard)

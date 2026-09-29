@@ -17,16 +17,15 @@
     not this one -- nothing here is ever printed in the assistant's own
     voice.
 
-    It also links every method skill (skills/, including external/) into
-    the user's Claude Code and Codex skills folders, by link and never by
-    copy (ticket 07, extended unconditionally to skills/external/ by
-    Mission 171-C01 step 4, tools/deploy-skills.ps1) -- see that file's own
-    header comment for the deployment rules, the idempotency model and the
-    Codex description budget. The eighth question that used to gate
-    skills/external/ and warehouse collections is retired: nothing about
-    skill deployment is asked any more, and warehouse collections are never
-    linked by this installer (Mission 171-C01 Context: delivered as zip
-    packages instead, a separate mechanism).
+    It links nothing into the user's profile (Mission 173, "rien dans le
+    profil" ["nothing in the profile"]): the method skills (skills/,
+    including external/) and the assistant are linked into each project
+    the Vault creates, by tools/project-bootstrap.sh, by link and never by
+    copy -- tools/deploy-skills.ps1's header comment gives the linking
+    rules and the Codex description budget. Nothing about skill deployment
+    is asked, and warehouse collections are never linked by this installer
+    (Mission 171-C01 Context: delivered as zip packages instead, a separate
+    mechanism).
 
     Before touching the source or the workspace at all, it ensures Git, uv
     and pre-commit are usable (tools/prerequisites.ps1, ticket 04):
@@ -44,8 +43,8 @@
     It then creates the workspace, clones `second-brain` from -Source (a
     local path, never a URL -- T23, acceptance before push), pins the
     workspace marker (VAULT-ROOT.md), wires the clone's own guardians
-    (core.hooksPath), generates and links the assistant and the method's
-    skills (tickets 06-07), writes the participant's profile (USER.md, from
+    (core.hooksPath), generates the assistant's forms (ticket 06), writes
+    the participant's profile (USER.md, from
     the answers plus a measured -- never asked -- Environnement section),
     and creates the first project through tools/project-bootstrap.sh. Every
     step is idempotent: it is measured against what is actually on disk,
@@ -153,6 +152,9 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+# Declared temporary folder (Mission 234): Get-SbTmpDir, the one access function.
+. (Join-Path $PSScriptRoot 'tools\lib\tmp.ps1')
+
 # Shared with tests/test-install-e2e.ps1 -- one copy of the bash.exe lookup,
 # never two drifting copies.
 . (Join-Path $PSScriptRoot 'tools\resolve-bash-exe.ps1')
@@ -259,7 +261,7 @@ function Invoke-QuietGit {
         if ($LASTEXITCODE -ne 0) { throw $FailureMessage }
         return
     }
-    $tempFile = [System.IO.Path]::GetTempFileName()
+    $tempFile = Join-Path (Get-SbTmpDir -Use tools) ('install-git-' + [guid]::NewGuid().ToString('N') + '.txt')
     $previousEap = $ErrorActionPreference
     try {
         $ErrorActionPreference = 'Continue'
@@ -320,6 +322,15 @@ function Save-ClonePendingChanges {
     if (-not $changes) { return }
 
     Invoke-BashTool -BashExe $BashExe -ScriptPath (Join-Path $ClonePath 'tools\session-preflight.sh') | Out-Null
+
+    # Mission 231: a file this account cannot read (an access control list
+    # left by a sandbox) would stop `git add` half-way; tools/check-readable.sh
+    # names it and its remedy first (Invoke-BashTool throws with that output).
+    # A clone older than the check has no such tool: skipped.
+    $readableTool = Join-Path $ClonePath 'tools\check-readable.sh'
+    if (Test-Path -LiteralPath $readableTool) {
+        Invoke-BashTool -BashExe $BashExe -ScriptPath $readableTool -ScriptArgs @((ConvertTo-PosixPath $ClonePath)) | Out-Null
+    }
 
     foreach ($line in $changes) {
         if ([string]::IsNullOrWhiteSpace($line)) { continue }
@@ -520,6 +531,11 @@ try {
         }
 
         $defaultLanguage = Get-InstallerLanguage
+        # Mission 220: gum displays the questions when a terminal is there
+        # (installed by winget if missing, outside -TestMode); otherwise the
+        # plain questionnaire. Decided once, before the first question.
+        Initialize-QuestionnaireGum -Context $context -TestRoot $TestRoot -I18nDir $i18nDir `
+            -Language $defaultLanguage -ScriptedCount $scriptedQueue.Count
         Resolve-QuestionnaireAnswer -Answers $answers -Name 'language' `
             -PromptText "Language / Langue / Idioma -- FR, EN or ES [$defaultLanguage]:" `
             -DefaultValue $defaultLanguage -Interactive:$true -ScriptedInputs $scriptedQueue | Out-Null
@@ -602,6 +618,42 @@ try {
     $gitUserEmail = if ($answers.git.userEmail) { $answers.git.userEmail } else { 'installer@example.invalid' }
 
     $workspacePath = $answers.workspacePath
+
+    # Workspace depth (Mission 221, A-219-1) -- mirror of install.sh. On
+    # Windows (long paths not enabled) Python does not read a path longer
+    # than 259 characters: the index regeneration loses the longest Markdown
+    # file, the freshness guardian refuses, and the installation stopped at
+    # the marker step (report 219). Git writes longer paths (core.longpaths):
+    # the longest file written (181 with second-brain\, under
+    # skills-warehouse\, walked by no Python tool) does not fail. What fails
+    # is the longest tracked Markdown file outside skills-warehouse\ -- 127,
+    # 140 with second-brain\, so a root of at most 259 - 1 - 140 = 118,
+    # measured Mission 221: 118 installs, 119 stops at the marker step.
+    # Measured on the source at each run (proven a work tree above; other
+    # pruned folders counted too: stricter, never looser); the 127 of
+    # Mission 221 stands in if it cannot be listed. Refused here, before
+    # anything is written in the workspace ($carnetPath is still $null, so
+    # the catch saves no logbook). macOS and Linux (pwsh): no such limit.
+    if ($env:OS -eq 'Windows_NT') {
+        $longestTracked = 0
+        foreach ($tracked in @(& git -C $sourceAbs -c core.quotepath=off ls-files -- '*.md' ':(exclude)skills-warehouse')) {
+            if ($tracked.Length -gt $longestTracked) { $longestTracked = $tracked.Length }
+        }
+        if ($longestTracked -le 0) { $longestTracked = 127 }
+        $workspaceMax = 259 - 1 - 13 - $longestTracked
+        # No GetFullPath: .NET Framework throws on a path past 260 characters,
+        # which would hide the catalogue message behind its own.
+        $workspaceNative = $workspacePath -replace '/', '\'
+        while ($workspaceNative.Length -gt 3 -and $workspaceNative.EndsWith('\')) {
+            $workspaceNative = $workspaceNative.Substring(0, $workspaceNative.Length - 1)
+        }
+        if ($workspaceNative.Length -gt $workspaceMax) {
+            $currentStepKey = 'workspace'
+            throw (Format-CatalogText -Catalog $catalog -Key 'install.workspaceTooDeep' `
+                -FormatArgs @($workspaceNative, $workspaceNative.Length, $workspaceMax, $context.DefaultWorkspacePath))
+        }
+    }
+
     $clonePath = Join-Path $workspacePath 'second-brain'
     $markerPath = Join-Path $workspacePath 'VAULT-ROOT.md'
     $carnetPath = Join-Path $clonePath '.install\state.json'
@@ -699,6 +751,11 @@ try {
     Write-StepLine -Name 'Clone'
     Test-ForcedStop -StopAfterStep $StopAfterStep -StepName 'clone'
 
+    # Mission 236: the sb command on the user's PATH, through the same primitive
+    # as Git, uv and pre-commit (the simulated file under -TestMode). No step
+    # line of its own: the log keeps its fixed line count.
+    Add-InstallerPathEntry -Context $context -Entry (Join-Path $clonePath 'tools\sb\bin')
+
     # Questions 4-8 (T06 complement 2): asked one at a time, each saved to
     # the notebook immediately, so a forced stop between any two of them
     # resumes at the next unanswered one, never redoing an answered one.
@@ -762,6 +819,20 @@ try {
     # so a second run commits nothing.
     Invoke-BashTool -BashExe $bashExe -ScriptPath (Join-Path $clonePath 'tools\vault-identity.sh') `
         -ScriptArgs @('ensure', (ConvertTo-PosixPath $clonePath)) | Out-Null
+    # Mission 230 (A-226-21 of report 226): the workspace label, recorded here,
+    # before the first project is created. Without it, `vault-identity.sh get
+    # server_name` gives the name BY IDENTITY, tools/project-bootstrap.sh writes
+    # that name into the project's PILOT-PROMPT.md, and tools/install-vault-mcp.sh
+    # later configures `second-brain-vault-<workspace folder>` -- the prompt of
+    # the participant's very first project named a server that did not exist.
+    # One source of truth, VAULT-IDENTITY.md, read by both tools. Idempotent:
+    # a label already there is never replaced.
+    $recordedLabel = Invoke-BashTool -BashExe $bashExe -ScriptPath (Join-Path $clonePath 'tools\vault-identity.sh') `
+        -ScriptArgs @('get', 'workspace_label', (ConvertTo-PosixPath $clonePath))
+    if ([string]::IsNullOrWhiteSpace(($recordedLabel | Out-String).Trim())) {
+        Invoke-BashTool -BashExe $bashExe -ScriptPath (Join-Path $clonePath 'tools\vault-identity.sh') `
+            -ScriptArgs @('set-label', (Split-Path -Leaf $workspacePath), (ConvertTo-PosixPath $clonePath)) | Out-Null
+    }
     Save-ClonePendingChanges -BashExe $bashExe -ClonePath $clonePath -CommitMessage 'Generate vault identity'
     if (-not (Test-Path $markerPath)) {
         $writeMarkerScript = Join-Path $clonePath 'tools\write-marker.sh'

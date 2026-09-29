@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+# The hosts of the Vault's MCP server (Mission 242, rule on model-agnostic Pilot
+# and Executor hosts): one table, read by tools/install-vault-mcp.sh (which
+# writes), tools/check-mcp-containment.sh (which reads) and `sb` (doctor,
+# pilot-prompt --host). To be sourced; defines functions, changes nothing on its
+# own, writes nothing.
+#
+#   . "<Vault>/tools/lib/mcp-hosts.sh"
+#   mcp_hosts           # one line per host configuration, tab-separated:
+#                       #   <id> <name> <format> <config path> <present 1|0>
+#   mcp_hosts --native  # the same, config paths in the native form (C:\...
+#                       #   under Git Bash, cygpath -w), for a Windows program
+#
+# A host is PRESENT when its configuration folder exists or its command is on
+# the PATH -- measured, never assumed. Formats:
+#   claude-cli   `claude mcp add -s user` writes ~/.claude.json (Claude Code)
+#   codex-cli    `codex mcp add` writes ~/.codex/config.toml (Codex CLI and app)
+#   json         a JSON file whose key `mcpServers` maps a name to
+#                {"command", "args"} (Claude Desktop, Gemini CLI, Windsurf,
+#                Cline CLI, LM Studio)
+#   json-stdio   the same, with "type": "stdio" (Cursor)
+# Sources, read on 2026-09-28 (the rule's host matrix cites them): Gemini CLI
+# google-gemini.github.io/gemini-cli/docs/tools/mcp-server.html; Cursor
+# cursor.com/docs/mcp; Windsurf github.com/github/github-mcp-server
+# docs/installation-guides/install-windsurf.md; Cline docs.cline.bot/mcp/
+# configuring-mcp-servers (the CLI's ~/.cline/mcp.json; the VS Code extension
+# edits its own file through its interface); LM Studio lmstudio.ai/blog/
+# lmstudio-v0.3.17. Jan is configured through its interface only: not listed.
+
+mcp_hosts__unix() {
+  if command -v cygpath >/dev/null 2>&1; then cygpath -u "$1"; else printf '%s\n' "$1"; fi
+}
+
+mcp_hosts__row() { # <id> <name> <format> <config> <folder> <command>
+  local present=0
+  if { [ -n "$5" ] && [ -d "$5" ]; } || { [ -n "$6" ] && command -v "$6" >/dev/null 2>&1; }; then present=1; fi
+  printf '%s\t%s\t%s\t%s\t%s\n' "$1" "$2" "$3" "$4" "$present"
+}
+
+# The Claude desktop application's configuration folders (the same measurement
+# as tools/install-vault-mcp.sh): present only when the folder exists.
+mcp_hosts__desktop_dirs() {
+  local d
+  case "$(uname -s 2>/dev/null)" in
+    Darwin) d="$HOME/Library/Application Support/Claude"; [ -d "$d" ] && printf '%s\n' "$d" ;;
+    MINGW*|MSYS*|CYGWIN*)
+      if [ -n "${APPDATA:-}" ]; then
+        d="$(mcp_hosts__unix "$APPDATA")/Claude"; [ -d "$d" ] && printf '%s\n' "$d"
+      fi
+      if [ -n "${LOCALAPPDATA:-}" ]; then
+        for d in "$(mcp_hosts__unix "$LOCALAPPDATA")"/Packages/Claude_*/LocalCache/Roaming/Claude; do
+          [ -d "$d" ] && printf '%s\n' "$d"
+        done
+      fi
+      ;;
+    *) d="${XDG_CONFIG_HOME:-$HOME/.config}/Claude"; [ -d "$d" ] && printf '%s\n' "$d" ;;
+  esac
+  return 0
+}
+
+mcp_hosts() {
+  if [ "${1:-}" = "--native" ] && command -v cygpath >/dev/null 2>&1; then
+    local h_id h_name h_fmt h_cfg h_present
+    mcp_hosts | while IFS="$(printf '	')" read -r h_id h_name h_fmt h_cfg h_present; do
+      [ "$h_cfg" = "-" ] || h_cfg="$(cygpath -w "$h_cfg")"
+      printf '%s	%s	%s	%s	%s
+' "$h_id" "$h_name" "$h_fmt" "$h_cfg" "$h_present"
+    done
+    return 0
+  fi
+  local d found=0
+  while IFS= read -r d; do
+    [ -n "$d" ] || continue
+    found=1
+    printf '%s\t%s\t%s\t%s\t%s\n' claude-desktop "Claude Desktop" json "$d/claude_desktop_config.json" 1
+  done <<MCP_HOSTS_EOF
+$(mcp_hosts__desktop_dirs)
+MCP_HOSTS_EOF
+  [ "$found" = 1 ] || printf '%s\t%s\t%s\t%s\t%s\n' claude-desktop "Claude Desktop" json "-" 0
+  mcp_hosts__row claude-code "Claude Code" claude-cli "$HOME/.claude.json" "" claude
+  mcp_hosts__row codex "Codex" codex-cli "${CODEX_HOME:-$HOME/.codex}/config.toml" "" codex
+  mcp_hosts__row gemini "Gemini CLI" json "$HOME/.gemini/settings.json" "$HOME/.gemini" gemini
+  mcp_hosts__row cursor "Cursor" json-stdio "$HOME/.cursor/mcp.json" "$HOME/.cursor" cursor
+  mcp_hosts__row windsurf "Windsurf" json "$HOME/.codeium/windsurf/mcp_config.json" "$HOME/.codeium/windsurf" windsurf
+  mcp_hosts__row cline "Cline (CLI)" json "$HOME/.cline/mcp.json" "$HOME/.cline" cline
+  mcp_hosts__row lmstudio "LM Studio" json "$HOME/.lmstudio/mcp.json" "$HOME/.lmstudio" lms
+}
+
+# mcp_tool_name_length <server>: the longest name a host may show the model for
+# this server's tools under the `mcp__<server>__<tool>` form (Claude, Codex),
+# the longest tool being list_allowed_directories (24 characters, measured by
+# tools/list, Mission 242). The Gemini API caps a function name at 64.
+MCP_TOOL_NAME_MAX=64
+MCP_LONGEST_TOOL="list_allowed_directories"
+mcp_tool_name_length() {
+  printf '%s' "mcp__$1__$MCP_LONGEST_TOOL" | wc -c | tr -d ' '
+}

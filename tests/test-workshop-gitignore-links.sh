@@ -3,8 +3,11 @@
 # already existed receives its links to the assistant and the skills once
 # the three exclusions are added -- the recipe applied to second-brain-build.
 #
-#   control (behaviour of Mission 190): adoption of a Git folder whose
-#   .gitignore lacks the three lines -> no link placed, the lines returned;
+#   control -- amended by Mission 231 (step 4b): adoption of a Git folder
+#   whose .gitignore lacks the three lines -> the links ARE placed (each
+#   folder's own .gitignore names them, tests/test-bootstrap-gitignore-installed-skills.sh),
+#   and `git status --porcelain -uall` shows none of them; until Mission 231
+#   no link was placed and the lines were returned;
 #   (a) the three lines appended (nothing removed), adoption replayed
 #       (idempotent): the links exist (.claude/skills, .agents/skills), and
 #       `git status --porcelain` shows none of them.
@@ -46,15 +49,17 @@ printf 'hello\n' > "$P/README.md"
   git add -A && git commit -q -m init
 ) >/dev/null 2>&1
 
-OUT0="$(bash "$V/tools/project-bootstrap.sh" adopt "$P" --vcs git --lang EN 2>&1 </dev/null)"
-case "$OUT0" in
-  *"/.claude/skills/"*) pass "controle : .gitignore sans les lignes -> lignes rendues" ;;
-  *) fail "controle : les lignes ne sont pas rendues" ;;
-esac
-if [ ! -e "$P/.claude/skills" ] && [ ! -e "$P/.agents/skills" ]; then
-  pass "controle : aucun lien pose"
+bash "$V/tools/project-bootstrap.sh" adopt "$P" --vcs git --lang EN >/dev/null 2>&1 </dev/null
+if [ -n "$(ls "$P/.claude/skills" 2>/dev/null)" ] && [ -n "$(ls "$P/.agents/skills" 2>/dev/null)" ]; then
+  pass "controle (M231) : .gitignore sans les lignes -> liens poses"
 else
-  fail "controle : des liens ont ete poses malgre l'absence des lignes"
+  fail "controle (M231) : liens absents"
+fi
+LEAK0="$(git -C "$P" status --porcelain -uall | grep -E '\.claude/|\.agents/' | grep -v '/\.gitignore$' || true)"
+if [ -z "$LEAK0" ]; then
+  pass "controle (M231) : git status ne montre aucun lien (seuls les .gitignore des dossiers)"
+else
+  fail "controle (M231) : liens visibles : $(printf '%s' "$LEAK0" | head -n 3 | tr '\n' ' ')"
 fi
 
 BEFORE="$(cat "$P/.gitignore")"

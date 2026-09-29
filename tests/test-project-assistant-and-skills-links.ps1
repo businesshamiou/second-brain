@@ -155,7 +155,8 @@ try {
     Assert-True ($LASTEXITCODE -eq 0) "second link-project run exits 0"
     Assert-True (-not ($secondRunOutput -match '^CONFLICT ')) "second run reports no conflict against its own, already-correct links (CONFLICT_COUNT alone would false-positive-match a bare 'CONFLICT' substring check)"
     Assert-True (($secondRunOutput -join "`n") -match "ASSISTANT_SLUG $slug") "second run still resolves the same assistant slug"
-    $claudeSkillsAfterRerun = @(Get-ChildItem -Path (Join-Path $projectPath '.claude\skills') -ErrorAction SilentlyContinue)
+    # Mission 231: the folder also carries the .gitignore that names its links -- not a link.
+    $claudeSkillsAfterRerun = @(Get-ChildItem -Path (Join-Path $projectPath '.claude\skills') -ErrorAction SilentlyContinue | Where-Object { $_.Name -ne '.gitignore' })
     Assert-True ($claudeSkillsAfterRerun.Count -eq $methodSkillNames.Count) "no duplicate skill link after a second run ($($claudeSkillsAfterRerun.Count) entries, expected $($methodSkillNames.Count))"
 
     Write-Output ""

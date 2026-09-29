@@ -138,6 +138,7 @@ fi
 
 # --- (f) end to end with append-journal.sh ----------------------------------------------------------------
 mkdir -p "$TMP/f"; printf '# f\n' > "$TMP/f/README.md"
+git init -q "$TMP/f"  # Mission 226: the repository-root guard refuses a folder in no repository
 for step in lecture:debut lecture:fin preflight:debut preflight:fin mesures:debut mesures:fin \
             ecritures:debut ecritures:fin preuves:debut preuves:fin rangement:debut rangement:fin; do
   bash "$REPO_ROOT/tools/append-journal.sh" "$TMP/f" "PHASE:$step" || break

@@ -4,7 +4,7 @@
 # derived from this script's location -- never from `git rev-parse`, which
 # would return the calling repository and not the vault.
 #
-# usage: build-indexes.sh <racine...>
+# usage: build-indexes.sh [-v|--verbose] [--only-missing] <racine...>
 set -u
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-exec uv run "$SCRIPT_DIR/build_indexes.py" "$@"
+exec uv run --no-project "$SCRIPT_DIR/build_indexes.py" "$@"  # --no-project: never sync a uv project it runs in (Mission 234)

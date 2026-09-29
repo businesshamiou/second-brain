@@ -90,11 +90,36 @@ pb_touched() {
   ! pb_untouched "$1"
 }
 
+# pb_classify <project-root>: Mission 218, lot 6 -- stdin: relative paths;
+# stdout, same order: `B|U|T|N<TAB>path` (baseline file, untouched, touched,
+# new). The baseline is read once and every fingerprint computed in one Python
+# process (project_baseline.py filter), with the same verdict as pb_untouched /
+# pb_touched above: those two re-read the whole baseline per file (tr + awk + a
+# sha256 process), which cost 11 minutes without a word on 57 333 entries.
+# uv is required here as for the index guardians; missing: refusal, never a
+# silent skip.
+pb_classify() {
+  command -v uv >/dev/null 2>&1 || { echo "REFUS : uv introuvable, la ligne de base ne peut pas etre lue en une passe" >&2; return 1; }
+  uv run --no-project "$_pb_lib_dir/project_baseline.py" filter "$1"
+}
+
+# pb_text <project-root>: stdin: relative paths; stdout: the full content of
+# the text files, each line prefixed with `+` -- one process for all files, the
+# same bytes the per-file `head | tr | cmp` then `sed` produced.
+pb_text() {
+  command -v uv >/dev/null 2>&1 || { echo "REFUS : uv introuvable, contenu non lisible en une passe" >&2; return 1; }
+  uv run --no-project "$_pb_lib_dir/project_baseline.py" text "$1"
+}
+
 # pb_list_files <project-root>: all the files of the project, relative
 # paths, excluding .git, dependencies and links placed towards the Vault.
+# Mission 219, lot E: one listing for the shell and the Python guardians and
+# for the baseline written at adoption -- project_baseline.py `list`. At the
+# top of a Git work tree it is what Git tracks plus what it does not ignore:
+# a file Git ignores and does not track (`.env`, a `.venv/`) is not judged in
+# folder mode. Without Git, the same folder walk as before.
 pb_list_files() {
-  (
-    cd "$1" || exit 1
-    find . \( -name .git -o -name node_modules -o -path ./.claude/skills -o -path ./.claude/agents -o -path ./.agents/skills \) -prune -o -type f -print
-  ) | sed 's#^\./##' | LC_ALL=C sort
+  [ -d "$1" ] || return 1
+  command -v uv >/dev/null 2>&1 || { echo "REFUS : uv introuvable, liste des fichiers non calculable" >&2; return 1; }
+  uv run --no-project "$_pb_lib_dir/project_baseline.py" list "$1"
 }
