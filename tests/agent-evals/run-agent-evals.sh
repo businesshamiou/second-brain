@@ -38,7 +38,10 @@
 # `--list` prints every scenario, its host and whether a run without
 # arguments plays it; no call, no workspace built.
 #
-# MODEL CALLS: one per scenario played (at most 11 here). This line of
+# Mission 244 writes five scenarios of the client's journey (A1-A3, C1, C2),
+# NOT PLAYED either: played only when named, like P4.
+#
+# MODEL CALLS: one per scenario played (at most 11 here, without naming any). This line of
 # tests/suite.tsv is `on-demand`: never played by default, never by CI.
 #
 # BILLING (Mission 237, measured by reading, no call): the `total_cost_usd`
@@ -87,7 +90,12 @@ S2|claude-code|Executor sans plugin : sb status|default
 S3|claude-code|Pilot : sb help|default
 P4|codex|Pilot dans Codex (sans shell, serveur du Vault seul)|on-request
 P5|gemini|Pilot dans Gemini CLI (mode plan, serveur du Vault seul)|on-request
-E6|codex|Executor dans Codex, projet adopte|on-request"
+E6|codex|Executor dans Codex, projet adopte|on-request
+A1|claude-code|Pilot d'accueil, chemin seul, langue enregistree (M244)|on-request
+A2|claude-code|Pilot d'accueil, consignes par lieu (M244)|on-request
+A3|claude-code|Pilot d'accueil, relister _orders/ (M244)|on-request
+C1|claude-code|Pilot, sb close sans rien produit : cloture legere (M244)|on-request
+C2|claude-code|Executor seul, sb close : cloture legere (M244)|on-request"
 if [ "$ONLY" = "--list" ]; then
   echo "id	hote	joue sans argument	scenario"
   printf '%s\n' "$SCENARIOS" | awk -F'|' '{ printf "%s\t%s\t%s\t%s\n", $1, $2, ($4 == "default" ? "oui" : "non (a nommer)"), $3 }'
@@ -364,6 +372,56 @@ if named E6 && host_ready codex E6; then
   G="ecrit=$GESTURE_CHANGED"
   if printf '%s' "$FIRST_LINE" | grep -qE '^(READY|NOT-READY)' && [ "$GESTURE_CHANGED" = no ]; then
     record E6 "Executor dans Codex" PASS "$G"; else record E6 "Executor dans Codex" FAIL "$G"; fi
+fi
+
+# --- Mission 244: the client's journey, WRITTEN, NOT PLAYED (played only when
+# named; one model call each, the Owner's gesture) ---------------------------------
+#   A1  welcome Pilot, first message = the workspace path alone: the answer is in
+#       the recorded language (the throwaway Vault records fr), READY first.
+#   A2  welcome Pilot asked how to start a project: every instruction for the
+#       Owner starts with its place (« Dans le terminal », « Dans le Pilot » or
+#       « Dans l'Executor »).
+#   A3  welcome Pilot asked whether a profile order still waits, the order
+#       being already in _archive/orders/: it lists _orders/ again (never from
+#       memory) and says it was applied; nothing written.
+#   C1  project Pilot, a session with nothing produced, then « sb close »: a
+#       light close (« rien à consigner »), no handoff written.
+#   C2  Executor alone in the adopted project, « sb close »: the situation
+#       measured, the light close named (sb close --light), no jargon.
+if named A1; then
+  printf 'language: fr\n' > "$WS/vault/USER.local.yaml"
+  run_case A1 "Pilot d'accueil, chemin seul, langue enregistree" pilot "$OUT" "$ACCUEIL" "$WS_NATIVE"
+  G="francais=$(printf '%s' "$ANSWER" | grep -ciE ' (le|la|les|tu|ton|ta|est) ') ; ecrit=$GESTURE_CHANGED"
+  if printf '%s' "$FIRST_LINE" | grep -q '^READY' && printf '%s' "$ANSWER" | grep -qiE ' (le|la|les|tu|ton|ta) ' && [ "$GESTURE_CHANGED" = no ]; then
+    record A1 "Pilot d'accueil, langue enregistree" PASS "$G"; else record A1 "Pilot d'accueil, langue enregistree" FAIL "$G"; fi
+fi
+if named A2; then
+  run_case A2 "Pilot d'accueil, consignes par lieu" pilot "$OUT" "$ACCUEIL" "Bonjour. Comment je démarre un nouveau projet ?"
+  G="lieux=$(printf '%s' "$ANSWER" | grep -ciE "Dans le terminal|Dans le Pilot|Dans l.Executor") ; ecrit=$GESTURE_CHANGED"
+  if printf '%s' "$ANSWER" | grep -qiE "Dans le terminal|Dans le Pilot|Dans l.Executor" && [ "$GESTURE_CHANGED" = no ]; then
+    record A2 "Pilot d'accueil, consignes par lieu" PASS "$G"; else record A2 "Pilot d'accueil, consignes par lieu" FAIL "$G"; fi
+fi
+if named A3; then
+  mkdir -p "$WS/_archive/orders"
+  printf 'Ordre de profil\n- Rythme de revue : lundi\n' > "$WS/_archive/orders/PROFILE-2026-09-30-101500.md"
+  run_case A3 "Pilot d'accueil, relister _orders/" pilot "$OUT" "$ACCUEIL" "Bonjour. Mon ordre de profil attend-il encore un Executor ?"
+  G="archive=$(printf '%s' "$ANSWER" | grep -ciE 'archiv') ; ecrit=$GESTURE_CHANGED"
+  if printf '%s' "$ANSWER" | grep -qiE 'archiv|appliqu' && [ "$GESTURE_CHANGED" = no ]; then
+    record A3 "Pilot d'accueil, relister _orders/" PASS "$G"; else record A3 "Pilot d'accueil, relister _orders/" FAIL "$G"; fi
+fi
+if named C1; then
+  run_case C1 "Pilot, sb close sans rien produit" pilot "$OUT" "$TRUNK" "$(sandbox_native_path "$WS/demo")
+
+sb close"
+  G="legere=$(printf '%s' "$ANSWER" | grep -ciE 'rien à consigner|légère|light') ; ecrit=$GESTURE_CHANGED"
+  if printf '%s' "$ANSWER" | grep -qiE 'rien à consigner|légère|light close' && [ "$GESTURE_CHANGED" = no ]; then
+    record C1 "Pilot, sb close sans rien produit" PASS "$G"; else record C1 "Pilot, sb close sans rien produit" FAIL "$G"; fi
+fi
+if named C2; then
+  run_case C2 "Executor seul, sb close" exec "$WS/demo" - "sb close"
+  G="light=$(printf '%s' "$ANSWER" | grep -ciE -- '--light|légère|light close')"
+  if printf '%s' "$ANSWER" | grep -qiE -- '--light|clôture légère|light close'; then
+    record C2 "Executor seul, sb close" PASS "$G"; else record C2 "Executor seul, sb close" FAIL "$G"; fi
 fi
 
 echo ""

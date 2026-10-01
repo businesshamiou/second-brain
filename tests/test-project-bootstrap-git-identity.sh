@@ -96,7 +96,9 @@ fi
 LAST_COMMIT_OUT=""
 try_commit() {
   TC_DIR="$1"; TC_MSG="$2"; shift 2
-  LAST_COMMIT_OUT="$(cd "$TC_DIR" && git -c core.hooksPath="$EMPTY_HOOKS" add -A >/dev/null 2>&1; cd "$TC_DIR" && git -c core.hooksPath="$EMPTY_HOOKS" "$@" commit -q -m "$TC_MSG" 2>&1)"
+  # --allow-empty (Mission 244): project-bootstrap.sh create now commits the
+  # scaffold itself, so the tree may be clean; the identity is what is measured.
+  LAST_COMMIT_OUT="$(cd "$TC_DIR" && git -c core.hooksPath="$EMPTY_HOOKS" add -A >/dev/null 2>&1; cd "$TC_DIR" && git -c core.hooksPath="$EMPTY_HOOKS" "$@" commit -q --allow-empty -m "$TC_MSG" 2>&1)"
   return $?
 }
 

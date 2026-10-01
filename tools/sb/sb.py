@@ -731,13 +731,199 @@ def v_open(data, args, place):
     return code
 
 
+def commit_alone(repo, paths, message):
+    """A mechanical commit (Mission 244): the files a tool just wrote, and only
+    them, through the repository's own guardians -- their output shown, a
+    refusal shown as it is and never worked around. Returns (state, rc):
+    "nothing" when the files carry no change, "done", or "refused"."""
+    rels = [os.path.relpath(p, repo).replace("\\", "/") for p in paths]
+    changed = git(["status", "--porcelain", "--"] + rels, repo, check=True) or ""
+    if not changed.strip():
+        return "nothing", 0
+    if norm(repo) == norm(VAULT) and os.path.isfile(os.path.join(VAULT, "tools", "session-preflight.sh")):
+        # The Vault's guardians want a fresh preflight stamp (tools/session-preflight.sh).
+        run_tool("session-preflight.sh", [], cwd=VAULT, capture=True)
+    try:
+        subprocess.run(["git", "-C", repo, "add", "--"] + rels, capture_output=True)
+        proc = subprocess.run(["git", "-C", repo, "commit", "-q", "-m", message, "--"] + rels,
+                              capture_output=True, text=True, encoding="utf-8", errors="replace")
+    except OSError as exc:
+        out("   " + str(exc))
+        return "refused", 1
+    shown = [l for l in ((proc.stdout or "") + (proc.stderr or "")).splitlines()
+             if l.strip() and "CRLF will be replaced" not in l and "LF will be replaced" not in l]
+    for line in shown:
+        out(dim("   " + line))
+    return ("done" if proc.returncode == 0 else "refused"), proc.returncode
+
+
+# --- close (Mission 244): the situation, measured -------------------------------
+
+STAMP_IN_NAME = re.compile(r"(\d{4}-\d{2}-\d{2}-\d{6})")
+ARTEFACT_FOLDERS = ("missions", "reports", "captures", "handoffs", "decisions", "proposals")
+
+
+def last_state_stamp(journal):
+    """The latest `STATE:` line of a journal, as YYYY-MM-DD-HHMMSS (local time
+    as written), or None. The journal is append-only but not sorted: the
+    latest is the greatest."""
+    try:
+        with open(journal, encoding="utf-8-sig") as f:
+            lines = f.read().splitlines()
+    except OSError:
+        return None
+    best = None
+    for line in lines:
+        m = re.match(r"^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2}):(\d{2})\S*\s+(?:STATE|ETAT):", line)
+        if m:
+            stamp = f"{m.group(1)}-{m.group(2)}{m.group(3)}{m.group(4)}"
+            best = stamp if best is None or stamp > best else best
+    return best
+
+
+def artefacts_since(base, stamp):
+    """Missions, Notes, reports, captures, handoffs, decisions and proposals
+    whose name carries a timestamp later than <stamp>: what a close has to
+    record. Index files carry none and are never counted."""
+    found = []
+    for folder in ARTEFACT_FOLDERS:
+        try:
+            names = os.listdir(os.path.join(base, folder))
+        except OSError:
+            continue
+        for name in sorted(names):
+            m = STAMP_IN_NAME.search(name)
+            if name.endswith(".md") and m and (stamp is None or m.group(1) > stamp):
+                found.append(f"{folder}/{name}")
+    return found
+
+
+def push_target(repo):
+    """Where the repository's `origin` stands for a push (Mission 244, closing
+    list line 6): "none" (no origin), "distribution" (an installed Vault whose
+    origin is the address it was installed from -- `vault_origin` of its
+    VAULT-IDENTITY.md -- and which has no `release` remote: the published
+    product, never a push target), or "owner" (every other remote: the push
+    hole stands). The laboratory, which carries `release`, keeps its hole."""
+    url = git(["remote", "get-url", "origin"], repo)
+    if not url:
+        return "none", ""
+    identity = read_frontmatter(os.path.join(repo, "VAULT-IDENTITY.md"))
+    recorded = identity.get("vault_origin", "")
+
+    def same(a, b):
+        # A folder origin may be written /c/x by the shell and C:/x by Git.
+        if a == b:
+            return True
+        m = re.match(r"^/([a-zA-Z])(/.*)$", a)
+        a = f"{m.group(1)}:{m.group(2)}" if m and IS_WINDOWS else a
+        return bool(a and b and "://" not in a + b and norm(a) == norm(b))
+
+    if (identity.get("status") == "generated" and same(recorded, url)
+            and git(["remote", "get-url", "release"], repo) is None):
+        return "distribution", url
+    return "owner", url
+
+
+def push_line(repo):
+    kind, url = push_target(repo)
+    name = os.path.basename(repo.rstrip("\\/"))
+    if kind == "none":
+        return T("sb.close.push.none", name)
+    if kind == "distribution":
+        return T("sb.close.push.distribution", name, url)
+    counts = git(["rev-list", "--left-right", "--count", "@{upstream}...HEAD"], repo)
+    ahead = (counts.split() + ["0", "0"])[1] if counts else "?"
+    if ahead == "0":
+        return T("sb.close.push.even", name, url)
+    return T("sb.close.push.owner", name, url, ahead)
+
+
+def close_accueil():
+    """`sb close --accueil` (Mission 244): the welcome session has no project,
+    hence no handoff -- its trace is the orders it wrote. Listed as measured:
+    those waiting in _orders/, those filed today in _archive/orders/."""
+    out(bold(T("sb.close.accueil.title")))
+    today = datetime.date.today().isoformat()
+    waiting, filed = [], []
+    for folder, bucket, only_today in (("_orders", waiting, False), (os.path.join("_archive", "orders"), filed, True)):
+        try:
+            names = sorted(os.listdir(os.path.join(WORKSPACE, folder)))
+        except OSError:
+            names = []
+        for name in names:
+            if name.endswith(".md") and (not only_today or today in name):
+                bucket.append(display_path(os.path.join(WORKSPACE, folder, name)))
+    out("  " + T("sb.close.accueil.waiting", len(waiting)))
+    for p in waiting:
+        out("    " + p)
+    out("  " + T("sb.close.accueil.filed", len(filed)))
+    for p in filed:
+        out("    " + p)
+    out()
+    text_block(T("sb.close.accueil.rest"))
+    return EXIT_OK
+
+
+def light_close(base, repo, stamp):
+    """`sb close --light` (Mission 244): the Executor half of a light close,
+    mechanical -- one STATE: line, the state sheet, the digest, and a commit of
+    those three files alone through the project's guardians. No execution Note:
+    it is a planned path of the session-close skill, not an order outside a
+    Mission."""
+    head = git(["rev-parse", "--short", "HEAD"], repo) or "?"
+    line = T("sb.close.light.state", stamp or "—", head)[:290]
+    for script, args in (("append-journal.sh", [shell_path(base), line]),
+                         ("build-state.sh", [shell_path(base)]),
+                         ("build-digest.sh", [shell_path(base)])):
+        rc, text = run_tool(script, args, capture=True)
+        if rc != 0:
+            out(display_paths_in(text.rstrip("\n")))
+            return refuse(EXIT_TOOL, T("sb.close.light.toolFailed", script))
+    files = [os.path.join(base, "state", n) for n in ("journal.md", "STATE.md", "DIGEST.md")]
+    state, rc = commit_alone(repo, files, T("sb.close.light.message"))
+    if state == "refused":
+        return refuse(EXIT_TOOL, T("sb.close.light.refused"))
+    out(T("sb.close.light.done", git(["rev-parse", "--short", "HEAD"], repo) or "?"))
+    return EXIT_OK
+
+
 def v_close(data, args, place):
     v = verb_index(data)["close"]
+    if args and args[0] in ("--accueil", "accueil"):
+        return close_accueil()
     target = place.project or VAULT
     repo = git_toplevel(target)
     out(bold(T("sb.close.title", place.describe())))
     if repo:
         out(git(["status", "-sb"], repo, check=True) or "")
+    base = project_base(place.project) if place.project else VAULT
+    journal = os.path.join(base, "state", "journal.md")
+    stamp = last_state_stamp(journal)
+    since = artefacts_since(base, stamp) if os.path.isfile(journal) else None
+    out()
+    if since is None:
+        out(T("sb.close.situation.unmeasured", display_path(journal)))
+    elif not since:
+        out(T("sb.close.situation.light", stamp or "—"))
+    else:
+        handoffs = [a for a in since if a.startswith("handoffs/")]
+        out(T("sb.close.situation.full", len(since), stamp or "—"))
+        for a in since[:12]:
+            out("    " + a)
+        if handoffs:
+            out(T("sb.close.situation.handoff", handoffs[-1]))
+        else:
+            out(T("sb.close.situation.noHandoff"))
+    if repo:
+        out(push_line(repo))
+    if "--light" in args:
+        if since is None or since or not repo:
+            return refuse(EXIT_TOOL, T("sb.close.light.notLight"))
+        return light_close(base, repo, stamp)
+    if since == [] and repo:
+        out()
+        out(T("sb.close.light.hint"))
     card(v)
     return EXIT_OK
 
@@ -774,10 +960,23 @@ def v_profile(data, args, place):
     archive = os.path.join(WORKSPACE, "_archive", "orders")
     out(bold(T("sb.profile.title", display_path(user_md))))
     rc, text = run_python_tool("starting_profile.py", ["owner-apply", order, user_md, "--archive", archive])
-    out(display_paths_in(text.rstrip("\n")))
+    lines = text.rstrip("\n").split("\n")
+    refused = lines[-1].split(" ", 2) if lines and lines[-1].startswith("REFUSED ") else None
+    if refused:
+        # Mission 244 (finding 18): the tool's fixed code, said in the reader's language.
+        detail = display_path(refused[2]) if len(refused) > 2 else ""
+        key = "sb.profile.refused." + refused[1]
+        return refuse(EXIT_TOOL, T(key, detail) if T.has(key) else lines[-1])
+    out(display_paths_in("\n".join(lines)))
     if rc != 0:
         return EXIT_TOOL
-    out(git(["status", "--short", "--", "USER.md"], VAULT, check=True) or "")
+    # Mission 244 (finding 17): the profile is committed here, USER.md alone,
+    # through the Vault's guardians -- a gesture without judgement needs no agent.
+    state, _ = commit_alone(VAULT, [user_md], "Starting profile applied from " + os.path.basename(order))
+    if state == "refused":
+        return refuse(EXIT_TOOL, T("sb.profile.commitRefused", display_path(user_md)))
+    out(T("sb.profile.committed" if state == "done" else "sb.profile.nothingToCommit",
+          git(["rev-parse", "--short", "HEAD"], VAULT) or "?"))
     card(v)
     return EXIT_OK
 
@@ -795,7 +994,10 @@ def v_new(data, args, place):
     if args[0] == "--order":
         if len(args) < 2:
             return refuse(EXIT_USAGE, T("sb.msg.usage", "sb new --order <file>"))
-        rc, _ = run_tool("project-bootstrap.sh", ["--order", shell_path(os.path.abspath(args[1]))] + args[2:])
+        # Mission 244 (finding 18): the tool's messages in the reader's language;
+        # the project's own language stays the one USER.md records.
+        lang = [] if "--lang" in args else ["--lang", T.lang.upper()]
+        rc, _ = run_tool("project-bootstrap.sh", ["--order", shell_path(os.path.abspath(args[1]))] + args[2:] + lang)
         return EXIT_OK if rc == 0 else EXIT_TOOL
     if len(args) < 2 or args[1].startswith("-"):
         return refuse(EXIT_USAGE, T("sb.msg.usage", 'sb new <folder> "<Display Name>" [--group <group>] [--lang FR|EN|ES]'))
@@ -874,10 +1076,70 @@ def host_name(host):
     return host
 
 
-def print_pilot(name, block, path_step, last_step, hosts, server, first_path):
+def clipboard_copy(text):
+    """The Pilot block on the clipboard (Mission 244, findings 27, 28), through
+    tools/lib/clipboard.sh -- the one access function; SB_CLIPBOARD_FILE takes
+    the bytes instead (tests). The file passes by the declared temporary folder."""
+    _code, root = subprocess_tmp_root()
+    folder = os.path.join(root or os.path.expanduser("~"), "tools")
+    os.makedirs(folder, exist_ok=True)
+    path = os.path.join(folder, "sb-block-%d.txt" % os.getpid())
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write(text)
+    script = f'. "{shell_path(os.path.join(TOOLS, "lib", "clipboard.sh"))}" && sb_clipboard_copy "{shell_path(path)}"'
+    try:
+        rc = subprocess.run([bash_exe(), "-c", script], capture_output=True).returncode
+    except OSError:
+        rc = 1
+    try:
+        os.unlink(path)
+    except OSError:
+        pass
+    return rc == 0
+
+
+def pop_delivery(args):
+    """--copy and --out <file> taken out of the arguments (Mission 244):
+    (copy, out file or None, rest, error)."""
+    rest, copy, out_file, error = [], False, None, None
+    i = 0
+    while i < len(args):
+        if args[i] == "--copy":
+            copy = True
+        elif args[i] == "--out":
+            if i + 1 >= len(args):
+                error = "--out"
+            else:
+                out_file = os.path.abspath(args[i + 1])
+                i += 1
+        else:
+            rest.append(args[i])
+        i += 1
+    return copy, out_file, rest, error
+
+
+def deliver_block(block, copy, out_file):
+    """The block copied (a terminal, --copy, or a test's SB_CLIPBOARD_FILE) and
+    written to --out; each said in one line, by its place."""
+    text = "\n".join(block).rstrip("\n") + "\n"
+    if out_file:
+        with open(out_file, "w", encoding="utf-8", newline="\n") as f:
+            f.write(text)
+        out(T("sb.pilot.written", display_path(out_file)))
+    if copy or sys.stdout.isatty() or os.environ.get("SB_CLIPBOARD_FILE"):
+        if clipboard_copy(text):
+            out(T("sb.pilot.copied"))
+        else:
+            out(T("sb.pilot.copyFailed"))
+    else:
+        out(T("sb.pilot.copyHint"))
+
+
+def print_pilot(name, block, path_step, last_step, hosts, server, first_path, copy=False, out_file=None):
     """The block once, the same for every host, then the steps of each host
     (Mission 242): where to paste it, how to open without a shell, the first
-    message, what the first answer shows."""
+    message, what the first answer shows. Mission 244: the block also goes to
+    the clipboard, or to --out."""
     out(bold(T("sb.pilot.title", name)))
     out()
     out(T("sb.pilot.blockIntro"))
@@ -898,6 +1160,8 @@ def print_pilot(name, block, path_step, last_step, hosts, server, first_path):
             out(T(f"sb.host.{host}.noShell"))
             out(T("sb.pilot.fm.first", first_path))
         out(last_step)
+    out()
+    deliver_block(block, copy, out_file)
     return EXIT_OK
 
 
@@ -916,7 +1180,7 @@ def pop_host(args):
     return host, args[:i] + args[i + 2:], None
 
 
-def accueil_prompt(host=None):
+def accueil_prompt(host=None, copy=False, out_file=None):
     """`sb pilot-prompt --accueil` (Mission 241): the block of the welcome Pilot
     `SB - Accueil`, as tools/project-bootstrap.sh accueil-prompt prints it,
     framed by the steps in the reader's language -- no bash to type; Mission
@@ -930,10 +1194,13 @@ def accueil_prompt(host=None):
     block = lines[marks[0] + 1:marks[-1]]
     return print_pilot("SB - Accueil", block, T("sb.pilot.accueilStep3", display_path(WORKSPACE)),
                        T("sb.pilot.accueilStep4"), pilot_hosts_to_show(host), vault_server_name(),
-                       display_path(WORKSPACE))
+                       display_path(WORKSPACE), copy, out_file)
 
 
 def v_pilot_prompt(data, args, place):
+    copy, out_file, args, derror = pop_delivery(args)
+    if derror:
+        return refuse(EXIT_USAGE, T("sb.msg.usage", "sb pilot-prompt [<folder>] [--copy] [--out <file>]"))
     host, args, error = pop_host(args)
     if error and error.startswith("!"):
         return refuse(EXIT_USAGE, T("sb.pilot.unsupportedHost", error[1:]), "docs/how-to/pilot-hosts-and-role-mixing.md")
@@ -942,12 +1209,17 @@ def v_pilot_prompt(data, args, place):
     if args and args[0] in ("--accueil", "accueil"):
         if len(args) > 1:
             return refuse(EXIT_USAGE, T("sb.msg.usage", "sb pilot-prompt --accueil [--host <host>]"))
-        return accueil_prompt(host)
+        return accueil_prompt(host, copy, out_file)
     rest = [a for a in args if a != "--regen"]
     regen = "--regen" in args
     project = place.project
     if rest:
-        tplace = Place(os.path.abspath(rest[0]))
+        # Mission 244 (finding 1): a bare folder name is also looked for in the
+        # workspace, whatever the current folder (a PowerShell opens in system32).
+        target = os.path.abspath(rest[0])
+        if not os.path.isdir(target) and WORKSPACE and os.path.isdir(workspace_target(rest[0])):
+            target = workspace_target(rest[0])
+        tplace = Place(target)
         if not tplace.project:
             return place_refusal(verb_index(data)["pilot-prompt"], tplace)
         project = tplace.project
@@ -963,7 +1235,7 @@ def v_pilot_prompt(data, args, place):
     suffix = server[len("second-brain-vault-"):] if server.startswith("second-brain-vault-") else server
     return print_pilot(fm.get("pilot_project_name", ""), common_block(suffix).split("\n"),
                        T("sb.pilot.step3", display_path(project)), T("sb.pilot.step4", fm.get("canary", "")),
-                       pilot_hosts_to_show(host), server, display_path(project))
+                       pilot_hosts_to_show(host), server, display_path(project), copy, out_file)
 
 
 def find_mission(base, token):
@@ -1286,6 +1558,15 @@ def v_doctor(data, args, place):
                 absent.append(h["name"])
         if absent:
             check("info", T("sb.doctor.mcpAbsent"), ", ".join(absent))
+    if any(h["id"] == "claude-desktop" and h["present"] for h in hosts):
+        # Mission 244 (finding 12): the application reloads its servers only once ENDED.
+        check("info", T("sb.doctor.desktopHint"), T("sb.doctor.desktopHintDetail." + platform_key()))
+    # Mission 244 (finding 20, orientation 3): an Executor is an agent with a shell.
+    agents = [name for name, cmd in (("Claude Code", "claude"), ("Codex", "codex")) if shutil.which(cmd)]
+    if agents:
+        check("ok", T("sb.doctor.executor"), ", ".join(agents))
+    else:
+        check("warn", T("sb.doctor.executor"), T("sb.doctor.executorNone"), T("sb.doctor.executorFix." + platform_key()))
     state = plugin_state()
     check("ok" if state == "installed" else ("warn" if state == "stale" else "info"), T("sb.doctor.plugin"),
           {"installed": T("sb.doctor.pluginOk"), "market": T("sb.doctor.pluginNo"),
@@ -1640,11 +1921,20 @@ def install_mcp(n, label=None):
     relayed whole, with the name it proposes."""
     script = os.environ.get("SB_MCP_INSTALLER") or os.path.join(TOOLS, "install-vault-mcp.sh")
     rc, text = (1, "")
+    running = desktop_running()
+    stopped = False
+    if running:
+        # Mission 244 (finding 12): asked before writing; ended only on a yes.
+        out(T("sb.install.desktop.running", len(running)))
+        if ask_yes_no(T("sb.install.desktop.ask"), default_interactive=True):
+            stopped = desktop_stop([pid for pid, _ in running])
+            out(T("sb.install.desktop.stopped") if stopped else T("sb.install.desktop.notStopped"))
     cmd = [bash_exe(), shell_path(script), shell_path(WORKSPACE or ""), "--lang", T.lang.upper()]
     if label:
         cmd += ["--label", label]
+    env = dict(os.environ, SB_DESKTOP_HANDLED="1")
     try:
-        proc = subprocess.run(cmd,
+        proc = subprocess.run(cmd, env=env,
                               capture_output=True, text=True, encoding="utf-8", errors="replace")
         rc, text = proc.returncode, ((proc.stdout or "") + (proc.stderr or "")).strip()
     except OSError as exc:
@@ -1656,10 +1946,76 @@ def install_mcp(n, label=None):
             out("   " + display_paths_in(line))
         return EXIT_TOOL
     out(T("sb.install.step.mcp", n, T("sb.install.added")))
-    last = [l for l in text.splitlines() if l.strip()]
-    if last:
-        out(dim("   " + display_paths_in(last[-1])))
+    identity = os.path.join(VAULT, "VAULT-IDENTITY.md")
+    state, _ = commit_alone(VAULT, [identity], "Workspace label recorded by sb install --mcp")
+    if state == "done":
+        # Mission 244 (finding 7): the label is committed, the Vault left clean.
+        out(dim("   " + T("sb.install.identityCommitted", git(["rev-parse", "--short", "HEAD"], VAULT) or "?")))
+    elif state == "refused":
+        out(T("sb.install.identityRefused", display_path(identity)))
+    # Mission 244 (finding 6): every line of the tool -- what was found, written,
+    # read back -- so that its last line, the restart, names what is above it.
+    for line in [l for l in text.splitlines() if l.strip()]:
+        out(dim("   " + display_paths_in(line)))
+    if running and not stopped:
+        out(T("sb.install.desktop.gesture." + platform_key()))
     return EXIT_OK
+
+
+def platform_key():
+    return "windows" if IS_WINDOWS else ("macos" if sys.platform == "darwin" else "linux")
+
+
+def desktop_running():
+    """The Claude desktop application's processes, [(pid, path)], through
+    tools/lib/mcp-hosts.sh (its path tells it from Claude Code; tests simulate
+    the list, never a real process)."""
+    script = f'. "{shell_path(os.path.join(TOOLS, "lib", "mcp-hosts.sh"))}" && mcp_desktop_running'
+    try:
+        proc = subprocess.run([bash_exe(), "-c", script], capture_output=True, text=True,
+                              encoding="utf-8", errors="replace")
+    except OSError:
+        return []
+    found = []
+    for line in (proc.stdout or "").splitlines():
+        cells = line.split("\t", 1)
+        if len(cells) == 2 and cells[0].strip():
+            found.append((cells[0].strip(), cells[1]))
+    return found
+
+
+def desktop_stop(pids):
+    script = (f'. "{shell_path(os.path.join(TOOLS, "lib", "mcp-hosts.sh"))}" && mcp_desktop_stop '
+              + " ".join(str(p) for p in pids if str(p).isdigit()))
+    try:
+        return subprocess.run([bash_exe(), "-c", script], capture_output=True).returncode == 0
+    except OSError:
+        return False
+
+
+def ask_yes_no(question, default_interactive):
+    """A yes/no question in the terminal. Without a terminal the answer is
+    « no » (Mission 244 constraint: nothing is ended without an explicit yes).
+    Tests only: SB_TEST_TTY_ANSWER stands for the typed answer, honoured when
+    the process list is simulated (SB_TEST_PROCESS_LIST)."""
+    simulated = os.environ.get("SB_TEST_TTY_ANSWER") if os.environ.get("SB_TEST_PROCESS_LIST") else None
+    if simulated is None and not sys.stdin.isatty():
+        out(question + " " + T("sb.install.desktop.nonInteractive"))
+        return False
+    if simulated is not None:
+        answer = simulated
+        out(question + " " + answer)
+    else:
+        try:
+            answer = input(question + " ")
+        except EOFError:
+            # Windows: NUL passes for a terminal, and reading it ends at once.
+            out(T("sb.install.desktop.nonInteractive"))
+            return False
+    answer = answer.strip().lower()
+    if not answer:
+        return default_interactive
+    return answer in ("y", "yes", "o", "oui", "s", "si", "sí")
 
 
 def _run_claude(args):
@@ -1752,6 +2108,57 @@ def v_publish(data, args, place):
         return refuse(EXIT_FORBIDDEN, T("sb.publish.notLab"), T("sb.goto.laboratory"))
     rc, _ = run_tool("publish-from-laboratory.sh", args, cwd=VAULT)
     return EXIT_OK if rc == 0 else EXIT_TOOL
+
+
+def installer_finish(data, args):
+    """The installer's last screen (Mission 244, findings 5, 20, 27, 28): not a
+    verb -- install.ps1 and install.sh call it once, at the very end. Outside
+    the installers' test mode: `sb install` (PATH, plugin when Claude Code is
+    there, the server in every host present, the Claude application asked
+    about first), then `sb doctor`. Always: the welcome Pilot's block on the
+    clipboard (a test names SB_CLIPBOARD_FILE; never the real clipboard in test
+    mode), or in a file under the Vault's .install/ folder; then the three
+    gestures, each starting with its place, for the family the Owner chose
+    (claude: the Claude desktop app, proven; openai: Codex, declared).
+    usage: sb.py installer-finish [--test-mode] [--family claude|openai] [--tools <csv>]"""
+    test_mode = "--test-mode" in args
+    family = args[args.index("--family") + 1] if "--family" in args and args.index("--family") + 1 < len(args) else "claude"
+    tools = args[args.index("--tools") + 1] if "--tools" in args and args.index("--tools") + 1 < len(args) else ""
+    place = Place(WORKSPACE) if WORKSPACE else Place(VAULT)
+    if test_mode:
+        out(dim(T("sb.finish.testMode")))
+    else:
+        out()
+        v_install(data, [], place)
+        out()
+        v_doctor(data, [], place)
+        named = [t.strip() for t in tools.split(",") if t.strip()]
+        for agent, cmd in (("claude-code", "claude"), ("codex", "codex")):
+            if agent in named and not shutil.which(cmd):
+                out(T(f"sb.finish.missing.{agent}.{platform_key()}"))
+    rc, text = run_tool("project-bootstrap.sh", ["accueil-prompt"], capture=True)
+    lines = text.replace("\r\n", "\n").split("\n")
+    marks = [i for i, line in enumerate(lines) if line.strip() == "---"]
+    block = "\n".join(lines[marks[0] + 1:marks[-1]]).rstrip("\n") + "\n" if rc == 0 and len(marks) >= 2 else ""
+    out()
+    copied = False
+    if block and (not test_mode or os.environ.get("SB_CLIPBOARD_FILE")):
+        copied = clipboard_copy(block)
+    if copied:
+        out(T("sb.finish.copied"))
+    elif block:
+        target = os.path.join(VAULT, ".install", "accueil-block.txt")
+        os.makedirs(os.path.dirname(target), exist_ok=True)
+        with open(target, "w", encoding="utf-8", newline="\n") as f:
+            f.write(block)
+        out(T("sb.finish.written", display_path(target)))
+    family = "openai" if family == "openai" else "claude"
+    out(bold(T("sb.finish.title")))
+    for n in (1, 2, 3):
+        out("  " + T(f"sb.finish.{family}.{n}", display_path(WORKSPACE or VAULT)))
+    if family == "openai":
+        out(dim("  " + T("sb.finish.openai.declared")))
+    return EXIT_OK
 
 
 HANDLERS = {
@@ -1959,6 +2366,8 @@ def main(argv):
         return EXIT_OK
     if args[0] == "generate":
         return generate(data, "--check" in args[1:])
+    if args[0] == "installer-finish":
+        return installer_finish(data, args[1:])
     verbs = verb_index(data)
     name, rest = args[0], args[1:]
     if name not in verbs:
@@ -1969,6 +2378,14 @@ def main(argv):
     if WORKSPACE is None and wanted not in ("anywhere",):
         return refuse(EXIT_PLACE, T("sb.msg.noWorkspace", VAULT), "sb install")
     place = Place(os.getcwd())
+    if not place.in_workspace and not place.other_workspace and WORKSPACE and wanted != "anywhere":
+        # Mission 244 (finding 1): outside any workspace -- a PowerShell opens in
+        # system32 -- sb serves the workspace of its own Vault and says so in one
+        # line; inside another workspace it still refuses (that space has its own
+        # sb). Never another workspace than its own.
+        err(dim(T("sb.here.usingOwn", display_path(WORKSPACE))))
+        os.chdir(WORKSPACE)
+        place = Place(WORKSPACE)
     if not place.satisfies(wanted):
         # A verb that takes a folder argument checks that folder, not the current one.
         if not (wanted == verbs[name]["place"] and verbs[name].get("folderArg")

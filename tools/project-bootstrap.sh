@@ -72,6 +72,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$SCRIPT_DIR/relpath.sh"
 . "$SCRIPT_DIR/resolve-vault.sh"
 . "$SCRIPT_DIR/lib/tmp.sh"  # declared temporary folder (Mission 234)
+. "$SCRIPT_DIR/lib/clipboard.sh"  # the Pilot block on the clipboard (Mission 244)
 VAULT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 I18N_DIR="$VAULT_ROOT/i18n"
 HELPER="$VAULT_ROOT/tools/sb_installer_helper.py"
@@ -582,6 +583,14 @@ if [ "$MODE" = "accueil-prompt" ]; then
   ACCUEIL_WS="$(rv_find_marker "$VAULT_ROOT" || true)"
   [ -n "$ACCUEIL_WS" ] || ACCUEIL_WS="$(dirname "$VAULT_ROOT")"
   ACCUEIL_SERVER="$(vid_server_name "$VAULT_ROOT" 2>/dev/null || true)"
+  # Mission 244 (finding 10): the recorded language, said in the block -- a
+  # first message that carries none (a path, a greeting) gets it (Decision 012459).
+  case "$PROJECT_LANG" in
+    fr) ACCUEIL_LANG="français (fr)" ;;
+    en) ACCUEIL_LANG="English (en)" ;;
+    es) ACCUEIL_LANG="español (es)" ;;
+    *) ACCUEIL_LANG="the language of the Owner's first message that carries one (none is recorded)" ;;
+  esac
   # One separator throughout the block: C:/Users/... (cygpath -m), read by the
   # MCP server and the Pilot alike; the template appends /skills/... to it.
   mixed_path() { if command -v cygpath >/dev/null 2>&1; then cygpath -m "$1"; else printf '%s\n' "$1"; fi; }
@@ -589,14 +598,15 @@ if [ "$MODE" = "accueil-prompt" ]; then
     | sed -e "s#{{WORKSPACE}}#$(mixed_path "$ACCUEIL_WS" | sed 's/[#&\\]/\\&/g')#g" \
           -e "s#{{VAULT}}#$(mixed_path "$VAULT_ROOT" | sed 's/[#&\\]/\\&/g')#g" \
           -e "s#{{MCP_SERVER}}#${ACCUEIL_SERVER:-second-brain-vault}#g" \
-          -e "s#{{VAULT_ID}}#$VAULT_ID#g")"
+          -e "s#{{VAULT_ID}}#$VAULT_ID#g" \
+          -e "s#{{LANGUAGE}}#$ACCUEIL_LANG#g")"
   echo "Pour ouvrir le Pilot d'accueil (application de bureau Claude) :"
-  echo "  1. Crée un Projet nommé « SB - Accueil »."
-  echo "  2. Colle ce bloc tel quel comme instructions du Projet :"
+  echo "  1. Dans l'application Claude : crée un Project nommé « SB - Accueil »."
+  echo "  2. Dans ses instructions : colle ce bloc tel quel :"
   echo "  ---"
   printf '%s\n' "$ACCUEIL_BLOCK"
   echo "  ---"
-  echo "  3. Premier message de chaque conversation : le chemin de l'espace, $(native_path "$ACCUEIL_WS")"
+  echo "  3. Dans une conversation de ce Project : écris « bonjour » (l'espace $(native_path "$ACCUEIL_WS") est dans le bloc)."
   exit 0
 fi
 
@@ -1124,9 +1134,16 @@ if [ -n "$PROJECT_LANG" ]; then
 else
   GUIDE_CONVENTIONS="$(PCATALOG "projectBootstrap.guide.conventionsUnset")"
 fi
+# Mission 244 (finding 34): the order's purpose is the project's purpose -- it
+# used to stay « à compléter » although the order carried it.
+if [ -n "$ORDER_PURPOSE" ]; then
+  GUIDE_PURPOSE="$(PCATALOG "projectBootstrap.guide.purposeGiven" "$ORDER_PURPOSE")"
+else
+  GUIDE_PURPOSE="$(PCATALOG "projectBootstrap.guide.purpose")"
+fi
 PROJECT_GUIDE_CONTENT="# $DISPLAY_NAME
 
-$(PCATALOG "projectBootstrap.guide.purpose")
+$GUIDE_PURPOSE
 
 $(PCATALOG "projectBootstrap.guide.conventionsHeading")
 
@@ -1553,6 +1570,93 @@ RELINK_EOF
   CATALOG "projectBootstrap.externalImportApproval"
 fi
 
+# --- Mechanical commits (Mission 244, findings 25 and 32): a project born or
+# adopted by an explicit call is committed by this script, never left for an
+# agent to decide. Two commits, each through the repository's own guardians,
+# their output shown; a refusal stops here, its text shown, nothing worked
+# around. The project: `create` commits the whole new folder (everything in it
+# was written here); `adopt` commits ONLY the files this call added, never a
+# file of the adopted project. The Vault: its registry, the project's sheet,
+# the indexes of projects/ and the identity, if this call wrote them. The
+# installers' historical call keeps committing on its own (install.ps1,
+# install.sh): nothing is committed here for it. ---
+commit_paths() { # commit_paths <repo> <message> <path relative to repo>...
+  local repo="$1" msg="$2" out rc
+  shift 2
+  [ $# -gt 0 ] || return 0
+  [ -n "$(git -C "$repo" status --porcelain -- "$@" 2>/dev/null)" ] || return 0
+  git -C "$repo" add -- "$@" >/dev/null 2>&1
+  # An author identity, never none (door 4 of capture 2026-09-17-144137): the
+  # repository's, else the neutral one, for this commit only.
+  if [ -z "$(git -C "$repo" config --get user.email 2>/dev/null)" ]; then
+    out="$(git -C "$repo" -c "user.name=$PB_FALLBACK_NAME" -c "user.email=$PB_FALLBACK_EMAIL" commit -q -m "$msg" -- "$@" 2>&1)"
+  else
+    out="$(git -C "$repo" commit -q -m "$msg" -- "$@" 2>&1)"
+  fi
+  rc=$?
+  printf '%s\n' "$out" | grep -v 'CRLF will be replaced\|LF will be replaced' | grep . | sed 's/^/   /'
+  if [ "$rc" -ne 0 ]; then
+    # Refused: the index is left as it was (the files stay written, unstaged).
+    git -C "$repo" reset -q -- "$@" >/dev/null 2>&1 || git -C "$repo" rm -r -q --cached -- "$@" >/dev/null 2>&1
+  fi
+  return $rc
+}
+if [ "$EXPLICIT" = "1" ]; then
+  if [ "$VCS" = "git" ] && [ -e "$TARGET_ABS/.git" ] && command -v git >/dev/null 2>&1; then
+    PROJECT_PATHS=""
+    if [ "$MODE" = "create" ]; then
+      PROJECT_PATHS="."
+      PROJECT_MSG="Initial scaffold from project-bootstrap ($DISPLAY_NAME)"
+    else
+      PROJECT_MSG="Adoption by project-bootstrap: the files it added ($DISPLAY_NAME)"
+      while IFS= read -r p; do
+        p="${p%% (*}"
+        [ -n "$p" ] && [ "$p" != ".git" ] && [ -e "$TARGET_ABS/$p" ] && PROJECT_PATHS="$PROJECT_PATHS
+$p"
+      done <<ADDED_EOF
+$ADDED
+ADDED_EOF
+      for p in .claude/skills/.gitignore .claude/agents/.gitignore .agents/skills/.gitignore; do
+        [ -f "$TARGET_ABS/$p" ] && [ -n "$(git -C "$TARGET_ABS" status --porcelain -- "$p" 2>/dev/null)" ]           && PROJECT_PATHS="$PROJECT_PATHS
+$p"
+      done
+    fi
+    if [ -n "$(printf '%s' "$PROJECT_PATHS" | tr -d '[:space:]')" ]; then
+      PP_LIST=()
+      while IFS= read -r p; do [ -n "$p" ] && PP_LIST+=("$p"); done <<PP_EOF
+$PROJECT_PATHS
+PP_EOF
+      if commit_paths "$TARGET_ABS" "$PROJECT_MSG" "${PP_LIST[@]}"; then
+        CATALOG "projectBootstrap.commit.done" "$TARGET_NATIVE" "$(git -C "$TARGET_ABS" rev-parse --short HEAD 2>/dev/null)"
+      else
+        CATALOG "projectBootstrap.commit.refused" "$TARGET_NATIVE"
+        exit 1
+      fi
+    fi
+  fi
+  if git -C "$VAULT_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    VAULT_PATHS=()
+    for p in "projects/PROJECT-REGISTRY.md" "projects/$(basename "$FICHE")" VAULT-IDENTITY.md index.md; do
+      [ -n "$(git -C "$VAULT_ROOT" status --porcelain -- "$p" 2>/dev/null)" ] && VAULT_PATHS+=("$p")
+    done
+    while IFS= read -r p; do
+      [ -n "$p" ] && VAULT_PATHS+=("$p")
+    done <<VIDX_EOF
+$(git -C "$VAULT_ROOT" status --porcelain -- projects 2>/dev/null | sed 's/^...//' | grep -E '(^|/)index[^/]*\.md$' || true)
+VIDX_EOF
+    if [ "${#VAULT_PATHS[@]}" -gt 0 ]; then
+      # The Vault's guardians want a fresh preflight stamp.
+      (cd "$VAULT_ROOT" && bash tools/session-preflight.sh >/dev/null 2>&1) || true
+      if commit_paths "$VAULT_ROOT" "Register project: $DISPLAY_NAME ($PROJECT_REL)" "${VAULT_PATHS[@]}"; then
+        CATALOG "projectBootstrap.commit.done" "$(native_path "$VAULT_ROOT")" "$(git -C "$VAULT_ROOT" rev-parse --short HEAD 2>/dev/null)"
+      else
+        CATALOG "projectBootstrap.commit.refused" "$(native_path "$VAULT_ROOT")"
+        exit 1
+      fi
+    fi
+  fi
+fi
+
 # --- Report of the explicit modes (create/adopt/--order): the installers'
 # historical call stays silent here, its log is capped. ---
 if [ "$EXPLICIT" = "1" ]; then
@@ -1661,6 +1765,18 @@ $B
   CATALOG "projectBootstrap.consume.instructionsPurpose" "$CONSUME_PURPOSE"
   CATALOG "projectBootstrap.consume.firstMessage" "$TARGET_NATIVE"
   CATALOG "projectBootstrap.consume.canary" "$CANARY" "$(native_path "$PILOT_PROMPT")"
+  # Mission 244 (findings 27, 28): the block goes to the clipboard by the tool,
+  # never by a selection in a terminal (which cuts its long lines) -- when a
+  # terminal is there, or a test names SB_CLIPBOARD_FILE; otherwise the command
+  # that copies it is named.
+  BLOCK_FILE="$(mktemp "$(sb_tmp_dir tools)/pb-block-XXXXXX")"
+  printf '%s\n' "$PROMPT_COMMON_BLOCK" > "$BLOCK_FILE"
+  if { [ -t 1 ] || [ -n "${SB_CLIPBOARD_FILE:-}" ]; } && sb_clipboard_copy "$BLOCK_FILE"; then
+    CATALOG "projectBootstrap.consume.copied" "SB - $DISPLAY_NAME"
+  else
+    CATALOG "projectBootstrap.consume.copyHint" "$TARGET_NATIVE"
+  fi
+  rm -f "$BLOCK_FILE"
 fi
 
 echo "$FICHE"

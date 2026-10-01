@@ -10,7 +10,10 @@
 #
 # Oracle (PASS expected): `git status --porcelain` of the installed clone is
 # empty at the end of the installation -- and a second run produces
-# no commit (the resume stays a no-op).
+# no commit (the resume stays a no-op). Mission 244 (finding 7): after
+# `sb install --mcp --label <label>` too -- the label is committed on its own
+# (the MCP writer is a stand-in here, and the process list simulated: no host
+# configuration, no process of this machine is touched).
 # Negative control (in this same file): an INTERRUPTED installation
 # before the final commit (forced stop after the firstProject step) leaves a
 # NON-empty porcelain, seen by the same measurement -- otherwise this test would
@@ -141,6 +144,30 @@ fi
 
 # =============================================================================
 echo ""
+echo "=== (c) Mission 244 : sb install --mcp --label laisse le Vault propre ==="
+printf '#!/usr/bin/env bash\nbash "%s/tools/vault-identity.sh" set-label test "%s" >/dev/null\necho "stub: label posed"\n' \
+  "$CLONE_A" "$CLONE_A" > "$TMP/mcp-stub.sh"
+: > "$TMP/processes.tsv"
+HEAD_C="$(git -C "$CLONE_A" rev-list --count HEAD)"
+OUT_C="$(cd "$R_A/workspace" && SB_MCP_INSTALLER="$TMP/mcp-stub.sh" SB_TEST_PROCESS_LIST="$TMP/processes.tsv" \
+  bash "$CLONE_A/tools/sb/bin/sb" install --mcp --label test 2>&1 < /dev/null)"
+RC_C=$?
+[ "$RC_C" = "0" ] && pass "(c) sb install --mcp --label test : rend 0" || fail "(c) sb install --mcp --label : rend $RC_C -- $(printf '%s' "$OUT_C" | tail -n 2)"
+if [ "$(bash "$CLONE_A/tools/vault-identity.sh" get workspace_label "$CLONE_A")" = "test" ] \
+  && [ "$(git -C "$CLONE_A" show --name-only --format= HEAD)" = "VAULT-IDENTITY.md" ] \
+  && [ "$(git -C "$CLONE_A" rev-list --count HEAD)" = "$((HEAD_C + 1))" ]; then
+  pass "(c) le libelle pose est commite seul (VAULT-IDENTITY.md, un commit)"
+else
+  fail "(c) libelle non commite seul -- $(git -C "$CLONE_A" log -1 --name-only --format=%s | tr '\n' ' ')"
+fi
+if [ -z "$(porcelain_of "$CLONE_A")" ]; then
+  pass "(c) porcelain vide apres --label"
+else
+  fail "(c) porcelain non vide apres --label : $(porcelain_of "$CLONE_A" | tr '\n' ' ')"
+fi
+
+# =============================================================================
+echo ""
 echo "=== temoin negatif : l'etat exact de la porte 8, reproduit ==="
 # A `--stop-after-step` is NOT enough to produce this control: each step
 # of the installer commits before its stopping point, and the measurement would
@@ -149,7 +176,9 @@ echo "=== temoin negatif : l'etat exact de la porte 8, reproduit ==="
 # observed: a project record written in the Vault and the indexes touched,
 # without the commit that records them -- which is what any call to
 # project-bootstrap.sh outside the installer does.
-if bash "$CLONE_A/tools/project-bootstrap.sh" create "$R_A/workspace/second-projet" "Second projet" --vcs none >/dev/null 2>&1; then
+# Mission 244: an explicit call now commits what it writes; the installers'
+# historical call (no subcommand) does not -- it is the one that leaves this state.
+if bash "$CLONE_A/tools/project-bootstrap.sh" "$R_A/workspace/second-projet" "Second projet" FR >/dev/null 2>&1; then
   pass "temoin : un second projet est cree contre le Vault installe"
 else
   fail "temoin : le second projet n'a pas pu etre cree"

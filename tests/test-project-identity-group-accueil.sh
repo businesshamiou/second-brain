@@ -3,7 +3,7 @@
 # session types): the tool side of the entry scenarios, on a throwaway Vault
 # built from the working tree of <source> (default: this repository).
 #
-#   (1) create: the block says « Create a Project named "SB - <Name>" »;
+#   (1) create: the block says « In the Claude app: create a Project named "SB - <Name>" » (Mission 244: the place first);
 #   (2) the Pilot prompt carries pilot_project_name: "SB - <Name>";
 #   (3) identity: the card names folder, group, name, project_id, registry
 #       line, canary and expected Pilot Project; --check: CONCORDANT, exit 0;
@@ -55,7 +55,7 @@ echo "=== Mission 234 : carte d'identite, noms SB, groupe, accueil ($SRC) ==="
 
 # --- (1) (2) create, flat ---
 OUT="$(bash "$BOOT" create "$WS/proj-one" "Proj One" EN --vcs none 2>&1)"; RC=$?
-if [ "$RC" -eq 0 ] && printf '%s' "$OUT" | grep -qF "Create a Project named \"${DOT}Proj One\""; then
+if [ "$RC" -eq 0 ] && printf '%s' "$OUT" | grep -qF "create a Project named \"${DOT}Proj One\""; then
   pass "(1) create : le bloc dit « Create a Project named \"SB - Proj One\" »"
 else
   fail "(1) create : rc=$RC, bloc sans le prefixe SB : $(printf '%s' "$OUT" | grep -i 'project named' | head -1)"

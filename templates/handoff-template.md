@@ -10,6 +10,8 @@ status: active
 
 This handoff is a dated historical handover, created to allow a reliable resume after an interruption or a transfer. It summarizes what is necessary and points to the sources without copying the whole project. Do not maintain it as a second current state.
 
+A session with no Mission opened or closed, no RELAY and no Pilot artefact filed needs no handoff: it is a light close (`sb close --light`, the situations table of the `session-close` skill; Mission 244).
+
 ## Objective
 
 <Result currently being pursued.>

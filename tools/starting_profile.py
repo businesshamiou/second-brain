@@ -18,11 +18,15 @@ existing project profile is kept as it is.
 usage:
   starting_profile.py owner-show <USER.md>
   starting_profile.py owner-apply <order file> <USER.md> --archive <folder> [--today YYYY-MM-DD]
+  starting_profile.py owner-seed <USER.md> [--does T] [--matters T] [--tools T] [--today YYYY-MM-DD]
   starting_profile.py project-write <README.md> [--result T] [--blocker T] [--cadence T]
                       [--title NAME] [--today YYYY-MM-DD]
 
 Last line of each command: OWNER-PROFILE <PRESENT|ABSENT> missing=<n> ·
-OWNER-PROFILE-WRITTEN · PROJECT-PROFILE-<WRITTEN|KEPT|NONE> · REFUSED <reason>.
+OWNER-PROFILE-WRITTEN · OWNER-PROFILE-<SEEDED|KEPT|NONE> · PROJECT-PROFILE-<WRITTEN|KEPT|NONE> ·
+REFUSED <code> [<detail>]
+(codes: order-not-found, skeleton, no-authorization, no-field, archive-exists,
+no-readme; Mission 244). USER.md is written with LF line ends.
 Exit: 0 done, 1 refused, 2 usage. Never a model call, never a deletion (the
 order is moved, never removed; an archive already holding its name refuses).
 """
@@ -53,8 +57,11 @@ def usage():
     return 2
 
 
-def refuse(reason):
-    print(f"REFUSED {reason}")
+def refuse(code, detail=""):
+    """Last line `REFUSED <code> [<detail>]`: the code is fixed (Mission 244,
+    finding 18) -- `sb profile` renders it in the reader's language from the
+    catalogue keys sb.profile.refused.<code>; the detail is a path or a name."""
+    print(f"REFUSED {code}" + (f" {detail}" if detail else ""))
     return 1
 
 
@@ -168,22 +175,26 @@ def owner_show(user_md):
 
 def owner_apply(order, user_md, archive, today):
     if not os.path.isfile(order):
-        return refuse(f"order not found: {order}")
+        return refuse("order-not-found", order)
     doc = Doc(user_md)
     if doc.frontmatter("status") == "template":
-        return refuse("USER.md is the distributed skeleton (status: template): a profile is written in an installed Vault, never in the laboratory's")
+        return refuse("skeleton", user_md)
     fields = order_fields(order)
     if not DATE_RE.search(fields.get(AUTH_FIELD, "")):
-        return refuse(f"profile order without « {AUTH_FIELD} » carrying a date (YYYY-MM-DD)")
+        return refuse("no-authorization", AUTH_FIELD)
     given = {n: fields[n] for n in OWNER_FIELDS if filled(fields.get(n))}
     if not given:
-        return refuse("profile order without any field of « " + OWNER_HEADING[3:] + " »")
+        return refuse("no-field", OWNER_HEADING[3:])
     target = os.path.join(archive, os.path.basename(order))
     if os.path.exists(target):
-        return refuse(f"the archive already holds {target}: nothing written, nothing moved")
+        return refuse("archive-exists", target)
     current = doc.fields(OWNER_HEADING) or {}
     merged = {n: (given[n] if n in given else current.get(n, "")) for n in OWNER_FIELDS}
     doc.put_section(OWNER_HEADING, render(OWNER_FIELDS, merged, today))
+    # Mission 244 (finding 19): USER.md is written with LF line ends, the form
+    # the repository keeps (.gitattributes eol=lf) -- a CRLF file made Git warn
+    # twice at the commit. The byte-order mark, if any, is kept.
+    doc.eol = "\n"
     doc.save()
     os.makedirs(archive, exist_ok=True)
     os.replace(order, target)
@@ -197,6 +208,32 @@ def owner_apply(order, user_md, archive, today):
     return 0
 
 
+def owner_seed(user_md, given, today):
+    """The installer's answers, first seed of the Owner profile (Mission 244,
+    finding 13): written only when the section does not exist yet, with the
+    fields actually answered -- an absent field stays absent, never a default
+    in its place. The starting interview then shows it and asks what changed."""
+    doc = Doc(user_md)
+    if doc.section_span(OWNER_HEADING) is not None:
+        print(f"{OWNER_HEADING} : present, kept as it is")
+        print("OWNER-PROFILE-KEPT")
+        return 0
+    values = {n: v.strip() for n, v in given.items() if filled(v)}
+    if not values:
+        print("OWNER-PROFILE-NONE")
+        return 0
+    body = [f"- **{n} :** {values[n]}" for n in OWNER_FIELDS if n in values]
+    body.append(f"- **{DATE_FIELD} :** {today}")
+    doc.eol = "\n"
+    doc.put_section(OWNER_HEADING, body)
+    doc.save()
+    span = doc.section_span(OWNER_HEADING)
+    for line in doc.lines[span[0]:span[1]]:
+        print(line)
+    print("OWNER-PROFILE-SEEDED")
+    return 0
+
+
 def project_write(readme, answers, title, today):
     if not any(filled(v) for v in answers.values()):
         print("PROJECT-PROFILE-NONE")
@@ -204,7 +241,7 @@ def project_write(readme, answers, title, today):
     values = {n: (answers[n] if filled(answers[n]) else "") for n in PROJECT_FIELDS}
     if not os.path.exists(readme):
         if not title:
-            return refuse(f"{readme} absent and no --title to create it")
+            return refuse("no-readme", readme)
         with open(readme, "w", encoding="utf-8", newline="\n") as f:
             f.write(f"# {title}\n\n## Liens\n\n- `see also` — [Journal du projet](./state/journal.md)\n")
     doc = Doc(readme)
@@ -240,6 +277,10 @@ def main(argv):
         return owner_show(pos[0])
     if cmd == "owner-apply" and len(pos) == 2 and "archive" in opts:
         return owner_apply(pos[0], pos[1], opts["archive"], today)
+    if cmd == "owner-seed" and len(pos) == 1:
+        given = {"Ce que je fais": opts.get("does", ""), "Ce qui compte pour moi": opts.get("matters", ""),
+                 "Outils du quotidien": opts.get("tools", "")}
+        return owner_seed(pos[0], given, today)
     if cmd == "project-write" and len(pos) == 1:
         answers = {"Résultat attendu": opts.get("result", ""), "Blocage actuel": opts.get("blocker", ""),
                    "Rythme de revue": opts.get("cadence", "")}

@@ -821,3 +821,11 @@ tools/lib/mcp-hosts.sh	DISTRIBUABLE
 rules/RULES-2026-09-28-121219-model-agnostic-pilot-and-executor-hosts.md	DISTRIBUABLE
 docs/how-to/pilot-hosts-and-role-mixing.md	DISTRIBUABLE
 tests/test-mcp-hosts-agnostic.sh	DISTRIBUABLE
+tools/lib/clipboard.sh	DISTRIBUABLE
+tests/test-project-bootstrap-commits.sh	DISTRIBUABLE
+tests/test-sb-close-situations.sh	DISTRIBUABLE
+tests/test-sb-profile-commit.sh	DISTRIBUABLE
+tests/test-install-vault-mcp-desktop-running.sh	DISTRIBUABLE
+tests/test-install-final-screen.sh	DISTRIBUABLE
+tests/test-sb-outside-workspace.sh	DISTRIBUABLE
+tests/test-pilot-blocks-place-and-language.sh	DISTRIBUABLE

@@ -194,8 +194,9 @@ OLD_SHA="$(sha_of "$P/notes/old.md")"
 OUT_B="$(bash "$BOOT" adopt "$P" --vcs git --lang FR 2>&1)"
 check "(b) adopt rend 0" [ "$?" = "0" ]
 check "(b) fichiers existants modifies : 0 (porcelain sans M ni D)" no_modified "$P"
-ADDED_B="$(cd "$P" && git status --porcelain | grep -c '^??')"
-check "(b) fichiers ajoutes listes en ?? ($ADDED_B)" [ "$ADDED_B" -ge 5 ]
+# Mission 244: adopt commits the files it added (and only them).
+ADDED_B="$(cd "$P" && { git status --porcelain | grep '^??'; git show --name-only --format= HEAD; } | grep -c .)"
+check "(b) fichiers ajoutes : commites par l'adoption ou listes en ?? ($ADDED_B)" [ "$ADDED_B" -ge 5 ]
 case "$OUT_B" in *"Plan de réorganisation proposé"*"déplacer MISSION-plan.md vers missions/MISSION-plan.md"*) r=0 ;; *) r=1 ;; esac
 check "(b) plan de reorganisation rendu" [ "$r" = "0" ]
 check "(b) plan applique : 0 (MISSION-plan.md toujours a la racine, missions/ absent)" sh -c "[ -f '$P/MISSION-plan.md' ] && [ ! -e '$P/missions' ]"

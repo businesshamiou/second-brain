@@ -7,7 +7,7 @@ status: active
 
 # TEMPLATE — INITIATION ORDER
 
-The initiation order replaces the Mission for a single gesture: giving birth to (`create`) or adopting (`adopt`) a project. The Pilot fills it in, the Owner writes their dated authorization in it, the Executor consumes it through `tools/project-bootstrap.sh --order <fichier>`. It travels in a mini-prompt of type `initiation`, with no « Source à appliquer » [source to apply] rubric: the order is the source ([relay rule](../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md)).
+The initiation order replaces the Mission for a single gesture: giving birth to (`create`) or adopting (`adopt`) a project. The Pilot fills it in, the Owner writes their dated authorization in it, the Executor consumes it through `sb new --order <fichier>` (`tools/project-bootstrap.sh --order` underneath), which commits the new project and the Vault's registry itself (Mission 244). It travels in a mini-prompt of type `initiation`, with no « Source à appliquer » [source to apply] rubric: the order is the source ([relay rule](../rules/RULES-2026-08-23-124937-role-relay-mini-prompts.md)).
 
 An agent that opens a non-adopted folder without an order stops and returns this order pre-filled: `tools/project-bootstrap.sh order <dossier>`.
 
@@ -34,7 +34,7 @@ Ordre d'initiation
 
 Interdits absolus : no non-delegated git push, no model call, no deletion; writing bounded to the target folder and to the Vault's register; reorganization proposed, never applied.
 
-Sortie attendue : the output of tools/project-bootstrap.sh --order, including the block to consume, as a copyable snippet.
+Sortie attendue : the output of sb new --order, including its two commits; then sb pilot-prompt <folder> --copy, and the Owner's gesture said by its place (« Dans l'application Claude : crée le Project SB - <nom>, colle (Ctrl+V) »).
 <!-- ORDER:END -->
 
 ## Fields

@@ -13,6 +13,8 @@
 #   vault-identity.sh get <key> [<vault-root>] vault_id | vault_origin | vault_ref | server_name | workspace_label
 #   vault-identity.sh set-label <label> [<vault-root>]  poses workspace_label (normalised)
 #   vault-identity.sh label-normalize <text>            the normalisation, alone
+#   vault-identity.sh label-default <folder name>       the default label (Mission 244)
+#   vault-identity.sh set-label-default <folder name> [<vault-root>]  poses the default label
 # usage (source):
 #   . tools/vault-identity.sh
 #   vid_ensure "$VAULT_ROOT" [label] ; vid_get "$VAULT_ROOT" vault_id ; vid_ref "$VAULT_ROOT"
@@ -71,6 +73,30 @@ vid_label_normalize() {
     -e 's/ß/ss/g' \
   | tr 'A-Z' 'a-z' \
   | sed -e 's/[^a-z0-9][^a-z0-9]*/-/g' -e 's/^-//' -e 's/-$//'
+}
+
+# vid_label_default <folder name>: the label proposed by default (Mission 244,
+# capture 121525 finding 2). The server's longest tool name,
+# `mcp__second-brain-vault-<label>__list_allowed_directories`, must stay within
+# 64 characters, so a label holds 14 at most: the normalised name when it fits;
+# otherwise its longest prefix that ends at a word boundary (a hyphen) and fits;
+# otherwise its first 14 characters, a trailing hyphen dropped.
+# `second-brain-workspace` (22) -> `second-brain` (12); `workspaces` -> itself.
+VID_LABEL_MAX=14
+vid_label_default() {
+  local norm cut
+  norm="$(vid_label_normalize "$1")"
+  if [ "${#norm}" -le "$VID_LABEL_MAX" ]; then
+    printf '%s\n' "$norm"
+    return 0
+  fi
+  cut="$(printf '%s' "$norm" | cut -c1-$((VID_LABEL_MAX + 1)))"
+  case "$cut" in
+    *-*) cut="${cut%-*}" ;;
+    *) cut="" ;;
+  esac
+  [ -n "$cut" ] || cut="$(printf '%s' "$norm" | cut -c1-"$VID_LABEL_MAX" | sed 's/-*$//')"
+  printf '%s\n' "$cut"
 }
 
 # vid_identity_name <root>: the name derived from the IDENTITY alone (Decision 152251
@@ -222,6 +248,14 @@ if [ "${BASH_SOURCE[0]}" = "$0" ]; then
     label-normalize)
       printf '%s\n' "$(vid_label_normalize "${2:-}")"
       ;;
+    label-default)
+      vid_label_default "${2:-}"
+      ;;
+    set-label-default)
+      [ -n "${2:-}" ] || { echo "usage: vault-identity.sh set-label-default <nom du dossier> [<racine-du-vault>]" >&2; exit 1; }
+      vid_set_label "${3:-$VID_SELF_ROOT}" "$(vid_label_default "$2")" || { echo "REFUS : libelle non pose (libelle vide ou identite absente)" >&2; exit 1; }
+      vid_get "${3:-$VID_SELF_ROOT}" workspace_label
+      ;;
     get)
       [ -n "${2:-}" ] || { echo "usage: vault-identity.sh get <cle> [<racine-du-vault>]" >&2; exit 1; }
       if [ "$2" = "vault_ref" ]; then
@@ -233,7 +267,7 @@ if [ "${BASH_SOURCE[0]}" = "$0" ]; then
       fi
       ;;
     *)
-      echo "usage: vault-identity.sh ensure|get <cle>|set-label <libelle>|label-normalize <texte> [<racine-du-vault>]" >&2
+      echo "usage: vault-identity.sh ensure|get <cle>|set-label <libelle>|set-label-default <dossier>|label-normalize <texte>|label-default <dossier> [<racine-du-vault>]" >&2
       exit 1
       ;;
   esac

@@ -23,7 +23,8 @@
           --accueil, SB - Accueil) and ten numbered steps, accents readable;
       (g) sb.cmd pilot-prompt --accueil, in the three languages, from inside
           the workspace, exit 0, prints the welcome block between two lines
-          -- no bash typed; outside any workspace it is exit 3;
+          -- no bash typed; outside any workspace it is served in sb's own
+          Vault's workspace (Mission 244);
       (h) sb.cmd doctor with a PATH that holds no bash (uv, Git's cmd folder
           and Windows only, as in a bare PowerShell) says so on a WARN line
           with the form to type, and ends non-blocking (exit 0).
@@ -80,13 +81,14 @@ try {
     Pop-Location
     Assert-True ($code -eq 3) "(d) sb.cmd open hors de tout espace : exit $code"
 
-    # (g) outside any workspace, the welcome block is refused like any
-    # workspace verb.
+    # (g) Mission 244 (finding 1): outside any workspace -- a PowerShell opens
+    # in system32 -- the welcome block is served in the workspace of sb's own
+    # Vault, said in one line, instead of a refusal.
     Push-Location $outside
-    & $Launcher pilot-prompt --accueil 2>&1 | Out-Null
+    $gOut = (& $Launcher pilot-prompt --accueil 2>&1 | Out-String)
     $code = $LASTEXITCODE
     Pop-Location
-    Assert-True ($code -eq 3) "(g) sb.cmd pilot-prompt --accueil hors de tout espace : exit $code"
+    Assert-True ($code -eq 0 -and $gOut -match 'welcome Pilot') "(g) sb.cmd pilot-prompt --accueil hors de tout espace : exit $code, bloc d'accueil"
 }
 finally {
     Remove-Item -Recurse -Force $outside -ErrorAction SilentlyContinue

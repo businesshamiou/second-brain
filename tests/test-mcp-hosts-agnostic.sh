@@ -112,6 +112,10 @@ for tool in claude codex; do
   chmod +x "$TMP/bin/$tool"
 done
 export PATH="$TMP/bin:$PATH"
+# Mission 244: the process list is simulated (empty): the machine's own Claude
+# application, running or not, never changes what this test reads.
+: > "$TMP/processes.tsv"
+export SB_TEST_PROCESS_LIST="$(N "$TMP/processes.tsv")"
 for cmd in gemini cursor windsurf cline lms; do
   if command -v "$cmd" >/dev/null 2>&1; then echo "FAIL : $cmd est sur le PATH de ce poste ; le test suppose son absence"; exit 1; fi
 done

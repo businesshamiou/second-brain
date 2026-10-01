@@ -77,7 +77,9 @@ check "(a) squelette USER.md du depot : cle 'language:' presente" has_field "$RE
 
 # --- (e) the common prompt -----------------------------------------------------------------------
 TPL="$REPO_ROOT/templates/session-opening-prompt-template.md"
-FIXED="Speak to the Owner in the language they write in, from your first line; the PILOT-PROMPT names the language of the files you deposit."
+# Mission 244 (finding 10): the fixed sentence now also gives a first message
+# without language (the path alone) the recorded language.
+FIXED="Speak to the Owner in the language they write in, from your first line; a first message that carries no language (the project's path alone) gets the language the PILOT-PROMPT records, which is also the language of the files you deposit."
 block() { tr -d '\r' < "$1" | sed -n '/<!-- PROMPT:BEGIN -->/,/<!-- PROMPT:END -->/p'; }
 prompt_ok() { block "$1" | grep -qF -- "$FIXED" && [ "$(block "$1" | grep -o '{{[A-Z_]*}}' | sort -u | paste -sd' ' -)" = "{{VAULT_SHORT_ID}}" ]; }
 check "(e) prompt commun : phrase fixe presente, {{VAULT_SHORT_ID}} seule variable" prompt_ok "$TPL"

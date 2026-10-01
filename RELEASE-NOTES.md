@@ -6,6 +6,20 @@ status: active
 
 # RELEASE NOTES
 
+## v0.1.16 (draft, not published)
+
+_Draft prepared by Mission 244, after the final tests of v0.1.15 from the public repository (a Windows Sandbox, the welcome and first-project scenarios); the version is published only by the maintainer's own gesture ([publishing](./docs/how-to/publish.md))._
+
+**What this version brings.**
+
+- **One line, then three gestures.** The installer now chains what was yours to type: `sb install` (the plugin, the MCP server in every tool present), `sb doctor`, the welcome Pilot's block on your clipboard, and ends on three gestures, each with its place — in the Claude app, create the Project `SB - Accueil`; paste; write « bonjour ». The welcome block names your workspace, so the first message no longer has to be a path, and a message with no language gets the one you chose.
+- **The Claude app no longer eats the server.** It rewrites its configuration while it runs in the background and loads a server only once ended: `sb install` asks to close it (`(Y/n)`, never without your yes), reads the file back after writing, and names the exact gesture otherwise; `sb doctor` says what to do when the Pilot sees no server.
+- **An Executor is announced.** Second Brain installs no agent: the documentation, the installer's question 6 and `sb doctor` now say which agents are there, and give the official line of Claude Code or Codex when one is missing. Two paths are guided: Claude (proven) and OpenAI through Codex (declared).
+- **A close that ends, in every situation.** The close starts in the Pilot (`sb close` is marked « Pilot: yes »); a session that produced nothing needs no handoff: `sb close --light` writes one `STATE:` line, the state sheet and the digest, and commits them. `sb close` measures the situation and the push state; the public repository of an installed Vault is never counted as a push to do. `sb close --accueil` closes a welcome session.
+- **Mechanical commits are made by the tools.** `sb new --order` and `sb adopt` commit the new project and the Vault's registry; `sb profile --order` commits `USER.md` alone, with LF line ends; `sb install --mcp --label` commits `VAULT-IDENTITY.md` alone — each through the guardians, a refusal shown as it is.
+- **Where to type what.** Every instruction starts with its place — « In the terminal », « In the Pilot », « In the Executor (<host>) » — and a verb comes in the form of its host; [the table of places](./docs/how-to/use-the-sb-command-and-plugin.md#where-to-type-what). `sb` works from any folder, serving your Vault's workspace. Blocks go to the clipboard (`sb pilot-prompt … --copy`), never through a terminal selection that cuts long lines.
+- **Shorter server names, no hidden default, your language everywhere.** The default workspace label is cut to 14 characters (`second-brain-workspace` → `second-brain`); the installer's optional questions have no hidden default and seed your starting profile; the step lines and `sb profile`'s refusals speak your language; a new project's `CLAUDE.md` carries the order's purpose.
+
 ## v0.1.15 (draft, not published)
 
 _Draft prepared by Missions 222, 223, 226, 230, 231, 234, 235, 236, 237, 240, 241 and 242; the version is published only by the maintainer's own gesture ([publishing](./docs/how-to/publish.md))._

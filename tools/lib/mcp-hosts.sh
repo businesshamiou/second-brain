@@ -10,6 +10,8 @@
 #                       #   <id> <name> <format> <config path> <present 1|0>
 #   mcp_hosts --native  # the same, config paths in the native form (C:\...
 #                       #   under Git Bash, cygpath -w), for a Windows program
+#   mcp_desktop_running / mcp_desktop_stop  # the Claude desktop application
+#                       #   while it runs (Mission 244): see below
 #
 # A host is PRESENT when its configuration folder exists or its command is on
 # the PATH -- measured, never assumed. Formats:
@@ -84,6 +86,75 @@ MCP_HOSTS_EOF
   mcp_hosts__row windsurf "Windsurf" json "$HOME/.codeium/windsurf/mcp_config.json" "$HOME/.codeium/windsurf" windsurf
   mcp_hosts__row cline "Cline (CLI)" json "$HOME/.cline/mcp.json" "$HOME/.cline" cline
   mcp_hosts__row lmstudio "LM Studio" json "$HOME/.lmstudio/mcp.json" "$HOME/.lmstudio" lms
+}
+
+# --- The Claude desktop application while it runs (Mission 244, capture 121525
+# finding 12) ---------------------------------------------------------------------
+# Closing its window does not stop it (Windows: it stays in the background); it
+# then rewrites claude_desktop_config.json from memory -- the `mcpServers`
+# section written meanwhile was measured gone -- and loads a new server only
+# once it has been ENDED and reopened. So the writer asks before writing, and
+# says the exact gesture otherwise.
+#
+#   mcp_desktop_running         # one line per process of the application,
+#                               #   `<pid><TAB><path>`; nothing when none
+#   mcp_desktop_stop <pid>...   # ends those processes; 0 when done
+#
+# The application is told by its PATH, never by the name alone: Claude Code
+# runs as `claude.exe` too (measured 2026-09-30: `%APPDATA%\Claude\claude-code\
+# <version>\claude.exe` next to `C:\Program Files\WindowsApps\Claude_*\app\
+# Claude.exe`), and ending it would end the agent's own session.
+# Tests only: SB_TEST_PROCESS_LIST names a file of `<pid><TAB><path>` lines read
+# instead of the system's list; SB_TEST_PROCESS_STOP_LOG receives `stop <pid>`
+# lines instead of ending anything -- a test never touches a real process.
+mcp_desktop__is_app() {
+  case "$1" in
+    *[Cc]laude-code*|*[Cc]laude-[Cc]ode*) return 1 ;;
+    *WindowsApps*[\\/]Claude_*|*AnthropicClaude*|*/Claude.app/*|*claude-desktop*|*Claude-Desktop*) return 0 ;;
+  esac
+  return 1
+}
+
+mcp_desktop_running() {
+  local list pid path
+  if [ -n "${SB_TEST_PROCESS_LIST:-}" ]; then
+    list="$(cat "$SB_TEST_PROCESS_LIST" 2>/dev/null)"
+  else
+    case "$(uname -s 2>/dev/null)" in
+      MINGW*|MSYS*|CYGWIN*)
+        command -v powershell.exe >/dev/null 2>&1 || return 0
+        list="$(powershell.exe -NoProfile -NonInteractive -Command \
+          'Get-Process -Name claude -ErrorAction SilentlyContinue | ForEach-Object { "{0}`t{1}" -f $_.Id, $_.Path }' 2>/dev/null | tr -d '\r')"
+        ;;
+      Darwin) list="$(ps -axo pid=,comm= 2>/dev/null | awk '{ p = $1; $1 = ""; sub(/^ /, ""); print p "\t" $0 }')" ;;
+      *) list="$(ps -eo pid=,args= 2>/dev/null | awk '{ p = $1; $1 = ""; sub(/^ /, ""); print p "\t" $0 }')" ;;
+    esac
+  fi
+  printf '%s\n' "$list" | while IFS="$(printf '\t')" read -r pid path; do
+    [ -n "$pid" ] && mcp_desktop__is_app "$path" && printf '%s\t%s\n' "$pid" "$path"
+  done
+  return 0
+}
+
+mcp_desktop_stop() {
+  local pid
+  [ $# -gt 0 ] || return 0
+  if [ -n "${SB_TEST_PROCESS_STOP_LOG:-}" ]; then
+    for pid in "$@"; do printf 'stop %s\n' "$pid" >> "$SB_TEST_PROCESS_STOP_LOG"; done
+    return 0
+  fi
+  if [ -n "${SB_TEST_PROCESS_LIST:-}" ]; then
+    return 1  # a simulated list is never stopped for real
+  fi
+  case "$(uname -s 2>/dev/null)" in
+    MINGW*|MSYS*|CYGWIN*)
+      powershell.exe -NoProfile -NonInteractive -Command "Stop-Process -Id $(printf '%s,' "$@" | sed 's/,$//') -Force -ErrorAction SilentlyContinue" >/dev/null 2>&1
+      ;;
+    Darwin) osascript -e 'quit app "Claude"' >/dev/null 2>&1 || kill "$@" 2>/dev/null ;;
+    *) kill "$@" 2>/dev/null ;;
+  esac
+  sleep 2
+  return 0
 }
 
 # mcp_tool_name_length <server>: the longest name a host may show the model for

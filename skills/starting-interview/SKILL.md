@@ -38,7 +38,7 @@ Owner questions, in the Owner's language: *what do you do, in one sentence?* · 
 ## 3. Show, then file
 
 1. **Show the full profile**, every field, as it will be written — and for an existing profile, the current value next to the proposed one for each field that changes. Wait for an explicit yes. Never write on silence, never replace a profile silently.
-2. **Owner profile**: announce the path, then write the order from `templates/profile-order-template.md` to `<workspace>/_orders/PROFILE-<YYYY-MM-DD-HHMMSS>.md` (real time), with the Owner's approving sentence and its date in `Autorisation Owner datée`. Hand the Owner an Executor mini-prompt: « Tu es l'Executor. Applique l'ordre de profil <path> : sb profile --order <path>. »
+2. **Owner profile**: announce the path, then write the order from `templates/profile-order-template.md` to `<workspace>/_orders/PROFILE-<YYYY-MM-DD-HHMMSS>.md` (real time), with the Owner's approving sentence and its date in `Autorisation Owner datée`. Hand the Owner an Executor mini-prompt: « Tu es l'Executor. Applique l'ordre de profil <path> : sb profile --order <path>. » The command commits `USER.md` alone itself (Mission 244): say so, never « the agent will commit ». The installer already wrote the answers of its questions 5, 6 and 7 in the section: show them, ask what changed.
 3. **Project profile**: the three answers go into the initiation order you propose (its optional fields `Résultat attendu`, `Blocage actuel`, `Rythme de revue`, from `templates/initiation-order-template.md`), never into a separate file. An empty answer is left out.
 
 ## 4. Offer, once
@@ -47,7 +47,7 @@ After the profile is approved, offer **three to five first steps** drawn from th
 
 ## What this skill does not do
 
-Write `USER.md` or a `README.md` (the Executor's tools do) · connect tools, run recipes, capture a brand or a voice (left out of the method) · touch the installer or its nine questions · keep anything in a model's memory: the profile lives in the files above, nowhere else.
+Write `USER.md` or a `README.md` (the Executor's tools do) · connect tools, run recipes, capture a brand or a voice (left out of the method) · touch the installer's questions · keep anything in a model's memory: the profile lives in the files above, nowhere else.
 
 ## Liens
 

@@ -303,7 +303,9 @@ make_installation() {
   "$writer" "$V/USER.md"
   install_commit "$V" "Write user profile from installer answers" || return 1
   bash "$V/tools/write-marker.sh" "$ws" >/dev/null
-  bash "$V/tools/project-bootstrap.sh" create "$ws/projet" "Projet" --vcs git >/dev/null 2>&1 </dev/null
+  # The installers' historical call (Mission 244: an explicit create commits by
+  # itself; the installer's call leaves the registration to the commit below).
+  bash "$V/tools/project-bootstrap.sh" "$ws/projet" "Projet" >/dev/null 2>&1 </dev/null
   install_commit "$V" "Register first project: projet" || return 1
   [ -z "$(git -C "$V" status --porcelain)" ]
 }

@@ -34,7 +34,8 @@ The documentation lives in [`docs/`](./docs/index.md), in four families; each pa
 
 ## Prerequisites
 
-- **A paid subscription to at least one AI agent**: Claude Pro (or higher), or ChatGPT Plus (or higher). Nothing in Second Brain is designed or tested for a free account — the installer does not check it itself, but the questionnaire assumes that access.
+- **A paid subscription to at least one AI agent**: Claude Pro (or higher), or ChatGPT Plus (or higher). Nothing in Second Brain is designed or tested for a free account — the installer does not check it itself, but the questionnaire assumes that access. Two paths are guided end to end: **Claude** (the Claude desktop app as Pilot, Claude Code as Executor: proven) and **OpenAI** (Codex as Executor and as Pilot: declared); any other agent: [adapt another agent](./docs/how-to/pilot-hosts-and-role-mixing.md#adapt-another-agent).
+- **An Executor, installed first**: an agent with a shell, Claude Code or Codex — Second Brain installs none. The official lines are in [Your first installation](./docs/tutorials/install.md), step 1; `sb doctor` says when there is none.
 - **Git.** Detected and reused if it is already on your machine; otherwise installed for you in your own profile, without administrator rights.
 - Python and `pre-commit`: same conditions as Git, installed as needed by the installer (the `uv` manager), never globally nor with elevation.
 - Windows, macOS or Linux. The PowerShell installer (`install.ps1`) and the shell installer (`install.sh`) ask the same questions, write the same logbook and produce the same verdict.
@@ -44,20 +45,20 @@ The documentation lives in [`docs/`](./docs/index.md), in four families; each pa
 **Windows (PowerShell, a standard account is enough):**
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.15/bootstrap.ps1)))"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.16/bootstrap.ps1)))"
 ```
 
 **macOS / Linux (Terminal):**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.15/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.16/bootstrap.sh | bash
 ```
 
 Nothing needs to be installed beforehand: the bootstrap script sets up Git in your profile if it is missing, fetches this repository, then launches the installer (details in [INSTALL.md](./INSTALL.md)).
 
 **From Claude Code or Codex**, open a session in any folder and run `/first-install`: the agent asks the same questions in its own chat, writes the answers file, then calls the same installer.
 
-In all three cases, the installer creates your workspace, clones `second-brain` into it at its final location, sets up the `VAULT-ROOT.md` marker, and asks you nine short questions (language, assistant's name, location of the workspace, first name, what you do, how you work with AI, what matters most to you, whether to create a first project now, and that project's name).
+In all three cases, the installer creates your workspace, clones `second-brain` into it at its final location, sets up the `VAULT-ROOT.md` marker, and asks you nine short questions (language, assistant's name, location of the workspace, first name, what you do, how you work with AI, what matters most to you, whether to create a first project now, and that project's name). It then chains `sb install` and `sb doctor`, puts the welcome Pilot's block on your clipboard, and ends on **three gestures, each with its place**: *In the Claude app:* create a Project named `SB - Accueil`; *In its instructions:* paste (Ctrl+V); *In a conversation of that Project:* write « bonjour ». Where to type what, always: [the table of places](./docs/how-to/use-the-sb-command-and-plugin.md#where-to-type-what).
 
 **Installation from an archive (zip) remains refused.** Second Brain is published by version tag on a Git repository, never accompanied by an archive: the guardians of this repository (checks of secrets, of links, of index freshness) require a real Git repository (`git rev-parse` must answer) in order to run, and a folder extracted from an archive is not one — neither the guardians nor `/first-install` work correctly there. The line above always fetches a real repository.
 
@@ -85,7 +86,7 @@ Every operation has one English verb of the `sb` command — `sb open`, `sb clos
 
 The Pilot role (thinking, arbitrating, writing the Missions) is played in **a Pilot host** — the Claude desktop application today, or another tool that runs a local MCP server (Codex, Gemini CLI, Cursor, Windsurf, Cline, LM Studio: [Pilot hosts and role mixing](./docs/how-to/pilot-hosts-and-role-mixing.md)) — through Second Brain's MCP server, `second-brain-vault-<workspace>`, named after the folder of the workspace it covers (for example `second-brain-vault-workspaces`; the first 8 characters of your Vault's identity only when no workspace label is recorded), one per Vault, so two Second Brains on one machine keep two servers side by side — which gives the Pilot disk access bounded to your workspace. It runs on your machine: a browser-only tool (ChatGPT, Gemini on the web) cannot start it — see the [rule on model-agnostic hosts](./rules/RULES-2026-09-28-121219-model-agnostic-pilot-and-executor-hosts.md).
 
-`sb install --mcp` in a terminal, or `/first-install` from Claude Code or Codex, sets up this server (`tools/install-vault-mcp.sh`) in every tool it finds — the Claude desktop application, Claude Code, Codex, Gemini CLI, Cursor, Windsurf, Cline, LM Studio — with your workspace as the only authorized folder. Then restart each of them. `sb doctor` shows one line per tool found. By hand, from the root of your clone:
+The installer sets up this server at its end (`sb install`); `sb install --mcp` in a terminal, or `/first-install` from Claude Code or Codex, does it again (`tools/install-vault-mcp.sh`) in every tool it finds — the Claude desktop application, Claude Code, Codex, Gemini CLI, Cursor, Windsurf, Cline, LM Studio — with your workspace as the only authorized folder. Then restart each of them; **the Claude app must be ended, not only closed** (in Windows: Settings → Apps → Installed apps → Claude → Advanced options → Terminate; macOS: Cmd+Q) — while it runs in the background it may drop the server from its configuration, so `sb install` asks to close it for you and reads the file back. `sb doctor` shows one line per tool found. By hand, from the root of your clone:
 
 ```bash
 bash tools/install-vault-mcp.sh <espace de travail>

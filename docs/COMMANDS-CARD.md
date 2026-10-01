@@ -17,7 +17,7 @@ generated_by: tools/sb/sb.py
 | Verb | Usage | Runs | Does |
 |---|---|---|---|
 | `open` | `sb open` | `project-or-vault` | Open a work session and get the READY / NOT-READY verdict |
-| `close` | `sb close` | `project-or-vault` | Close the session: journal, state sheet, closing commit |
+| `close` | `sb close` | `project-or-vault`; `--accueil`: `workspace` | Close the session: starts in the Pilot, ends in the Executor |
 | `handoff` | `sb handoff [<slug>]` | `project-or-vault` | Write a handoff for the next session, without closing |
 | `status` | `sb status` | `anywhere` | Where you are, what is pending, what to do next |
 | `help` | `sb help` | `anywhere` | This screen; sb help <verb> for one command |
@@ -30,7 +30,7 @@ generated_by: tools/sb/sb.py
 | `new` | `sb new <folder> "<Display Name>" [--group <group>] [--lang FR|EN|ES] [--vcs none|git] [--ask]` | `workspace` | Create a project from nothing |
 | `adopt` | `sb adopt [<folder>] ["<Display Name>"] [--git] [--lang FR|EN|ES] [--ask]` | `adoptable` | Adopt a folder you already have |
 | `list` | `sb list` | `anywhere` | The projects this Second Brain knows |
-| `pilot-prompt` | `sb pilot-prompt [<folder>] [--regen] [--host <host>]` | `project`; `--accueil`: `workspace` | The block to paste into a project's Pilot Project, or into the welcome one |
+| `pilot-prompt` | `sb pilot-prompt [<folder>] [--regen] [--host <host>] [--copy] [--out <file>]` | `project`; `--accueil`: `workspace` | The block to paste into a project's Pilot Project, or into the welcome one |
 
 ## Work
 

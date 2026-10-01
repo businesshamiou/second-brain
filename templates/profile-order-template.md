@@ -7,7 +7,7 @@ status: active
 
 # TEMPLATE — PROFILE ORDER
 
-The profile order is the only way the Owner's starting profile reaches `USER.md` (Mission 240, [Decision — the starting interview](../decisions/DECISION-2026-09-27-213059-starting-interview-owner-and-project-profiles.md)). The welcome Pilot runs the interview ([the starting-interview skill](../skills/starting-interview/SKILL.md)), shows the Owner the full profile, and, once the Owner agrees to its exact content, writes this order to `<workspace>/_orders/PROFILE-<YYYY-MM-DD-HHMMSS>.md` (real time, path announced before writing) — the one folder it writes in. An Executor applies it with `sb profile --order <file>`: the tool rewrites the section « ## Profil de départ » of the installed Vault's `USER.md` and nothing else, then moves the order to `<workspace>/_archive/orders/`. The Pilot never writes `USER.md` itself.
+The profile order is the only way the Owner's starting profile reaches `USER.md` (Mission 240, [Decision — the starting interview](../decisions/DECISION-2026-09-27-213059-starting-interview-owner-and-project-profiles.md)). The welcome Pilot runs the interview ([the starting-interview skill](../skills/starting-interview/SKILL.md)), shows the Owner the full profile, and, once the Owner agrees to its exact content, writes this order to `<workspace>/_orders/PROFILE-<YYYY-MM-DD-HHMMSS>.md` (real time, path announced before writing) — the one folder it writes in. An Executor applies it with `sb profile --order <file>`: the tool rewrites the section « ## Profil de départ » of the installed Vault's `USER.md` and nothing else, then moves the order to `<workspace>/_archive/orders/` and commits `USER.md` alone, through the Vault's guardians (Mission 244). The Pilot never writes `USER.md` itself.
 
 The block below keeps its French labels as they are: the five field names, the date line of the section and `Autorisation Owner datée` [dated Owner authorization] are read by `tools/starting_profile.py`, which finds each one by its exact name followed by a colon — the same grammar as the [initiation order](./initiation-order-template.md).
 
@@ -26,7 +26,7 @@ Ordre de profil
 
 Interdits absolus : no model call, no deletion, no push; writing bounded to the « ## Profil de départ » section of USER.md and to the move of this order into _archive/orders/.
 
-Sortie attendue : the output of sb profile --order, the diff of USER.md, then a commit of USER.md alone.
+Sortie attendue : the output of sb profile --order, which commits USER.md alone itself (Mission 244).
 <!-- ORDER:END -->
 
 ## Fields

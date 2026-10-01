@@ -173,7 +173,9 @@ check "installation : assistant 'Ibrahim' d'avant la carte, commite" sh -c "[ -z
 printf -- '---\ntype: profile\ntitle: "Fiche utilisateur — Test"\ndescription: "Fiche de test."\nstatus: active\n---\n\n# FICHE UTILISATEUR\n\n- **Prenom :** Test\n\n## Liens\n\n- `see also` — [Agents](./AGENTS.md)\n' > "$V/USER.md"
 install_commit "$V" "Write user profile from installer answers"
 bash "$V/tools/write-marker.sh" "$WS" >/dev/null
-bash "$V/tools/project-bootstrap.sh" create "$WS/projet" "Projet" --vcs git >/dev/null 2>&1 </dev/null
+# The installers' historical call (Mission 244: an explicit create commits by
+# itself; the installer's call leaves the registration to the commit below).
+bash "$V/tools/project-bootstrap.sh" "$WS/projet" "Projet" >/dev/null 2>&1 </dev/null
 install_commit "$V" "Register first project: projet"
 check "installation : fiche projet, registre et index commites" sh -c "[ -z \"\$(git -C '$V' status --porcelain)\" ] && ls '$V'/projects/PROJECT-*-PROJET.md >/dev/null 2>&1"
 check "installation : HEAD detache, v0.1.7 + commits locaux" sh -c "[ -z \"\$(git -C '$V' branch --show-current)\" ] && [ \"\$(git -C '$V' rev-list --count v0.1.7..HEAD)\" -ge 3 ]"

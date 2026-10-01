@@ -498,10 +498,13 @@ function Get-DetectedAiTools {
     # this measurement is redirected the same way every other profile touch
     # in this installer is, and a -TestMode run never reports a false
     # positive from the Owner's real ~/.claude or ~/.codex.
+    # Mission 244 (finding 20): outside -TestMode, the agents' own commands
+    # count too (`claude`, `codex` on the PATH) -- a fresh machine has neither
+    # skills folder, and the list read detected: with nothing after it.
     param([Parameter(Mandatory = $true)][psobject] $Context)
     $detected = @()
-    if (Test-Path $Context.ClaudeSkillsDir) { $detected += 'claude-code' }
-    if (Test-Path $Context.CodexSkillsDir) { $detected += 'codex' }
+    if ((Test-Path $Context.ClaudeSkillsDir) -or (-not $Context.TestMode -and (Get-Command claude -ErrorAction SilentlyContinue))) { $detected += 'claude-code' }
+    if ((Test-Path $Context.CodexSkillsDir) -or (-not $Context.TestMode -and (Get-Command codex -ErrorAction SilentlyContinue))) { $detected += 'codex' }
     return $detected
 }
 
@@ -613,7 +616,9 @@ function Write-UserProfile {
         '- `see also` — [AGENTS.md](./AGENTS.md)'
         ''
     )
-    Set-Content -Path $Path -Value ($lines -join [Environment]::NewLine) -Encoding UTF8
+    # Mission 244 (finding 19): LF line ends, the form the repository keeps
+    # (.gitattributes eol=lf) -- CRLF made Git warn twice at each commit.
+    Set-Content -Path $Path -Value (($lines -join "`n") + "`n") -Encoding UTF8 -NoNewline
 }
 
 function ConvertTo-ProjectSlug {

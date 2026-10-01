@@ -114,7 +114,8 @@ if [ -n "$LABEL_OPT" ]; then
 elif [ -n "$LABEL_CUR" ]; then
   LABEL="$LABEL_CUR"
 else
-  LABEL="$(vid_label_normalize "$(basename "$WORKSPACE")")"
+  # Mission 244 (finding 2): the default label fits the 64-character tool names.
+  LABEL="$(vid_label_default "$(basename "$WORKSPACE")")"
 fi
 if [ -z "$ID_NAME" ]; then
   SERVER=""
@@ -416,6 +417,19 @@ if [ -n "$LABEL" ] && [ "$LABEL" != "$LABEL_CUR" ]; then
 fi
 
 DETECTED=0
+# Mission 244 (finding 6): the restart message names the tools actually
+# written, never « each tool detected above » with nothing listed above it.
+WRITTEN=""
+written() { WRITTEN="${WRITTEN}${WRITTEN:+, }$1"; }
+
+# --- Claude desktop application while it runs (Mission 244, finding 12): it
+# erases a server written meanwhile and loads a new one only once ENDED. A
+# caller that already asked the Owner (sb install, SB_DESKTOP_HANDLED=1) has
+# said it; otherwise it is said here, with the exact gesture. ---
+if [ "$SKIP_DESKTOP" = "0" ] && [ -n "$DESKTOP_DIRS" ] && [ "${SB_DESKTOP_HANDLED:-0}" != "1" ] \
+  && [ -n "$(mcp_desktop_running)" ]; then
+  CATALOG "vaultMcp.desktopRunning"
+fi
 
 # --- Claude Code: user configuration (~/.claude.json) ---------------
 if [ "$HAVE_CLAUDE" = "1" ]; then
@@ -424,10 +438,12 @@ if [ "$HAVE_CLAUDE" = "1" ]; then
   migrate_former "Claude Code" claude "$HOME/.claude.json"
   if same_entry "$HOME/.claude.json"; then
     CATALOG "vaultMcp.alreadyPresent" "Claude Code" "$SERVER"
+    written "Claude Code"
   else
     claude mcp remove -s user "$SERVER" >/dev/null 2>&1 || true
     if claude mcp add -s user "$SERVER" -- "$UV_N" run --no-project "$MCP_N" --vault "$VAULT_N" --allow "$WS_N" >/dev/null 2>&1; then
       CATALOG "vaultMcp.added" "Claude Code" "$WS_N" "$SERVER"
+      written "Claude Code"
     else
       CATALOG "vaultMcp.failed" "Claude Code"
     fi
@@ -444,10 +460,12 @@ if [ "$HAVE_CODEX" = "1" ]; then
   migrate_former "Codex" codex "$CODEX_CONFIG"
   if same_entry "$CODEX_CONFIG"; then
     CATALOG "vaultMcp.alreadyPresent" "Codex" "$SERVER"
+    written "Codex"
   else
     codex mcp remove "$SERVER" >/dev/null 2>&1 || true
     if codex mcp add "$SERVER" -- "$UV_N" run --no-project "$MCP_N" --vault "$VAULT_N" --allow "$WS_N" >/dev/null 2>&1; then
       CATALOG "vaultMcp.added" "Codex" "$WS_N" "$SERVER"
+      written "Codex"
     else
       CATALOG "vaultMcp.failed" "Codex"
     fi
@@ -469,10 +487,16 @@ elif [ -n "$DESKTOP_DIRS" ]; then
     migrate_former "$(native "$CONFIG")" desktop "$CONFIG"
     RESULT="$(PYRUN merge-mcp-json "$CONFIG" "$SERVER" "$UV_N" run --no-project "$MCP_N" --vault "$VAULT_N" --allow "$WS_N" | tr -d '\r')"
     case "$RESULT" in
-      UNCHANGED) CATALOG "vaultMcp.alreadyPresent" "$(native "$CONFIG")" "$SERVER" ;;
-      UPDATED) CATALOG "vaultMcp.added" "$(native "$CONFIG")" "$WS_N" "$SERVER" ;;
+      UNCHANGED) CATALOG "vaultMcp.alreadyPresent" "$(native "$CONFIG")" "$SERVER"; written "Claude Desktop" ;;
+      UPDATED) CATALOG "vaultMcp.added" "$(native "$CONFIG")" "$WS_N" "$SERVER"; written "Claude Desktop" ;;
       *) CATALOG "vaultMcp.failed" "$(native "$CONFIG")" ;;
     esac
+    # Read back (Mission 244): what the file holds now, not what was meant.
+    if [ -n "$(PYRUN mcp-server-args "$CONFIG" "$SERVER" 2>/dev/null | tr -d '\r')" ]; then
+      CATALOG "vaultMcp.reread" "$(native "$CONFIG")" "$SERVER"
+    else
+      CATALOG "vaultMcp.rereadMissing" "$(native "$CONFIG")" "$SERVER"
+    fi
     retire_keys "$(native "$CONFIG")" desktop "$CONFIG"
   done <<DESKTOP_EOF
 $DESKTOP_DIRS
@@ -498,8 +522,8 @@ while IFS="$(printf '\t')" read -r h_id h_name h_fmt h_cfg h_present; do
     RESULT="$(PYRUN merge-mcp-json "$h_cfg" "$SERVER" "$UV_N" run --no-project "$MCP_N" --vault "$VAULT_N" --allow "$WS_N" | tr -d '\r')"
   fi
   case "$RESULT" in
-    UNCHANGED) CATALOG "vaultMcp.alreadyPresent" "$h_name" "$SERVER" ;;
-    UPDATED) CATALOG "vaultMcp.added" "$h_name" "$WS_N" "$SERVER" ;;
+    UNCHANGED) CATALOG "vaultMcp.alreadyPresent" "$h_name" "$SERVER"; written "$h_name" ;;
+    UPDATED) CATALOG "vaultMcp.added" "$h_name" "$WS_N" "$SERVER"; written "$h_name" ;;
     *) CATALOG "vaultMcp.failed" "$h_name" ;;
   esac
   retire_keys "$h_name" desktop "$h_cfg"
@@ -509,7 +533,9 @@ OTHER_HOSTS_EOF
 
 if [ "$DETECTED" = "0" ]; then
   CATALOG "vaultMcp.nothingDetected"
+elif [ -z "$WRITTEN" ]; then
+  CATALOG "vaultMcp.nothingWritten"
 else
-  CATALOG "vaultMcp.restart"
+  CATALOG "vaultMcp.restart" "$WRITTEN"
 fi
 exit 0

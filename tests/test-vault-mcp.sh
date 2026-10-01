@@ -256,8 +256,9 @@ check "(h) Codex : serveur declare, dossier autorise = espace de travail" has "$
 check "(h) application de bureau (chemin mesure) : serveur declare" has "$DK" "--allow $WS_H_N"
 check "(h) autres serveurs et cles conserves (trois configurations)" sh -c "grep -q '\"autre\"' '$PROFILE/.claude.json' && grep -q 'mcp_servers.autre' '$PROFILE/.codex/config.toml' && grep -q '^model = \"garde\"' '$PROFILE/.codex/config.toml' && grep -q '\"autre\"' '$DESKTOP_CONFIG' && grep -q '\"garder\"' '$DESKTOP_CONFIG'"
 # Mission 242: the gesture names every host found, no longer the application alone.
-case "$OUT_H1" in *"redémarre chaque outil détecté"*) r=0 ;; *) r=1 ;; esac
-check "(h) geste restant imprime : redemarrer chaque outil detecte" [ "$r" = "0" ]
+# Mission 244 (finding 6): it names the tools actually written, by name.
+case "$OUT_H1" in *"Geste restant : redémarre "*"Claude Code"*) r=0 ;; *) r=1 ;; esac
+check "(h) geste restant imprime : redemarrer les outils ecrits, nommes" [ "$r" = "0" ]
 check "(h) Python verifie par uv" has "$OUT_H1" "Python par uv"
 
 S1="$(sha_of "$PROFILE/.claude.json") $(sha_of "$PROFILE/.codex/config.toml") $(sha_of "$DESKTOP_CONFIG")"

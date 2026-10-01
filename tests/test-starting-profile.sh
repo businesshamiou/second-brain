@@ -9,7 +9,7 @@
 #       its five fields and its date, adds lines only (every line of USER.md
 #       kept, byte for byte), moves the order to _archive/orders/; a second,
 #       partial order changes only the fields it gives, the section stays
-#       single; the byte-order mark and CRLF line ends survive; then PRESENT
+#       single; the byte-order mark survives, line ends become LF (Mission 244); then PRESENT
 #       missing=0. Refusals, each with USER.md unchanged and the order where it
 #       was: no dated authorization; no profile field; the distributed
 #       skeleton (status: template); an archive already holding the name.
@@ -63,7 +63,9 @@ echo "=== Mission 240 : l'entretien de depart ($SRC) ==="
 
 # lines_kept <file> <reference>: every line of <reference> is still in <file>,
 # in order, byte for byte.
-lines_kept() { [ -z "$(diff "$2" "$1" | grep '^<')" ]; }
+# Mission 244 (finding 19): USER.md is rewritten with LF line ends, so the
+# lines are compared without their carriage returns.
+lines_kept() { [ -z "$(diff <(tr -d '\r' < "$2") <(tr -d '\r' < "$1") | grep '^<')" ]; }
 count_heading() { tr -d '\r' < "$1" | grep -cx "$2"; }
 
 # --- (A) sb profile ------------------------------------------------------------
@@ -102,9 +104,9 @@ check "(A2) toutes les lignes d'avant gardees a l'octet (ajout seul)" lines_kept
 check "(A2) une seule section, avant « ## Liens »" sh -c "
   [ \"\$(tr -d '\\r' < '$V/USER.md' | grep -cx '## Profil de départ')\" = 1 ] &&
   [ \"\$(tr -d '\\r' < '$V/USER.md' | grep -n '^## ' | tail -n 1 | cut -d: -f2-)\" = '## Liens' ]"
-check "(A2) BOM et fins de ligne CRLF conserves" sh -c "
+check "(A2) BOM conserve, fins de ligne LF (Mission 244)" sh -c "
   [ \"\$(head -c 3 '$V/USER.md' | od -An -tx1 | tr -d ' ')\" = 'efbbbf' ] &&
-  [ \"\$(grep -c \$'\\r\$' '$V/USER.md')\" = \"\$(wc -l < '$V/USER.md' | tr -d ' ')\" ]"
+  ! grep -q \$'\\r' '$V/USER.md'"
 check "(A2) l'ordre est range dans _archive/orders/, _orders/ vide" sh -c "
   [ -f '$WS/_archive/orders/PROFILE-2026-09-27-100000.md' ] && [ ! -e '$O1' ]"
 

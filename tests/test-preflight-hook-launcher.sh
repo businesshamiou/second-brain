@@ -47,9 +47,12 @@ WS="$TMP/ws"; V="$WS/second-brain"; P="$WS/projet"
 mkdir -p "$WS"
 sandbox_vault "$REPO_ROOT" "$V" || { echo "FAIL : Vault jetable non construit"; exit 1; }
 bash "$V/tools/write-marker.sh" "$WS" >/dev/null || { echo "FAIL : marqueur"; exit 1; }
-git -C "$V" config core.hooksPath .githooks
 bash "$V/tools/project-bootstrap.sh" create "$P" "Projet" --vcs none --lang FR >"$TMP/create.out" 2>&1 </dev/null \
   || { echo "FAIL : projet non cree"; tail -n 5 "$TMP/create.out"; exit 1; }
+# Wired after the creation (Mission 244): create now commits the Vault's
+# registration, and a copy of the working tree has lost the execute bits the
+# bit-execution guardian checks -- the hook, not that commit, is under test.
+git -C "$V" config core.hooksPath .githooks
 
 FRAG="$V/skills/project-bootstrap/settings-hook.json"
 MATCHER="$(sed -n 's/.*"matcher": *"\([^"]*\)".*/\1/p' "$FRAG")"

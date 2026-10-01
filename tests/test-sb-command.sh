@@ -28,7 +28,8 @@
 #       of the welcome Pilot (`sb pilot-prompt --accueil`, `SB - Accueil`) and
 #       ten numbered steps; `sb pilot-prompt --accueil` (and `accueil`) prints
 #       the welcome block anywhere in the workspace, in the three languages,
-#       and refuses outside it (exit 3) or with an extra argument (exit 2);
+#       and, since Mission 244, outside any workspace too (its own Vault's
+#       workspace, said in one line); an extra argument is exit 2;
 #       the card and the reference cite the help pages; the plugin's
 #       pilot-prompt skill names --accueil; the Codex budget keeps a margin of
 #       at least 500 and doctor says it; under Windows, doctor run with no
@@ -65,6 +66,11 @@ mkdir -p "$WS" "$TMP/outside"
 sandbox_vault "$SRC" "$V" || { echo "FAIL : Vault jetable non construit depuis $SRC"; exit 1; }
 bash "$V/tools/write-marker.sh" "$WS" >/dev/null 2>&1 || { echo "FAIL : marqueur"; exit 1; }
 SB="$V/tools/sb/bin/sb"
+# Door open-238-sb-test-doctor-reads-real-path (Mission 244): the machine's own
+# `sb` (put on the PATH by `sb install`) is taken out of this test's PATH --
+# `sb doctor` of the throwaway Vault read it and said FAIL « another sb ».
+PATH="$(printf '%s' "$PATH" | tr ':' '\n' | grep -v 'tools/sb/bin' | paste -sd: -)"
+export PATH
 export SB_LANG=en
 # Nothing of this test reaches the real profile: a simulated PATH file, a stub
 # claude and a throwaway plugins folder (Mission 237).
@@ -180,7 +186,7 @@ expect "(2) publish hors laboratoire" 4 "$WS" publish --dry-run
 
 echo "--- (3) refus hors lieu (exit 3), verbe inconnu (exit 2) ---"
 for case in "open:$WS" "open:$WS/stray" "close:$WS" "handoff:$WS" "mission:$WS" "run:$WS" "relay:$WS" "pilot-prompt:$WS" \
-            "doctor:$TMP/outside" "clean:$TMP/outside" "new:$TMP/outside" "adopt:$WS" "adopt:$V" "push:$TMP/outside" "status:$TMP/outside"; do
+            "adopt:$WS" "adopt:$V" "push:$TMP/outside" "status:$TMP/outside"; do
   verb="${case%%:*}"; dir="${case#*:}"
   run "$dir" "$verb"
   if [ "$verb" = "status" ]; then
@@ -193,6 +199,12 @@ for case in "open:$WS" "open:$WS/stray" "close:$WS" "handoff:$WS" "mission:$WS" 
     fail "(3) $verb dans $dir : exit $RC -- $(printf '%s' "$OUT" | head -1)"
   fi
 done
+# Mission 244 (finding 1): outside any workspace, a verb of the workspace is
+# served in its own Vault's workspace (said in one line), no longer refused.
+expect "(3) doctor hors espace : l'espace de son Vault" 0 "$TMP/outside" doctor
+printf '%s' "$OUT" | grep -q "Outside any workspace: sb works in its Vault" && pass "(3) doctor hors espace : une ligne le dit" || fail "(3) doctor hors espace : ligne absente"
+expect "(3) clean hors espace : l'espace de son Vault" 0 "$TMP/outside" clean
+expect "(3) new hors espace, sans argument : l'usage (exit 2), plus un refus de lieu" 2 "$TMP/outside" new
 expect "(3) verbe inconnu" 2 "$WS" frobnicate
 expect "(3) new . (la racine) refuse" 3 "$WS" new . "Root"
 
@@ -292,7 +304,7 @@ printf '%s' "$OUT" | grep -q -- "--accueil : n'importe où dans ton espace de tr
 expect "(10d) pilot-prompt accueil (forme nue) dans un projet" 0 "$P" pilot-prompt accueil
 printf '%s' "$OUT" | grep -q "You are the welcome Pilot" && pass "(10d) la forme nue rend le bloc d'accueil" || fail "(10d) forme nue sans bloc d'accueil"
 expect "(10d) pilot-prompt --accueil dans le Vault" 0 "$V" pilot-prompt --accueil
-expect "(10e) pilot-prompt --accueil hors de l'espace" 3 "$TMP/outside" pilot-prompt --accueil
+expect "(10e) pilot-prompt --accueil hors de l'espace : servi dans l'espace de son Vault (Mission 244)" 0 "$TMP/outside" pilot-prompt --accueil
 expect "(10e) pilot-prompt --accueil avec un argument de trop" 2 "$WS" pilot-prompt --accueil extra
 expect "(10e) pilot-prompt (sans forme) reste refuse a la racine" 3 "$WS" pilot-prompt
 { grep -q '^## Help pages$' "$SRC/docs/reference/commands.md" && grep -q '^### sb help start$' "$SRC/docs/reference/commands.md" \

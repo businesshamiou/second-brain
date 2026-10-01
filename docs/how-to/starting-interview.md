@@ -26,7 +26,7 @@ In the commands below, `<workspace>` is the absolute path of your workspace and 
 - **Mis à jour le :** <YYYY-MM-DD>
 ```
 
-The first two fields take up the installer's questions 5 and 7 as they are, and the last one question 6 when you answered it; the installer and its nine questions do not change, so the section appears at your first profile order, not at installation.
+The first two fields take up the installer's questions 5 and 7 as they are, and the last one question 6 when you answered it. Since Mission 244 the installer writes them there itself, at installation (`tools/starting_profile.py owner-seed`): only the answers you gave — a question you skipped leaves its field absent, never a default in its place — so the welcome Pilot's first interview shows your profile and asks what changed, and only the missing fields one at a time.
 
 **A project's profile** lives in the project's `README.md`, under `## Profil du projet`:
 

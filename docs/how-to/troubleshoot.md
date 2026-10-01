@@ -43,6 +43,13 @@ The workspace question is asked again, with one of these messages, until the ans
 | `'<answer>' is not an absolute path. Enter an absolute path, for example <default>.` | A relative path would depend on the folder the installer runs from. | Type the full path. |
 | `'<answer>' is inside the source repository being installed from and cannot be used as the workspace. Choose a path outside it, for example <default>.` | Second Brain would be cloned into its own source. | Choose a path outside it. |
 
+- **`gum is not available: the questionnaire is shown in plain mode.`**
+  Cause: gum is **optional** — it only draws the questions. It is set up by winget (Windows) or Homebrew (macOS); a Windows Sandbox, or a fresh Windows without the Microsoft Store, has no winget. gum is not among the pinned prerequisites (Git, uv, pre-commit).
+  What to do: nothing. The same questions appear as plain text and the files written are the same.
+- **The last screen names no Executor (`Executor (agent with a shell)` … `none`).**
+  Cause: Second Brain installs no AI agent; neither Claude Code nor Codex is on this machine.
+  What to do: in the terminal, the official line `sb doctor` names (Claude Code: `irm https://claude.ai/install.ps1 | iex` in PowerShell, `curl -fsSL https://claude.ai/install.sh | bash` elsewhere; Codex: see [Your first installation](../tutorials/install.md), step 1), then `sb install`.
+
 ## Bootstrap
 
 The published line first runs `bootstrap.sh` or `bootstrap.ps1`. It brings a temporary clone (the folder second-brain-install in the declared temporary folder, `<temp>/second-brain`) to the requested version, then runs the installer from it. It never deletes that clone and never forces: on a mismatch it stops with `Second Brain bootstrap stopped: <reason>` and exit code 1. On Windows, the reasons that follow a failed Git command also carry ` (exit <code>)`.
@@ -88,6 +95,8 @@ _Not executed by the documentation check._ In PowerShell, where `bash` is unknow
 
 | Message | Cause | What to do |
 | --- | --- | --- |
+| The Pilot answers `NOT-READY` about its channel, or the Claude app shows « No server added » (Settings → Developer) although `sb doctor` says `declared` | The Claude app loads its servers only at start-up, and closing its window does not stop it (Windows: it stays in the background). While it runs it may also rewrite `claude_desktop_config.json` from memory and drop the `mcpServers` section written meanwhile (measured 2026-09-30). | End it — **in Windows:** Settings → Apps → Installed apps → Claude → Advanced options → Terminate (**macOS:** Cmd+Q) — then reopen it. If `sb doctor` now says the server is missing, run `sb install --mcp` with the app ended; `sb install` asks to close it for you (`(Y/n)`), and reads the file back after writing. |
+| `sb doctor`: `MCP server name … tool names of 72 characters, over 64` | A workspace label longer than 14 characters, from an installation before Mission 244 (`second-brain-workspace`). | `sb install --mcp --label second-brain` (or another label of 14 characters at most); the label is committed in `VAULT-IDENTITY.md`, then regenerate each project's prompt with `sb pilot-prompt <folder> --regen`. |
 | `REFUS : espace de travail introuvable : <workspace>` (after the usage line) | The argument is missing or is not a folder. | Pass the absolute path of the workspace. |
 | `REFUS : uv introuvable : le serveur MCP du Vault se lance par uv.` | `uv` is not on the PATH. | Install `uv` (a prerequisite of the installer), then rerun. |
 | `Python not found through uv: the server cannot start, nothing is configured.` | `uv` cannot start Python. | Fix `uv`, then rerun. |
@@ -151,7 +160,7 @@ The authoritative page is [Use the sb command and its plugin](use-the-sb-command
 | Message or symptom | Cause | What to do |
 | --- | --- | --- |
 | `sb` is not recognised as a command | `sb` is not on the PATH, or the terminal predates it. | Open a new terminal; else `<workspace>/second-brain/tools/sb/bin/sb install --path`. |
-| `REFUSED: sb <verb> runs <place>. You are <where>.` (exit 3) | Wrong folder for that verb. | Go where the second line says. |
+| `REFUSED: sb <verb> runs <place>. You are <where>.` (exit 3) | Wrong folder for that verb. | Go where the second line says. Outside any workspace (a PowerShell opens in `C:\Windows\system32`) `sb` works in its own Vault's workspace and says so; only a verb that needs a project or a repository still refuses there. |
 | `/sb:<verb>` missing, or older than `sb help <verb>` | The plugin is not installed, or Claude Code's cached copy is behind the Vault's. | `sb doctor`, then `sb install`, then `/reload-plugins`. |
 | A Pilot answers that a verb needs a shell | The verb is not marked « Pilot: yes ». | Type it in an Executor window. |
 

@@ -12,7 +12,8 @@ This repository contains Second Brain: a durable memory and a cross-project oper
 
 ## 1. Prerequisites
 
-- The paid subscription above.
+- The paid subscription above. Two paths are guided end to end: **Claude** (the Claude desktop app as Pilot, Claude Code as Executor: proven) and **OpenAI** (Codex as Executor and as Pilot: declared, not yet played as Pilot). ChatGPT itself cannot be a Pilot today; any other agent: [Pilot hosts and role mixing](./docs/how-to/pilot-hosts-and-role-mixing.md#adapt-another-agent).
+- **An Executor, installed before the line**: an agent with a shell — Claude Code (`irm https://claude.ai/install.ps1 | iex` in PowerShell; `curl -fsSL https://claude.ai/install.sh | bash` on macOS and Linux) or Codex (`powershell -ExecutionPolicy ByPass -c "irm https://chatgpt.com/codex/install.ps1 | iex"`; `curl -fsSL https://chatgpt.com/codex/install.sh | sh`), official lines read on 2026-09-30. Second Brain installs no agent; `sb doctor` says when there is none.
 - Nothing else to install by hand. Git, Python and `pre-commit` are reused if they are already on your machine; otherwise, the line below sets them up itself in your user profile, without administrator rights. On macOS, Git comes with Apple's command line tools: if they are missing, Apple offers to install them, then you rerun the same line.
 - Windows (PowerShell 5.1 or higher), macOS or Linux (Bash).
 
@@ -21,13 +22,13 @@ This repository contains Second Brain: a durable memory and a cross-project oper
 **Windows (PowerShell, a standard account is enough):**
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.15/bootstrap.ps1)))"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.16/bootstrap.ps1)))"
 ```
 
 **macOS / Linux (Terminal):**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.15/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/businesshamiou/second-brain/v0.1.16/bootstrap.sh | bash
 ```
 
 The line downloads a bootstrap script (`bootstrap.ps1` or `bootstrap.sh`, at the root of this repository) that requires nothing installed: it sets up Git in your profile if needed, verifies its fingerprint, fetches the repository at the indicated version, then launches the installer (`install.ps1` or `install.sh`). No elevation prompt, no writing outside your profile. With the macOS / Linux line, the script arrives through a pipe (`curl … | bash`): when a terminal is there, the bootstrap hands it to the installer, so the questions read your keyboard, not the rest of the pipe ([bootstrap.sh](./bootstrap.sh)).
@@ -42,12 +43,13 @@ In order:
 
 1. It makes sure that Git, `uv` and `pre-commit` are usable (fetched into your profile as needed, never globally, never with elevation).
 2. It creates your workspace (the folder that will contain `second-brain` and your projects), clones `second-brain` into it at its final location, and sets up the `VAULT-ROOT.md` marker there. On Windows, a workspace folder whose path is too long is refused before anything is written in it: some files Second Brain reads would pass Windows' 260-character path limit. The maximum is measured on the version being installed (118 characters for this one), and the message names your folder's length and the maximum ([install.ps1](./install.ps1), [install.sh](./install.sh)).
-3. It asks nine short questions, in the language you choose at the first one (French, English or Spanish): language, assistant's name, location of the workspace, first name, what you do, how you work with AI, what matters most to you, whether to create a first project now, and that project's name. In a terminal the questions are displayed by [gum](https://github.com/charmbracelet/gum), which the installer sets up with winget (Windows) or Homebrew (macOS) when it is missing; without gum, without a terminal or with an answers file, the same questions appear as plain text, and the files written are the same.
-4. It writes `USER.md` from your answers, generates the assistant (Claude Code subagent, Codex skill, web package to upload yourself) and sets up a `CLAUDE.md`/`AGENTS.md` of ten lines at most next to `VAULT-ROOT.md`. It also puts the `sb` command (`tools/sb/bin` of your clone) on your user PATH, the way it does for Git and `uv`.
+3. It asks nine short questions, in the language you choose at the first one (French, English or Spanish): language, assistant's name, location of the workspace, first name, what you do, how you work with AI, what matters most to you, whether to create a first project now, and that project's name. In a terminal the questions are displayed by [gum](https://github.com/charmbracelet/gum), which the installer sets up with winget (Windows) or Homebrew (macOS) when it is missing; gum is optional: without it (no winget in a Windows Sandbox), without a terminal or with an answers file, the same questions appear as plain text, and the files written are the same. The step lines and every message after the first question are in the language you chose.
+4. It writes `USER.md` from your answers — questions 5, 6 and 7 also under `## Profil de départ`, the profile the welcome Pilot shows you first — generates the assistant (Claude Code subagent, Codex skill, web package to upload yourself) and sets up a `CLAUDE.md`/`AGENTS.md` of ten lines at most next to `VAULT-ROOT.md`. It also puts the `sb` command (`tools/sb/bin` of your clone) on your user PATH, the way it does for Git and `uv`.
 5. It creates your first project if you confirmed it, with its own `CLAUDE.md`/`AGENTS.md`, and links the assistant and the method's skills (`skills/` and `skills/external/`) into it — never into your profile.
 6. It returns a one-line verdict, signed with your assistant's name: installation finished, or the step where it stopped and the cause.
+7. It then chains `sb install` — the Claude Code plugin behind `/sb:<verb>` and your Vault's MCP server (section 4), each only if needed; the Claude app, if open, is asked about first — and `sb doctor`, puts the welcome Pilot's block on your clipboard, and ends on **three gestures**, each with its place: *In the Claude app:* create a Project named `SB - Accueil`; *In its instructions:* paste (Ctrl+V); *In a conversation of that Project:* write « bonjour ». On the OpenAI path, the three gestures open Codex instead ([Your first installation](./docs/tutorials/install.md)).
 
-Then, in a **new** terminal, run `sb install`: it adds what the installer leaves to you, each step only if needed — the Claude Code plugin behind `/sb:<verb>` and your Vault's MCP server (section 4) — and `sb doctor` checks everything ([Use the sb command and its plugin](./docs/how-to/use-the-sb-command-and-plugin.md)).
+The installer commits locally what it writes (the identity, your assistant, your profile, your first project): your Vault starts a few commits ahead of the public repository it came from, and that is normal — you never push there.
 
 The installer also generates the **identity** of your Second Brain (`VAULT-IDENTITY.md`, tracked by Git like `USER.md`): each project copies it into its birth certificate, and the `VAULT-ROOT.md` marker carries it.
 
@@ -55,7 +57,7 @@ Each step is noted in a logbook (`.install/state.json`, at the root of your clon
 
 ## 4. The MCP server
 
-The installer configures none of your AI tools. **The Pilot's disk access (any Pilot host)** is set up afterwards by `sb install --mcp` (or `sb install`), by `/first-install`, or by hand (line below): it detects the tools present — the Claude desktop application, Claude Code, Codex, Gemini CLI, Cursor, Windsurf, Cline (its command-line tool), LM Studio — declares **this Vault's server** in each of them — `second-brain-vault-<workspace>`, named after the workspace folder recorded as `workspace_label` in `VAULT-IDENTITY.md` (the first 8 characters of its identity only when no label is recorded) — with your workspace as the only authorized folder, checks Python through `uv`, then asks you to restart each tool it found. A server name whose tool names would pass 64 characters (a label over 14 characters) is refused, nothing written, a shorter label proposed: `sb install --mcp --label <label>`. Two Second Brains on one machine (a laboratory and a company, for instance) therefore have two servers side by side: the script never replaces another Vault's server, and it migrates the former fixed name `second-brain-vault` (up to v0.1.7) when it pointed to this Vault. `check-mcp-containment.sh <configuration> <projet>` verifies that the project and Second Brain are indeed within the authorized perimeter; `check-mcp-containment.sh --all <projet>` does it in every tool present.
+The installer configures none of your AI tools. **The Pilot's disk access (any Pilot host)** is set up afterwards by `sb install --mcp` (or `sb install`), by `/first-install`, or by hand (line below): it detects the tools present — the Claude desktop application, Claude Code, Codex, Gemini CLI, Cursor, Windsurf, Cline (its command-line tool), LM Studio — declares **this Vault's server** in each of them — `second-brain-vault-<workspace>`, named after the workspace folder recorded as `workspace_label` in `VAULT-IDENTITY.md` — cut at a word boundary to 14 characters at most, `second-brain-workspace` giving `second-brain`, and committed (the first 8 characters of its identity only when no label is recorded) — with your workspace as the only authorized folder, checks Python through `uv`, then asks you to restart each tool it found. A server name whose tool names would pass 64 characters (a label over 14 characters) is refused, nothing written, a shorter label proposed: `sb install --mcp --label <label>`. Two Second Brains on one machine (a laboratory and a company, for instance) therefore have two servers side by side: the script never replaces another Vault's server, and it migrates the former fixed name `second-brain-vault` (up to v0.1.7) when it pointed to this Vault. `check-mcp-containment.sh <configuration> <projet>` verifies that the project and Second Brain are indeed within the authorized perimeter; `check-mcp-containment.sh --all <projet>` does it in every tool present.
 
 By hand, from the root of your `second-brain` clone:
 
@@ -70,6 +72,8 @@ bash tools/check-mcp-containment.sh <configuration> <projet>
 & "C:\Program Files\Git\bin\bash.exe" tools/install-vault-mcp.sh <espace de travail>
 & "C:\Program Files\Git\bin\bash.exe" tools/check-mcp-containment.sh <configuration> <projet>
 ```
+
+**The Claude app must be ended, not only closed.** It loads its servers only at start-up, and while it runs in the background it may rewrite its configuration without the new server: in Windows, Settings → Apps → Installed apps → Claude → Advanced options → Terminate (macOS: Cmd+Q), then reopen it. `sb install` asks to close it for you, and reads the file back after writing.
 
 **How to verify that it is running.** `check-mcp-containment.sh` validates the configuration written on disk. That the server is really active in the restarted application is confirmed at the opening of the Pilot (next section): its first answer carries a **canary**, the proof that it read the disk through this server rather than from its memory.
 

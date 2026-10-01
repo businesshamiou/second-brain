@@ -200,7 +200,15 @@ function Write-StepLine {
     # landing in the PowerShell success stream -- ticket 05 criterion 7
     # (tests/test-install-e2e.ps1) requires that `$verdict = & install.ps1 ...`
     # capture the verdict line and nothing else in silent (-AnswersFile) mode.
+    # Mission 244 (finding 4): the line in the language chosen, from the
+    # catalogue (step.line.<id>); the English form only before any language.
     param([string] $Name)
+    $ids = @{ 'Prerequisites' = 'prerequisites'; 'Workspace' = 'workspace'; 'Clone' = 'clone'; 'Guardians' = 'guardians';
+        'Workspace CLAUDE.md/AGENTS.md' = 'marker'; 'Assistant' = 'assistant'; 'First project' = 'firstProject'; 'Project links' = 'projectLinks' }
+    if ($script:StepCatalog -and $ids.ContainsKey($Name)) {
+        $text = $script:StepCatalog.("step.line." + $ids[$Name])
+        if ($null -ne $text) { Write-Host $text; return }
+    }
     Write-Host "Step: $Name -- OK"
 }
 
@@ -477,7 +485,8 @@ try {
     $context = New-InstallerContext -TestMode:$TestMode -TestRoot $TestRoot
     Assure-Prerequisites -Context $context -AddPersistentPathEntry ${function:Add-InstallerPathEntry} | Out-Null
     $bashExe = Resolve-BashExe
-    Write-StepLine -Name 'Prerequisites'
+    # Mission 244 (finding 4): the prerequisites' line is said once the
+    # language is known (just below the catalogue's loading).
     Test-ForcedStop -StopAfterStep $StopAfterStep -StepName 'prerequisites'
 
     if (-not (Test-Path $Source)) {
@@ -545,6 +554,8 @@ try {
     }
 
     $catalog = Get-Catalog -Language $language -I18nDir $i18nDir
+    $script:StepCatalog = $catalog
+    Write-StepLine -Name 'Prerequisites'
 
     if ($interactive -and $priorCarnetAtDefault -and (Test-InstallComplete -Carnet $priorCarnetAtDefault)) {
         # --- Update mode (T06/T22): the install at the default workspace is
@@ -583,6 +594,7 @@ try {
         if ($language -notin @('FR', 'EN', 'ES')) { $language = 'EN' }
         Set-AnswerField -Answers $answers -Name 'language' -Value $language
         $catalog = Get-Catalog -Language $language -I18nDir $i18nDir
+        $script:StepCatalog = $catalog
     }
 
     # Assistant name (Q2) and workspace path (Q3) -- interactive only past
@@ -765,16 +777,20 @@ try {
             -Interactive:$true -ForceReask:$forceReask -Required -ScriptedInputs $scriptedQueue | Out-Null
         Save-Carnet -Path $carnetPath -Carnet $carnet
 
+        # Mission 244 (finding 15): no hidden default -- an optional question
+        # says so, and an empty answer is recorded as not given.
         $activityDefault = Format-CatalogText -Catalog $catalog -Key 'questionnaire.activity.default'
         Resolve-QuestionnaireAnswer -Answers $answers -Name 'activity' `
-            -PromptText (Format-CatalogText -Catalog $catalog -Key 'questionnaire.activity.prompt') `
+            -PromptText (Format-PromptWithDefault -Catalog $catalog -PromptKey 'questionnaire.activity.prompt' -DefaultNoteKey 'questionnaire.optionalNote') `
             -DefaultValue $activityDefault -Interactive:$true -ForceReask:$forceReask -ScriptedInputs $scriptedQueue | Out-Null
         Save-Carnet -Path $carnetPath -Carnet $carnet
 
         $detectedTools = Get-DetectedAiTools -Context $context
+        # Mission 244 (finding 20): none said as such, never an empty list.
+        $detectedShown = if ($detectedTools.Count -gt 0) { $detectedTools -join ', ' } else { Format-CatalogText -Catalog $catalog -Key 'questionnaire.aiTools.none' }
         $aiToolsPrompt = Format-PromptWithDefault -Catalog $catalog `
             -PromptKey 'questionnaire.aiTools.prompt' -DefaultNoteKey 'questionnaire.aiTools.detectedNote' `
-            -DefaultNoteArgs @(($detectedTools -join ', '))
+            -DefaultNoteArgs @($detectedShown)
         $aiToolsDefault = ($detectedTools -join ', ')
         Resolve-QuestionnaireAnswer -Answers $answers -Name 'aiToolsRaw' -PromptText $aiToolsPrompt `
             -DefaultValue $aiToolsDefault -Interactive:$true -ForceReask:$forceReask -ScriptedInputs $scriptedQueue | Out-Null
@@ -784,7 +800,7 @@ try {
 
         $whatMattersDefault = Format-CatalogText -Catalog $catalog -Key 'questionnaire.whatMatters.default'
         Resolve-QuestionnaireAnswer -Answers $answers -Name 'whatMatters' `
-            -PromptText (Format-CatalogText -Catalog $catalog -Key 'questionnaire.whatMatters.prompt') `
+            -PromptText (Format-PromptWithDefault -Catalog $catalog -PromptKey 'questionnaire.whatMatters.prompt' -DefaultNoteKey 'questionnaire.optionalNote') `
             -DefaultValue $whatMattersDefault -Interactive:$true -ForceReask:$forceReask -ScriptedInputs $scriptedQueue | Out-Null
         Save-Carnet -Path $carnetPath -Carnet $carnet
     }
@@ -831,7 +847,7 @@ try {
         -ScriptArgs @('get', 'workspace_label', (ConvertTo-PosixPath $clonePath))
     if ([string]::IsNullOrWhiteSpace(($recordedLabel | Out-String).Trim())) {
         Invoke-BashTool -BashExe $bashExe -ScriptPath (Join-Path $clonePath 'tools\vault-identity.sh') `
-            -ScriptArgs @('set-label', (Split-Path -Leaf $workspacePath), (ConvertTo-PosixPath $clonePath)) | Out-Null
+            -ScriptArgs @('set-label-default', (Split-Path -Leaf $workspacePath), (ConvertTo-PosixPath $clonePath)) | Out-Null
     }
     Save-ClonePendingChanges -BashExe $bashExe -ClonePath $clonePath -CommitMessage 'Generate vault identity'
     if (-not (Test-Path $markerPath)) {
@@ -1002,6 +1018,23 @@ try {
         $environmentFacts = Get-ProfileEnvironmentFacts -Context $context
         $installedAt = (Get-Date).ToString('o')
         Write-UserProfile -Path $userProfilePath -Answers $answers -EnvironmentFacts $environmentFacts -InstalledAt $installedAt
+        # Mission 244 (finding 13): the answers seed the starting profile section, the
+        # section the starting interview shows; an answer not given (its
+        # neutral default) stays out of it.
+        $seedDoes = "$($answers.activity)"
+        if ($seedDoes -eq (Format-CatalogText -Catalog $catalog -Key 'questionnaire.activity.default')) { $seedDoes = '' }
+        $seedMatters = "$($answers.whatMatters)"
+        if ($seedMatters -eq (Format-CatalogText -Catalog $catalog -Key 'questionnaire.whatMatters.default')) { $seedMatters = '' }
+        $seedTools = (@($answers.aiTools) | Where-Object { $_ }) -join ', '
+        $uvExe = (Get-Command uv -ErrorAction Stop).Source
+        # Only the fields given: Windows PowerShell 5.1 drops an empty argument
+        # passed to a native program, and the option after it would take its place.
+        $seedArgs = @('run', '--no-project', (Join-Path $clonePath 'tools\starting_profile.py'), 'owner-seed', $userProfilePath)
+        if ($seedDoes) { $seedArgs += @('--does', $seedDoes) }
+        if ($seedMatters) { $seedArgs += @('--matters', $seedMatters) }
+        if ($seedTools) { $seedArgs += @('--tools', $seedTools) }
+        & $uvExe @seedArgs | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw "starting_profile.py owner-seed failed (exit $LASTEXITCODE)" }
         Save-ClonePendingChanges -BashExe $bashExe -ClonePath $clonePath -CommitMessage 'Write user profile from installer answers'
     }
     Set-CarnetStep -Carnet $carnet -Name 'profileWritten'
@@ -1028,6 +1061,26 @@ try {
     Save-Carnet -Path $carnetPath -Carnet $carnet
 
     Write-Output $verdict
+
+    # The last screen (Mission 244, findings 5, 20, 27): sb install and sb
+    # doctor (outside -TestMode), the welcome block on the clipboard, then the
+    # three gestures, each with its place. Straight to the console
+    # (Start-Process), never into the success stream that carries the verdict;
+    # never a reason to fail an installation that is complete.
+    try {
+        $finishFamily = 'claude'
+        $toolsList = @($answers.aiTools) | Where-Object { $_ }
+        if (-not ($toolsList -match 'claude') -and ($toolsList -match 'codex|chatgpt')) { $finishFamily = 'openai' }
+        $finishArgs = @('run', '--no-project', ('"' + (Join-Path $clonePath 'tools\sb\sb.py') + '"'), 'installer-finish',
+            '--lang', $language, '--family', $finishFamily)
+        if ($toolsList.Count -gt 0) { $finishArgs += @('--tools', ($toolsList -join ',')) }
+        if ($TestMode) { $finishArgs += '--test-mode' }
+        $uvForFinish = (Get-Command uv -ErrorAction Stop).Source
+        Start-Process -FilePath $uvForFinish -ArgumentList $finishArgs -NoNewWindow -Wait | Out-Null
+    }
+    catch {
+        Write-Host $_.Exception.Message
+    }
     exit 0
 }
 catch {

@@ -17,6 +17,16 @@ In the commands below, `<workspace>` is the absolute path of your workspace and 
 - **The server in every host.** `sb install --mcp` declares the server in every host present — the Claude app, Claude Code, Codex, Gemini CLI, Cursor, Windsurf, Cline (its command-line tool), LM Studio — and writes nothing for an absent one. Restart each host afterwards. A server name too long for some hosts is refused with a shorter label proposed: `sb install --mcp --label <label>` (at most 14 characters).
 - **What is proven.** The rule's matrix gives each host a state: *proven* (played on this machine or by the agent bench), *declared* (documentation read and dated, not played yet), *not supported today* (with the reason). `sb pilot-prompt` says the state of each host it prints.
 
+## Adapt another agent
+
+This page is the **standard page for any other agent**: two paths are guided end to end — the Claude path (the Claude desktop app as Pilot, Claude Code as Executor: proven) and the OpenAI path (Codex as Executor and as Pilot: declared) — and any other tool is adapted with the five gestures below.
+
+1. **Its role.** A Pilot host needs a local MCP server and no shell; an Executor host needs a shell. A tool that accepts only a remote server (ChatGPT, Gemini web) cannot be a Pilot today.
+2. **The server.** In the terminal: `sb install --mcp`. When the tool is not among those it knows, declare by hand the entry `sb install --mcp` wrote for another host: the command `uv`, the arguments `run --no-project <workspace>/second-brain/tools/vault-mcp.py --vault <workspace>/second-brain --allow <workspace>` (`sb doctor` shows the server's name), in the tool's own MCP settings; then restart the tool.
+3. **The block.** In the terminal: `sb pilot-prompt <folder> --copy` (or `--accueil --copy`); paste it as the tool's instructions, or as its first message.
+4. **The canary.** The first answer is `READY` or `NOT-READY (<reason>)`; `READY` carries the canary of the project's `state/PILOT-PROMPT.md`: the proof that the tool read your disk through the server.
+5. **The verbs.** In a tool with a shell, a message that starts with `sb ` runs the verb; in a Pilot without a shell, it applies the card of a verb marked « Pilot: yes ».
+
 ## The hosts, in one table
 
 | Host | As a Pilot | As an Executor | Where the block goes |

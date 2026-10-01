@@ -27,8 +27,9 @@
 #   (3) every file that was there is unchanged (fingerprints of the whole
 #       tracked tree, the hand-written register line included);
 #   (4) the Vault's registry still names the project once, its sheet once;
-#   (5) `git status --porcelain` lists only the three new state files (and the
-#       indexes of folders that had none).
+#   (5) the adoption's own commit (Mission 244) and `git status --porcelain`
+#       name only the three new state files (and the indexes of folders that
+#       had none).
 #
 # usage: bash tests/test-adopt-completes-partial-adoption.sh
 # Exit 0: all cases PASS. Exit 1 otherwise.
@@ -69,8 +70,13 @@ for f in journal.md STATE.md DIGEST.md; do mv "$P/state/$f" "$TMP/moved/$f"; don
   || printf '# Registre des Missions\n\n| ID | Statut | Date | Rapport |\n|---|---|---|---|\n' > "$P/missions/MISSION-INDEX.md"
 printf '| `001` | `FAIT` | 2026-09-25 | REPORT-2026-09-25-000000-001-x.md |\n' >> "$P/missions/MISSION-INDEX.md"
 bash "$V/tools/write-marker.sh" --marker-only "$P" >/dev/null 2>&1 || cp "$WS/VAULT-ROOT.md" "$P/VAULT-ROOT.md"
+# Mission 244: the warehouse's state was committed through its guardians, so its
+# indexes were fresh -- the replayed adoption now commits what it adds through
+# those same guardians, and a stale index would (rightly) refuse it.
+bash "$V/tools/build-indexes.sh" "$P" >/dev/null 2>&1
 ( cd "$P" && git add -A && git -c core.hooksPath=/dev/null commit -q -m "partial adoption, as measured" ) >/dev/null 2>&1
-fingerprint() { (cd "$P" && git ls-files -z | xargs -0 git hash-object 2>/dev/null | git hash-object --stdin); }
+TRACKED_BEFORE="$(cd "$P" && git ls-files)"
+fingerprint() { (cd "$P" && printf '%s\n' "$TRACKED_BEFORE" | tr '\n' '\0' | xargs -0 git hash-object 2>/dev/null | git hash-object --stdin); }
 FP_BEFORE="$(fingerprint)"
 REG="$V/projects/PROJECT-REGISTRY.md"
 REG_N_BEFORE="$(grep -c '| entrepot |\|entrepot' "$REG")"
@@ -95,8 +101,9 @@ if [ "$REG_N_AFTER" = "$REG_N_BEFORE" ] && [ "$SHEETS_AFTER" = "1" ] && [ "$SHEE
 else
   fail "(4) registre $REG_N_BEFORE -> $REG_N_AFTER lignes, fiches $SHEETS_BEFORE -> $SHEETS_AFTER"
 fi
-EXTRA="$(git -C "$P" status --porcelain -uall | cut -c4- | grep -v -x -e 'state/journal.md' -e 'state/STATE.md' -e 'state/DIGEST.md' -e 'state/index.md' -e 'missions/index.md' || true)"
-[ -z "$EXTRA" ] && pass "(5) git status : seulement les pieces d'etat" || fail "(5) en plus : $(printf '%s' "$EXTRA" | tr '\n' ' ')"
+# Mission 244: the adoption commits what it added -- only the state pieces.
+EXTRA="$( { git -C "$P" status --porcelain -uall | cut -c4-; git -C "$P" show --name-only --format= HEAD; } | grep . | grep -v -x -e 'state/journal.md' -e 'state/STATE.md' -e 'state/DIGEST.md' -e 'state/index.md' -e 'missions/index.md' || true)"
+[ -z "$EXTRA" ] && pass "(5) le commit d'adoption et git status : seulement les pieces d'etat" || fail "(5) en plus : $(printf '%s' "$EXTRA" | tr '\n' ' ')"
 
 echo ""
 if [ "$FAILURES" -eq 0 ]; then

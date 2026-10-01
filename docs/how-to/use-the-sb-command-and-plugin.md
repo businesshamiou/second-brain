@@ -15,6 +15,19 @@ Every operation of Second Brain has one English verb of the `sb` command: `sb op
 - `uv` is on your PATH (the installer sets it up); `sb` runs through it, or through Python 3.8 or later when `uv` is missing.
 - For `/sb:<verb>`: Claude Code installed, with its `claude` command on the PATH.
 
+## Where to type what
+
+Four places, and one form of the same verb in each (Mission 244: « even I struggle to know where to run which command »). Every instruction Second Brain gives you — in its outputs, its guides, its Pilots — starts with its place.
+
+| Place | What it is | How you get there | What you type there |
+|---|---|---|---|
+| **In the terminal** | PowerShell (Windows), Terminal (macOS, Linux) | open it; `sb` works from any folder (outside your workspace it serves your Vault's workspace and says so) | `sb <verb>` |
+| **In the Pilot** | a conversation with the Pilot: in the Claude desktop app, the Project `SB - Accueil` or `SB - <project>` (proven); in Codex, a session opened with the block (declared) | open the Project, start a conversation | plain words, or a message that starts with `sb ` for a verb marked « Pilot: yes » (`help`, `status`, `list`, `profile`, `pilot-prompt`, `mission`, `relay`, `close`) |
+| **In the Executor** | an agent with a shell: Claude Code or Codex, opened in the right folder (the project's, or the workspace root for an order) | in the terminal, `cd <folder>` then `claude` or `codex` | `/sb:<verb>` in Claude Code, `$sb <verb>` in Codex, or the mini-prompt the Pilot handed you |
+| **In Windows' Settings** (or macOS's menu) | the one gesture outside Second Brain: ending the Claude app | Settings → Apps → Installed apps → Claude → Advanced options → Terminate (macOS: Cmd+Q) | nothing: then reopen the app |
+
+A block to paste (a Pilot's instructions) is never selected in the terminal — a selection there cuts its long lines: `sb pilot-prompt … --copy` puts it on your clipboard, and you paste it with Ctrl+V (Cmd+V on macOS).
+
 ## Steps
 
 ### 1. Get `sb` on your PATH
@@ -85,7 +98,7 @@ Run `sb install` (or `sb install --plugin`): it uninstalls the stale copy and in
 | Any terminal (Git Bash, PowerShell, `cmd`, macOS, Linux) | `sb <verb>` | the program runs the verb |
 | Claude Code, plugin installed | `/sb:<verb>` | one thin skill per verb, invoked only by you (never by the model on its own); it runs `sb <verb>` and applies the verb's card |
 | Codex | `$sb <verb>` | a single router skill, `skills/sb/`, linked into each project like the other method skills |
-| The Pilot (any Pilot host: the Claude desktop application, Codex, Gemini CLI…) | a message that starts with `sb ` | the Pilot has no shell: it applies the card of a verb marked « Pilot: yes » in [Commands](../reference/commands.md) (`help`, `status`, `list`, `pilot-prompt`, `mission`, `relay`); for any other verb it answers that the verb needs a shell and names the Executor window |
+| The Pilot (any Pilot host: the Claude desktop application, Codex, Gemini CLI…) | a message that starts with `sb ` | the Pilot has no shell: it applies the card of a verb marked « Pilot: yes » in [Commands](../reference/commands.md) (`help`, `status`, `list`, `profile`, `pilot-prompt`, `mission`, `relay`, `close` — the close starts in the Pilot); for any other verb it answers that the verb needs a shell and names the Executor window |
 | Any other agent with a shell | a message that starts with `sb ` | it runs `sb <verb>` (or `bash <workspace>/second-brain/tools/sb/bin/sb <verb>` when `sb` is not on its PATH; in PowerShell, `& "<workspace>\second-brain\tools\sb\bin\sb.cmd" <verb>`), shows the output as is, then applies the card |
 
 Always type a verb with its prefix (`sb status`, `/sb:status`, `$sb status`): the bare names `help`, `status`, `doctor`, `run` and `new` exist natively in some tools.

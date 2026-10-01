@@ -18,14 +18,15 @@
     {
       "verb": "close",
       "group": "sessions",
-      "usage": ["sb close"],
+      "usage": ["sb close", "sb close --light", "sb close --accueil"],
       "place": "project-or-vault",
+      "formPlaces": {"--accueil": "workspace", "accueil": "workspace"},
       "nature": "agent",
-      "pilot": false,
+      "pilot": true,
       "builtOn": ["skill session-close", "tools/append-journal.sh", "tools/build-state.sh", "tools/build-digest.sh", "tools/check-session-close.sh", "docs/how-to/close-a-session.md"],
       "aliases": ["wrap", "on ferme", "clôture", "clos la session", "close"],
       "next": ["sb push", "sb status"],
-      "card": "Apply the session-close skill (skills/session-close/SKILL.md): inventory the holes, refuse to close while any remain, then the closing gestures of your role — the Pilot prepares the pieces and never declares the close done; the Executor writes the journal lines, regenerates STATE.md and DIGEST.md, and makes the closing commit. Never push unless the Owner delegated it in this window."
+      "card": "Apply the session-close skill (skills/session-close/SKILL.md); the close starts in the Pilot. Pilot: run closing-checklist.md; a session with no Mission opened or closed, no RELAY and no Pilot artefact filed is a light close: say « rien à consigner », write no handoff, hand the light closing command (`sb close --light`, for the Executor); otherwise the holes, then the handoff and the capture and the Executor closing command; after a welcome session, list _orders/ and today's _archive/orders/ and offer to write a spoken idea as an initiation order. Executor: show the situation `sb close` measured; light: run `sb close --light`; full: apply the handoff's closing command, or, without a handoff, say in plain words that the Owner writes `sb close` in the project's Pilot. A distribution remote is never a push target. Never push unless the Owner delegated it in this window."
     },
     {
       "verb": "handoff",
@@ -73,7 +74,7 @@
       "builtOn": ["skill starting-interview", "tools/starting_profile.py", "templates/profile-order-template.md", "docs/how-to/starting-interview.md"],
       "aliases": ["mon profil", "entretien de départ", "qui suis-je pour Second Brain", "starting interview"],
       "next": ["sb new --order <file>", "sb status"],
-      "card": "Without --order: show the output, then apply the starting-interview skill (skills/starting-interview/SKILL.md) — a profile present is shown and only what changed is asked; absent, or with missing fields, the interview asks one question at a time, at least three, only the missing ones. With --order: an Executor gesture, run only on a profile order the Owner dated; relay the section written, inspect the diff of USER.md and commit it on its own. Pilot, without a shell: read the `## Profil de départ` section of the Vault's USER.md, run the interview, show the full profile, and with the Owner's agreement write only the order <workspace>/_orders/PROFILE-<YYYY-MM-DD-HHMMSS>.md (templates/profile-order-template.md), announcing the path first; never USER.md itself."
+      "card": "Without --order: show the output, then apply the starting-interview skill (skills/starting-interview/SKILL.md) — a profile present is shown and only what changed is asked; absent, or with missing fields, the interview asks one question at a time, at least three, only the missing ones. With --order: an Executor gesture, run only on a profile order the Owner dated; relay the section written and the commit it made itself (USER.md alone, through the Vault's guardians); a guardian's refusal is relayed as it is. Pilot, without a shell: read the `## Profil de départ` section of the Vault's USER.md, run the interview, show the full profile, and with the Owner's agreement write only the order <workspace>/_orders/PROFILE-<YYYY-MM-DD-HHMMSS>.md (templates/profile-order-template.md), announcing the path first; never USER.md itself."
     },
     {
       "verb": "new",
@@ -85,7 +86,7 @@
       "builtOn": ["tools/project-bootstrap.sh create", "templates/initiation-order-template.md", "tools/starting_profile.py", "docs/how-to/create-a-project.md"],
       "aliases": ["nouveau projet", "crée un projet", "new project"],
       "next": ["sb pilot-prompt <folder>", "sb open"],
-      "card": "Run it only on a Mission, an initiation order or the Owner's word, since it writes into the Vault's registry. With --ask it asks, in the terminal, the name, the location, Git, then the three questions of the project interview (expected result, current blocker, review rhythm; Enter leaves one empty). Relay the whole output, including the block to paste as the Pilot Project's instructions and the Project name `SB - <Display Name>`."
+      "card": "Run it only on a Mission, an initiation order or the Owner's word, since it writes into the Vault's registry. With --ask it asks, in the terminal, the name, the location, Git, then the three questions of the project interview (expected result, current blocker, review rhythm; Enter leaves one empty). Relay the whole output: the tool commits the new project and the Vault's registry itself, each through its guardians (a refusal is relayed as it is, never worked around). Then run `sb pilot-prompt <folder> --copy` and tell the Owner, by its place: « Dans l'application Claude : crée le Project SB - <Display Name>, colle (Ctrl+V) dans ses instructions »."
     },
     {
       "verb": "adopt",
@@ -98,7 +99,7 @@
       "builtOn": ["tools/project-bootstrap.sh adopt", "tools/starting_profile.py", "docs/how-to/adopt-a-project.md"],
       "aliases": ["adopte ce projet", "adopt this project"],
       "next": ["sb pilot-prompt", "sb doctor"],
-      "card": "Run it only on a Mission, an initiation order or the Owner's word. On an adopted project it only completes what is missing, including the skill links of renamed skills. With --ask it also asks the three questions of the project interview (Enter leaves one empty) and writes them under `## Profil du projet` of README.md; an existing profile is kept. Relay the plan it proposes: it applies no reorganisation."
+      "card": "Run it only on a Mission, an initiation order or the Owner's word. On an adopted project it only completes what is missing, including the skill links of renamed skills. With --ask it also asks the three questions of the project interview (Enter leaves one empty) and writes them under `## Profil du projet` of README.md; an existing profile is kept. Relay the plan it proposes: it applies no reorganisation. It commits only the files it added (the project) and the registry (the Vault), each through its guardians."
     },
     {
       "verb": "list",
@@ -115,7 +116,7 @@
     {
       "verb": "pilot-prompt",
       "group": "projects",
-      "usage": ["sb pilot-prompt [<folder>] [--regen] [--host <host>]", "sb pilot-prompt --accueil [--host <host>]"],
+      "usage": ["sb pilot-prompt [<folder>] [--regen] [--host <host>] [--copy] [--out <file>]", "sb pilot-prompt --accueil [--host <host>] [--copy] [--out <file>]"],
       "place": "project",
       "formPlaces": {"--accueil": "workspace", "accueil": "workspace"},
       "nature": "tool",
@@ -124,7 +125,7 @@
       "builtOn": ["templates/session-opening-prompt-template.md", "tools/project-bootstrap.sh prompt", "templates/accueil-pilot-prompt-template.md", "tools/project-bootstrap.sh accueil-prompt", "tools/lib/mcp-hosts.sh", "docs/how-to/pilot-hosts-and-role-mixing.md", "docs/how-to/open-a-session.md", "docs/how-to/start-something-new.md"],
       "aliases": ["prompt pilote", "instructions du Project", "pilot prompt", "bloc du Pilot d'accueil", "welcome Pilot block", "mon Pilot dans un autre outil", "my Pilot in another tool"],
       "next": ["sb open", "sb help start"],
-      "card": "Show the output as it is: the Pilot's name, the block between two lines (the same bytes for every host), then, for each Pilot host present on this machine or the one --host names, where to paste the block, how to open without a shell, the first message and what the first answer shows. With --accueil (or `accueil`), anywhere in the workspace: the same pieces for the welcome Pilot `SB - Accueil`, whose block tools/project-bootstrap.sh accueil-prompt prints; its first exchange is the starting interview. A host the rule marks declared is said so; ChatGPT and Gemini web are refused with the reason (docs/how-to/pilot-hosts-and-role-mixing.md). Pilot, without a shell: read the project's state/PILOT-PROMPT.md and the Vault's templates/session-opening-prompt-template.md, and give the same pieces for the host the Owner names; `--regen` and `--accueil` need a shell."
+      "card": "Show the output as it is: the Pilot's name, the block between two lines (the same bytes for every host), then, for each Pilot host present on this machine or the one --host names, where to paste the block, how to open without a shell, the first message and what the first answer shows. With --accueil (or `accueil`), anywhere in the workspace: the same pieces for the welcome Pilot `SB - Accueil`, whose block tools/project-bootstrap.sh accueil-prompt prints; its first exchange is the starting interview. A host the rule marks declared is said so; ChatGPT and Gemini web are refused with the reason (docs/how-to/pilot-hosts-and-role-mixing.md). The block goes to the clipboard when a terminal is there or with --copy (never tell the Owner to select it in a terminal: long lines are cut), and to a file with --out; tell the Owner, by its place, « Dans l'application Claude : crée le Project <name>, colle (Ctrl+V) dans ses instructions ». Pilot, without a shell: read the project's state/PILOT-PROMPT.md and the Vault's templates/session-opening-prompt-template.md, and give the same pieces for the host the Owner names; `--regen` and `--accueil` need a shell."
     },
     {
       "verb": "mission",

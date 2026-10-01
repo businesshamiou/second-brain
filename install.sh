@@ -573,6 +573,23 @@ step_line() {
   # exactly the one verdict line in silent (--answers-file) mode -- a line
   # on stdout here would join that capture on every install, not just the
   # nominal nothing-to-report case.
+  # Mission 244 (finding 4): the line in the language chosen, from the
+  # catalogue (step.line.<id>); the English form only before any language.
+  local id=""
+  case "$1" in
+    "Prerequisites") id="prerequisites" ;;
+    "Workspace") id="workspace" ;;
+    "Clone") id="clone" ;;
+    "Guardians") id="guardians" ;;
+    "Workspace CLAUDE.md/AGENTS.md") id="marker" ;;
+    "Assistant") id="assistant" ;;
+    "First project") id="firstProject" ;;
+    "Project links") id="projectLinks" ;;
+  esac
+  if [ -n "$CATALOG_FILE" ] && [ -n "$id" ]; then
+    catalog_get "step.line.$id" >&2
+    return 0
+  fi
   echo "Step: $1 -- OK" >&2
 }
 
@@ -647,7 +664,7 @@ ANSWER_GIT_USERNAME=""; ANSWER_GIT_USEREMAIL=""
 ASSISTANT_NAME=""; ASSISTANT_SLUG=""; PREV_ASSISTANT_SLUG=""
 
 run_or_fail "Failed to ensure prerequisites (Git, uv, pre-commit)" ensure_prerequisites
-step_line "Prerequisites"
+# Mission 244 (finding 4): its line is said once the language is known.
 check_forced_stop "prerequisites"
 
 if [ ! -e "$SOURCE" ]; then
@@ -699,6 +716,7 @@ fi
 
 CATALOG_FILE="$I18N_DIR/catalog.$(printf '%s' "$ANSWER_LANGUAGE" | tr '[:upper:]' '[:lower:]').json"
 [ -f "$CATALOG_FILE" ] || CATALOG_FILE="$I18N_DIR/catalog.en.json"
+step_line "Prerequisites"
 
 FORCE_REASK=0
 # Mission 230 (A-226-20 of report 226): the gate reads only the steps
@@ -882,22 +900,30 @@ if [ "$INTERACTIVE" = "1" ]; then
   resolve_answer FIRSTNAME "$(catalog_get "questionnaire.firstName.prompt")" "" 1 "$FORCE_REASK" 1 >/dev/null
   save_carnet
 
+  # Mission 244 (finding 15): no hidden default -- an optional question says
+  # so, and an empty answer is recorded as not given, never as a value.
   activity_default="$(catalog_get "questionnaire.activity.default")"
-  resolve_answer ACTIVITY "$(catalog_get "questionnaire.activity.prompt")" "$activity_default" 1 "$FORCE_REASK" 0 >/dev/null
+  resolve_answer ACTIVITY "$(prompt_with_default "questionnaire.activity.prompt" "questionnaire.optionalNote")" "$activity_default" 1 "$FORCE_REASK" 0 >/dev/null
   save_carnet
 
+  # Mission 244 (finding 20): the agents found on this machine -- their
+  # command, outside the test mode -- and « none » said as such.
   detected_tools=""
-  [ -d "$CTX_CLAUDE_SKILLS_DIR" ] && detected_tools="claude-code"
-  if [ -d "$CTX_CODEX_SKILLS_DIR" ]; then
+  if [ -d "$CTX_CLAUDE_SKILLS_DIR" ] || { [ "$TEST_MODE" != "1" ] && command -v claude >/dev/null 2>&1; }; then
+    detected_tools="claude-code"
+  fi
+  if [ -d "$CTX_CODEX_SKILLS_DIR" ] || { [ "$TEST_MODE" != "1" ] && command -v codex >/dev/null 2>&1; }; then
     if [ -n "$detected_tools" ]; then detected_tools="$detected_tools, codex"; else detected_tools="codex"; fi
   fi
-  ai_tools_prompt="$(prompt_with_default "questionnaire.aiTools.prompt" "questionnaire.aiTools.detectedNote" "$detected_tools")"
+  detected_shown="$detected_tools"
+  [ -n "$detected_shown" ] || detected_shown="$(catalog_get "questionnaire.aiTools.none")"
+  ai_tools_prompt="$(prompt_with_default "questionnaire.aiTools.prompt" "questionnaire.aiTools.detectedNote" "$detected_shown")"
   ai_tools_raw="$(resolve_answer AITOOLSRAW "$ai_tools_prompt" "$detected_tools" 1 "$FORCE_REASK" 0)"
   ANSWER_AITOOLS="$(printf '%s' "$ai_tools_raw" | tr ',' ' ')"
   save_carnet
 
   what_matters_default="$(catalog_get "questionnaire.whatMatters.default")"
-  resolve_answer WHATMATTERS "$(catalog_get "questionnaire.whatMatters.prompt")" "$what_matters_default" 1 "$FORCE_REASK" 0 >/dev/null
+  resolve_answer WHATMATTERS "$(prompt_with_default "questionnaire.whatMatters.prompt" "questionnaire.optionalNote")" "$what_matters_default" 1 "$FORCE_REASK" 0 >/dev/null
   save_carnet
 else
   resolve_answer FIRSTNAME "" "Second Brain user" 0 0 0 >/dev/null
@@ -937,7 +963,7 @@ run_or_fail "Generating the vault identity failed" \
 # once, `--label` decides later).
 if [ -z "$(bash "$CLONE_PATH/tools/vault-identity.sh" get workspace_label "$CLONE_PATH" 2>/dev/null)" ]; then
   run_or_fail "Recording the workspace label failed" \
-    bash -c 'bash "$1" set-label "$2" "$3" >/dev/null' _ \
+    bash -c 'bash "$1" set-label-default "$2" "$3" >/dev/null' _ \
     "$CLONE_PATH/tools/vault-identity.sh" "$(basename "$WORKSPACE_PATH")" "$CLONE_PATH"
 fi
 save_clone_pending_changes "Generate vault identity"
@@ -1088,6 +1114,18 @@ if [ "$STEP_PROFILEWRITTEN" != "true" ] || [ "$IS_UPDATE_RUN" = "1" ]; then
     "$ANSWER_ACTIVITY" "$ANSWER_AITOOLS" "$ANSWER_WHATMATTERS" "$installed_at" \
     "$os_info" "$shell_info" "$timezone" "$git_version" "$claude_detected" "$codex_detected"
 
+  # Mission 244 (finding 13): the answers seed « ## Profil de départ », the
+  # section the starting interview shows; an answer not given (its neutral
+  # default) stays out of it.
+  seed_does="$ANSWER_ACTIVITY"
+  [ "$seed_does" = "$(catalog_get "questionnaire.activity.default")" ] && seed_does=""
+  seed_matters="$ANSWER_WHATMATTERS"
+  [ "$seed_matters" = "$(catalog_get "questionnaire.whatMatters.default")" ] && seed_matters=""
+  seed_tools="$(printf '%s' "$ANSWER_AITOOLS" | tr -s ' ,' '\n\n' | grep . | paste -sd, - | sed 's/,/, /g')"
+  run_or_fail "Seeding the starting profile failed" \
+    bash -c 'uv run --no-project "$0" owner-seed "$1" --does "$2" --matters "$3" --tools "$4" >/dev/null' \
+    "$CLONE_PATH/tools/starting_profile.py" "$USER_PROFILE_PATH" "$seed_does" "$seed_matters" "$seed_tools"
+
   save_clone_pending_changes "Write user profile from installer answers"
 fi
 mark_step "profileWritten"
@@ -1108,4 +1146,23 @@ save_clone_pending_changes "Installation complete"
 VERDICT="$(catalog_get "verdict.success") $(catalog_get "verdict.signature" "$ANSWER_VAULTNAME")"
 save_carnet "$VERDICT"
 echo "$VERDICT"
+
+# --- The last screen (Mission 244, findings 5, 20, 27): sb install and sb
+# doctor (outside the test mode), the welcome block on the clipboard, then the
+# three gestures, each with its place -- on stderr, like the step lines, so
+# the verdict stays the only line of standard output. Never a reason to fail
+# an installation that is complete.
+FINISH_FAMILY="claude"
+case " $ANSWER_AITOOLS " in
+  *claude*) ;;
+  *codex*|*chatgpt*) FINISH_FAMILY="openai" ;;
+esac
+FINISH_TOOLS="$(printf '%s' "$ANSWER_AITOOLS" | tr -s ' ,' '\n\n' | grep . | paste -sd, -)"
+if [ "$TEST_MODE" = "1" ]; then
+  uv run --no-project "$CLONE_PATH/tools/sb/sb.py" installer-finish --lang "$ANSWER_LANGUAGE" \
+    --family "$FINISH_FAMILY" --tools "$FINISH_TOOLS" --test-mode >&2 || true
+else
+  uv run --no-project "$CLONE_PATH/tools/sb/sb.py" installer-finish --lang "$ANSWER_LANGUAGE" \
+    --family "$FINISH_FAMILY" --tools "$FINISH_TOOLS" >&2 || true
+fi
 exit 0
