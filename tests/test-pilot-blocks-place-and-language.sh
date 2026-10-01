@@ -21,7 +21,21 @@
 #   (6) no Pilot host that is not supported (ChatGPT) is proposed by the blocks
 #       nor by project-bootstrap.sh's catalogue;
 #   (7) skills/session-start/SKILL.md carries « Where to type what »; `sb help
-#       start` gives each step its place, in three languages.
+#       start` gives each step its place, in three languages;
+#   (8) Mission 245 (capture 105405, finding A2) -- one format for the
+#       Executor: in every source of a block pasted into an Executor (the two
+#       Pilot blocks, the Pilot contract, the order and handoff templates, the
+#       session-start and session-close skills and checklist, the close how-to,
+#       the cards of verbs.json), 0 plugin form `/sb:` and 0 Codex form `$sb`
+#       (10 before); every light closing command handed to the Executor
+#       carries its order sentence « You are the Executor. … » (4 without
+#       before); both blocks name the order sentence;
+#   (9) Mission 245 (capture 105405, finding C4): the welcome block names the
+#       Executor instead of a page of the documentation -- the Code tab of the
+#       Claude app by default, then Claude Code CLI and Codex with this
+#       system's installation lines, rendered in the recorded language (0
+#       options before, 3 after); `sb help start` says the same, in three
+#       languages.
 #
 # usage: bash tests/test-pilot-blocks-place-and-language.sh [<source repo>]
 # Exit 0: all cases PASS. Exit 1 otherwise.
@@ -51,8 +65,8 @@ echo "=== Mission 244 : des Pilots clairs ==="
 check "(1) accueil : un premier message sans langue recoit la langue enregistree" has "$A" "a first message that carries no language (a path, a lone greeting) gets the recorded language, {{LANGUAGE}}"
 check "(1) accueil : l'espace est dans le bloc, tout premier message ouvre" has "$A" "any first message opens the session"
 check "(2) accueil : chaque consigne commence par son lieu" sh -c "printf '%s' \"\$1\" | grep -q 'Dans le terminal : ' && printf '%s' \"\$1\" | grep -q 'Dans le Pilot : ' && printf '%s' \"\$1\" | grep -q \"Dans l'Executor (<host>) : \"" _ "$A"
-check "(2) accueil : un verbe sous la forme de son hote" has "$A" '`$sb <verb>` in Codex'
-check "(2) accueil : l'Executor annonce, la page d'installation nommee" sh -c "printf '%s' \"\$1\" | grep -q 'goes to an Executor window' && printf '%s' \"\$1\" | grep -q 'docs/tutorials/install.md'" _ "$A"
+check "(2) accueil : un verbe en clair, sb <verb>" has "$A" 'A verb is given as `sb <verb>`.'
+check "(2) accueil : l'Executor annonce et nomme (Mission 245 : ses options, rendues)" sh -c "printf '%s' \"\$1\" | grep -q 'goes to an Executor window' && printf '%s' \"\$1\" | grep -q '{{EXECUTOR_OPTIONS}}'" _ "$A"
 check "(3) accueil : l'ordre montre en clair, lignes techniques sous « Pour l'Executor »" has "$A" "the technical lines grouped below under « Pour l'Executor »"
 check "(3) accueil : chemin annonce avant l'ecriture, oui de l'Owner" has "$A" "announce the exact path in one line and write only after the Owner's yes"
 check "(3) accueil : list_allowed_directories relu pour vault_ref" has "$A" 'call `list_allowed_directories` again and take the Vault commit it returns as `vault_ref`'
@@ -70,6 +84,28 @@ check "(6) aucun ChatGPT propose comme hote du Pilot (blocs, catalogues de l'amo
   ! grep -h '\"projectBootstrap\\.' '$SRC/i18n/catalog.fr.json' '$SRC/i18n/catalog.en.json' '$SRC/i18n/catalog.es.json' | grep -qi chatgpt" _ "$A" "$B"
 check "(7) session-start : « Where to type what »" grep -q '^\*\*Where to type what\*\*' "$SRC/skills/session-start/SKILL.md"
 
+# --- (8) Mission 245: one format for the Executor -----------------------------------
+EXEC_SOURCES="templates/accueil-pilot-prompt-template.md templates/session-opening-prompt-template.md
+templates/pilot-contract-template.md templates/initiation-order-template.md templates/handoff-template.md
+templates/profile-order-template.md skills/session-start/SKILL.md skills/session-start/reading-list.md
+skills/session-close/SKILL.md skills/session-close/closing-checklist.md docs/how-to/close-a-session.md
+tools/sb/verbs.json tools/project-bootstrap.sh"
+N1=0
+for f in $EXEC_SOURCES; do
+  n="$(tr -d '\r' < "$SRC/$f" | grep -o '/sb:\|\$sb' | wc -l | tr -d ' ')"
+  [ "$n" = 0 ] || echo "    $f : $n forme(s) /sb: ou \$sb"
+  N1=$((N1 + n))
+done
+check "(8) sources de blocs Executor : 0 forme /sb: ou \$sb ($N1)" test "$N1" = 0
+N2=0
+for f in skills/session-close/SKILL.md tools/sb/verbs.json docs/how-to/close-a-session.md; do
+  n="$(tr -d '\r' < "$SRC/$f" | grep -E '(hand|return)s? the light closing' | grep -vc 'You are the Executor. In <project folder>, run: sb close --light. Show the output as it is.')"
+  [ "$n" = 0 ] || echo "    $f : $n commande(s) de cloture legere sans phrase d'ordre"
+  N2=$((N2 + n))
+done
+check "(8) commande de cloture legere remise avec sa phrase d'ordre ($N2 sans)" test "$N2" = 0
+check "(8) les deux blocs nomment la phrase d'ordre" sh -c "printf '%s' \"\$1\" | grep -q 'You are the Executor. In <folder>, run: sb <verb> <arguments>. Show the output as it is.' && printf '%s' \"\$2\" | grep -q 'You are the Executor. In <folder>, run: sb <verb> <arguments>. Show the output as it is.'" _ "$A" "$B"
+
 # --- The rendering, on a throwaway workspace ------------------------------------------
 sandbox_find_uv || { echo "FAIL : uv introuvable"; exit 1; }
 TMP="$(mktemp -d "$(sb_tmp_dir tests)/m244-blocks-XXXXXX")"
@@ -85,10 +121,20 @@ OUT="$(bash "$V/tools/project-bootstrap.sh" accueil-prompt 2>&1)"
 check "(1) accueil-prompt rend la langue enregistree : français (fr)" has "$OUT" "gets the recorded language, français (fr)."
 check "(1) accueil-prompt : aucun marqueur {{…}} laisse" sh -c "! printf '%s' \"\$1\" | grep -q '{{'" _ "$OUT"
 check "(1) accueil-prompt : 3e geste, ecrire bonjour" has "$OUT" "3. Dans une conversation de ce Project : écris « bonjour »"
+# Mission 245 (capture 105405, finding C4): the three Executor options named in
+# the rendered block -- the Code tab, then each command-line agent by its
+# installation line -- in the recorded language (0 before, 3 after).
+N_OPT=0
+for opt in "l'onglet Code de l'application Claude" "claude.ai/install" "chatgpt.com/codex/install"; do
+  has "$OUT" "$opt" && N_OPT=$((N_OPT + 1))
+done
+check "(9) accueil-prompt : les trois options d'Executor nommees ($N_OPT/3), en francais" test "$N_OPT" = 3
+check "(9) accueil-prompt : plus de renvoi a la page d'installation" sh -c "! printf '%s' \"\$1\" | grep -q 'docs/tutorials/install.md'" _ "$OUT"
 for lang in fr en es; do
   OUT="$(cd "$WS" && "$V/tools/sb/bin/sb" help start --lang "$lang" 2>&1)"
   N="$(printf '%s\n' "$OUT" | grep -cE '(Dans le terminal|Dans le Pilot|Dans l.Executor|In the terminal|In the Pilot|In the Executor|En la terminal|En el Pilot|En el Executor)')"
   check "(7) sb help start --lang $lang : chaque etape par son lieu ($N lignes)" test "$N" -ge 10
+  check "(9) sb help start --lang $lang : l'onglet Code puis les deux options" sh -c "printf '%s' \"\$1\" | grep -qE 'Code tab|onglet Code|pestaña Code' && printf '%s' \"\$1\" | grep -q 'Claude Code CLI' && printf '%s' \"\$1\" | grep -q 'chatgpt.com/codex/install'" _ "$OUT"
 done
 
 echo "RESULT: $PASSES PASS, $FAILURES FAIL"

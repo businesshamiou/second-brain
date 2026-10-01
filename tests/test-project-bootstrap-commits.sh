@@ -7,10 +7,16 @@
 # stand-in: the guardians are not the subject; a refusing hook is):
 #   (1) `sb new --order` (create, Git): two commits -- the project's scaffold
 #       and the Vault's registration --, porcelain 0 in both repositories;
+#       Mission 245 (capture 105405, finding A4): then the state sheet,
+#       regenerated once those commits exist and committed alone: it no longer
+#       says « No commits yet » (1 before, 0 after) nor an uncommitted registry;
 #   (2) the order's « Objet » is the purpose line of CLAUDE.md and AGENTS.md,
 #       never « à compléter »;
 #   (3) the output proposes no ChatGPT as a Pilot host, and the block reaches
-#       the clipboard (SB_CLIPBOARD_FILE) byte for byte as printed;
+#       the clipboard (SB_CLIPBOARD_FILE) byte for byte as printed; Mission 245
+#       (capture 105405, finding A3): `sb pilot-prompt <folder> --copy` sits
+#       between « create the Project » and « paste » (0 before, 1 after), and
+#       no « already on your clipboard » without that command;
 #   (4) `adopt` of a Git folder carrying its own uncommitted file commits ONLY
 #       what the tool added: the project's own file stays untracked;
 #   (5) a refusing project hook: exit 1, the refusal said, nothing worked around
@@ -87,14 +93,21 @@ V_BEFORE="$(git -C "$V" rev-list --count HEAD)"
 OUT="$(cd "$WS" && "$SB" new --order "$TMP/o1.md" 2>&1)"; RC=$?
 P="$WS/rapports"
 check "(1) sb new --order : exit 0" test "$RC" = 0
-check "(1) projet : un commit, porcelain 0" sh -c "[ \"\$(git -C '$P' rev-list --count HEAD)\" = 1 ] && [ \"\$(git -C '$P' status --porcelain | grep -c .)\" = 0 ]"
+check "(1) projet : le commit d'amorcage puis celui de la fiche, porcelain 0" sh -c "[ \"\$(git -C '$P' rev-list --count HEAD)\" = 2 ] && [ \"\$(git -C '$P' status --porcelain | grep -c .)\" = 0 ]"
+check "(1) Mission 245 : le dernier commit du projet porte la fiche et le digest, seuls" sh -c "[ \"\$(git -C '$P' show --name-only --format= HEAD | sort | tr '\n' ' ')\" = 'state/DIGEST.md state/STATE.md ' ]"
+check "(1) Mission 245 : la fiche ne dit plus « No commits yet »" sh -c "! grep -q 'No commits yet' '$P/state/STATE.md' && grep -q '^## main' '$P/state/STATE.md'"
+check "(1) Mission 245 : la fiche ne montre plus le registre du Vault non commite" sh -c "! grep -q '^ M projects/PROJECT-REGISTRY.md\|^?? projects/' '$P/state/STATE.md'"
 check "(1) Vault : un commit de plus, porcelain 0" sh -c "[ \"\$(git -C '$V' rev-list --count HEAD)\" = $((V_BEFORE + 1)) ] && [ \"\$(git -C '$V' status --porcelain | grep -c .)\" = 0 ]"
 check "(1) le commit du Vault porte le registre et la fiche" sh -c "git -C '$V' show --name-only --format= HEAD | grep -q 'projects/PROJECT-REGISTRY.md' && git -C '$V' show --name-only --format= HEAD | grep -q 'projects/PROJECT-.*RAPPORTS'"
-check "(1) la sortie dit les deux commits" sh -c "[ \"\$(printf '%s\n' \"\$1\" | grep -c 'Commit fait par l.outil')\" = 2 ]" _ "$OUT"
+check "(1) la sortie dit les trois commits (projet, Vault, fiche)" sh -c "[ \"\$(printf '%s\n' \"\$1\" | grep -c 'Commit fait par l.outil')\" = 3 ]" _ "$OUT"
 check "(2) CLAUDE.md et AGENTS.md portent l'objet de l'ordre" sh -c "grep -qx 'But : suivre les rapports clients de la semaine' '$P/CLAUDE.md' && grep -qx 'But : suivre les rapports clients de la semaine' '$P/AGENTS.md'"
 check "(2) plus de « à compléter »" sh -c "! grep -q 'à compléter' '$P/CLAUDE.md'"
 check "(3) aucun ChatGPT proposé comme hôte du Pilot" sh -c "! printf '%s' \"\$1\" | grep -qi 'chatgpt'" _ "$OUT"
 check "(3) consigne par lieu : « Dans l'application Claude »" sh -c "printf '%s' \"\$1\" | grep -q \"Dans l'application Claude\"" _ "$OUT"
+check "(3) Mission 245 : pilot-prompt --copy entre « crée un Project » et « colle »" sh -c "
+  printf '%s\n' \"\$1\" | awk '/crée un Project nommé/ { p = NR } /sb pilot-prompt .* --copy/ && p && index(substr(\$0, index(\$0, \"--copy\")), \"colle\") { ok = 1 } END { exit !ok }'" _ "$OUT"
+check "(3) Mission 245 : plus de « dans ton presse-papiers » sans la commande" sh -c "
+  ! printf '%s\n' \"\$1\" | grep 'presse-papiers' | grep -v 'geste 2' | grep -q ." _ "$OUT"
 check "(3) le bloc est au presse-papiers, identique au bloc imprime" sh -c "
   printf '%s\n' \"\$1\" | tr -d '\r' | awk 'f && /^  ---\$/ { exit } f { print } /^  ---\$/ { f = 1 }' > '$TMP/printed.txt'
   tr -d '\r' < '$TMP/clipboard.txt' > '$TMP/clip.txt'
@@ -114,9 +127,9 @@ echo "brouillon du projet" > "$A/brouillon.txt"
 write_order "$TMP/o-adopt.md" adopt existant git "- Arbre sale : accepté — un brouillon en cours"
 OUT="$(cd "$WS" && "$SB" new --order "$TMP/o-adopt.md" 2>&1)"; RC=$?
 check "(4) adopt : exit 0" test "$RC" = 0
-check "(4) adopt : un commit de plus dans le projet" sh -c "[ \"\$(git -C '$A' rev-list --count HEAD)\" = 2 ]"
-check "(4) le fichier du projet reste non suivi, jamais commite" sh -c "git -C '$A' status --porcelain | grep -qx '?? brouillon.txt' && ! git -C '$A' show --name-only --format= HEAD | grep -q brouillon"
-check "(4) le commit d'adoption porte l'acte de naissance" sh -c "git -C '$A' show --name-only --format= HEAD | grep -qx '.pre-commit-config.yaml'"
+check "(4) adopt : un commit de plus dans le projet, puis celui de la fiche" sh -c "[ \"\$(git -C '$A' rev-list --count HEAD)\" = 3 ]"
+check "(4) le fichier du projet reste non suivi, jamais commite" sh -c "git -C '$A' status --porcelain | grep -qx '?? brouillon.txt' && ! git -C '$A' log --name-only --format= -2 | grep -q brouillon"
+check "(4) le commit d'adoption porte l'acte de naissance" sh -c "git -C '$A' show --name-only --format= HEAD~1 | grep -qx '.pre-commit-config.yaml'"
 check "(4) Vault : porcelain 0 apres l'adoption" test "$(porcelain "$V")" = 0
 
 # --- (5) a refusing hook -------------------------------------------------------

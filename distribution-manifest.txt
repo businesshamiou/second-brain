@@ -829,3 +829,4 @@ tests/test-install-vault-mcp-desktop-running.sh	DISTRIBUABLE
 tests/test-install-final-screen.sh	DISTRIBUABLE
 tests/test-sb-outside-workspace.sh	DISTRIBUABLE
 tests/test-pilot-blocks-place-and-language.sh	DISTRIBUABLE
+tests/audit-language.sh	DISTRIBUABLE

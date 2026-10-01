@@ -26,7 +26,8 @@
           -- no bash typed; outside any workspace it is served in sb's own
           Vault's workspace (Mission 244);
       (h) sb.cmd doctor with a PATH that holds no bash (uv, Git's cmd folder
-          and Windows only, as in a bare PowerShell) says so on a WARN line
+          and Windows only, as in a bare PowerShell) says so on a WARN line (INFO
+          once an Executor is recognised, Mission 245)
           with the form to type, and ends non-blocking (exit 0).
     Writes nothing outside a folder of its own under the declared temporary
     folder (tools\lib\tmp.ps1).
@@ -153,8 +154,19 @@ try {
     finally {
         $env:PATH = $savedPath
     }
-    $ok = (-not $bashSeen) -and ($code -eq 0) -and ($out -match '(?m)^  WARN  bash ') -and $out.Contains('bash.exe"') -and $out.Contains('Nothing blocking')
-    Assert-True $ok "(h) sb.cmd doctor sans bash dans le PATH : WARN bash avec la forme a taper, non bloquant (exit $code)"
+    # Mission 245 (step 1): once an Executor is recognised -- the Claude app's
+    # Code tab, when this machine has the app's configuration file -- the line
+    # is INFO, not WARN (the same reading as (10h) of test-sb-command.sh).
+    $desktopConfigs = @()
+    if ($env:APPDATA) { $desktopConfigs += Join-Path $env:APPDATA 'Claude\claude_desktop_config.json' }
+    if ($env:LOCALAPPDATA) {
+        $desktopConfigs += @(Get-ChildItem -Path (Join-Path $env:LOCALAPPDATA 'Packages') -Filter 'Claude_*' -Directory -ErrorAction SilentlyContinue |
+            ForEach-Object { Join-Path $_.FullName 'LocalCache\Roaming\Claude\claude_desktop_config.json' })
+    }
+    $bashMark = 'WARN'
+    if (@($desktopConfigs | Where-Object { Test-Path -LiteralPath $_ }).Count -gt 0) { $bashMark = 'INFO' }
+    $ok = (-not $bashSeen) -and ($code -eq 0) -and ($out -match "(?m)^  $bashMark  bash ") -and $out.Contains('bash.exe"') -and $out.Contains('Nothing blocking')
+    Assert-True $ok "(h) sb.cmd doctor sans bash dans le PATH : $bashMark bash avec la forme a taper, non bloquant (exit $code)"
 }
 finally {
     Pop-Location

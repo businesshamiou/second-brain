@@ -68,6 +68,11 @@ Each step says where to type it. A verb is typed sb <verb> in a terminal, /sb:<v
 10. Close the session            In the Pilot first: sb close; then in the Executor: sb close
 
 Lost at any moment? In the terminal: sb status tells you where you are and what comes next.
+
+Your Executor: the Code tab of the Claude app, opened on your workspace folder (environment Local).
+Two options, in a terminal: Claude Code CLI or Codex — In PowerShell: irm https://claude.ai/install.ps1 | iex (Claude Code) or powershell -ExecutionPolicy ByPass -c "irm https://chatgpt.com/codex/install.ps1 | iex" (Codex), then sb install
+
+First message: "hello" to the welcome Pilot; the project's path to a project's Pilot.
 ```
 
 ### sb help concepts
@@ -159,7 +164,7 @@ sb close --light   # in the Executor, when the situation says « light close »
 sb close --accueil   # at the workspace root, after a welcome session
 ```
 
-**Card (what the agent does).** Apply the session-close skill (skills/session-close/SKILL.md); the close starts in the Pilot. Pilot: run closing-checklist.md; a session with no Mission opened or closed, no RELAY and no Pilot artefact filed is a light close: say « rien à consigner », write no handoff, hand the light closing command (`sb close --light`, for the Executor); otherwise the holes, then the handoff and the capture and the Executor closing command; after a welcome session, list _orders/ and today's _archive/orders/ and offer to write a spoken idea as an initiation order. Executor: show the situation `sb close` measured; light: run `sb close --light`; full: apply the handoff's closing command, or, without a handoff, say in plain words that the Owner writes `sb close` in the project's Pilot. A distribution remote is never a push target. Never push unless the Owner delegated it in this window.
+**Card (what the agent does).** Apply the session-close skill (skills/session-close/SKILL.md); the close starts in the Pilot. Pilot: run closing-checklist.md; a session with no Mission opened or closed, no RELAY and no Pilot artefact filed is a light close: say « rien à consigner », write no handoff, hand the light closing block for the Executor, complete with its order sentence in the Owner's language: « You are the Executor. In <project folder>, run: sb close --light. Show the output as it is. » (never the command alone, never a plugin or Codex shortcut); otherwise the holes, then the handoff and the capture and the Executor closing command; after a welcome session, list _orders/ and today's _archive/orders/ and offer to write a spoken idea as an initiation order. Executor: show the situation `sb close` measured; light: run `sb close --light`; full: apply the handoff's closing command, or, without a handoff, say in plain words that the Owner writes `sb close` in the project's Pilot. A distribution remote is never a push target. Never push unless the Owner delegated it in this window.
 
 ### sb handoff
 
@@ -285,7 +290,7 @@ sb new --order _orders/ORDER-2026-09-26-book-club.md   # from the welcome Pilot'
 sb new site "Site" --ask   # also asks the three questions of the project profile
 ```
 
-**Card (what the agent does).** Run it only on a Mission, an initiation order or the Owner's word, since it writes into the Vault's registry. With --ask it asks, in the terminal, the name, the location, Git, then the three questions of the project interview (expected result, current blocker, review rhythm; Enter leaves one empty). Relay the whole output: the tool commits the new project and the Vault's registry itself, each through its guardians (a refusal is relayed as it is, never worked around). Then run `sb pilot-prompt <folder> --copy` and tell the Owner, by its place: « Dans l'application Claude : crée le Project SB - <Display Name>, colle (Ctrl+V) dans ses instructions ».
+**Card (what the agent does).** Run it only on a Mission, an initiation order or the Owner's word, since it writes into the Vault's registry. With --ask it asks, in the terminal, the name, the location, Git, then the three questions of the project interview (expected result, current blocker, review rhythm; Enter leaves one empty). Relay the whole output: the tool commits the new project and the Vault's registry itself, each through its guardians (a refusal is relayed as it is, never worked around). Then tell the Owner, by its place: « Dans l'application Claude : crée le Project SB - <Display Name>, colle (Ctrl+V) dans ses instructions » -- in this order: the Project created first; then, just before the paste, `sb pilot-prompt <folder> --copy` in a terminal (anything copied in between, the Project's name included, replaces the block); then the paste. Never say the block is already on the clipboard without that command next to it.
 
 ### sb adopt
 
@@ -511,7 +516,7 @@ sb doctor   # the full checkup
 sb doctor "preflight absent"   # what does this refusal mean?
 ```
 
-**Card (what the agent does).** Show the output as it is; for each FAIL or WARN, give the fix it names and nothing else. Under Windows, a WARN on bash means only that `bash` is not on the PATH of that terminal: give the form it names, never install anything. The `MCP · <host>` lines say, for each host present, whether the Vault's server is declared there; a missing one is `sb install --mcp`, on the Owner's word. Never repair on your own: a repair is a Mission or the Owner's gesture.
+**Card (what the agent does).** Show the output as it is; for each FAIL or WARN, give the fix it names and nothing else. Under Windows, a WARN on bash means only that `bash` is not on the PATH of that terminal: give the form it names, never install anything. The `MCP · <host>` lines say, for each host present, whether the Vault's server is declared there; a missing one is `sb install --mcp`, on the Owner's word. The `Executor` line counts the Claude app's Code tab as an Executor (its configuration file found): with it, Claude Code CLI and Codex are INFO options, never something to install. Never repair on your own: a repair is a Mission or the Owner's gesture.
 
 ### sb clean
 
@@ -584,7 +589,7 @@ sb install --run   # resume or repair the installation
 sb install --mcp --label acme   # the server under a shorter name
 ```
 
-**Card (what the agent does).** Show the output as it is. `sb install` writes one entry into the user's PATH, Claude Code's plugin settings (marketplace second-brain, plugin sb) and the Vault's MCP server into every host present (Claude desktop app, Claude Code, Codex, Gemini CLI, Cursor, Windsurf, Cline, LM Studio): run it only on the Owner's word. A name too long for the hosts is refused with a shorter label proposed: `sb install --mcp --label <label>`, on the Owner's choice. For a first installation or a repair driven from the chat, apply the first-install skill (skills/first-install/SKILL.md).
+**Card (what the agent does).** Show the output as it is. `sb install` writes one entry into the user's PATH, Claude Code's plugin settings (marketplace second-brain, plugin sb) and the Vault's MCP server into every host present (Claude desktop app, Claude Code, Codex, Gemini CLI, Cursor, Windsurf, Cline, LM Studio): run it only on the Owner's word. A name too long for the hosts is refused with a shorter label proposed: `sb install --mcp --label <label>`, on the Owner's choice. The Claude app's Code tab is an Executor host: without the `claude` command, the plugin step uses the app's own Claude Code, or says in one line that the Code tab needs no plugin (the Executor blocks give the plain `sb <verb>`). For a first installation or a repair driven from the chat, apply the first-install skill (skills/first-install/SKILL.md).
 
 ### sb uninstall
 

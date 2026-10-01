@@ -13,7 +13,7 @@ A session is closed in two halves. The **Pilot** (chat) checks that nothing is l
 
 ## Before you start
 
-- The skill never starts on its own. You launch it with the verb `sb close` — first **in the Pilot**, as a message, then in the Executor window (`/sb:close` in Claude Code, `$sb close` in Codex; [Commands](../reference/commands.md)), or by saying `wrap` or `close` (in French, `on ferme`, `clôture`); on the Executor surface `/session-close` also works. `sb handoff` writes a handoff without closing. It pushes nothing, deletes nothing and settles nothing ([skill](../../skills/session-close/SKILL.md)).
+- The skill never starts on its own. You launch it with the verb `sb close` — first **in the Pilot**, as a message, then in the Executor window, as one complete block that starts with an order sentence — `You are the Executor. In <project folder>, run: sb close. Show the output as it is.` (in your language: `Tu es l'Executor. …`, `Eres el Executor. …`) — valid in any Executor, with or without the plugin (Mission 245; the shortcuts you may type yourself: [Commands](../reference/commands.md)), or by saying `wrap` or `close` (in French, `on ferme`, `clôture`); on the Executor surface `/session-close` also works. `sb handoff` writes a handoff without closing. It pushes nothing, deletes nothing and settles nothing ([skill](../../skills/session-close/SKILL.md)).
 - The skill picks its branch by measurement: it tries `git --version`. If a shell answers, it runs the Executor branch; if not, the Pilot branch.
 - Canary: `templates/handoff-template.md` and `templates/capture-template.md` must exist in the Vault. If one is missing, the answer is `NOT-READY`, nothing is closed, and the repair is a Mission.
 - `<workspace>` below is the absolute path of your workspace (for example `C:/Users/you/Workspaces`), the installed Vault is `<workspace>/second-brain`, and your project is `<workspace>/<project>` ([absolute paths rule](../../rules/RULES-2026-09-25-100419-absolute-repo-paths-and-verified-pushes.md)).
@@ -26,11 +26,11 @@ The close **starts in the Pilot**: it writes the handoff the next Pilot session 
 |---|---|
 | Welcome session (profile, idea, orders) | **In the welcome Pilot:** `sb close`. It lists the orders written and still waiting (`<workspace>/_orders/`) and those applied today (`<workspace>/_archive/orders/`), measured; nothing else to record, no handoff. An idea you only spoke about: ask it to write it as an initiation order, or it is lost. **In the terminal**, at the workspace root: `sb close --accueil` prints the same list. |
 | Project just created, nothing else | Nothing to do by hand: `tools/project-bootstrap.sh` already committed the project and the Vault's registry. `sb close` shows a light close. |
-| Pilot session that produced nothing | **In the Pilot:** `sb close` answers « rien à consigner » and gives the light closing command. **In the Executor:** `sb close --light` writes one `STATE:` line, regenerates the state sheet and the digest, and commits those three files. No handoff, no execution Note. |
+| Pilot session that produced nothing | **In the Pilot:** `sb close` answers « rien à consigner » and gives the light closing block. **In the Executor:** paste that block — `You are the Executor. In <project folder>, run: sb close --light. Show the output as it is.` —; `sb close --light` writes one `STATE:` line, regenerates the state sheet and the digest, and commits those three files. No handoff, no execution Note. |
 | Normal work session (Missions, RELAY) | **In the Pilot:** `sb close` — holes, handoff, capture, closing command (steps 1 to 3 below). **In the Executor:** paste the closing command (steps 4 to 7). |
 | Your Vault's `origin` is the public Second Brain repository | No push hole for it: it is the **distribution repository** you installed from, never a push target. Your Vault is always ahead of it (the installer's commits, your profile, your projects); that is normal. |
 | A project or a Vault with a remote of yours | The push hole stays: pushing is your gesture, or delegated by you (step 8). |
-| Executor alone, no Pilot | **In the Executor:** `sb close`. A light close when nothing waits; otherwise it says what waits and your gesture in plain words: **in the project's Pilot**, write `sb close`. |
+| Executor alone, no Pilot | **In the Executor:** `You are the Executor. In <project folder>, run: sb close. Show the output as it is.` A light close when nothing waits; otherwise it says what waits and your gesture in plain words: **in the project's Pilot**, write `sb close`. |
 
 ## Steps
 
@@ -49,7 +49,7 @@ The Pilot opens `skills/session-close/closing-checklist.md` and runs each of its
 | 7 | A previous handoff whose resume queue was neither run nor arbitrated |
 | 8 | A pin behind in `<project>/.pre-commit-config.yaml` (only a remote `repo:` with a `rev:` line) |
 
-Before the list, the light close: a session with no Mission opened or closed, no RELAY received and no artefact filed needs no handoff; the Pilot says « rien à consigner » and returns the light closing command (`sb close --light`, for the Executor).
+Before the list, the light close: a session with no Mission opened or closed, no RELAY received and no artefact filed needs no handoff; the Pilot says « rien à consigner » and returns the light closing block for the Executor, complete with its order sentence: `You are the Executor. In <project folder>, run: sb close --light. Show the output as it is.` (in your language; never the command alone, which an Executor may refuse — Mission 245).
 
 **One hole means no close.** The Pilot returns the list, each hole with the action that would close it: a Mission to write, your arbitration, or your prompt to an Executor (mode 2, traced by an execution Note). It waits for your word on each one. "We'll see later" counts as settled only if you said it.
 

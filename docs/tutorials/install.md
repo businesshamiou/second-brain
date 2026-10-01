@@ -16,18 +16,18 @@ Below, `<workspace>` is the absolute path of your workspace, for example C:/User
 ## Step 1. Check that you are ready
 
 - **A paid subscription** to at least one AI agent. Two paths are guided end to end:
-  - **The Claude path** (proven): Claude Pro or higher. The Pilot lives in the Claude desktop app, the Executor is Claude Code.
+  - **The Claude path** (proven): Claude Pro or higher. The Pilot lives in the Claude desktop app; the Executor is Claude Code, which the same app already includes in its **Code tab** (environment Local, opened on your workspace folder; [desktop quickstart](https://code.claude.com/docs/en/desktop-quickstart)).
   - **The OpenAI path** (declared: documented and dated, not yet played as a Pilot): ChatGPT Plus or higher, through **Codex**, which plays the Executor and can host the Pilot. ChatGPT itself cannot be a Pilot today: it runs no local MCP server ([Pilot hosts](../how-to/pilot-hosts-and-role-mixing.md)).
   - Any other agent: [adapt another agent](../how-to/pilot-hosts-and-role-mixing.md) is the standard page.
   Nothing is designed or tested for a free account.
-- **An Executor installed**, before the installation: an agent with a shell. Second Brain installs none on its own. The official lines, read on 2026-09-30:
+- **An Executor**: an agent with a shell. With the Claude desktop app you already have one, its **Code tab**: nothing more to install, `sb doctor` says `Executor (agent with a shell)` … `Claude app (Code tab)` (Mission 245). Second Brain installs no other agent on its own; the command-line agents are options. The official lines, read on 2026-09-30:
 
 | Agent | Windows (PowerShell) | macOS, Linux (Terminal) | Source |
 |---|---|---|---|
 | Claude Code | `irm https://claude.ai/install.ps1 \| iex` | `curl -fsSL https://claude.ai/install.sh \| bash` | code.claude.com/docs/en/setup |
 | Codex | `powershell -ExecutionPolicy ByPass -c "irm https://chatgpt.com/codex/install.ps1 \| iex"` | `curl -fsSL https://chatgpt.com/codex/install.sh \| sh` | github.com/openai/codex |
 
-  Installed later is fine too: `sb doctor` then says `Executor (agent with a shell)` … `none` and names these lines; run `sb install` again once the agent is there.
+  Installed later is fine too: without the Claude app nor any of these agents, `sb doctor` says `Executor (agent with a shell)` … `none` and names these lines; with the app, it lists them as `Other Executors` … `optional`. Run `sb install` again once an agent is there.
 - Windows with PowerShell 5.1 or higher, macOS, or Linux with Bash.
 - Nothing else. Git, Python (through `uv`) and `pre-commit` are reused if present, otherwise set up in your own profile, without administrator rights.
 
@@ -135,10 +135,11 @@ In French it reads `Installé, tout est en place. — Brian`. If a step fails, t
 
 After the verdict, the installer chains what used to be yours to type:
 
-1. **`sb install`**: `sb` on your PATH, the Claude Code plugin behind `/sb:<verb>` when Claude Code is there, and this Vault's MCP server — the Pilot's access to your files — declared in every AI tool present (the Claude desktop app, Claude Code, Codex, Gemini CLI, Cursor, Windsurf, Cline, LM Studio). The server is named `second-brain-vault-<label>`; the label is your workspace folder's name in lower case, cut at a word boundary to 14 characters at most, so that every tool name stays within 64 characters (`second-brain-workspace` gives `second-brain`). It is recorded in `VAULT-IDENTITY.md` and committed.
+1. **`sb install`**: `sb` on your PATH, the Claude Code plugin behind `/sb:<verb>` when Claude Code is there (the `claude` command, or the Claude app's own copy; with neither, the step says `skipped: Code tab, plugin not needed` — the Code tab works without it), and this Vault's MCP server — the Pilot's access to your files — declared in every AI tool present (the Claude desktop app, Claude Code, Codex, Gemini CLI, Cursor, Windsurf, Cline, LM Studio). The server is named `second-brain-vault-<label>`; the label is your workspace folder's name in lower case, cut at a word boundary to 14 characters at most, so that every tool name stays within 64 characters (`second-brain-workspace` gives `second-brain`). It is recorded in `VAULT-IDENTITY.md` and committed.
 2. **The Claude desktop app, if it is open**, is asked about first: `The Claude app is open: shall I close it so that the server is taken into account? (Y/n)`. While it runs it may erase the server's declaration, and it loads a new server only once **ended and reopened** — closing its window is not enough, it stays in the background. Answer yes and reopen it afterwards; answer no and do it yourself: **In Windows:** Settings → Apps → Installed apps → Claude → Advanced options → Terminate, then reopen Claude (**On macOS:** Cmd+Q, then reopen). The file is read back after writing, and the last line names the tools written, for example `Gesture left: restart Claude Code, Claude Desktop so that it loads the server`.
-3. **`sb doctor`**: the check of the machine, ending with `Nothing blocking.` when all is well. Its line `Executor (agent with a shell)` names the agents found, or `none` with the official lines of Step 1.
-4. **The welcome Pilot's block goes to your clipboard** (`The welcome Pilot's block is on your clipboard.`) — never select it in the terminal: a selection there cuts its long lines. Where no clipboard is reachable, the block is written to `<workspace>/second-brain/.install/accueil-block.txt`, and the line names that file.
+3. **`sb doctor`**: the check of the machine, ending with `Nothing blocking.` when all is well. Its line `Executor (agent with a shell)` names the agents found — `Claude app (Code tab)` first when the app is there, the command-line agents then shown as `Other Executors` … `optional`, with their lines —, or `none` with the official lines of Step 1. The installer's last screen says the same: `Your Executor is there: the Code tab of the Claude app, opened on your workspace folder.`
+4. **The welcome Pilot's block goes to your clipboard** (`The welcome Pilot's block is on your clipboard; anything you copy meanwhile replaces it: gesture 2 copies it again.`) — never select it in the terminal: a selection there cuts its long lines. Where no clipboard is reachable, the block is written to `<workspace>/second-brain/.install/accueil-block.txt`, and the line names that file.
+5. **The welcome Pilot's folders**: `<workspace>/_orders/`, where it writes its orders, and `<workspace>/_archive/orders/`, where an applied order is filed — both created empty (Mission 245).
 
 ## Step 6. The three gestures
 
@@ -147,11 +148,13 @@ The last lines of the installation are your three gestures, each with its place.
 ```text
 Installation done. Three gestures left:
   1. In the Claude app: create a Project named "SB - Accueil".
-  2. In its instructions: paste (Ctrl+V, Cmd+V on macOS) the block.
+  2. In a terminal: sb pilot-prompt --accueil --copy, then in the Project's instructions: paste (Ctrl+V, Cmd+V on macOS).
   3. In a conversation of that Project: write "hello".
 ```
 
-The Pilot answers `READY`, in the language you chose, then starts the starting interview. **On the OpenAI path** (declared): in the terminal, go to `<workspace>` and run `codex`; in Codex, paste the block as the first message and send it.
+Gesture 2 copies the block **just before** you paste it: creating the Project in gesture 1 often means copying its name, which replaces whatever was on the clipboard (capture 105405, Mission 245).
+
+The Pilot answers `READY`, in the language you chose, then starts the starting interview. **On the OpenAI path** (declared): in the terminal, go to `<workspace>` and run `codex`; then `sb pilot-prompt --accueil --copy` in a terminal, and in Codex paste the block as the first message and send it.
 
 The block names your workspace itself: the first message no longer has to be a path. To get the block again later: **In the terminal:** `sb pilot-prompt --accueil --copy`.
 
@@ -161,7 +164,7 @@ To declare the server again by hand, **In the terminal:** `sb install --mcp` (or
 
 ## Step 7. Go on to your first project
 
-Type `sb help start` **in the terminal**: the first steps, each with its place, in your language ([Commands, help pages](../reference/commands.md#help-pages)). Your first project was already committed by the installer. Continue with [Your first project](first-project.md): its Pilot's block comes from `sb pilot-prompt <project> --copy`, and its first answer carries a **canary**, the proof that it read your disk through the server.
+Type `sb help start` **in the terminal**: the first steps, each with its place, in your language ([Commands, help pages](../reference/commands.md#help-pages)). Your first project was already committed by the installer. Continue with [Your first project](first-project.md): its Pilot's block comes from `sb pilot-prompt <project> --copy`, and its first answer carries a **canary**, the proof that it read your disk through the server. **The first message** differs by Pilot (Mission 245, a choice the Owner may reverse): `hello` to the welcome Pilot, which has no project path; **the project's path** to a project's Pilot — `sb new --order` names it, gesture 3.
 
 ## Liens
 

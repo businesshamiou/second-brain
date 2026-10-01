@@ -24,7 +24,16 @@
 #   (H7) sb doctor: a "declared" line per host present, the absent hosts on one
 #        line, still non-blocking; sb install --mcp --label passes the label
 #        (the refusal and its proposal relayed) and answers in the reader's
-#        language (French last line).
+#        language (French last line);
+#   (H8) Mission 245 (capture 105405, finding A1): the Claude app detected (its
+#        claude_desktop_config.json), neither `claude` nor `codex` on the PATH:
+#        sb doctor says OK Executor « Claude app (Code tab) », no WARN Executor,
+#        the command-line agents as an INFO option with their installation
+#        lines; `sb install --plugin` says the plugin step skipped for the
+#        Code tab in one line, and the whole `sb install` is numbered 1, 2, 3
+#        without a gap (1, 2, 4 before; step 8); the app's own Claude Code
+#        (<folder>/claude-code/<version>/claude[.exe]) is the one used when the
+#        command is absent, its newest version.
 #
 # usage: bash tests/test-mcp-hosts-agnostic.sh
 # Exit 0: all cases PASS. Exit 1 otherwise.
@@ -216,6 +225,64 @@ CREATED="$(find "$P2" -name '*.json' ! -name '.claude.json' | wc -l | tr -d ' ')
 N_NF="$(printf '%s\n' "$OUT" | grep -cE 'Not found: (Gemini CLI|Cursor|Windsurf|Cline \(CLI\)|LM Studio)$')"
 { [ "$RC" -eq 0 ] && [ "$CREATED" = 0 ] && [ "$N_NF" = 5 ] && [ ! -d "$P2/.gemini" ] && [ ! -d "$P2/.cursor" ]; } \
   && pass "(H5) hotes absents : 0 fichier cree, cinq « Not found »" || fail "(H5) rc=$RC, $CREATED fichier(s), $N_NF « Not found »"
+
+echo "--- (H8) Mission 245 : l'onglet Code de l'application Claude, Executor reconnu ---"
+P3="$TMP/profile3"
+# The application's configuration folder, on the three systems' paths (the
+# table measures the one of the running system).
+for d in "$P3/AppData/Roaming/Claude" "$P3/Library/Application Support/Claude" "$P3/.config/Claude"; do
+  mkdir -p "$d"; printf '{}\n' > "$d/claude_desktop_config.json"
+done
+mkdir -p "$P3/AppData/Local"
+# A PATH without `claude` nor `codex`: every folder that holds one is left out.
+NOAGENT_PATH="$(printf '%s' "$PATH" | tr ':' '\n' | while IFS= read -r d; do
+  [ -n "$d" ] || continue
+  ls -1 "$d" 2>/dev/null | grep -qiE '^(claude|codex)(\.(exe|cmd|bat|ps1))?$' || printf '%s:' "$d"
+done)"
+NOAGENT_PATH="${NOAGENT_PATH%:}"
+h8() { (cd "$WS/proj" && HOME="$P3" USERPROFILE="$(N "$P3")" APPDATA="$(N "$P3/AppData/Roaming")" \
+  LOCALAPPDATA="$(N "$P3/AppData/Local")" XDG_CONFIG_HOME="$P3/.config" PATH="$NOAGENT_PATH" \
+  SB_LANG=en "$V/tools/sb/bin/sb" "$@" 2>&1); }
+if (PATH="$NOAGENT_PATH"; command -v claude || command -v codex) >/dev/null 2>&1; then
+  fail "(H8) un PATH sans claude ni codex n'a pas pu etre construit : $(PATH="$NOAGENT_PATH"; command -v claude codex | tr '\n' ' ')"
+else
+  OUT="$(h8 doctor)"; RC=$?
+  N_WARN="$(printf '%s\n' "$OUT" | grep -c '^  WARN  Executor')"
+  N_OK="$(printf '%s\n' "$OUT" | grep -cE '^  OK    Executor \(agent with a shell\) +Claude app \(Code tab\)$')"
+  { [ "$N_WARN" = 0 ] && [ "$N_OK" = 1 ]; } \
+    && pass "(H8) doctor : WARN Executor 0, OK Executor Claude app (Code tab) 1" \
+    || fail "(H8) doctor : WARN=$N_WARN OK=$N_OK -- $(printf '%s' "$OUT" | grep -i executor | tr '\n' '|')"
+  printf '%s\n' "$OUT" | grep -qE '^  INFO  Other Executors +optional: Claude Code CLI, Codex$' \
+    && printf '%s\n' "$OUT" | grep -A1 '^  INFO  Other Executors' | grep -q 'claude.ai/install' \
+    && pass "(H8) doctor : Claude Code CLI et Codex en INFO, lignes d'installation gardees" \
+    || fail "(H8) doctor : options -- $(printf '%s' "$OUT" | grep -A1 -i 'other executors' | tr '\n' '|')"
+  ! printf '%s\n' "$OUT" | grep -q '^  WARN  bash' \
+    && pass "(H8) doctor : aucun WARN bash une fois un Executor reconnu" || fail "(H8) doctor : WARN bash"
+  OUT="$(h8 install --plugin)"; RC=$?
+  { [ "$RC" = 0 ] && printf '%s\n' "$OUT" | grep -qx '1. Claude Code marketplace second-brain: skipped: Code tab, plugin not needed'; } \
+    && pass "(H8) sb install --plugin : une ligne, plugin inutile pour l'onglet Code" \
+    || fail "(H8) sb install --plugin : rc=$RC -- $(printf '%s' "$OUT" | tr '\n' '|')"
+  # Mission 245, step 8: the whole sequence numbered without a gap (1, 2, 4
+  # before): the PATH entry and the server's installer simulated, the process
+  # list empty -- nothing of the machine touched.
+  printf '#!/usr/bin/env bash\necho "stub: the Vault server declared"\n' > "$TMP/mcp-stub.sh"
+  OUT="$(export SB_PATH_TEST_FILE="$(N "$TMP/path-h8.txt")" SB_MCP_INSTALLER="$(N "$TMP/mcp-stub.sh")" SB_TEST_PROCESS_LIST="$(N "$TMP/processes.tsv")"; h8 install)"; RC=$?
+  NUMS="$(printf '%s\n' "$OUT" | sed -n 's/^\([0-9]\)\. .*/\1/p' | tr -d '\n')"
+  { [ "$RC" = 0 ] && [ "$NUMS" = 123 ]; } \
+    && pass "(H8) sb install : etapes 1, 2, 3, aucun saut" \
+    || fail "(H8) sb install : rc=$RC, etapes « $NUMS » -- $(printf '%s' "$OUT" | grep -E '^[0-9]\.' | tr '\n' '|')"
+fi
+mkdir -p "$P3/AppData/Roaming/Claude/claude-code/2.1.9" "$P3/AppData/Roaming/Claude/claude-code/2.1.284"
+mkdir -p "$P3/.config/Claude/claude-code/2.1.9" "$P3/.config/Claude/claude-code/2.1.284"
+mkdir -p "$P3/Library/Application Support/Claude/claude-code/2.1.9" "$P3/Library/Application Support/Claude/claude-code/2.1.284"
+for d in "$P3/AppData/Roaming/Claude" "$P3/.config/Claude" "$P3/Library/Application Support/Claude"; do
+  : > "$d/claude-code/2.1.9/claude.exe"; : > "$d/claude-code/2.1.284/claude.exe"
+done
+BIN="$(HOME="$P3" APPDATA="$(N "$P3/AppData/Roaming")" LOCALAPPDATA="$(N "$P3/AppData/Local")" XDG_CONFIG_HOME="$P3/.config" \
+  bash -c '. "$1/tools/lib/mcp-hosts.sh"; mcp_desktop_claude_bin' _ "$V")"
+printf '%s' "$BIN" | grep -q 'claude-code/2.1.284/claude.exe$' \
+  && pass "(H8) le Claude Code de l'application : sa version la plus recente (2.1.284 > 2.1.9)" \
+  || fail "(H8) mcp_desktop_claude_bin : $BIN"
 
 echo ""
 if [ "$FAILURES" -eq 0 ]; then echo "=== RESULT: PASS ($PASSES) ==="; exit 0; fi

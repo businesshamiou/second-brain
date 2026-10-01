@@ -18,7 +18,7 @@ Arbitrated cap: exactly seven lines. If this block holds more or fewer than seve
 4. A document marked as replaced is not a source.
 5. Never say that a file was read if it was not; distinguish what is verified from what is reported.
 6. Every deposited file carries its real timestamp and its final name before the end of the turn.
-7. End each turn with the next proposed action and the open doors.
+7. End each turn with the next proposed action and the open doors; a push door only when the `sb close` output the Owner pasted names a push hole, never from this sheet.
 <!-- CONTRACT:END -->
 
 ## Liens

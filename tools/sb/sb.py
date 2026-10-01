@@ -618,6 +618,10 @@ def help_verb(v):
 
 
 HELP_TOPICS = ("start", "concepts", "scenarios")
+# Mission 245: lines added after a guide, each its own catalogue key, so that no
+# existing string is rewritten (the language is the coming audit's business);
+# {0} is this system's installation lines of the command-line agents.
+TOPIC_EXTRAS = {"start": ("sb.topic.start.executor", "sb.topic.start.firstMessage")}
 
 
 def v_help(data, args, place):
@@ -629,6 +633,9 @@ def v_help(data, args, place):
         out(bold(T(f"sb.topic.{topic}.title")))
         out()
         mixed_block(T(f"sb.topic.{topic}"))
+        for extra in TOPIC_EXTRAS.get(topic, ()):
+            out()
+            mixed_block(T(extra, T("sb.doctor.executorFix." + platform_key())))
         return EXIT_OK
     if topic in verbs:
         return help_verb(verbs[topic])
@@ -1518,16 +1525,20 @@ def v_doctor(data, args, place):
     porcelain = git(["status", "--porcelain"], VAULT, check=True) or ""
     n = len([l for l in porcelain.splitlines() if l.strip()])
     check("ok" if n == 0 else "warn", T("sb.doctor.vaultTree"), T("sb.doctor.changes", n))
+    code_tab = bool(desktop_code_tab()[0])
+    cli_agents = [name for name, cmd in (("Claude Code", "claude"), ("Codex", "codex")) if shutil.which(cmd)]
     if IS_WINDOWS:
         # Mission 241: the documentation still names `bash <Vault>/tools/...`
         # for a few gestures; PowerShell does not know `bash` unless Git's
-        # bin folder is on the PATH. Said, never blocking.
+        # bin folder is on the PATH. Said, never blocking -- and only said
+        # (INFO) once an Executor is recognised, which runs them in its own
+        # shell (Mission 245, capture 105405: noise for a client).
         found = shutil.which("bash")
         windir = os.environ.get("WINDIR", r"C:\Windows")
         if found and not is_under(found, windir):
             check("ok", "bash", found)
         else:
-            check("warn", "bash", T("sb.doctor.noBash"),
+            check("info" if (code_tab or cli_agents) else "warn", "bash", T("sb.doctor.noBash"),
                   T("sb.doctor.bashForm", bash_exe() if os.path.isabs(bash_exe()) else r"C:\Program Files\Git\bin\bash.exe"))
     total, cap = codex_budget()
     if total is not None:
@@ -1562,9 +1573,16 @@ def v_doctor(data, args, place):
         # Mission 244 (finding 12): the application reloads its servers only once ENDED.
         check("info", T("sb.doctor.desktopHint"), T("sb.doctor.desktopHintDetail." + platform_key()))
     # Mission 244 (finding 20, orientation 3): an Executor is an agent with a shell.
-    agents = [name for name, cmd in (("Claude Code", "claude"), ("Codex", "codex")) if shutil.which(cmd)]
+    # Mission 245 (capture 105405, finding A1): the Claude app's Code tab is one,
+    # told by the application's configuration file; the command-line agents
+    # then become options, their installation lines kept.
+    agents = ([T("sb.doctor.executorCodeTab")] if code_tab else []) + cli_agents
     if agents:
         check("ok", T("sb.doctor.executor"), ", ".join(agents))
+        options = [name for name, cmd in (("Claude Code CLI", "claude"), ("Codex", "codex")) if not shutil.which(cmd)]
+        if code_tab and options:
+            check("info", T("sb.doctor.executorOptions"), T("sb.doctor.executorOptionsDetail", ", ".join(options)),
+                  T("sb.doctor.executorFix." + platform_key()))
     else:
         check("warn", T("sb.doctor.executor"), T("sb.doctor.executorNone"), T("sb.doctor.executorFix." + platform_key()))
     state = plugin_state()
@@ -1664,12 +1682,36 @@ def _plugin_registered():
 
 
 def claude_cmd():
-    """The claude command line; SB_CLAUDE replaces it (tests)."""
+    """The claude command line; SB_CLAUDE replaces it (tests). Without it on the
+    PATH, the Claude app's own Claude Code (Mission 245): the one its Code tab
+    runs, which reads the same plugin settings."""
     override = os.environ.get("SB_CLAUDE")
     if override:
         return [sys.executable, override] if override.endswith(".py") else [override]
-    found = shutil.which("claude")
+    found = shutil.which("claude") or desktop_code_tab()[1]
     return [found] if found else None
+
+
+def desktop_code_tab():
+    """The Claude app as an Executor host (Mission 245, capture 105405, finding
+    A1), through tools/lib/mcp-hosts.sh: (its configuration file, its own Claude
+    Code binary), each "" when absent. Measured once per run."""
+    global _CODE_TAB
+    if _CODE_TAB is None:
+        script = (f'. "{shell_path(os.path.join(TOOLS, "lib", "mcp-hosts.sh"))}" && '
+                  'mcp_desktop_config --native | head -n 1; echo "--"; mcp_desktop_claude_bin --native')
+        try:
+            proc = subprocess.run([bash_exe(), "-c", script], capture_output=True, text=True,
+                                  encoding="utf-8", errors="replace")
+            text = (proc.stdout or "").replace("\r", "")
+        except OSError:
+            text = "--"
+        config, _, binary = text.partition("--")
+        _CODE_TAB = (config.strip(), binary.strip())
+    return _CODE_TAB
+
+
+_CODE_TAB = None
 
 
 def dir_size(path):
@@ -1890,7 +1932,7 @@ def v_install(data, args, place):
             cmd = [bash_exe(), os.path.join(VAULT, "install.sh")]
         return EXIT_OK if subprocess.run(cmd).returncode == 0 else EXIT_TOOL
     if "--plugin" in args:
-        return install_plugin(1)
+        return install_plugin(1)[0]
     if "--mcp" in args:
         label = None
         if "--label" in args:
@@ -1901,14 +1943,40 @@ def v_install(data, args, place):
         return install_mcp(1, label)
     # Mission 237: the whole sequence, each step idempotent ("already there" is
     # not an error): 1. sb on the PATH, 2. the marketplace, 3. the plugin.
+    # Mission 245 (capture 105405): numbered without a gap -- the server is the
+    # step after the last one shown (1, 2, 3 when the plugin step is skipped).
     out(bold(T("sb.install.title")))
     state = add_path_entry()
     out(T("sb.install.step.path", 1, T(f"sb.install.path.{state}", display_path(BIN_DIR))))
-    code = install_plugin(2)
-    code = install_mcp(4) or code
+    code, after = install_plugin(2)
+    code = install_mcp(after) or code
+    ensure_order_folders()
     out()
     out(dim(T("sb.install.path.reopen")))
     return code
+
+
+def ensure_order_folders():
+    """Mission 245 (capture 105405, finding C3): the welcome Pilot writes its
+    orders into <workspace>/_orders/ and `sb new --order` files an applied one
+    into <workspace>/_archive/orders/; neither existed after the installation,
+    and the first write of the profile order failed. Both are created empty
+    (tolerated by tools/check-workspace-root.sh), a .gitkeep in each when the
+    workspace itself is a Git repository. Idempotent; returns the folders made."""
+    if not WORKSPACE:
+        return []
+    made = []
+    top = git(["rev-parse", "--show-toplevel"], WORKSPACE)
+    in_repo = bool(top) and os.path.normcase(os.path.abspath(top)) == os.path.normcase(os.path.abspath(WORKSPACE))
+    for rel in ("_orders", os.path.join("_archive", "orders")):
+        folder = os.path.join(WORKSPACE, rel)
+        if not os.path.isdir(folder):
+            os.makedirs(folder, exist_ok=True)
+            made.append(rel)
+        keep = os.path.join(folder, ".gitkeep")
+        if in_repo and not os.path.exists(keep):
+            open(keep, "w").close()
+    return made
 
 
 def install_mcp(n, label=None):
@@ -2032,17 +2100,21 @@ def _run_claude(args):
 def install_plugin(first_step):
     """Adds the marketplace second-brain (skills/claude-plugins) and installs
     sb@second-brain in the user's Claude Code settings -- the Owner's gesture,
-    by the Owner's command; the installer never does it (rule Q17)."""
+    by the Owner's command; the installer never does it (rule Q17). Returns
+    (exit code, number of the next step) -- Mission 245: no gap in the steps.
+    Without any Claude Code, the Claude app's Code tab needs no plugin: the
+    Executor blocks give the plain `sb <verb>` (said in one line)."""
     n = first_step
     if not claude_cmd():
-        out(T("sb.install.step.market", n, T("sb.install.noClaude")))
-        return EXIT_OK
+        reason = "sb.install.codeTab" if desktop_code_tab()[0] else "sb.install.noClaude"
+        out(T("sb.install.step.market", n, T(reason)))
+        return EXIT_OK, n + 1
     state = plugin_state()
     if state == "none":
         rc, text = _run_claude(["plugin", "marketplace", "add", PLUGIN_ROOT])
         if rc != 0:
             out(T("sb.install.step.market", n, T("sb.install.failed", text.splitlines()[-1] if text else rc)))
-            return EXIT_TOOL
+            return EXIT_TOOL, n + 1
         out(T("sb.install.step.market", n, T("sb.install.added")))
     else:
         out(T("sb.install.step.market", n, T("sb.install.already")))
@@ -2053,12 +2125,12 @@ def install_plugin(first_step):
         rc, text = _run_claude(["plugin", "install", "sb@second-brain"])
         if rc != 0:
             out(T("sb.install.step.plugin", n + 1, T("sb.install.failed", text.splitlines()[-1] if text else rc)))
-            return EXIT_TOOL
+            return EXIT_TOOL, n + 2
         out(T("sb.install.step.plugin", n + 1, T("sb.install.added")))
         out(dim(T("sb.install.reload")))
     else:
         out(T("sb.install.step.plugin", n + 1, T("sb.install.already")))
-    return EXIT_OK
+    return EXIT_OK, n + 2
 
 
 def v_uninstall(data, args, place):
@@ -2125,6 +2197,9 @@ def installer_finish(data, args):
     family = args[args.index("--family") + 1] if "--family" in args and args.index("--family") + 1 < len(args) else "claude"
     tools = args[args.index("--tools") + 1] if "--tools" in args and args.index("--tools") + 1 < len(args) else ""
     place = Place(WORKSPACE) if WORKSPACE else Place(VAULT)
+    # Mission 245: the welcome Pilot's folders, in every mode (test mode too:
+    # they live in the test workspace).
+    ensure_order_folders()
     if test_mode:
         out(dim(T("sb.finish.testMode")))
     else:
@@ -2133,9 +2208,17 @@ def installer_finish(data, args):
         out()
         v_doctor(data, [], place)
         named = [t.strip() for t in tools.split(",") if t.strip()]
-        for agent, cmd in (("claude-code", "claude"), ("codex", "codex")):
-            if agent in named and not shutil.which(cmd):
-                out(T(f"sb.finish.missing.{agent}.{platform_key()}"))
+        missing = [agent for agent, cmd in (("claude-code", "claude"), ("codex", "codex"))
+                   if agent in named and not shutil.which(cmd)]
+        # Mission 245 (capture 105405, finding A1): with the Claude app, its
+        # Code tab is already an Executor; the command-line agents are options.
+        code_tab = bool(desktop_code_tab()[0])
+        if code_tab:
+            out(T("sb.finish.codeTab"))
+            if missing:
+                out(T("sb.finish.codeTabOptions"))
+        for agent in missing:
+            out(("  " if code_tab else "") + T(f"sb.finish.missing.{agent}.{platform_key()}"))
     rc, text = run_tool("project-bootstrap.sh", ["accueil-prompt"], capture=True)
     lines = text.replace("\r\n", "\n").split("\n")
     marks = [i for i, line in enumerate(lines) if line.strip() == "---"]
@@ -2145,7 +2228,10 @@ def installer_finish(data, args):
     if block and (not test_mode or os.environ.get("SB_CLIPBOARD_FILE")):
         copied = clipboard_copy(block)
     if copied:
-        out(T("sb.finish.copied"))
+        # Mission 245 (capture 105405, finding A3): kept, but no longer said to be
+        # enough -- gesture 1 makes the Owner copy the Project's name, which
+        # replaces the block; gesture 2 copies it again just before the paste.
+        out(T("sb.finish.copiedAgain"))
     elif block:
         target = os.path.join(VAULT, ".install", "accueil-block.txt")
         os.makedirs(os.path.dirname(target), exist_ok=True)
@@ -2155,7 +2241,8 @@ def installer_finish(data, args):
     family = "openai" if family == "openai" else "claude"
     out(bold(T("sb.finish.title")))
     for n in (1, 2, 3):
-        out("  " + T(f"sb.finish.{family}.{n}", display_path(WORKSPACE or VAULT)))
+        key = f"sb.finish.{family}.copy" if n == 2 else f"sb.finish.{family}.{n}"
+        out("  " + T(key, display_path(WORKSPACE or VAULT)))
     if family == "openai":
         out(dim("  " + T("sb.finish.openai.declared")))
     return EXIT_OK
@@ -2217,6 +2304,9 @@ def render_reference(data, en):
     for topic in HELP_TOPICS:
         L += [f"### sb help {topic}", "", "**" + en.get(f"sb.topic.{topic}.title", topic) + ".**", "", "```text"]
         L += [line.rstrip() for line in aligned_lines(en.get(f"sb.topic.{topic}", ""), indent=0)]
+        for extra in TOPIC_EXTRAS.get(topic, ()):
+            L += [""] + [line.rstrip() for line in aligned_lines(
+                en.get(extra, "").replace("{0}", en.get("sb.doctor.executorFix.windows", "")), indent=0)]
         L += ["```", ""]
     for group in data["groups"]:
         L += [f"## {en.get('sb.group.' + group, group)}", ""]

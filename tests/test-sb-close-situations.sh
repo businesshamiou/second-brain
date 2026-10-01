@@ -18,7 +18,12 @@
 #   (5) the welcome session: `sb close --accueil` at the workspace root lists
 #       the orders waiting and those applied today, and says no handoff;
 #   (6) push: the distribution remote of an installed Vault is no hole; the
-#       laboratory (a `release` remote) and an Owner's remote ahead keep it.
+#       laboratory (a `release` remote) and an Owner's remote ahead keep it;
+#   (7) Mission 245 (capture 105405, finding A5): a project with no remote --
+#       `sb close` says « no remote, no push to plan » and no push hole; the
+#       closing checklist and the Pilot contract (copied into the generated
+#       sheet) open a push door only on a pasted « push hole » line, never from
+#       a state-sheet snapshot: push doors expected 0.
 #
 # usage: bash tests/test-sb-close-situations.sh [<source repo>]
 # Exit 0: all cases PASS. Exit 1 otherwise.
@@ -105,6 +110,15 @@ H="HANDOFF-$(date -d '+2 minutes' +%Y-%m-%d-%H%M%S 2>/dev/null || date +%Y-%m-%d
 printf -- '---\ntype: handoff\ncreated_at: "2026-09-30T12:00:00-04:00"\n---\n\n# H\n\n## Liens\n' > "$P/handoffs/$H"
 OUT="$(cd "$P" && "$SB" close 2>&1)"
 check "(4) un handoff depose : nomme, sa commande de cloture a appliquer" sh -c "printf '%s' \"\$1\" | grep -q \"Handoff present: handoffs/$H\" && printf '%s' \"\$1\" | grep -q 'Executor closing command'" _ "$OUT"
+
+# --- (7) Mission 245: no remote, no push door ---------------------------------------------
+OUT="$(cd "$P" && "$SB" close 2>&1)"
+check "(7) projet sans distant : « no remote, no push to plan », aucun trou push" sh -c "printf '%s' \"\$1\" | grep -q 'no remote, no push to plan' && ! printf '%s' \"\$1\" | grep -q 'push hole'" _ "$OUT"
+check "(7) liste des trous : porte push seulement sur une ligne « push hole » collee" \
+  grep -qF 'the Pilot opens a push door only when the `sb close` output the Owner pasted carries a push-hole line' "$V/skills/session-close/closing-checklist.md"
+check "(7) contrat du Pilot (gabarit et fiche generee) : jamais de porte push depuis la fiche" sh -c "
+  grep -qF 'a push door only when the \`sb close\` output the Owner pasted names a push hole, never from this sheet' '$V/templates/pilot-contract-template.md' &&
+  grep -qF 'a push door only when the \`sb close\` output the Owner pasted names a push hole' '$P/state/STATE.md'"
 
 # --- (5) the welcome session -----------------------------------------------------------
 mkdir -p "$WS/_orders" "$WS/_archive/orders"

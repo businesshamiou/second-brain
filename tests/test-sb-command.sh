@@ -39,7 +39,9 @@
 #       every Pilot host (cmp), then that host's steps with its state; an
 #       unknown host is exit 2; ChatGPT is exit 2 with the reason; `sb help
 #       start` and the steps of pilot-prompt name no product for the role
-#       (outside a host's own section).
+#       (outside a host's own section, and outside the two lines of `sb help
+#       start` that name the Executor's hosts with their installation lines,
+#       Mission 245 step 7).
 #
 # usage: bash tests/test-sb-command.sh [<source repo>]
 # Exit 0: all cases PASS. Exit 1 otherwise.
@@ -321,9 +323,14 @@ if [ "$(uname -s | cut -c1-5)" = "MINGW" ] || [ "$(uname -s | cut -c1-4)" = "MSY
   # bash launcher itself needs the tools of Git's usr/bin).
   UV_EXE="$(command -v uv)"
   OUT="$(cd "$P" && PATH="$(dirname "$UV_EXE"):/cmd:/c/Windows/System32:/c/Windows" "$UV_EXE" run --no-project --quiet python "$(sandbox_native_path "$V/tools/sb/sb.py")" doctor 2>&1)"; RC=$?
-  { [ "$RC" -eq 0 ] && printf '%s' "$OUT" | grep -qE '^  WARN  bash ' && printf '%s' "$OUT" | grep -q 'bash.exe"' \
+  # Mission 245 (step 1): once an Executor is recognised -- here the Claude
+  # app's Code tab, when this machine has the app's configuration file, the
+  # command-line agents being off this PATH -- the line is INFO, not WARN.
+  BASH_MARK="WARN"
+  [ -n "$(bash -c '. "$1/tools/lib/mcp-hosts.sh"; mcp_desktop_config' _ "$V")" ] && BASH_MARK="INFO"
+  { [ "$RC" -eq 0 ] && printf '%s' "$OUT" | grep -qE "^  $BASH_MARK  bash " && printf '%s' "$OUT" | grep -q 'bash.exe"' \
       && printf '%s' "$OUT" | grep -q 'Nothing blocking'; } \
-    && pass "(10h) Windows : doctor sans bash dans le PATH le dit (WARN, forme & \"...bash.exe\"), non bloquant" \
+    && pass "(10h) Windows : doctor sans bash dans le PATH le dit ($BASH_MARK, forme & \"...bash.exe\"), non bloquant" \
     || fail "(10h) doctor sans bash : rc=$RC -- $(printf '%s' "$OUT" | grep -iE 'bash|block' | tr '\n' ' ')"
   run "$P" doctor
   printf '%s' "$OUT" | grep -qE '^  OK    bash ' && pass "(10h) Windows : doctor avec bash dans le PATH : OK" || fail "(10h) doctor avec bash : $(printf '%s' "$OUT" | grep -i bash)"
@@ -357,6 +364,10 @@ expect "(11) --host chatgpt : non pris en charge" 2 "$WS" pilot-prompt --accueil
 printf '%s' "$OUT" | grep -q -i 'not supported today\|pas pris en charge\|no está soportado' && pass "(11) chatgpt : la raison est dite" || fail "(11) chatgpt : $OUT"
 for lang in fr en es; do
   run "$WS" help start --lang "$lang"
+  # Mission 245 (step 7): the two lines that name the Executor's hosts and
+  # their installation lines are the host-specific step the rule on
+  # model-agnostic hosts allows; every other line names no product.
+  OUT="$(printf '%s\n' "$OUT" | grep -vE '^ *(Your Executor:|Ton Executor :|Tu Executor:|Two options, in a terminal:|Deux options, dans un terminal :|Dos opciones, en una terminal:)')"
   if printf '%s' "$OUT" | grep -qE 'Claude|Project|application de bureau|desktop app|aplicación de escritorio'; then
     fail "(11) help start --lang $lang nomme un produit : $(printf '%s' "$OUT" | grep -E 'Claude|Project' | head -1)"
   else pass "(11) help start --lang $lang : aucun produit nomme pour le role"; fi

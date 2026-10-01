@@ -11,6 +11,11 @@
 #   of bootstrap.ps1 ($Ref =).
 # Negative control: a throwaway copy of bootstrap.sh whose default ref is
 #   another tag fails, both tags named.
+# (d) Mission 245 (capture 105405, finding C7): in the laboratory (a `release`
+#   remote), that tag is the newest vX.Y.Z tag the repository knows -- main
+#   was left at v0.1.14 when v0.1.16 was published (gap 2 before, 0 after);
+#   tools/publish-from-laboratory.sh says how to raise it. Outside the
+#   laboratory, or without any vX.Y.Z tag, the check is said skipped.
 #
 # usage: bash tests/test-published-line-ref.sh
 
@@ -46,6 +51,19 @@ if OUT="$(check "$REPO_ROOT/bootstrap.sh" "$REPO_ROOT/bootstrap.ps1")"; then
   echo "  PASS - $OUT"
 else
   echo "  FAIL - $OUT"; FAILURES=$((FAILURES + 1))
+fi
+
+echo "=== (d) the laboratory's line names the newest published tag ==="
+NEWEST="$(git -C "$REPO_ROOT" tag -l 'v*' 2>/dev/null | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)"
+if ! git -C "$REPO_ROOT" remote get-url release >/dev/null 2>&1; then
+  echo "  PASS - (d) skipped: not the laboratory (no release remote)"
+elif [ -z "$NEWEST" ]; then
+  echo "  PASS - (d) skipped: no vX.Y.Z tag in this repository"
+elif [ "$(line_tags)" = "$NEWEST" ]; then
+  echo "  PASS - (d) the line names $NEWEST, the newest tag"
+else
+  echo "  FAIL - (d) the line names $(line_tags | tr '\n' ' '), the newest tag is $NEWEST: bash tools/set-release-version.sh $NEWEST"
+  FAILURES=$((FAILURES + 1))
 fi
 
 echo "=== negative control ==="

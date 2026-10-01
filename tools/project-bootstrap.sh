@@ -591,6 +591,19 @@ if [ "$MODE" = "accueil-prompt" ]; then
     es) ACCUEIL_LANG="español (es)" ;;
     *) ACCUEIL_LANG="the language of the Owner's first message that carries one (none is recorded)" ;;
   esac
+  # Mission 245 (capture 105405, finding C4): the Executor named, not a page
+  # of the documentation -- the Code tab by default, the two command-line
+  # agents as options with this system's installation lines, in the recorded
+  # language (the doctor's own lines). The template names no product: the
+  # placeholder carries them (rule on model-agnostic hosts: a product is named
+  # where the gesture depends on it).
+  resolve_language_sentence
+  case "$(uname -s 2>/dev/null)" in
+    MINGW*|MSYS*|CYGWIN*) ACCUEIL_PLATFORM="windows" ;;
+    Darwin) ACCUEIL_PLATFORM="macos" ;;
+    *) ACCUEIL_PLATFORM="linux" ;;
+  esac
+  ACCUEIL_EXECUTOR="$(PCATALOG "projectBootstrap.accueil.executorOptions" "$(PCATALOG "sb.doctor.executorFix.$ACCUEIL_PLATFORM")")"
   # One separator throughout the block: C:/Users/... (cygpath -m), read by the
   # MCP server and the Pilot alike; the template appends /skills/... to it.
   mixed_path() { if command -v cygpath >/dev/null 2>&1; then cygpath -m "$1"; else printf '%s\n' "$1"; fi; }
@@ -599,7 +612,8 @@ if [ "$MODE" = "accueil-prompt" ]; then
           -e "s#{{VAULT}}#$(mixed_path "$VAULT_ROOT" | sed 's/[#&\\]/\\&/g')#g" \
           -e "s#{{MCP_SERVER}}#${ACCUEIL_SERVER:-second-brain-vault}#g" \
           -e "s#{{VAULT_ID}}#$VAULT_ID#g" \
-          -e "s#{{LANGUAGE}}#$ACCUEIL_LANG#g")"
+          -e "s#{{LANGUAGE}}#$ACCUEIL_LANG#g" \
+          -e "s#{{EXECUTOR_OPTIONS}}#$(printf '%s' "$ACCUEIL_EXECUTOR" | sed 's/[#&\\]/\\&/g')#g")"
   echo "Pour ouvrir le Pilot d'accueil (application de bureau Claude) :"
   echo "  1. Dans l'application Claude : crée un Project nommé « SB - Accueil »."
   echo "  2. Dans ses instructions : colle ce bloc tel quel :"
@@ -1495,6 +1509,7 @@ fi
 STATE_REL_DIR="$(dirname "$STATE_PATH")"
 STATE_BASE="$(dirname "$TARGET_ABS/$STATE_PATH")"
 STATE_BASE="$(dirname "$STATE_BASE")"
+STATE_FRESH=0
 for STATE_PIECE in STATE DIGEST; do
   if [ -e "$TARGET_ABS/$STATE_REL_DIR/$STATE_PIECE.md" ]; then
     note_existing "$STATE_REL_DIR/$STATE_PIECE.md"
@@ -1502,6 +1517,7 @@ for STATE_PIECE in STATE DIGEST; do
   fi
   if [ "$STATE_PIECE" = "STATE" ]; then
     bash "$BUILD_STATE" "$STATE_BASE" >/dev/null
+    STATE_FRESH=1
   else
     bash "$BUILD_DIGEST" "$STATE_BASE" >/dev/null
   fi
@@ -1655,6 +1671,27 @@ VIDX_EOF
       fi
     fi
   fi
+  # Mission 245 (capture 105405, finding A4): the sheet generated above, before
+  # the two commits, said « No commits yet » and an uncommitted registry, and
+  # the project's Pilot believed it. The sheet this call wrote (never one that
+  # was already there) is regenerated once the commits exist, with its digest,
+  # and committed alone: it then shows the project's head and a clean registry.
+  if [ "$STATE_FRESH" = "1" ] && [ "$VCS" = "git" ] && git -C "$TARGET_ABS" rev-parse --verify -q HEAD >/dev/null 2>&1; then
+    bash "$BUILD_STATE" "$STATE_BASE" >/dev/null 2>&1
+    bash "$BUILD_DIGEST" "$STATE_BASE" >/dev/null 2>&1
+    STATE_PATHS=()
+    for p in "$STATE_REL_DIR/STATE.md" "$STATE_REL_DIR/DIGEST.md"; do
+      [ -n "$(git -C "$TARGET_ABS" status --porcelain -- "$p" 2>/dev/null)" ] && STATE_PATHS+=("$p")
+    done
+    if [ "${#STATE_PATHS[@]}" -gt 0 ]; then
+      if commit_paths "$TARGET_ABS" "State sheet regenerated after the bootstrap commits ($DISPLAY_NAME)" "${STATE_PATHS[@]}"; then
+        CATALOG "projectBootstrap.commit.done" "$TARGET_NATIVE" "$(git -C "$TARGET_ABS" rev-parse --short HEAD 2>/dev/null)"
+      else
+        CATALOG "projectBootstrap.commit.refused" "$TARGET_NATIVE"
+        exit 1
+      fi
+    fi
+  fi
 fi
 
 # --- Report of the explicit modes (create/adopt/--order): the installers'
@@ -1755,7 +1792,10 @@ $B
   # closing of the frame (path, Vault, canary, purpose) are outside the frame:
   # they inform the participant, they are not part of the text to
   # paste as Project instructions.
-  CATALOG "projectBootstrap.consume.instructionsHeader"
+  # Mission 245 (capture 105405, finding A3): the copy command sits between
+  # « create the Project » and « paste » -- copying the Project's name in
+  # gesture 1 would replace a block copied earlier.
+  CATALOG "projectBootstrap.consume.instructionsCopy" "$TARGET_NATIVE"
   echo "  ---"
   printf '%s\n' "$PROMPT_COMMON_BLOCK"
   echo "  ---"
@@ -1772,7 +1812,7 @@ $B
   BLOCK_FILE="$(mktemp "$(sb_tmp_dir tools)/pb-block-XXXXXX")"
   printf '%s\n' "$PROMPT_COMMON_BLOCK" > "$BLOCK_FILE"
   if { [ -t 1 ] || [ -n "${SB_CLIPBOARD_FILE:-}" ]; } && sb_clipboard_copy "$BLOCK_FILE"; then
-    CATALOG "projectBootstrap.consume.copied" "SB - $DISPLAY_NAME"
+    CATALOG "projectBootstrap.consume.copiedAgain"
   else
     CATALOG "projectBootstrap.consume.copyHint" "$TARGET_NATIVE"
   fi

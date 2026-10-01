@@ -20,7 +20,13 @@
 # of README.md and INSTALL.md and the default ref of both bootstraps name the
 # tag that will be posed on that very commit -- the published v0.1.14 still
 # named v0.1.9 and installed it. Refused if the tag already exists on release.
-# The laboratory's main is never rewritten.
+# The laboratory's main is never rewritten by this tool. Mission 245 (capture
+# 105405): the laboratory keeps the last PUBLISHED version in those four
+# places -- its INSTALL.md still named v0.1.14 when v0.1.16 was out. Once the
+# tag is posed, raise main to it in a commit of its own:
+#   bash tools/set-release-version.sh <tag>
+# tests/test-published-line-ref.sh (d) refuses, in the laboratory, a line
+# behind the newest vX.Y.Z tag.
 # --dry-run (Mission 222): everything up to and including the private-pattern
 # check, then the publication worktree is reset to publish: nothing
 # committed, nothing pushed. Last line DRY-RUN.

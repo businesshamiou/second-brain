@@ -12,6 +12,8 @@
 #                       #   under Git Bash, cygpath -w), for a Windows program
 #   mcp_desktop_running / mcp_desktop_stop  # the Claude desktop application
 #                       #   while it runs (Mission 244): see below
+#   mcp_desktop_config / mcp_desktop_claude_bin  # the application as an
+#                       #   Executor host, its Code tab (Mission 245): see below
 #
 # A host is PRESENT when its configuration folder exists or its command is on
 # the PATH -- measured, never assumed. Formats:
@@ -154,6 +156,51 @@ mcp_desktop_stop() {
     *) kill "$@" 2>/dev/null ;;
   esac
   sleep 2
+  return 0
+}
+
+# --- The Claude desktop application as an Executor host (Mission 245, capture
+# 105405 finding A1) ------------------------------------------------------------
+# The application includes Claude Code in its Code tab (code.claude.com/docs/en/
+# desktop-quickstart): a client who has only the application already has an
+# agent with a shell, without the `claude` command on the PATH. It is told by
+# its configuration file, claude_desktop_config.json, in one of the folders
+# above. The application also carries its own Claude Code, under
+# `<folder>/claude-code/<version>/` (measured 2026-10-01: %APPDATA%\Claude\
+# claude-code\2.1.284\claude.exe answers `--version` and `plugin --help`, and
+# the Code tab reads the same ~/.claude/plugins as the command line).
+#
+#   mcp_desktop_config [--native]      # the application's configuration file,
+#                                      #   one line per folder where it exists
+#   mcp_desktop_claude_bin [--native]  # the application's own Claude Code, its
+#                                      #   newest version; nothing when none
+mcp_desktop__out() { # <--native|""> <path>
+  if [ "$1" = "--native" ] && command -v cygpath >/dev/null 2>&1; then cygpath -w "$2"; else printf '%s\n' "$2"; fi
+}
+
+mcp_desktop_config() {
+  local d
+  while IFS= read -r d; do
+    [ -n "$d" ] && [ -f "$d/claude_desktop_config.json" ] && mcp_desktop__out "${1:-}" "$d/claude_desktop_config.json"
+  done <<MCP_DESKTOP_EOF
+$(mcp_hosts__desktop_dirs)
+MCP_DESKTOP_EOF
+  return 0
+}
+
+mcp_desktop_claude_bin() {
+  local d v bin=""
+  while IFS= read -r d; do
+    { [ -n "$d" ] && [ -d "$d/claude-code" ]; } || continue
+    for v in $(ls -1 "$d/claude-code" 2>/dev/null | sort -V 2>/dev/null); do
+      if [ -f "$d/claude-code/$v/claude.exe" ]; then bin="$d/claude-code/$v/claude.exe"
+      elif [ -f "$d/claude-code/$v/claude" ]; then bin="$d/claude-code/$v/claude"
+      fi
+    done
+  done <<MCP_DESKTOP_EOF
+$(mcp_hosts__desktop_dirs)
+MCP_DESKTOP_EOF
+  [ -n "$bin" ] && mcp_desktop__out "${1:-}" "$bin"
   return 0
 }
 
